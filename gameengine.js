@@ -14,6 +14,10 @@ function GameEngine() {
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
+    this.keyA = false;
+    this.keyS = false;
+    this.keyD = false;
+    this.keyW = false;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -54,14 +58,25 @@ GameEngine.prototype.startInput = function () {
     // event listeners are added here
     this.ctx.canvas.addEventListener("keypress", function (e) {
         if (e.code === "KeyD") {
-            console.log("d");
-            that.entities[1].x += 20;
+            that.keyD = true;
         } else if (e.code === "KeyS") {
-            that.entities[1].y += 20;
+            that.keyS = true;
         } else if (e.code === "KeyW") {
-            that.entities[1].y -= 20
+            that.keyW = true;
         } else if (e.code === "KeyA") {
-            that.entities[1].x -= 20;
+            that.keyA = true;
+        } 
+    }, false);
+
+    this.ctx.canvas.addEventListener("keyup", function (e) {
+        if (e.code === "KeyD") {
+            that.keyD = false;
+        } else if (e.code === "KeyS") {
+            that.keyS = false;
+        } else if (e.code === "KeyW") {
+            that.keyW = false;
+        } else if (e.code === "KeyA") {
+            that.keyA = false;
         } 
     }, false);
 }

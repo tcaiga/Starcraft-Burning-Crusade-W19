@@ -1,4 +1,5 @@
 var AM = new AssetManager();
+var gameEngine = new GameEngine();
 
 function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale) {
     this.spriteSheet = spriteSheet;
@@ -55,6 +56,7 @@ Background.prototype.draw = function () {
 };
 
 Background.prototype.update = function () {
+
 };
 
 function MushroomDude(game, spritesheet) {
@@ -71,6 +73,15 @@ MushroomDude.prototype.draw = function () {
 }
 
 MushroomDude.prototype.update = function () {
+    if (gameEngine.keyA === true) {
+        this.x -= 5;
+    } else if (gameEngine.keyS === true) {
+        this.y += 5;
+    } else if (gameEngine.keyD === true) {
+        this.x += 5;
+    } else if (gameEngine.keyW === true) {
+        this.y -= 5;
+    }
 }
 
 AM.queueDownload("./img/mushroomdude.png");
@@ -80,7 +91,6 @@ AM.downloadAll(function () {
     var canvas = document.getElementById("gameWorld");
     var ctx = canvas.getContext("2d");
 
-    var gameEngine = new GameEngine();
     gameEngine.init(ctx);
     gameEngine.start();
 
