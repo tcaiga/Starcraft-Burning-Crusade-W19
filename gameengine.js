@@ -18,6 +18,7 @@ function GameEngine() {
     this.keyS = false;
     this.keyD = false;
     this.keyW = false;
+    this.movement = false;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -62,6 +63,7 @@ GameEngine.prototype.startInput = function () {
         } else if (e.code === "KeyA") {
             that.keyA = true;
         } 
+        that.movement = true;
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
@@ -74,6 +76,7 @@ GameEngine.prototype.startInput = function () {
         } else if (e.code === "KeyA") {
             that.keyA = false;
         } 
+        that.movement = false;
     }, false);
 }
 
