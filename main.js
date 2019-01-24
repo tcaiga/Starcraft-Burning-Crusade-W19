@@ -1,7 +1,8 @@
 var AM = new AssetManager();
 var gameEngine = new GameEngine();
 
-function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale) {
+function Animation(spriteSheet, frameWidth, frameHeight,
+     sheetWidth, frameDuration, frames, loop, scale) {
     this.spriteSheet = spriteSheet;
     this.frameWidth = frameWidth;
     this.frameDuration = frameDuration;
@@ -42,25 +43,88 @@ Animation.prototype.isDone = function () {
 }
 
 // no inheritance
-function Background(game, spritesheet) {
+function Background(game/*, spritesheet*/) {
     this.x = 0;
     this.y = 0;
-    this.spritesheet = spritesheet;
+    //this.spritesheet = spritesheet;
     this.game = game;
     this.ctx = game.ctx;
+    this.map = [
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+    ]
+    this.zero = new Image();
+    this.zero.src = "./img/tile_0010.png";
+    this.one = new Image();
+    this.one.src = "./img/tile_0014.png";
+    this.tile = null;
 };
 
 Background.prototype.draw = function () {
-    this.ctx.drawImage(this.spritesheet,
-                   this.x, this.y);
+    // this.ctx.drawImage(this.spritesheet,
+    //                this.x, this.y);
+    for (let i = 0; i < 22; i++) {
+        for (let j = 0; j < 22; j++) {
+            this.tile = (this.map[i * 22 + j] == 1)?this.one:this.zero;
+            this.ctx.drawImage(this.tile, j *  32, i * 32);
+            this.ctx.drawImage(this.tile, (j * 32) + 16, i * 32);
+            this.ctx.drawImage(this.tile, j * 32, (i * 32) + 16);
+            this.ctx.drawImage(this.tile, (j * 32) + 16, (i *32) + 16);
+        }
+    }
 };
 
 Background.prototype.update = function () {
 
 };
 
-function MushroomDude(game, spritesheet) {
-    this.animation = new Animation(spritesheet, 189, 230, 5, 0.10, 14, true, 1);
+// function MushroomDude(game, spritesheet) {
+//     this.animation = new Animation(spritesheet, 189, 230, 5, 0.10, 14, true, 1);
+//     this.x = 0;
+//     this.y = 0;
+//     this.speed = 100;
+//     this.game = game;
+//     this.ctx = game.ctx;
+// }
+
+// MushroomDude.prototype.draw = function () {
+//     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+// }
+
+// MushroomDude.prototype.update = function () {
+//     if (gameEngine.keyA === true) {
+//         this.x -= 5;
+//     } else if (gameEngine.keyS === true) {
+//         this.y += 5;
+//     } else if (gameEngine.keyD === true) {
+//         this.x += 5;
+//     } else if (gameEngine.keyW === true) {
+//         this.y -= 5;
+//     }
+// }
+
+function Player(game, spritesheet) {
+    this.animation = new Animation(spritesheet, 40, 60, 1, 0.16, 16, true, 1);
     this.x = 0;
     this.y = 0;
     this.speed = 100;
@@ -68,11 +132,11 @@ function MushroomDude(game, spritesheet) {
     this.ctx = game.ctx;
 }
 
-MushroomDude.prototype.draw = function () {
+Player.prototype.draw = function () {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
 }
 
-MushroomDude.prototype.update = function () {
+Player.prototype.update = function () {
     if (gameEngine.keyA === true) {
         this.x -= 5;
     } else if (gameEngine.keyS === true) {
@@ -84,8 +148,9 @@ MushroomDude.prototype.update = function () {
     }
 }
 
-AM.queueDownload("./img/mushroomdude.png");
-AM.queueDownload("./img/background.jpg");
+// AM.queueDownload("./img/mushroomdude.png");
+//AM.queueDownload("./img/background.jpg");
+AM.queueDownload("./img/NPC_22.png");
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("gameWorld");
@@ -94,8 +159,8 @@ AM.downloadAll(function () {
     gameEngine.init(ctx);
     gameEngine.start();
 
-    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
-    gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png")));
-
-    console.log("All Done!");
+    // gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
+    gameEngine.addEntity(new Background(gameEngine));
+    // gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png")));
+    gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/NPC_22.png")));
 });
