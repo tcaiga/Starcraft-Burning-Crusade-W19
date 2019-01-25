@@ -122,16 +122,24 @@ Monster1.prototype.update = function () {
 }
 
 function Player(game, spritesheetLeft, spritesheetRight) {
-    // this.animationLeft = new Animation(spritesheetLeft, 40, 56, 1, 0.04, 16, true, 1);
-    // this.animationRight = new Animation(spritesheetRight, 40, 56, 1, 0.04, 16, true, 1);
-    this.animationLeft = new Animation(spritesheetLeft, 419, 381, 5, 0.04, 5, true, 0.15);
-    this.animationRight = new Animation(spritesheetRight, 419, 381, 5, 0.04, 5, true, 0.15);
+    this.animationLeft = new Animation(spritesheetLeft, 40, 56, 1, 0.04, 13, true, 1);
+    this.animationRight = new Animation(spritesheetRight, 40, 56, 1, 0.04, 13, true, 1);
+    // this.animationLeft = new Animation(spritesheetLeft, 419, 381, 5, 0.04, 5, true, 0.15);
+    // this.animationRight = new Animation(spritesheetRight, 419, 381, 5, 0.04, 5, true, 0.15);
     this.animationStill = this.animationRight;
     this.x = 0;
     this.y = 0;
     this.game = game;
     this.ctx = game.ctx;
     this.right = true;
+    this.health = 100;
+    this.armor = 0;
+    this.maxMovespeed = 100;
+    this.acceleration = [x,y];
+    this.velocity = [x,y];
+    this.damage = 0;
+    this.debuff = [];
+    this.hitbox = [];
 }
 
 Player.prototype.draw = function () {
@@ -167,8 +175,8 @@ Player.prototype.update = function () {
 }
 
 
-// AM.queueDownload("./img/NPC_22.png");
-// AM.queueDownload("./img/NPC_22_Flipped.png");
+AM.queueDownload("./img/NPC_22.png");
+AM.queueDownload("./img/NPC_22_Flipped.png");
 AM.queueDownload("./img/NPC_21.png");
 AM.queueDownload("./img/wizard_walk.png");
 AM.queueDownload("./img/wizard_walk_flipped.png");
@@ -181,9 +189,9 @@ AM.downloadAll(function () {
     gameEngine.start();
 
     gameEngine.addEntity(new Background(gameEngine));
-    gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/wizard_walk_flipped.png"),
-     AM.getAsset("./img/wizard_walk.png")));
-    //  gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/NPC_22.png"),
-    //  AM.getAsset("./img/NPC_22_Flipped.png")));
+    // gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/wizard_walk_flipped.png"),
+    //  AM.getAsset("./img/wizard_walk.png")));
+     gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/NPC_22.png"),
+     AM.getAsset("./img/NPC_22_Flipped.png")));
     gameEngine.addEntity(new Monster1(gameEngine, AM.getAsset("./img/NPC_21.png")));
 });
