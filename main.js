@@ -111,8 +111,8 @@ function Monster1(game, spritesheet) {
     this.health = 100;
     this.armor = 0;
     this.maxMovespeed = 100;
-    this.acceleration = [x,y];
-    this.velocity = [x,y];
+    this.acceleration = [];
+    this.velocity = [];
     this.damage = 0;
     this.debuff = [];
     this.hitbox = [];
@@ -143,8 +143,8 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     this.health = 100;
     this.armor = 0;
     this.maxMovespeed = 100;
-    this.acceleration = [x,y];
-    this.velocity = [x,y];
+    this.acceleration = [];
+    this.velocity = [];
     this.damage = 0;
     this.debuff = [];
     this.hitbox = [];
