@@ -86,9 +86,9 @@ function Background(game) {
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     ]
     this.zero = new Image();
-    this.zero.src = "./img/tile_0014.png";
+    this.zero.src = "./img/tile_0117.png";
     this.one = new Image();
-    this.one.src = "./img/tile_0010.png";
+    this.one.src = "./img/tile_0468.png";
     this.tile = null;
 };
 
