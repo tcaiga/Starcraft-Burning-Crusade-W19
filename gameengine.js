@@ -18,6 +18,7 @@ function GameEngine() {
     this.keyS = false;
     this.keyD = false;
     this.keyW = false;
+    this.keyShift = false;
     this.movement = false;
 }
 
@@ -54,6 +55,11 @@ GameEngine.prototype.startInput = function () {
 
     // event listeners are added here
     this.ctx.canvas.addEventListener("keydown", function (e) {
+        // Sprint functionality
+        if (e.code === "ShiftLeft") {
+            that.keyShift = true;
+        }
+
         if (e.code === "KeyW") {
             that.keyW = true;
             that.movement = true;
@@ -70,6 +76,11 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
+        // Stop sprinting if left shift is released
+        if (e.code === "ShiftLeft") {
+            that.keyShift = false;
+        }
+
         if (e.code === "KeyW") {
             that.keyW = false;
         } else if (e.code === "KeyA") {
