@@ -108,6 +108,14 @@ function Monster1(game, spritesheet) {
     this.animation = new Animation(spritesheet, 40, 56, 1, 0.15, 15, true, 1);
     this.speed = 100;
     this.ctx = game.ctx;
+    this.health = 100;
+    this.armor = 0;
+    this.maxMovespeed = 100;
+    this.acceleration = [x,y];
+    this.velocity = [x,y];
+    this.damage = 0;
+    this.debuff = [];
+    this.hitbox = [];
     Entity.call(this, game, 0, 450);
 }
 
