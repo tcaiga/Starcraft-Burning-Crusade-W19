@@ -58,33 +58,33 @@ function Background(game) {
     this.game = game;
     this.ctx = game.ctx;
     this.map = [
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     ]
     this.zero = new Image();
-    this.zero.src = "./img/tile_0010.png";
+    this.zero.src = "./img/tile_0014.png";
     this.one = new Image();
-    this.one.src = "./img/tile_0014.png";
+    this.one.src = "./img/tile_0010.png";
     this.tile = null;
 };
 
@@ -104,9 +104,28 @@ Background.prototype.update = function () {
 
 };
 
+function Monster1(game, spritesheet) {
+    this.animation = new Animation(spritesheet, 40, 56, 1, 0.15, 15, true, 1);
+    this.speed = 100;
+    this.ctx = game.ctx;
+    Entity.call(this, game, 0, 450);
+}
+
+Monster1.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+}
+
+Monster1.prototype.update = function () {
+    this.x -= this.game.clockTick * this.speed;
+    if (this.x < 0) this.x = 680;
+    Entity.prototype.update.call(this);
+}
+
 function Player(game, spritesheetLeft, spritesheetRight) {
-    this.animationLeft = new Animation(spritesheetLeft, 40, 56, 1, 0.04, 16, true, 1);
-    this.animationRight = new Animation(spritesheetRight, 40, 56, 1, 0.04, 16, true, 1);
+    // this.animationLeft = new Animation(spritesheetLeft, 40, 56, 1, 0.04, 16, true, 1);
+    // this.animationRight = new Animation(spritesheetRight, 40, 56, 1, 0.04, 16, true, 1);
+    this.animationLeft = new Animation(spritesheetLeft, 419, 381, 5, 0.04, 5, true, 0.15);
+    this.animationRight = new Animation(spritesheetRight, 419, 381, 5, 0.04, 5, true, 0.15);
     this.animationStill = this.animationRight;
     this.x = 0;
     this.y = 0;
@@ -116,6 +135,7 @@ function Player(game, spritesheetLeft, spritesheetRight) {
 }
 
 Player.prototype.draw = function () {
+    //draw player character with no animation if player is not currently moving
     if (!gameEngine.movement) {
         this.animationStill.drawFrameStill(this.ctx, this.x, this.y);
     } else {
@@ -128,32 +148,42 @@ Player.prototype.draw = function () {
 }
 
 Player.prototype.update = function () {
+    if (gameEngine.keyW === true) {
+        this.y -= 2;
+    }  
     if (gameEngine.keyA === true) {
-        this.x -= 5;
+        this.x -= 2;
         this.right = false;
-       this.animationStill = this.animationLeft;
-    } else if (gameEngine.keyS === true) {
-        this.y += 5;
-    } else if (gameEngine.keyD === true) {
-        this.x += 5;
+        this.animationStill = this.animationLeft;
+    } 
+    if (gameEngine.keyS === true) {
+        this.y += 2;
+    } 
+    if (gameEngine.keyD === true) {
+        this.x += 2;
         this.right = true;
         this.animationStill = this.animationRight;
-    } else if (gameEngine.keyW === true) {
-        this.y -= 5;
     }
 }
 
-AM.queueDownload("./img/NPC_22.png");
-AM.queueDownload("./img/NPC_22_Flipped.png");
+
+// AM.queueDownload("./img/NPC_22.png");
+// AM.queueDownload("./img/NPC_22_Flipped.png");
+AM.queueDownload("./img/NPC_21.png");
+AM.queueDownload("./img/wizard_walk.png");
+AM.queueDownload("./img/wizard_walk_flipped.png");
 
 AM.downloadAll(function () {
-    var canvas = document.getElementById("gameWorld");
+    var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
 
     gameEngine.init(ctx);
     gameEngine.start();
 
     gameEngine.addEntity(new Background(gameEngine));
-    gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/NPC_22.png"),
-     AM.getAsset("./img/NPC_22_Flipped.png")));
+    gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/wizard_walk_flipped.png"),
+     AM.getAsset("./img/wizard_walk.png")));
+    //  gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/NPC_22.png"),
+    //  AM.getAsset("./img/NPC_22_Flipped.png")));
+    gameEngine.addEntity(new Monster1(gameEngine, AM.getAsset("./img/NPC_21.png")));
 });

@@ -53,30 +53,37 @@ GameEngine.prototype.startInput = function () {
     var that = this;
 
     // event listeners are added here
-    this.ctx.canvas.addEventListener("keypress", function (e) {
-        if (e.code === "KeyD") {
-            that.keyD = true;
-        } else if (e.code === "KeyS") {
-            that.keyS = true;
-        } else if (e.code === "KeyW") {
+    this.ctx.canvas.addEventListener("keydown", function (e) {
+        if (e.code === "KeyW") {
             that.keyW = true;
+            that.movement = true;
         } else if (e.code === "KeyA") {
             that.keyA = true;
+            that.movement = true;
+        } else if (e.code === "KeyS") {
+            that.keyS = true;
+            that.movement = true;
+        } else if (e.code === "KeyD") {
+            that.keyD = true;
+            that.movement = true;
         } 
-        that.movement = true;
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
-        if (e.code === "KeyD") {
-            that.keyD = false;
-        } else if (e.code === "KeyS") {
-            that.keyS = false;
-        } else if (e.code === "KeyW") {
+        if (e.code === "KeyW") {
             that.keyW = false;
         } else if (e.code === "KeyA") {
             that.keyA = false;
-        } 
-        that.movement = false;
+        } else if (e.code === "KeyS") {
+            that.keyS = false;
+        } else if (e.code === "KeyD") {
+            that.keyD = false;
+        }
+        /*if key is still being pressed down when another key is pressed up
+          then movement is still happening. */
+        if (!that.keyW && !that.keyA && !that.keyS && !that.keyD) {
+            that.movement = false;
+        }
     }, false);
 }
 
