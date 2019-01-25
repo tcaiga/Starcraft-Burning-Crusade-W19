@@ -135,8 +135,10 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     // this.animationLeft = new Animation(spritesheetLeft, 419, 381, 5, 0.04, 5, true, 0.15);
     // this.animationRight = new Animation(spritesheetRight, 419, 381, 5, 0.04, 5, true, 0.15);
     this.animationStill = this.animationRight;
-    this.x = 0;
-    this.y = 0;
+    //this.x = 0;
+    //this.y = 0;
+    this.x = 704/2 - 20; // Hardcorded center spawn
+    this.y = 704/2 - 28; // Hardcoded center spawn
     this.game = game;
     this.ctx = game.ctx;
     this.right = true;
@@ -164,6 +166,24 @@ Player.prototype.draw = function () {
 }
 
 Player.prototype.update = function () {
+    // Collision detection for player.
+    if (this.collideLeft()) {
+        this.x += 2;
+    }
+
+    if (this.collideRight()) {
+        this.x -= 2;
+    }
+
+    if (this.collideTop()) {
+        this.y += 2;
+    }
+
+    if (this.collideBottom()) {
+        this.y -= 2;
+    }
+
+    // Player movement controls.
     if (gameEngine.keyW === true) {
         this.y -= 2;
     }  
@@ -182,6 +202,19 @@ Player.prototype.update = function () {
     }
 }
 
+// Player prototype functions to determine map collision.
+Player.prototype.collideRight = function () {
+    return this.x + 72 > 704; // This is 32 + the width of the character.
+};
+Player.prototype.collideLeft = function () {
+    return this.x - 32 < 0; // This is 32 for the tiles.
+};
+Player.prototype.collideBottom = function () {
+    return this.y + 88 > 704; // This is 32 + the height of the character.
+};
+Player.prototype.collideTop = function () {
+    return this.y - 32 < 0; // This is 32 for the tiles.
+};
 
 AM.queueDownload("./img/NPC_22.png");
 AM.queueDownload("./img/NPC_22_Flipped.png");
