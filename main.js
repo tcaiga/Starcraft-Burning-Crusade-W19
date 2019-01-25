@@ -1,6 +1,10 @@
 var AM = new AssetManager();
 var gameEngine = new GameEngine();
 
+// Constant variable for tile size
+const TILE_SIZE = 16;
+
+
 function Animation(spriteSheet, frameWidth, frameHeight,
      sheetWidth, frameDuration, frames, loop, scale) {
     this.spriteSheet = spriteSheet;
@@ -51,7 +55,7 @@ Animation.prototype.isDone = function () {
     return (this.elapsedTime >= this.totalTime);
 }
 
-// no inheritance
+// No inheritance
 function Background(game) {
     this.x = 0;
     this.y = 0;
@@ -92,10 +96,10 @@ Background.prototype.draw = function () {
     for (let i = 0; i < 22; i++) {
         for (let j = 0; j < 22; j++) {
             this.tile = (this.map[i * 22 + j] == 1)?this.one:this.zero;
-            this.ctx.drawImage(this.tile, j *  32, i * 32);
-            this.ctx.drawImage(this.tile, (j * 32) + 16, i * 32);
-            this.ctx.drawImage(this.tile, j * 32, (i * 32) + 16);
-            this.ctx.drawImage(this.tile, (j * 32) + 16, (i *32) + 16);
+            this.ctx.drawImage(this.tile, j *  TILE_SIZE * 2, i * TILE_SIZE * 2);
+            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2);
+            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2 + TILE_SIZE);
+            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i *TILE_SIZE * 2 +  TILE_SIZE);
         }
     }
 };
@@ -129,6 +133,22 @@ Monster1.prototype.update = function () {
     Entity.prototype.update.call(this);
 }
 
+function Trap(game, spriteSheet) {
+    this.animation = new Animation(spriteSheet, 512, 512, 1, 0.1, 4, true, .25);
+    this.x = 704/2 - 59; // Hardcorded center spawn
+    this.y = 704/2 - 59; // Hardcorded center spawn
+    this.game = game;
+    this.ctx = game.ctx;
+}
+
+Trap.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+}
+
+Trap.prototype.update = function () {
+    
+}
+
 function Player(game, spritesheetLeft, spritesheetRight) {
     this.animationLeft = new Animation(spritesheetLeft, 40, 56, 1, 0.04, 13, true, 1);
     this.animationRight = new Animation(spritesheetRight, 40, 56, 1, 0.04, 13, true, 1);
@@ -142,6 +162,7 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     this.game = game;
     this.ctx = game.ctx;
     this.right = true;
+
     this.health = 100;
     this.armor = 0;
     this.maxMovespeed = 100;
@@ -150,6 +171,10 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     this.damage = 0;
     this.debuff = [];
     this.hitbox = [];
+
+    // Relevant for Player box
+    this.playerWidth = 40;
+    this.playerHeight = 56;
 }
 
 Player.prototype.draw = function () {
@@ -166,37 +191,40 @@ Player.prototype.draw = function () {
 }
 
 Player.prototype.update = function () {
+    // Conditional check to see if player wants to sprint or not
+    var sprint = gameEngine.keyShift ? 2 : 1;
+
     // Collision detection for player.
     if (this.collideLeft()) {
-        this.x += 2;
+        this.x += 2 * sprint;
     }
 
     if (this.collideRight()) {
-        this.x -= 2;
+        this.x -= 2 * sprint;
     }
 
     if (this.collideTop()) {
-        this.y += 2;
+        this.y += 2 * sprint;
     }
 
     if (this.collideBottom()) {
-        this.y -= 2;
+        this.y -= 2 * sprint;
     }
 
-    // Player movement controls.
+    // Player movement controls
     if (gameEngine.keyW === true) {
-        this.y -= 2;
+        this.y -= 2 * sprint;
     }  
     if (gameEngine.keyA === true) {
-        this.x -= 2;
+        this.x -= 2 * sprint;
         this.right = false;
         this.animationStill = this.animationLeft;
     } 
     if (gameEngine.keyS === true) {
-        this.y += 2;
+        this.y += 2 * sprint;
     } 
     if (gameEngine.keyD === true) {
-        this.x += 2;
+        this.x += 2 * sprint;
         this.right = true;
         this.animationStill = this.animationRight;
     }
@@ -204,16 +232,16 @@ Player.prototype.update = function () {
 
 // Player prototype functions to determine map collision.
 Player.prototype.collideRight = function () {
-    return this.x + 72 > 704; // This is 32 + the width of the character.
+    return this.x + TILE_SIZE * 2 + this.playerWidth > 704; // This is the tile offset + the width of the character.
 };
 Player.prototype.collideLeft = function () {
-    return this.x - 32 < 0; // This is 32 for the tiles.
+    return this.x - TILE_SIZE * 2 < 0; // This is the offset for a 2x2 of tiles.
 };
 Player.prototype.collideBottom = function () {
-    return this.y + 88 > 704; // This is 32 + the height of the character.
+    return this.y + TILE_SIZE * 2 + this.playerHeight > 704; // This is tile offset + the height of the character.
 };
 Player.prototype.collideTop = function () {
-    return this.y - 32 < 0; // This is 32 for the tiles.
+    return this.y - TILE_SIZE * 2 < 0; // This is the offset for a 2x2 of tiles.
 };
 
 AM.queueDownload("./img/NPC_22.png");
@@ -221,6 +249,7 @@ AM.queueDownload("./img/NPC_22_Flipped.png");
 AM.queueDownload("./img/NPC_21.png");
 AM.queueDownload("./img/wizard_walk.png");
 AM.queueDownload("./img/wizard_walk_flipped.png");
+AM.queueDownload("./img/whackFireTrap.png");
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
@@ -235,4 +264,5 @@ AM.downloadAll(function () {
      gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/NPC_22.png"),
      AM.getAsset("./img/NPC_22_Flipped.png")));
     gameEngine.addEntity(new Monster1(gameEngine, AM.getAsset("./img/NPC_21.png")));
+    gameEngine.addEntity(new Trap(gameEngine, AM.getAsset("./img/whackFireTrap.png")));
 });
