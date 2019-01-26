@@ -1,6 +1,9 @@
 var AM = new AssetManager();
 var gameEngine = new GameEngine();
 
+var characterPick = -1;
+var characterArray = [];
+
 // Constant variable for tile size
 const TILE_SIZE = 16;
 
@@ -86,9 +89,9 @@ function Background(game) {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     ]
     this.zero = new Image();
-    this.zero.src = "./img/tile_0117.png";
+    this.zero.src = "./img/floor_1.png";
     this.one = new Image();
-    this.one.src = "./img/tile_0468.png";
+    this.one.src = "./img/floor_spikes_anim_f3.png";
     this.tile = null;
 };
 
@@ -150,8 +153,8 @@ Trap.prototype.update = function () {
 }
 
 function Player(game, spritesheetLeft, spritesheetRight) {
-    this.animationLeft = new Animation(spritesheetLeft, 40, 56, 1, 0.04, 13, true, 1);
-    this.animationRight = new Animation(spritesheetRight, 40, 56, 1, 0.04, 13, true, 1);
+    this.animationLeft = new Animation(spritesheetLeft, 16, 28, 1, 0.08, 4, true, 1.5);
+    this.animationRight = new Animation(spritesheetRight, 16, 28, 1, 0.08, 4, true, 1.5);
     this.animationStill = this.animationRight;
     //this.x = 0;
     //this.y = 0;
@@ -171,8 +174,8 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     this.hitbox = [];
 
     // Relevant for Player box
-    this.playerWidth = 40;
-    this.playerHeight = 56;
+    this.playerWidth = 16;
+    this.playerHeight = 28;
 }
 
 Player.prototype.draw = function () {
@@ -276,13 +279,31 @@ Menu.prototype.draw = function () {
         this.ctx.fillRect(266, 400, 172, 37);
         this.ctx.fillStyle = "white";
         this.ctx.fillText("Pick a Class!", 266, 430);
-        
 }
 
     AM.queueDownload("./img/NPC_22.png");
     AM.queueDownload("./img/NPC_22_Flipped.png");
     AM.queueDownload("./img/NPC_21.png");
     AM.queueDownload("./img/whackFireTrap.png");
+
+    // Ranger
+    AM.queueDownload("./img/ranger_idle.png");
+    AM.queueDownload("./img/ranger_idle_flipped.png");
+    AM.queueDownload("./img/ranger_run.png");
+    AM.queueDownload("./img/ranger_run_flipped.png");
+
+    // Knight
+    AM.queueDownload("./img/knight_idle.png");
+    AM.queueDownload("./img/knight_idle_flipped.png");
+    AM.queueDownload("./img/knight_run.png");
+    AM.queueDownload("./img/knight_run_flipped.png");
+
+    // Mage
+    AM.queueDownload("./img/mage_idle.png");
+    AM.queueDownload("./img/mage_idle_flipped.png");
+    AM.queueDownload("./img/mage_run.png");
+    AM.queueDownload("./img/mage_run_flipped.png");
+
 
     AM.downloadAll(function () {
         var canvas = document.getElementById("canvas");
