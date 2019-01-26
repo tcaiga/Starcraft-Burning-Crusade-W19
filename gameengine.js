@@ -59,31 +59,56 @@ GameEngine.prototype.startInput = function () {
     this.ctx.canvas.addEventListener("click", function(e){
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
-
+        var playerPick = null;
         if (that.menu === true) {
             var classPicked = false;
             if (y >= 500 && y <= 537) {
                 if(x >= 101 && x <= 201) {
                     console.log("Mage Picked");
                     classPicked = true;
+                    playerPick = 0;
                 }  else if (x >= 302 && x <= 402) {
                     console.log("Ranger Picked");
                     classPicked = true;
+                    playerPick = 1;
                 } else if (x >= 503 && x <= 603) {
                     console.log("Knight Picked");
                     classPicked = true;
+                    playerPick = 2;
                 }
             }
             if (classPicked) {
-            that.menu = false;
-            that.entities.pop();
-            console.log("click");
-            that.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
-            gameEngine.addEntity(new Background(gameEngine));
-             gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/NPC_22.png"),
-                AM.getAsset("./img/NPC_22_Flipped.png")));
-            gameEngine.addEntity(new Monster1(gameEngine, AM.getAsset("./img/NPC_21.png")));
-            gameEngine.addEntity(new Trap(gameEngine, AM.getAsset("./img/whackFireTrap.png")));
+                that.menu = false;
+                that.entities.pop();
+                console.log("click");
+                that.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
+                gameEngine.addEntity(new Background(gameEngine));
+
+                // Testing idle animations **This may not even be necessary**
+                // if (playerPick === 0) {
+                //     gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/mage_idle_flipped.png"),
+                //     AM.getAsset("./img/mage_idle.png")));
+                // } else if (playerPick === 1) {
+                //     gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/ranger_idle_flipped.png"),
+                //     AM.getAsset("./img/ranger_idle.png")));
+                // } else if (playerPick === 2) {
+                //     gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/knight_idle_flipped.png"),
+                //     AM.getAsset("./img/knight_idle.png")));
+                // }
+
+                // Testing running animations **Working fine for idling as well**
+                if (playerPick === 0) {
+                    gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/mage_run_flipped.png"),
+                    AM.getAsset("./img/mage_run.png")));
+                } else if (playerPick === 1) {
+                    gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/ranger_run_flipped.png"),
+                    AM.getAsset("./img/ranger_run.png")));
+                } else if (playerPick === 2) {
+                    gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/knight_run_flipped.png"),
+                    AM.getAsset("./img/knight_run.png")));
+                }
+                gameEngine.addEntity(new Monster1(gameEngine, AM.getAsset("./img/NPC_21.png")));
+                gameEngine.addEntity(new Trap(gameEngine, AM.getAsset("./img/whackFireTrap.png")));
             }
         }
     }, false);
