@@ -6,7 +6,7 @@ const TILE_SIZE = 16;
 
 
 function Animation(spriteSheet, frameWidth, frameHeight,
-     sheetWidth, frameDuration, frames, loop, scale) {
+    sheetWidth, frameDuration, frames, loop, scale) {
     this.spriteSheet = spriteSheet;
     this.frameWidth = frameWidth;
     this.frameDuration = frameDuration;
@@ -31,20 +31,20 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     yindex = Math.floor(frame / this.sheetWidth);
 
     ctx.drawImage(this.spriteSheet,
-                 xindex * this.frameWidth, yindex * this.frameHeight,
-                 this.frameWidth, this.frameHeight,
-                 x, y,
-                 this.frameWidth * this.scale,
-                 this.frameHeight * this.scale);
+        xindex * this.frameWidth, yindex * this.frameHeight,
+        this.frameWidth, this.frameHeight,
+        x, y,
+        this.frameWidth * this.scale,
+        this.frameHeight * this.scale);
 }
 
 Animation.prototype.drawFrameStill = function (ctx, x, y) {
     ctx.drawImage(this.spriteSheet,
-                 0, 0, 
-                 this.frameWidth, this.frameHeight,
-                 x, y,
-                 this.frameWidth * this.scale,
-                 this.frameHeight * this.scale);
+        0, 0,
+        this.frameWidth, this.frameHeight,
+        x, y,
+        this.frameWidth * this.scale,
+        this.frameHeight * this.scale);
 }
 
 Animation.prototype.currentFrame = function () {
@@ -62,28 +62,28 @@ function Background(game) {
     this.game = game;
     this.ctx = game.ctx;
     this.map = [
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     ]
     this.zero = new Image();
     this.zero.src = "./img/tile_0117.png";
@@ -95,11 +95,11 @@ function Background(game) {
 Background.prototype.draw = function () {
     for (let i = 0; i < 22; i++) {
         for (let j = 0; j < 22; j++) {
-            this.tile = (this.map[i * 22 + j] == 1)?this.one:this.zero;
-            this.ctx.drawImage(this.tile, j *  TILE_SIZE * 2, i * TILE_SIZE * 2);
+            this.tile = (this.map[i * 22 + j] == 1) ? this.one : this.zero;
+            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2 + TILE_SIZE);
-            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i *TILE_SIZE * 2 +  TILE_SIZE);
+            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2 + TILE_SIZE);
         }
     }
 };
@@ -135,8 +135,8 @@ Monster1.prototype.update = function () {
 
 function Trap(game, spriteSheet) {
     this.animation = new Animation(spriteSheet, 512, 512, 1, 0.1, 4, true, .25);
-    this.x = 704/2 - 59; // Hardcorded center spawn
-    this.y = 704/2 - 59; // Hardcorded center spawn
+    this.x = 704 / 2 - 59; // Hardcorded center spawn
+    this.y = 704 / 2 - 59; // Hardcorded center spawn
     this.game = game;
     this.ctx = game.ctx;
 }
@@ -146,19 +146,17 @@ Trap.prototype.draw = function () {
 }
 
 Trap.prototype.update = function () {
-    
+
 }
 
 function Player(game, spritesheetLeft, spritesheetRight) {
     this.animationLeft = new Animation(spritesheetLeft, 40, 56, 1, 0.04, 13, true, 1);
     this.animationRight = new Animation(spritesheetRight, 40, 56, 1, 0.04, 13, true, 1);
-    // this.animationLeft = new Animation(spritesheetLeft, 419, 381, 5, 0.04, 5, true, 0.15);
-    // this.animationRight = new Animation(spritesheetRight, 419, 381, 5, 0.04, 5, true, 0.15);
     this.animationStill = this.animationRight;
     //this.x = 0;
     //this.y = 0;
-    this.x = 704/2 - 20; // Hardcorded center spawn
-    this.y = 704/2 - 28; // Hardcoded center spawn
+    this.x = 704 / 2 - 20; // Hardcorded center spawn
+    this.y = 704 / 2 - 28; // Hardcoded center spawn
     this.game = game;
     this.ctx = game.ctx;
     this.right = true;
@@ -214,15 +212,15 @@ Player.prototype.update = function () {
     // Player movement controls
     if (gameEngine.keyW === true) {
         this.y -= 2 * sprint;
-    }  
+    }
     if (gameEngine.keyA === true) {
         this.x -= 2 * sprint;
         this.right = false;
         this.animationStill = this.animationLeft;
-    } 
+    }
     if (gameEngine.keyS === true) {
         this.y += 2 * sprint;
-    } 
+    }
     if (gameEngine.keyD === true) {
         this.x += 2 * sprint;
         this.right = true;
@@ -244,25 +242,55 @@ Player.prototype.collideTop = function () {
     return this.y - TILE_SIZE * 2 < 0; // This is the offset for a 2x2 of tiles.
 };
 
-AM.queueDownload("./img/NPC_22.png");
-AM.queueDownload("./img/NPC_22_Flipped.png");
-AM.queueDownload("./img/NPC_21.png");
-AM.queueDownload("./img/wizard_walk.png");
-AM.queueDownload("./img/wizard_walk_flipped.png");
-AM.queueDownload("./img/whackFireTrap.png");
+function Menu(game) {
+    this.ctx = game.ctx;
+    this.x = 0;
+    this.y = 0;
+    this.game = game;
+    this.background = new Image();
+    this.background.src = "./img/menu_background.png";
+}
 
-AM.downloadAll(function () {
-    var canvas = document.getElementById("canvas");
-    var ctx = canvas.getContext("2d");
+Menu.prototype.update = function () {
+}
 
-    gameEngine.init(ctx);
-    gameEngine.start();
+Menu.prototype.draw = function () {
+        this.ctx.drawImage(this.background, 253, 0, 704, 704, 0, 0, 704, 704);
+        this.ctx.font = "30px Arial";
+        this.ctx.fillStyle = "grey";
+        this.ctx.fillRect(101, 500, 100, 37);
+        this.ctx.fillStyle = "white";
+        this.ctx.fillText("Mage", 101, 530);
 
-    gameEngine.addEntity(new Background(gameEngine));
-    // gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/wizard_walk_flipped.png"),
-    //  AM.getAsset("./img/wizard_walk.png")));
-     gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/NPC_22.png"),
-     AM.getAsset("./img/NPC_22_Flipped.png")));
-    gameEngine.addEntity(new Monster1(gameEngine, AM.getAsset("./img/NPC_21.png")));
-    gameEngine.addEntity(new Trap(gameEngine, AM.getAsset("./img/whackFireTrap.png")));
-});
+        this.ctx.fillStyle = "grey";
+        this.ctx.fillRect(302, 500, 100, 37);
+        this.ctx.fillStyle = "white";
+        this.ctx.fillText("Ranger", 302, 530);
+
+        this.ctx.fillStyle = "grey";
+        this.ctx.fillRect(503, 500, 100, 37);
+        this.ctx.fillStyle = "white";
+        this.ctx.fillText("Knight", 503, 530);
+
+        this.ctx.fillStyle = "grey";
+        this.ctx.fillRect(266, 400, 172, 37);
+        this.ctx.fillStyle = "white";
+        this.ctx.fillText("Pick a Class!", 266, 430);
+        
+}
+
+    AM.queueDownload("./img/NPC_22.png");
+    AM.queueDownload("./img/NPC_22_Flipped.png");
+    AM.queueDownload("./img/NPC_21.png");
+    AM.queueDownload("./img/whackFireTrap.png");
+
+    AM.downloadAll(function () {
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+        canvas.setAttribute("style", "position: absolute; left: 50%; margin-left:-352px; top:55%; margin-top:-352px");
+
+        gameEngine.init(ctx);
+        gameEngine.start();
+
+        gameEngine.addEntity(new Menu(gameEngine));
+    });

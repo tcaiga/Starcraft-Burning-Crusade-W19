@@ -20,6 +20,7 @@ function GameEngine() {
     this.keyW = false;
     this.keyShift = false;
     this.movement = false;
+    this.menu = true;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -54,6 +55,39 @@ GameEngine.prototype.startInput = function () {
     var that = this;
 
     // event listeners are added here
+
+    this.ctx.canvas.addEventListener("click", function(e){
+        var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
+        var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
+
+        if (that.menu === true) {
+            var classPicked = false;
+            if (y >= 500 && y <= 537) {
+                if(x >= 101 && x <= 201) {
+                    console.log("Mage Picked");
+                    classPicked = true;
+                }  else if (x >= 302 && x <= 402) {
+                    console.log("Ranger Picked");
+                    classPicked = true;
+                } else if (x >= 503 && x <= 603) {
+                    console.log("Knight Picked");
+                    classPicked = true;
+                }
+            }
+            if (classPicked) {
+            that.menu = false;
+            that.entities.pop();
+            console.log("click");
+            that.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
+            gameEngine.addEntity(new Background(gameEngine));
+             gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/NPC_22.png"),
+                AM.getAsset("./img/NPC_22_Flipped.png")));
+            gameEngine.addEntity(new Monster1(gameEngine, AM.getAsset("./img/NPC_21.png")));
+            gameEngine.addEntity(new Trap(gameEngine, AM.getAsset("./img/whackFireTrap.png")));
+            }
+        }
+    }, false);
+
     this.ctx.canvas.addEventListener("keydown", function (e) {
         // Sprint functionality
         if (e.code === "ShiftLeft") {
