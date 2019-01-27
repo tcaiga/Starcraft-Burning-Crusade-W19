@@ -68,6 +68,7 @@ function Background(game) {
     this.game = game;
     this.ctx = game.ctx;
     this.map = [
+
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
@@ -84,6 +85,7 @@ function Background(game) {
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+
     ]
     this.zero = new Image();
     this.zero.src = "./img/floor_1.png";
@@ -155,8 +157,10 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     this.animationStill = this.animationRight;
     //this.x = 0;
     //this.y = 0;
+
     this.x = canvasWidth / 2 - 20; // Hardcorded center spawn
     this.y = canvasHeight / 2 - 28; // Hardcoded center spawn
+
     this.game = game;
     this.ctx = game.ctx;
     this.right = true;

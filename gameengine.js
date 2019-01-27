@@ -1,3 +1,10 @@
+// Global Array that holds character sprites.
+// The first index of the array is the mage, second being ranger, and third being knight.
+// Each index contains a JSON object which has the left and right faces for the sprites.
+var characterSprites = [{leftFace: "./img/mage_run_flipped.png", rightFace: "./img/mage_run.png"},
+                        {leftFace: "./img/ranger_run_flipped.png", rightFace: "./img/ranger_run.png"},
+                        {leftFace: "./img/knight_run_flipped.png", rightFace: "./img/knight_run.png"}];
+
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
             window.webkitRequestAnimationFrame ||
@@ -87,30 +94,10 @@ GameEngine.prototype.startInput = function () {
                 console.log("click");
                 that.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
                 gameEngine.addEntity(new Background(gameEngine));
-
-                // Testing idle animations **This may not even be necessary**
-                // if (playerPick === 0) {
-                //     gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/mage_idle_flipped.png"),
-                //     AM.getAsset("./img/mage_idle.png")));
-                // } else if (playerPick === 1) {
-                //     gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/ranger_idle_flipped.png"),
-                //     AM.getAsset("./img/ranger_idle.png")));
-                // } else if (playerPick === 2) {
-                //     gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/knight_idle_flipped.png"),
-                //     AM.getAsset("./img/knight_idle.png")));
-                // }
-
-                // Testing running animations **Working fine for idling as well**
-                if (playerPick === 0) {
-                    gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/mage_run_flipped.png"),
-                    AM.getAsset("./img/mage_run.png")));
-                } else if (playerPick === 1) {
-                    gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/ranger_run_flipped.png"),
-                    AM.getAsset("./img/ranger_run.png")));
-                } else if (playerPick === 2) {
-                    gameEngine.addEntity(new Player(gameEngine, AM.getAsset("./img/knight_run_flipped.png"),
-                    AM.getAsset("./img/knight_run.png")));
-                }
+                
+                // Using players choice to grab the appropriate character sprite
+                gameEngine.addEntity(new Player(gameEngine, AM.getAsset(characterSprites[playerPick]["leftFace"]),
+                    AM.getAsset(characterSprites[playerPick]["rightFace"])));
                 gameEngine.addEntity(new Monster1(gameEngine, AM.getAsset("./img/NPC_21.png")));
                 gameEngine.addEntity(new Trap(gameEngine, AM.getAsset("./img/whackFireTrap.png")));
             }
