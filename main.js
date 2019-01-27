@@ -7,6 +7,8 @@ var characterArray = [];
 var canvasWidth;
 var canvasHeight;
 
+var entityArray = [];
+
 // Constant variable for tile size
 const TILE_SIZE = 16;
 
@@ -141,10 +143,14 @@ function Trap(game, spriteSheet) {
     this.y = canvasHeight / 2 - 59; // Hardcorded center spawn
     this.game = game;
     this.ctx = game.ctx;
+
+    this.boundingbox = new BoundingBox(this.x, this.y, 128, 128); // **Temporary** hardcode of width and height
 }
 
 Trap.prototype.draw = function () {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    gameEngine.ctx.strokeStyle = "red";
+    gameEngine.ctx.strokeRect(this.x, this.y, 128, 128); // **Temporary** Hard coded offset values
 }
 
 Trap.prototype.update = function () {
@@ -158,7 +164,7 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     //this.x = 0;
     //this.y = 0;
 
-    this.x = canvasWidth / 2 - 20; // Hardcorded center spawn
+    this.x = canvasWidth / 2 - 16; // Hardcorded center spawn
     this.y = canvasHeight / 2 - 28; // Hardcoded center spawn
 
     this.game = game;
@@ -177,6 +183,8 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     // Relevant for Player box
     this.playerWidth = 16;
     this.playerHeight = 28;
+
+    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight); // **Temporary** Hard coded offset values.
 }
 
 Player.prototype.draw = function () {
@@ -190,6 +198,8 @@ Player.prototype.draw = function () {
             this.animationLeft.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
         }
     }
+    gameEngine.ctx.strokeStyle = "blue";
+    gameEngine.ctx.strokeRect(this.x + 4, this.y + 13, this.boundingbox.width, this.boundingbox.height); // Hard coded offset values
 }
 
 Player.prototype.update = function () {
@@ -230,6 +240,17 @@ Player.prototype.update = function () {
         this.right = true;
         this.animationStill = this.animationRight;
     }
+
+    // Checking for collision for all entities.
+    // **Work in Progress** works only for player and traps.
+    for (var i = 0; i < gameEngine.traps.length; i++) {
+        var entityCollide = gameEngine.traps[i];
+        if (this.boundingbox.collide(entityCollide.boundingbox)) {
+            console.log("Collision with Player and Trap");
+        }
+    }
+
+    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight);
 }
 
 // Player prototype functions to determine map collision.
@@ -245,6 +266,24 @@ Player.prototype.collideBottom = function () {
 Player.prototype.collideTop = function () {
     return this.y - TILE_SIZE * 2 < 0; // This is the offset for a 2x2 of tiles.
 };
+
+// BoundingBox for entities to detect collision.
+function BoundingBox(x, y, width, height) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+
+    this.left = x;
+    this.top = y;
+    this.right = this.left + width;
+    this.bottom = this.top + height;
+}
+
+BoundingBox.prototype.collide = function (oth) {
+    if (this.right > oth.left && this.left < oth.right && this.top < oth.bottom && this.bottom > oth.top) return true;
+    return false;
+}
 
 function Menu(game) {
     this.ctx = game.ctx;
