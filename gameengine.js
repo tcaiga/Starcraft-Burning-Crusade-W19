@@ -69,16 +69,20 @@ GameEngine.prototype.startInput = function () {
         var playerPick = null;
         if (that.menu === true) {
             var classPicked = false;
-            if (y >= 500 && y <= 537) {
-                if(x >= 101 && x <= 201) {
+            if (y >= gameEngine.entities[0].classButtonY &&
+                 y <= gameEngine.entities[0].classButtonTextY) {
+                if(x >= gameEngine.entities[0].mageButtonX &&
+                     x <= gameEngine.entities[0].mageButtonX + gameEngine.entities[0].classButtonW) {
                     console.log("Mage Picked");
                     classPicked = true;
                     playerPick = 0;
-                }  else if (x >= 302 && x <= 402) {
+                }  else if (x >= gameEngine.entities[0].rangerButtonX &&
+                    x <= gameEngine.entities[0].rangerButtonX + gameEngine.entities[0].classButtonW) {
                     console.log("Ranger Picked");
                     classPicked = true;
                     playerPick = 1;
-                } else if (x >= 503 && x <= 603) {
+                } else if (x >= gameEngine.entities[0].knightButtonX &&
+                    x <= gameEngine.entities[0].knightButtonX + gameEngine.entities[0].classButtonW) {
                     console.log("Knight Picked");
                     classPicked = true;
                     playerPick = 2;
