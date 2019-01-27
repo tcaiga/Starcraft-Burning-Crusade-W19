@@ -4,6 +4,9 @@ var gameEngine = new GameEngine();
 var characterPick = -1;
 var characterArray = [];
 
+var canvasWidth;
+var canvasHeight;
+
 // Constant variable for tile size
 const TILE_SIZE = 16;
 
@@ -65,28 +68,22 @@ function Background(game) {
     this.game = game;
     this.ctx = game.ctx;
     this.map = [
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
     ]
     this.zero = new Image();
     this.zero.src = "./img/floor_1.png";
@@ -96,9 +93,9 @@ function Background(game) {
 };
 
 Background.prototype.draw = function () {
-    for (let i = 0; i < 22; i++) {
-        for (let j = 0; j < 22; j++) {
-            this.tile = (this.map[i * 22 + j] == 1) ? this.one : this.zero;
+    for (let i = 0; i < 16; i++) {
+        for (let j = 0; j < 16; j++) {
+            this.tile = (this.map[i * 16 + j] == 1) ? this.one : this.zero;
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2 + TILE_SIZE);
@@ -123,7 +120,7 @@ function Monster1(game, spritesheet) {
     this.damage = 0;
     this.debuff = [];
     this.hitbox = [];
-    Entity.call(this, game, 0, 450);
+    Entity.call(this, game, 0, 250);
 }
 
 Monster1.prototype.draw = function () {
@@ -132,14 +129,14 @@ Monster1.prototype.draw = function () {
 
 Monster1.prototype.update = function () {
     this.x -= this.game.clockTick * this.speed;
-    if (this.x < 0) this.x = 680;
+    if (this.x < 0) this.x = 450;
     Entity.prototype.update.call(this);
 }
 
 function Trap(game, spriteSheet) {
     this.animation = new Animation(spriteSheet, 512, 512, 1, 0.1, 4, true, .25);
-    this.x = 704 / 2 - 59; // Hardcorded center spawn
-    this.y = 704 / 2 - 59; // Hardcorded center spawn
+    this.x = canvasWidth / 2 - 59; // Hardcorded center spawn
+    this.y = canvasHeight / 2 - 59; // Hardcorded center spawn
     this.game = game;
     this.ctx = game.ctx;
 }
@@ -158,8 +155,8 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     this.animationStill = this.animationRight;
     //this.x = 0;
     //this.y = 0;
-    this.x = 704 / 2 - 20; // Hardcorded center spawn
-    this.y = 704 / 2 - 28; // Hardcoded center spawn
+    this.x = canvasWidth / 2 - 20; // Hardcorded center spawn
+    this.y = canvasHeight / 2 - 28; // Hardcoded center spawn
     this.game = game;
     this.ctx = game.ctx;
     this.right = true;
@@ -233,13 +230,13 @@ Player.prototype.update = function () {
 
 // Player prototype functions to determine map collision.
 Player.prototype.collideRight = function () {
-    return this.x + TILE_SIZE * 2 + this.playerWidth > 704; // This is the tile offset + the width of the character.
+    return this.x + TILE_SIZE * 2 + this.playerWidth > canvasWidth; // This is the tile offset + the width of the character.
 };
 Player.prototype.collideLeft = function () {
     return this.x - TILE_SIZE * 2 < 0; // This is the offset for a 2x2 of tiles.
 };
 Player.prototype.collideBottom = function () {
-    return this.y + TILE_SIZE * 2 + this.playerHeight > 704; // This is tile offset + the height of the character.
+    return this.y + TILE_SIZE * 2 + this.playerHeight > canvasHeight; // This is tile offset + the height of the character.
 };
 Player.prototype.collideTop = function () {
     return this.y - TILE_SIZE * 2 < 0; // This is the offset for a 2x2 of tiles.
@@ -247,8 +244,13 @@ Player.prototype.collideTop = function () {
 
 function Menu(game) {
     this.ctx = game.ctx;
-    this.x = 0;
-    this.y = 0;
+    this.classButtonW = 100;
+    this.classButtonH = 37;
+    this.classButtonY = 400;
+    this.classButtonTextY =  430;
+    this.mageButtonX = (canvasWidth - (this.classButtonW * 3)) / 4;
+    this.rangerButtonX = 2 * this.mageButtonX + this.classButtonW;
+    this.knightButtonX = this.rangerButtonX + this.classButtonW + this.mageButtonX;
     this.game = game;
     this.background = new Image();
     this.background.src = "./img/menu_background.png";
@@ -258,27 +260,32 @@ Menu.prototype.update = function () {
 }
 
 Menu.prototype.draw = function () {
-        this.ctx.drawImage(this.background, 253, 0, 704, 704, 0, 0, 704, 704);
+        this.ctx.drawImage(this.background, 253, 0,
+             canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+
         this.ctx.font = "30px Arial";
         this.ctx.fillStyle = "grey";
-        this.ctx.fillRect(101, 500, 100, 37);
+        this.ctx.fillRect(this.mageButtonX, this.classButtonY,
+             this.classButtonW, this.classButtonH);
         this.ctx.fillStyle = "white";
-        this.ctx.fillText("Mage", 101, 530);
+        this.ctx.fillText("Mage", this.mageButtonX, this.classButtonTextY);
 
         this.ctx.fillStyle = "grey";
-        this.ctx.fillRect(302, 500, 100, 37);
+        this.ctx.fillRect(this.rangerButtonX, this.classButtonY,
+             this.classButtonW, this.classButtonH);
         this.ctx.fillStyle = "white";
-        this.ctx.fillText("Ranger", 302, 530);
+        this.ctx.fillText("Ranger", this.rangerButtonX, this.classButtonTextY);
 
         this.ctx.fillStyle = "grey";
-        this.ctx.fillRect(503, 500, 100, 37);
+        this.ctx.fillRect(this.knightButtonX, this.classButtonY,
+             this.classButtonW, this.classButtonH);
         this.ctx.fillStyle = "white";
-        this.ctx.fillText("Knight", 503, 530);
+        this.ctx.fillText("Knight", this.knightButtonX, this.classButtonTextY);
 
         this.ctx.fillStyle = "grey";
-        this.ctx.fillRect(266, 400, 172, 37);
+        this.ctx.fillRect(170, 300, 172, 37);
         this.ctx.fillStyle = "white";
-        this.ctx.fillText("Pick a Class!", 266, 430);
+        this.ctx.fillText("Pick a Class!", 170, 330);
 }
 
     AM.queueDownload("./img/NPC_22.png");
@@ -308,7 +315,11 @@ Menu.prototype.draw = function () {
     AM.downloadAll(function () {
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
-        canvas.setAttribute("style", "position: absolute; left: 50%; margin-left:-352px; top:55%; margin-top:-352px");
+        canvas.setAttribute("style",
+         "position: absolute; left: 50%; margin-left:-256px; top:55%; margin-top:-256px");
+        document.body.style.backgroundColor = "black";
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
 
         gameEngine.init(ctx);
         gameEngine.start();
