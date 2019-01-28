@@ -114,8 +114,10 @@ Background.prototype.update = function () {
 };
 
 function Monster1(game, spritesheet) {
-    this.animation = new Animation(spritesheet, 40, 56, 1, 0.15, 15, true, 1);
-
+    this.zOffsetHeight = 5;
+    this.zWidth = 40;
+    this.zHeight = 56;
+    this.animation = new Animation(spritesheet, this.zWidth, this.zHeight, 1, 0.15, 15, true, 1);
     this.speed = 100;
     this.ctx = game.ctx;
     this.health = 100;
@@ -126,11 +128,16 @@ function Monster1(game, spritesheet) {
     this.damage = 0;
     this.debuff = [];
     this.hitbox = [];
+
+    this.boundingbox = new BoundingBox(this.x, this.y + this.zOffsetHeight, this.zWidth, this.zHeight, 5, this.boundingbox);
     Entity.call(this, game, 0, 250);
+    
 }
 
 Monster1.prototype.draw = function () {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    gameEngine.ctx.strokeStyle = "red";
+    gameEngine.ctx.strokeRect(this.x, this.y + this.zOffsetHeight, this.boundingbox.width, this.boundingbox.height);
 }
 
 
@@ -138,11 +145,11 @@ Monster1.prototype.update = function () {
     this.x -= this.game.clockTick * this.speed;
     if (this.x < 0) this.x = 450;
     Entity.prototype.update.call(this);
+    this.boundingbox = new BoundingBox(this.x, this.y, this.zWidth, this.zHeight, 5, this.boundingbox);
 }
 
 function Skeleton(game, spritesheet) {
     Monster1.call(this, game, spritesheet);
-    this.animation = new Animation(spritesheet, );
 }
 
 
@@ -218,6 +225,7 @@ Player.prototype.update = function () {
     // Conditional check to see if player wants to sprint or not
     var sprint = gameEngine.keyShift ? 2 : 1;
 
+
     // Collision detection for player.
     if (this.collideLeft()) {
         this.x += 2 * sprint;
@@ -253,19 +261,29 @@ Player.prototype.update = function () {
         this.animationStill = this.animationRight;
     }
 
-
+    // test for collision with our player
     hitboxCollection.forEach(testCollision);
 
     this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight, 1, this.boundingbox);
 
 }
 
+// TODO: add pushback on enemy collision
 function testCollision(value, key, map) {
-    if (playerObj1.boundingbox.collide(key) && key.entType - 4 > 0) {
-        try {
-            console.log("I colllided with a box of type " + key.entType); 
-        } catch (e) {
-            console.log("no");
+    entType = key.entType;
+    if (playerObj1.boundingbox.collide(key) && entType - 4 > 0) {
+        
+        // enemy stuff (current design doesnt punish players for being in range, but we can potentially do something with this)
+        if (entType == 5) {
+        // trap stuff
+        } else if(entType == 6) {
+            // not really functional--testing if its updating with the entity type which it is
+            playerObj1.health--;
+            console.log(playerObj1.health);
+       // door entity
+        }  else if (entType == 7) {
+        //      door lock stuff that will be implemented <PH>
+        //    if (playerObj1 has key ....) {}
         }
     } 
 }
