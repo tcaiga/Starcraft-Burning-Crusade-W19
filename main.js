@@ -7,7 +7,8 @@ var characterArray = [];
 var canvasWidth;
 var canvasHeight;
 
-var entityArray = [];
+var hitboxCollection = new Map();
+var playerObj1;
 
 // Constant variable for tile size
 const TILE_SIZE = 16;
@@ -114,6 +115,7 @@ Background.prototype.update = function () {
 
 function Monster1(game, spritesheet) {
     this.animation = new Animation(spritesheet, 40, 56, 1, 0.15, 15, true, 1);
+
     this.speed = 100;
     this.ctx = game.ctx;
     this.health = 100;
@@ -131,11 +133,18 @@ Monster1.prototype.draw = function () {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
 }
 
+
 Monster1.prototype.update = function () {
     this.x -= this.game.clockTick * this.speed;
     if (this.x < 0) this.x = 450;
     Entity.prototype.update.call(this);
 }
+
+function Skeleton(game, spritesheet) {
+    Monster1.call(this, game, spritesheet);
+    this.animation = new Animation(spritesheet, );
+}
+
 
 function Trap(game, spriteSheet) {
     this.animation = new Animation(spriteSheet, 512, 512, 1, 0.1, 4, true, .25);
@@ -144,7 +153,7 @@ function Trap(game, spriteSheet) {
     this.game = game;
     this.ctx = game.ctx;
 
-    this.boundingbox = new BoundingBox(this.x, this.y, 128, 128); // **Temporary** hardcode of width and height
+    this.boundingbox = new BoundingBox(this.x, this.y, 128, 128, 6, this.boundingbox); // **Temporary** hardcode of width and height
 }
 
 Trap.prototype.draw = function () {
@@ -163,6 +172,9 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     this.animationStill = this.animationRight;
     //this.x = 0;
     //this.y = 0;
+
+    // assigning the global player obj.
+    playerObj1 = this;
 
     this.x = canvasWidth / 2 - 16; // Hardcorded center spawn
     this.y = canvasHeight / 2 - 28; // Hardcoded center spawn
@@ -184,7 +196,7 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     this.playerWidth = 16;
     this.playerHeight = 28;
 
-    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight); // **Temporary** Hard coded offset values.
+    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight, 1, this.boundingbox); // **Temporary** Hard coded offset values.
 }
 
 Player.prototype.draw = function () {
@@ -241,16 +253,21 @@ Player.prototype.update = function () {
         this.animationStill = this.animationRight;
     }
 
-    // Checking for collision for all entities.
-    // **Work in Progress** works only for player and traps.
-    for (var i = 0; i < gameEngine.traps.length; i++) {
-        var entityCollide = gameEngine.traps[i];
-        if (this.boundingbox.collide(entityCollide.boundingbox)) {
-            console.log("Collision with Player and Trap");
-        }
-    }
 
-    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight);
+    hitboxCollection.forEach(testCollision);
+
+    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight, 1, this.boundingbox);
+
+}
+
+function testCollision(value, key, map) {
+    if (playerObj1.boundingbox.collide(key) && key.entType - 4 > 0) {
+        try {
+            console.log("I colllided with a box of type " + key.entType); 
+        } catch (e) {
+            console.log("no");
+        }
+    } 
 }
 
 // Player prototype functions to determine map collision.
@@ -267,8 +284,11 @@ Player.prototype.collideTop = function () {
     return this.y - TILE_SIZE * 2 < 0; // This is the offset for a 2x2 of tiles.
 };
 
+// <IMPORTANT> Entity type or "entType" vals: 1-4 for player(s), 5 for enemy, 6 for trap, 7 for items, and 8 for doors.
 // BoundingBox for entities to detect collision.
-function BoundingBox(x, y, width, height) {
+function BoundingBox(x, y, width, height, entType, boundBox) {
+    hitboxCollection.delete(boundBox);
+    this.entType = entType;
     this.x = x;
     this.y = y;
     this.width = width;
@@ -278,6 +298,8 @@ function BoundingBox(x, y, width, height) {
     this.top = y;
     this.right = this.left + width;
     this.bottom = this.top + height;
+    hitboxCollection.set(this, this.entType);
+    
 }
 
 BoundingBox.prototype.collide = function (oth) {
@@ -330,7 +352,6 @@ Menu.prototype.draw = function () {
         this.ctx.fillStyle = "white";
         this.ctx.fillText("Pick a Class!", 170, 330);
 }
-
     AM.queueDownload("./img/NPC_22.png");
     AM.queueDownload("./img/NPC_22_Flipped.png");
     AM.queueDownload("./img/NPC_21.png");

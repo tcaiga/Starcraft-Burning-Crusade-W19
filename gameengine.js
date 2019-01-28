@@ -106,6 +106,7 @@ GameEngine.prototype.startInput = function () {
                 var trap = new Trap(gameEngine, AM.getAsset("./img/whackFireTrap.png"));
                 gameEngine.addEntity(trap);
                 gameEngine.addTrap(trap);
+
             }
         }
     }, false);
