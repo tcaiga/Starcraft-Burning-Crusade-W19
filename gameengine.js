@@ -18,6 +18,8 @@ window.requestAnimFrame = (function () {
 
 function GameEngine() {
     this.entities = [];
+    // Array necessary to check for collision.
+    this.traps = [];
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -99,7 +101,11 @@ GameEngine.prototype.startInput = function () {
                 gameEngine.addEntity(new Player(gameEngine, AM.getAsset(characterSprites[playerPick]["leftFace"]),
                     AM.getAsset(characterSprites[playerPick]["rightFace"])));
                 gameEngine.addEntity(new Monster1(gameEngine, AM.getAsset("./img/NPC_21.png")));
-                gameEngine.addEntity(new Trap(gameEngine, AM.getAsset("./img/whackFireTrap.png")));
+
+                // This is to add traps to an array that will be tested for collision.
+                var trap = new Trap(gameEngine, AM.getAsset("./img/whackFireTrap.png"));
+                gameEngine.addEntity(trap);
+                gameEngine.addTrap(trap);
             }
         }
     }, false);
@@ -146,6 +152,12 @@ GameEngine.prototype.startInput = function () {
             that.movement = false;
         }
     }, false);
+}
+
+// Necessary to let main.js access some information. In this case entities to
+// check for collision.
+GameEngine.prototype.addTrap = function (entity) {
+    this.traps.push(entity);
 }
 
 GameEngine.prototype.addEntity = function (entity) {
