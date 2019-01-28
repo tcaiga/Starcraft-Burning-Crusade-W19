@@ -1,2 +1,2 @@
-# Red-Six-Winter19
+# Last-Labyrinth-W19
 Roguelike game played in your browser.
