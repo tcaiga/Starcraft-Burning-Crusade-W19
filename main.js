@@ -133,9 +133,15 @@ function Monster1(game, spritesheet) {
     this.hitbox = [];
 
     enemyCollection.push(this);
-    this.boundingbox = new BoundingBox(this.x, this.y + this.zOffsetHeight, this.zWidth, this.zHeight, 5, this.boundingbox);
+
+    this.boundingbox = new BoundingBox(this.x, this.y + this.zOffsetHeight, this.zWidth, this.zHeight, entTypeEnum.ENEMY, this.boundingbox);
     Entity.call(this, game, 0, 250);
     
+}
+
+Monster1.prototype.setPosition = function (x, y) {
+    this.x = x;
+    this.y = y;
 }
 
 Monster1.prototype.draw = function () {
@@ -152,7 +158,7 @@ Monster1.prototype.update = function () {
     this.x -= this.game.clockTick * this.speed;
     if (this.x < 0) this.x = 450;
     Entity.prototype.update.call(this);
-    this.boundingbox = new BoundingBox(this.x, this.y, this.zWidth, this.zHeight, 5, this.boundingbox);
+    this.boundingbox = new BoundingBox(this.x, this.y, this.zWidth, this.zHeight, entTypeEnum.ENEMY, this.boundingbox);
 }
 
 function Skeleton(game, spritesheet) {
@@ -163,18 +169,18 @@ function Skeleton(game, spritesheet) {
 
 // Projectile object that will be used for creation of projectile sprites and their corresponding hitboxes and
 // effects. 
-// TODO: add multiple spritesheets based on direction.
-function Projectile(game, spritesheet) {
+// TODO: add multiple spritesheets based on direction. Or have it send spritesheet based on launch direction from gameengine.
+function Projectile(game, spritesheet, origin) {
     this.projWidth = 11;
     this.projHeight = 22;
     this.animation = new Animation(spritesheet, 11, 22, 11, 15, 2, true, 1);
-
+    this.belongsTo = origin;
     this.x = 125;
     this.y = 125;   
 
     this.game = game;
     this.ctx = game.ctx;
-    this.boundingbox = new BoundingBox(this.x, this.y, this.projWidth, this.projHeight, 8, this.boundingbox);
+    this.boundingbox = new BoundingBox(this.x, this.y, this.projWidth, this.projHeight, entTypeEnum.PROJECTILE, this.boundingbox);
 
 }
 
@@ -198,7 +204,7 @@ function Trap(game, spriteSheet) {
     this.game = game;
     this.ctx = game.ctx;
 
-    this.boundingbox = new BoundingBox(this.x, this.y, 128, 128, 6, this.boundingbox); // **Temporary** hardcode of width and height
+    this.boundingbox = new BoundingBox(this.x, this.y, 128, 128, entTypeEnum.TRAP, this.boundingbox); // **Temporary** hardcode of width and height
 }
 
 Trap.prototype.draw = function () {
@@ -240,7 +246,7 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     this.playerWidth = 16;
     this.playerHeight = 28;
 
-    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight, 1, this.boundingbox); // **Temporary** Hard coded offset values.
+    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight, entTypeEnum.PLAYER, this.boundingbox); // **Temporary** Hard coded offset values.
 }
 
 
@@ -302,37 +308,41 @@ Player.prototype.update = function () {
 
     // test for collision with our player
     hitboxCollection.forEach(testCollision);
-
-    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight, 1, this.boundingbox);
+    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight, entTypeEnum.PLAYER, this.boundingbox);
 
 }
 
 // TODO: Finish enemy collision tests for projectiles.
 function testCollision(value, key, map) {
     entType = key.entType;
+    console.log(key.entType);
     if (playerObj1.boundingbox.collide(key) && entType - 4 > 0) {
         
         // enemy stuff (current design doesnt punish players for being in range, but we can potentially do something with this)
-        if (entType == 5) {
+        if (entType == entTypeEnum.ENEMY) {
         // trap stuff
-        } else if(entType == 6) {
+        } else if(entType == entTypeEnum.TRAP) {
             // not really functional--testing if its updating with the entity type which it is
             playerObj1.health--;
             console.log(playerObj1.health);
        // door entity
-        }  else if (entType == 7) {
+        }  else if (entType == entTypeEnum.DOOR) {
         //      door lock stuff that will be implemented <PH>
         //    if (playerObj1 has key ....) {}
         }
     }
 
-    var i = 0;
-    for (var enemy in enemyCollection) {
-        i++;
-        console.log(i);
-        if (enemy instanceof Monster1 && enemy.getBoundingBox.collide(key)) {
-            console.log("do something");
+    //test enemy collision stuff
+    for (var i = 0; i < enemyCollection.length; i++) {
+        var enemy = enemyCollection[i];
+        if (enemy.boundingbox.collide(key)) {
+            
+            if (key.entType == entTypeEnum.PROJECTILE && key.belongsTo == origin.PLAYER) {
+                //<PH> damage stuff yet to be implemented/merged
+                console.log("oof ouch my bones");
+            }
         }
+            
     }
 }
 
@@ -350,6 +360,15 @@ Player.prototype.collideBottom = function () {
 };
 Player.prototype.collideTop = function () {
     return this.y - TILE_SIZE * 2 < 0; // This is the offset for a 2x2 of tiles.
+};
+
+var entTypeEnum = {
+    PLAYER: 1,
+    ENEMY: 5,
+    TRAP: 6,
+    ITEM: 7,
+    PROJECTILE: 8,
+    DOOR: 9
 };
 
 // <IMPORTANT> Entity type or "entType" vals: 1-4 for player(s), 5 for enemy, 6 for trap, 7 for items, and 8 for doors.
