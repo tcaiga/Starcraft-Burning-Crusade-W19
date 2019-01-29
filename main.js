@@ -8,7 +8,10 @@ var canvasWidth;
 var canvasHeight;
 
 var hitboxCollection = new Map();
+var enemyCollection = [];
 var playerObj1;
+var currentHitbox;
+
 
 // Constant variable for tile size
 const TILE_SIZE = 16;
@@ -129,6 +132,7 @@ function Monster1(game, spritesheet) {
     this.debuff = [];
     this.hitbox = [];
 
+    enemyCollection.push(this);
     this.boundingbox = new BoundingBox(this.x, this.y + this.zOffsetHeight, this.zWidth, this.zHeight, 5, this.boundingbox);
     Entity.call(this, game, 0, 250);
     
@@ -140,6 +144,9 @@ Monster1.prototype.draw = function () {
     gameEngine.ctx.strokeRect(this.x, this.y + this.zOffsetHeight, this.boundingbox.width, this.boundingbox.height);
 }
 
+Monster1.prototype.getBoundingBox = function () {
+    return this.boundingbox;
+}
 
 Monster1.prototype.update = function () {
     this.x -= this.game.clockTick * this.speed;
@@ -150,6 +157,37 @@ Monster1.prototype.update = function () {
 
 function Skeleton(game, spritesheet) {
     Monster1.call(this, game, spritesheet);
+    enemyCollection.push(this);
+}
+
+
+// Projectile object that will be used for creation of projectile sprites and their corresponding hitboxes and
+// effects. 
+// TODO: add multiple spritesheets based on direction.
+function Projectile(game, spritesheet) {
+    this.projWidth = 11;
+    this.projHeight = 22;
+    this.animation = new Animation(spritesheet, 11, 22, 11, 15, 2, true, 1);
+
+    this.x = 125;
+    this.y = 125;   
+
+    this.game = game;
+    this.ctx = game.ctx;
+    this.boundingbox = new BoundingBox(this.x, this.y, this.projWidth, this.projHeight, 8, this.boundingbox);
+
+}
+
+Projectile.prototype.draw = function () {
+    
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    gameEngine.ctx.strokeStyle = "purple";
+    gameEngine.ctx.strokeRect(this.x, this.y, this.boundingbox.width, this.boundingbox.height);
+}
+
+
+// TODO: Add movement to projectile
+Projectile.prototype.update = function () {
 }
 
 
@@ -177,8 +215,7 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     this.animationLeft = new Animation(spritesheetLeft, 16, 28, 1, 0.08, 4, true, 1.5);
     this.animationRight = new Animation(spritesheetRight, 16, 28, 1, 0.08, 4, true, 1.5);
     this.animationStill = this.animationRight;
-    //this.x = 0;
-    //this.y = 0;
+
 
     // assigning the global player obj.
     playerObj1 = this;
@@ -205,6 +242,8 @@ function Player(game, spritesheetLeft, spritesheetRight) {
 
     this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight, 1, this.boundingbox); // **Temporary** Hard coded offset values.
 }
+
+
 
 Player.prototype.draw = function () {
     //draw player character with no animation if player is not currently moving
@@ -268,7 +307,7 @@ Player.prototype.update = function () {
 
 }
 
-// TODO: add pushback on enemy collision
+// TODO: Finish enemy collision tests for projectiles.
 function testCollision(value, key, map) {
     entType = key.entType;
     if (playerObj1.boundingbox.collide(key) && entType - 4 > 0) {
@@ -285,8 +324,19 @@ function testCollision(value, key, map) {
         //      door lock stuff that will be implemented <PH>
         //    if (playerObj1 has key ....) {}
         }
-    } 
+    }
+
+    var i = 0;
+    for (var enemy in enemyCollection) {
+        i++;
+        console.log(i);
+        if (enemy instanceof Monster1 && enemy.getBoundingBox.collide(key)) {
+            console.log("do something");
+        }
+    }
 }
+
+
 
 // Player prototype functions to determine map collision.
 Player.prototype.collideRight = function () {
@@ -374,6 +424,10 @@ Menu.prototype.draw = function () {
     AM.queueDownload("./img/NPC_22_Flipped.png");
     AM.queueDownload("./img/NPC_21.png");
     AM.queueDownload("./img/whackFireTrap.png");
+
+    // Orange fireball sprites
+    AM.queueDownload("./img/fireball_upside.png");
+    AM.queueDownload("./img/fireball_vert.png");
 
     // Ranger
     AM.queueDownload("./img/ranger_idle.png");
