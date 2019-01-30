@@ -18,6 +18,8 @@ window.requestAnimFrame = (function () {
 
 function GameEngine() {
     this.entities = [];
+    // Array necessary to check for collision.
+    this.traps = [];
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -45,13 +47,6 @@ GameEngine.prototype.start = function () {
         requestAnimFrame(gameLoop, that.ctx.canvas);
     })();
 }
-
-// Keep track of origin of certain things. Will be important later down the road for collision.
-var origin = {
-    PLAYER: 1,
-    ENEMY: 2,
-    DUNGEON: 3
-};
 
 GameEngine.prototype.startInput = function () {
     var getXandY = function (e) {
@@ -106,15 +101,11 @@ GameEngine.prototype.startInput = function () {
                 gameEngine.addEntity(new Player(gameEngine, AM.getAsset(characterSprites[playerPick]["leftFace"]),
                     AM.getAsset(characterSprites[playerPick]["rightFace"])));
                 gameEngine.addEntity(new Monster1(gameEngine, AM.getAsset("./img/NPC_21.png")));
-                var m2 = new Monster1(gameEngine, AM.getAsset("./img/NPC_22.png"))
-                gameEngine.addEntity(m2);
-                m2.setPosition(150, 100);
-                // <TEST> testing projectile creation
-                gameEngine.addEntity(new Projectile(gameEngine, AM.getAsset("./img/fireball_upside.png"), origin.PLAYER));
 
+                // This is to add traps to an array that will be tested for collision.
                 var trap = new Trap(gameEngine, AM.getAsset("./img/whackFireTrap.png"));
                 gameEngine.addEntity(trap);
-
+                gameEngine.addTrap(trap);
             }
         }
     }, false);
@@ -162,8 +153,6 @@ GameEngine.prototype.startInput = function () {
         }
     }, false);
 }
-
-
 
 // Necessary to let main.js access some information. In this case entities to
 // check for collision.
