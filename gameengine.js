@@ -18,6 +18,16 @@ window.requestAnimFrame = (function () {
 
 function GameEngine() {
     this.entities = [];
+
+    this.entitiesCount = 0;
+
+    // Arrays necessary to check for collision. Made multiple because
+    // of the need to check them against each other.
+    // Array to hold player entities
+    this.playerEntities = [];
+    // Array to hold trap entities
+    this.trapEntities = [];
+
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -77,28 +87,25 @@ GameEngine.prototype.startInput = function () {
         if (that.menu === true) {
             var classPicked = false;
             if (y >= gameEngine.entities[0].classButtonY &&
-                 y <= gameEngine.entities[0].classButtonTextY) {
+                 y <= gameEngine.entities[0].classButtonBottom) {
                 if(x >= gameEngine.entities[0].mageButtonX &&
                      x <= gameEngine.entities[0].mageButtonX + gameEngine.entities[0].classButtonW) {
-                    console.log("Mage Picked");
                     classPicked = true;
                     playerPick = 0;
                 }  else if (x >= gameEngine.entities[0].rangerButtonX &&
                     x <= gameEngine.entities[0].rangerButtonX + gameEngine.entities[0].classButtonW) {
-                    console.log("Ranger Picked");
                     classPicked = true;
                     playerPick = 1;
                 } else if (x >= gameEngine.entities[0].knightButtonX &&
                     x <= gameEngine.entities[0].knightButtonX + gameEngine.entities[0].classButtonW) {
-                    console.log("Knight Picked");
                     classPicked = true;
                     playerPick = 2;
                 }
             }
             if (classPicked) {
                 that.menu = false;
-                that.entities.pop();
-                console.log("click");
+                that.entities[0].removeFromWorld = true;
+                classPicked = false;
                 that.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
                 gameEngine.addEntity(new Background(gameEngine));
                 
@@ -120,9 +127,19 @@ GameEngine.prototype.startInput = function () {
                 // <TEST> testing projectile creation
                 gameEngine.addEntity(new Projectile(gameEngine, AM.getAsset("./img/fireball_upside.png"), origin.PLAYER));
 
-                var trap = new Trap(gameEngine, AM.getAsset("./img/whackFireTrap.png"));
-                gameEngine.addEntity(trap);
+                var player = new Player(gameEngine, AM.getAsset(characterSprites[playerPick]["leftFace"]),
+                AM.getAsset(characterSprites[playerPick]["rightFace"]))
+                gameEngine.addEntity(player);
+                gameEngine.addPlayerEntity(player);
 
+                gameEngine.addEntity(new Monster(gameEngine, AM.getAsset("./img/NPC_21.png")));
+
+
+                // This is to add entityCheck to an array that will be tested for collision.
+                var trap = new Trap(gameEngine, AM.getAsset("./img/floor_trap_up.png"),
+                AM.getAsset("./img/floor_trap_down.png"));
+                gameEngine.addEntity(trap);
+                gameEngine.addTrapEntity(trap);
             }
         }
     }, false);
@@ -171,34 +188,52 @@ GameEngine.prototype.startInput = function () {
     }, false);
 }
 
-
+GameEngine.prototype.reset = function () {
+    this.entitiesCount = 0;
+    for (let i = this.entities.length - 1; i > 0; i--) {
+        this.entities[i].removeFromWorld = true;
+        this.entities.pop();
+    }
+    this.entitiesCount++;
+    this.menu = true;
+    this.entities[0].removeFromWorld = false;
+}
 
 // Necessary to let main.js access some information. In this case entities to
 // check for collision.
-GameEngine.prototype.addTrap = function (entity) {
-    this.traps.push(entity);
+GameEngine.prototype.addPlayerEntity = function (entity) {
+    this.playerEntities.push(entity);
+}
+
+GameEngine.prototype.addTrapEntity = function (entity) {
+    this.trapEntities.push(entity);
 }
 
 GameEngine.prototype.addEntity = function (entity) {
     this.entities.push(entity);
+    this.entitiesCount++;
 }
 
 GameEngine.prototype.draw = function () {
     this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
     this.ctx.save();
-    for (var i = 0; i < this.entities.length; i++) {
-        this.entities[i].draw(this.ctx);
+    for (var i = 0; i < this.entitiesCount; i++) {
+        var entity = this.entities[i];
+        if (!entity.removeFromWorld) {
+            entity.draw(this.ctx);
+        }
     }
     this.ctx.restore();
 }
 
 GameEngine.prototype.update = function () {
-    var entitiesCount = this.entities.length;
 
-    for (var i = 0; i < entitiesCount; i++) {
+    for (var i = 0; i < this.entitiesCount; i++) {
         var entity = this.entities[i];
 
-        entity.update();
+        if (!entity.removeFromWorld) {
+            entity.update();
+        }
     }
 }
 
@@ -242,21 +277,4 @@ Entity.prototype.draw = function (ctx) {
         this.game.ctx.stroke();
         this.game.ctx.closePath();
     }
-}
-
-Entity.prototype.rotateAndCache = function (image, angle) {
-    var offscreenCanvas = document.createElement('canvas');
-    var size = Math.max(image.width, image.height);
-    offscreenCanvas.width = size;
-    offscreenCanvas.height = size;
-    var offscreenCtx = offscreenCanvas.getContext('2d');
-    offscreenCtx.save();
-    offscreenCtx.translate(size / 2, size / 2);
-    offscreenCtx.rotate(angle);
-    offscreenCtx.translate(0, 0);
-    offscreenCtx.drawImage(image, -(image.width / 2), -(image.height / 2));
-    offscreenCtx.restore();
-    //offscreenCtx.strokeStyle = "red";
-    //offscreenCtx.strokeRect(0,0,size,size);
-    return offscreenCanvas;
 }

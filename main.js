@@ -1,21 +1,11 @@
 var AM = new AssetManager();
 var gameEngine = new GameEngine();
 
-var characterPick = -1;
-var characterArray = [];
-
 var canvasWidth;
 var canvasHeight;
 
-var hitboxCollection = new Map();
-var enemyCollection = [];
-var playerObj1;
-var currentHitbox;
-
-
 // Constant variable for tile size
 const TILE_SIZE = 16;
-
 
 function Animation(spriteSheet, frameWidth, frameHeight,
     sheetWidth, frameDuration, frames, loop, scale) {
@@ -93,6 +83,7 @@ function Background(game) {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
 
     ]
+    this.mapLength = Math.sqrt(this.map.length);
     this.zero = new Image();
     this.zero.src = "./img/floor_1.png";
     this.one = new Image();
@@ -101,9 +92,9 @@ function Background(game) {
 };
 
 Background.prototype.draw = function () {
-    for (let i = 0; i < 16; i++) {
-        for (let j = 0; j < 16; j++) {
-            this.tile = (this.map[i * 16 + j] == 1) ? this.one : this.zero;
+    for (let i = 0; i < this.mapLength; i++) {
+        for (let j = 0; j < this.mapLength; j++) {
+            this.tile = (this.map[i * this.mapLength + j] == 1) ? this.one : this.zero;
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2 + TILE_SIZE);
@@ -308,72 +299,68 @@ function Projectile(game, spritesheet, origin) {
 
 }
 
-Projectile.prototype.draw = function () {
-    
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-    gameEngine.ctx.strokeStyle = "purple";
-    gameEngine.ctx.strokeRect(this.x, this.y, this.boundingbox.width, this.boundingbox.height);
-}
-
-
-// TODO: Add movement to projectile
-Projectile.prototype.update = function () {
-}
-
-
-function Trap(game, spriteSheet) {
-    this.animation = new Animation(spriteSheet, 512, 512, 1, 0.1, 4, true, .25);
-    this.x = canvasWidth / 2 - 59; // Hardcorded center spawn
-    this.y = canvasHeight / 2 - 59; // Hardcorded center spawn
-    this.game = game;
-    this.ctx = game.ctx;
-
-    this.boundingbox = new BoundingBox(this.x, this.y, 128, 128, entTypeEnum.TRAP, this.boundingbox); // **Temporary** hardcode of width and height
-}
-
 Trap.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    if (!this.activated) {
+        this.animationStill.drawFrameStill(this.ctx, this.x, this.y);
+    } else {
+        if (this.doAnimation) {
+            this.animationUp.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+        } else {
+            this.animationDown.drawFrameStill(this.ctx, this.x, this.y);
+        }
+    }
     gameEngine.ctx.strokeStyle = "red";
-    gameEngine.ctx.strokeRect(this.x, this.y, 128, 128); // **Temporary** Hard coded offset values
+    gameEngine.ctx.strokeRect(this.x, this.y, 20, 20); // **Temporary** Hard coded offset values
 }
 
 Trap.prototype.update = function () {
-
+    for (var i = 0; i < gameEngine.playerEntities.length; i++) {
+        var entityCollide = gameEngine.playerEntities[i];
+        if (this.boundingbox.collide(entityCollide.boundingbox)) {
+            // Remember what tick the collision happened
+            this.counter += this.game.clockTick;
+            // Check to make sure the animation happens first
+            if (this.counter < .1) {
+                this.doAnimation = true;
+            } else { // Else keep the spikes up as the player stands over the trap
+                this.doAnimation = false;
+                // Nuke the player, but start the damage .13 ticks after they stand
+                // This allows players to sprint accross taking 10 damage
+                if (gameEngine.playerEntities[i].health > 0 && this.counter > .13) {
+                    gameEngine.playerEntities[i].health -= 10;
+                }
+            }
+            this.activated = true;
+        } else {
+            this.activated = false;
+            this.doAnimation = false;
+            this.counter = 0;
+        }
+    }
 }
 
 function Player(game, spritesheetLeft, spritesheetRight) {
-    this.animationLeft = new Animation(spritesheetLeft, 16, 28, 1, 0.08, 4, true, 1.5);
-    this.animationRight = new Animation(spritesheetRight, 16, 28, 1, 0.08, 4, true, 1.5);
+    // Relevant for Player box
+    this.width = 16;
+    this.height = 28;
+    this.animationLeft = new Animation(spritesheetLeft, this.width, this.height, 1, 0.08, 4, true, 1.5);
+    this.animationRight = new Animation(spritesheetRight, this.width, this.height, 1, 0.08, 4, true, 1.5);
     this.animationStill = this.animationRight;
-
-
-    // assigning the global player obj.
-    playerObj1 = this;
-
-    this.x = canvasWidth / 2 - 16; // Hardcorded center spawn
-    this.y = canvasHeight / 2 - 28; // Hardcoded center spawn
+    this.x = 60;
+    this.y = 60;
 
     this.game = game;
     this.ctx = game.ctx;
     this.right = true;
 
+
+    this.health = 100000;
+
     this.health = 100;
-    this.armor = 0;
-    this.maxMovespeed = 100;
-    this.acceleration = [];
-    this.velocity = [];
-    this.damage = 0;
-    this.debuff = [];
-    this.hitbox = [];
+    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14,
+         this.width, this.height); // **Temporary** Hard coded offset values.
 
-    // Relevant for Player box
-    this.playerWidth = 16;
-    this.playerHeight = 28;
-
-    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight, entTypeEnum.PLAYER, this.boundingbox); // **Temporary** Hard coded offset values.
 }
-
-
 
 Player.prototype.draw = function () {
     //draw player character with no animation if player is not currently moving
@@ -387,13 +374,16 @@ Player.prototype.draw = function () {
         }
     }
     gameEngine.ctx.strokeStyle = "blue";
-    gameEngine.ctx.strokeRect(this.x + 4, this.y + 13, this.boundingbox.width, this.boundingbox.height); // Hard coded offset values
+    gameEngine.ctx.strokeRect(this.x + 4, this.y + 13,
+         this.boundingbox.width, this.boundingbox.height); // Hard coded offset values
+    this.ctx.font = "30px Arial";
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("Health: " + this.health, 320, 60);
 }
 
 Player.prototype.update = function () {
     // Conditional check to see if player wants to sprint or not
     var sprint = gameEngine.keyShift ? 2 : 1;
-
 
     // Collision detection for player.
     if (this.collideLeft()) {
@@ -430,12 +420,6 @@ Player.prototype.update = function () {
         this.animationStill = this.animationRight;
     }
 
-    // test for collision with our player
-    hitboxCollection.forEach(testCollision);
-    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight, entTypeEnum.PLAYER, this.boundingbox);
-
-}
-
 // TODO: Finish enemy collision tests for projectiles.
 function testCollision(value, key, map) {
     entType = key.entType;
@@ -470,17 +454,15 @@ function testCollision(value, key, map) {
     }
 }
 
-
-
 // Player prototype functions to determine map collision.
 Player.prototype.collideRight = function () {
-    return this.x + TILE_SIZE * 2 + this.playerWidth > canvasWidth; // This is the tile offset + the width of the character.
+    return this.x + TILE_SIZE * 2 + this.width > canvasWidth; // This is the tile offset + the width of the character.
 };
 Player.prototype.collideLeft = function () {
     return this.x - TILE_SIZE * 2 < 0; // This is the offset for a 2x2 of tiles.
 };
 Player.prototype.collideBottom = function () {
-    return this.y + TILE_SIZE * 2 + this.playerHeight > canvasHeight; // This is tile offset + the height of the character.
+    return this.y + TILE_SIZE * 2 + this.height > canvasHeight; // This is tile offset + the height of the character.
 };
 Player.prototype.collideTop = function () {
     return this.y - TILE_SIZE * 2 < 0; // This is the offset for a 2x2 of tiles.
@@ -511,8 +493,6 @@ function BoundingBox(x, y, width, height, entType, boundBox, origin) {
     this.top = y;
     this.right = this.left + width;
     this.bottom = this.top + height;
-    hitboxCollection.set(this, this.entType);
-    
 }
 
 BoundingBox.prototype.collide = function (oth) {
@@ -529,6 +509,7 @@ function Menu(game) {
     this.mageButtonX = (canvasWidth - (this.classButtonW * 3)) / 4;
     this.rangerButtonX = 2 * this.mageButtonX + this.classButtonW;
     this.knightButtonX = this.rangerButtonX + this.classButtonW + this.mageButtonX;
+    this.classButtonBottom = this.classButtonY + this.classButtonH;
     this.game = game;
     this.background = new Image();
     this.background.src = "./img/menu_background.png";
@@ -565,8 +546,7 @@ Menu.prototype.draw = function () {
         this.ctx.fillStyle = "white";
         this.ctx.fillText("Pick a Class!", 170, 330);
 }
-    AM.queueDownload("./img/NPC_22.png");
-    AM.queueDownload("./img/NPC_22_Flipped.png");
+
     AM.queueDownload("./img/NPC_21.png");
     AM.queueDownload("./img/whackFireTrap.png");
 
@@ -580,23 +560,20 @@ Menu.prototype.draw = function () {
     AM.queueDownload("./img/fireball_vert.png");
 
     // Ranger
-    AM.queueDownload("./img/ranger_idle.png");
-    AM.queueDownload("./img/ranger_idle_flipped.png");
     AM.queueDownload("./img/ranger_run.png");
     AM.queueDownload("./img/ranger_run_flipped.png");
 
     // Knight
-    AM.queueDownload("./img/knight_idle.png");
-    AM.queueDownload("./img/knight_idle_flipped.png");
     AM.queueDownload("./img/knight_run.png");
     AM.queueDownload("./img/knight_run_flipped.png");
 
     // Mage
-    AM.queueDownload("./img/mage_idle.png");
-    AM.queueDownload("./img/mage_idle_flipped.png");
     AM.queueDownload("./img/mage_run.png");
     AM.queueDownload("./img/mage_run_flipped.png");
 
+    // Floor Trap
+    AM.queueDownload("./img/floor_trap_up.png");
+    AM.queueDownload("./img/floor_trap_down.png");
 
     AM.downloadAll(function () {
         var canvas = document.getElementById("canvas");
