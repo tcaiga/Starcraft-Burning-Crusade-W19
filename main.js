@@ -133,26 +133,62 @@ Monster.prototype.update = function () {
         this.width, this.height); // **Temporary** Hard coded offset values.
 }
 
-function Trap(game, spriteSheet) {
-    this.height = 512;
-    this.width = 512;
-    this.animation = new Animation(spriteSheet, this.width, this.height, 1, 0.1, 4, true, .25);
-    this.x = canvasWidth / 2 - 59; // Hardcorded center spawn
-    this.y = canvasHeight / 2 - 59; // Hardcorded center spawn
+
+function Trap(game, spriteSheetUp, spriteSheetDown) {
+    this.animationUp = new Animation(spriteSheetUp, 16, 16, 1, 0.13, 4, true, 1.25);
+    this.animationDown = new Animation(spriteSheetDown, 16, 16, 1, 0.13, 4, true, 1.25);
+    this.animationStill = this.animationUp;
+    this.x = 200; // Hardcorded temp spawn
+    this.y = 200; // Hardcorded temp spawn
+    this.activated = false; // Determining if trap has been activated
+    this.counter = 0; // Counter to calculate when trap related events should occur
+    this.doAnimation = false; // Flag to determine if the spikes should animate or stay still
+
     this.game = game;
     this.ctx = game.ctx;
-
-    this.boundingbox = new BoundingBox(this.x, this.y, 128, 128); // **Temporary** hardcode of width and height
+    
+    this.boundingbox = new BoundingBox(this.x, this.y, 20, 20); // **Temporary** hardcode of width and height
 }
 
 Trap.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    if (!this.activated) {
+        this.animationStill.drawFrameStill(this.ctx, this.x, this.y);
+    } else {
+        if (this.doAnimation) {
+            this.animationUp.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+        } else {
+            this.animationDown.drawFrameStill(this.ctx, this.x, this.y);
+        }
+    }
     gameEngine.ctx.strokeStyle = "red";
-    gameEngine.ctx.strokeRect(this.x, this.y, 128, 128); // **Temporary** Hard coded offset values
+    gameEngine.ctx.strokeRect(this.x, this.y, 20, 20); // **Temporary** Hard coded offset values
 }
 
 Trap.prototype.update = function () {
-
+    for (var i = 0; i < gameEngine.playerEntities.length; i++) {
+        var entityCollide = gameEngine.playerEntities[i];
+        if (this.boundingbox.collide(entityCollide.boundingbox)) {
+            // Remember what tick the collision happened
+            this.counter += this.game.clockTick;
+            // Check to make sure the animation happens first
+            if (this.counter < .1) {
+                this.doAnimation = true;
+            } else { // Else keep the spikes up as the player stands over the trap
+                this.doAnimation = false;
+                // Nuke the player, but start the damage .13 ticks after they stand
+                // This allows players to sprint accross taking 10 damage
+                if (gameEngine.playerEntities[i].health > 0 && this.counter > .13) {
+                    gameEngine.playerEntities[i].health -= 10;
+                    console.log("Player Health: " + gameEngine.playerEntities[i].health);
+                }
+            }
+            this.activated = true;
+        } else {
+            this.activated = false;
+            this.doAnimation = false;
+            this.counter = 0;
+        }
+    }
 }
 
 function Player(game, spritesheetLeft, spritesheetRight) {
@@ -172,9 +208,13 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     this.ctx = game.ctx;
     this.right = true;
 
+
+    this.health = 100000;
+
     this.health = 100;
     this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14,
          this.width, this.height); // **Temporary** Hard coded offset values.
+
 }
 
 Player.prototype.draw = function () {
@@ -232,9 +272,9 @@ Player.prototype.update = function () {
     }
 
     // Checking for collision for all entities.
-    // **Work in Progress** works only for player and traps.
-    for (var i = 0; i < gameEngine.traps.length; i++) {
-        var entityCollide = gameEngine.traps[i];
+    // **Work in Progress** works only for player and trapEntities.
+    for (var i = 0; i < gameEngine.trapEntities.length; i++) {
+        var entityCollide = gameEngine.trapEntities[i];
         if (this.boundingbox.collide(entityCollide.boundingbox)) {
             console.log("Collision with Player and Trap");
         }
@@ -322,7 +362,6 @@ Menu.prototype.draw = function () {
 }
 
     AM.queueDownload("./img/NPC_21.png");
-    AM.queueDownload("./img/whackFireTrap.png");
 
     // Ranger
     AM.queueDownload("./img/ranger_run.png");
@@ -336,6 +375,9 @@ Menu.prototype.draw = function () {
     AM.queueDownload("./img/mage_run.png");
     AM.queueDownload("./img/mage_run_flipped.png");
 
+    // Floor Trap
+    AM.queueDownload("./img/floor_trap_up.png");
+    AM.queueDownload("./img/floor_trap_down.png");
 
     AM.downloadAll(function () {
         var canvas = document.getElementById("canvas");

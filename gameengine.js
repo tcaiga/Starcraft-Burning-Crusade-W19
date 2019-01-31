@@ -18,8 +18,12 @@ window.requestAnimFrame = (function () {
 
 function GameEngine() {
     this.entities = [];
-    // Array necessary to check for collision.
-    this.traps = [];
+    // Arrays necessary to check for collision. Made multiple because
+    // of the need to check them against each other.
+    // Array to hold player entities
+    this.playerEntities = [];
+    // Array to hold trap entities
+    this.trapEntities = [];
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -94,14 +98,20 @@ GameEngine.prototype.startInput = function () {
                 gameEngine.addEntity(new Background(gameEngine));
                 
                 // Using players choice to grab the appropriate character sprite
-                gameEngine.addEntity(new Player(gameEngine, AM.getAsset(characterSprites[playerPick]["leftFace"]),
-                    AM.getAsset(characterSprites[playerPick]["rightFace"])));
+
+                var player = new Player(gameEngine, AM.getAsset(characterSprites[playerPick]["leftFace"]),
+                AM.getAsset(characterSprites[playerPick]["rightFace"]))
+                gameEngine.addEntity(player);
+                gameEngine.addPlayerEntity(player);
+
                 gameEngine.addEntity(new Monster(gameEngine, AM.getAsset("./img/NPC_21.png")));
 
-                // This is to add traps to an array that will be tested for collision.
-                var trap = new Trap(gameEngine, AM.getAsset("./img/whackFireTrap.png"));
+
+                // This is to add entityCheck to an array that will be tested for collision.
+                var trap = new Trap(gameEngine, AM.getAsset("./img/floor_trap_up.png"),
+                AM.getAsset("./img/floor_trap_down.png"));
                 gameEngine.addEntity(trap);
-                gameEngine.addTrap(trap);
+                gameEngine.addTrapEntity(trap);
             }
         }
     }, false);
@@ -152,8 +162,12 @@ GameEngine.prototype.startInput = function () {
 
 // Necessary to let main.js access some information. In this case entities to
 // check for collision.
-GameEngine.prototype.addTrap = function (entity) {
-    this.traps.push(entity);
+GameEngine.prototype.addPlayerEntity = function (entity) {
+    this.playerEntities.push(entity);
+}
+
+GameEngine.prototype.addTrapEntity = function (entity) {
+    this.trapEntities.push(entity);
 }
 
 GameEngine.prototype.addEntity = function (entity) {
