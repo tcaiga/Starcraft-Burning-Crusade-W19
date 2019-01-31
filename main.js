@@ -1,17 +1,11 @@
 var AM = new AssetManager();
 var gameEngine = new GameEngine();
 
-var characterPick = -1;
-var characterArray = [];
-
 var canvasWidth;
 var canvasHeight;
 
-var entityArray = [];
-
 // Constant variable for tile size
 const TILE_SIZE = 16;
-
 
 function Animation(spriteSheet, frameWidth, frameHeight,
     sheetWidth, frameDuration, frames, loop, scale) {
@@ -89,6 +83,7 @@ function Background(game) {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
 
     ]
+    this.mapLength = Math.sqrt(this.map.length);
     this.zero = new Image();
     this.zero.src = "./img/floor_1.png";
     this.one = new Image();
@@ -97,9 +92,9 @@ function Background(game) {
 };
 
 Background.prototype.draw = function () {
-    for (let i = 0; i < 16; i++) {
-        for (let j = 0; j < 16; j++) {
-            this.tile = (this.map[i * 16 + j] == 1) ? this.one : this.zero;
+    for (let i = 0; i < this.mapLength; i++) {
+        for (let j = 0; j < this.mapLength; j++) {
+            this.tile = (this.map[i * this.mapLength + j] == 1) ? this.one : this.zero;
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2 + TILE_SIZE);
@@ -112,30 +107,32 @@ Background.prototype.update = function () {
 
 };
 
-function Monster1(game, spritesheet) {
-    this.animation = new Animation(spritesheet, 40, 56, 1, 0.15, 15, true, 1);
+function Monster(game, spritesheet) {
+    this.width = 40;
+    this.height = 56;
+    this.animation = new Animation(spritesheet, this.width, this.height, 1, 0.15, 15, true, 1);
     this.speed = 100;
     this.ctx = game.ctx;
     this.health = 100;
-    this.armor = 0;
-    this.maxMovespeed = 100;
-    this.acceleration = [];
-    this.velocity = [];
-    this.damage = 0;
-    this.debuff = [];
-    this.hitbox = [];
-    Entity.call(this, game, 0, 250);
+    Entity.call(this, game, 0, 350);
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width, this.height); // **Temporary** Hard coded offset values.
 }
 
-Monster1.prototype.draw = function () {
+Monster.prototype.draw = function () {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    gameEngine.ctx.strokeStyle = "red";
+    gameEngine.ctx.strokeRect(this.x, this.y, this.width, this.height);
 }
 
-Monster1.prototype.update = function () {
+Monster.prototype.update = function () {
     this.x -= this.game.clockTick * this.speed;
     if (this.x < 0) this.x = 450;
     Entity.prototype.update.call(this);
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width, this.height); // **Temporary** Hard coded offset values.
 }
+
 
 function Trap(game, spriteSheetUp, spriteSheetDown) {
     this.animationUp = new Animation(spriteSheetUp, 16, 16, 1, 0.13, 4, true, 1.25);
@@ -146,6 +143,7 @@ function Trap(game, spriteSheetUp, spriteSheetDown) {
     this.activated = false; // Determining if trap has been activated
     this.counter = 0; // Counter to calculate when trap related events should occur
     this.doAnimation = false; // Flag to determine if the spikes should animate or stay still
+
     this.game = game;
     this.ctx = game.ctx;
     
@@ -194,33 +192,29 @@ Trap.prototype.update = function () {
 }
 
 function Player(game, spritesheetLeft, spritesheetRight) {
-    this.animationLeft = new Animation(spritesheetLeft, 16, 28, 1, 0.08, 4, true, 1.5);
-    this.animationRight = new Animation(spritesheetRight, 16, 28, 1, 0.08, 4, true, 1.5);
+    // Relevant for Player box
+    this.width = 16;
+    this.height = 28;
+    this.animationLeft = new Animation(spritesheetLeft, this.width, this.height, 1, 0.08, 4, true, 1.5);
+    this.animationRight = new Animation(spritesheetRight, this.width, this.height, 1, 0.08, 4, true, 1.5);
     this.animationStill = this.animationRight;
-    //this.x = 0;
-    //this.y = 0;
+    this.x = 0;
+    this.y = 0;
 
-    this.x = canvasWidth / 2 - 16; // Hardcorded center spawn
-    this.y = canvasHeight / 2 - 28; // Hardcoded center spawn
+    // this.x = canvasWidth / 2 - 16; // Hardcorded center spawn
+    // this.y = canvasHeight / 2 - 28; // Hardcoded center spawn
 
     this.game = game;
     this.ctx = game.ctx;
     this.right = true;
 
+
     this.health = 100000;
-    this.armor = 0;
-    this.maxMovespeed = 100;
-    this.acceleration = [];
-    this.velocity = [];
-    this.damage = 0;
-    this.debuff = [];
-    this.hitbox = [];
 
-    // Relevant for Player box
-    this.playerWidth = 16;
-    this.playerHeight = 28;
+    this.health = 100;
+    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14,
+         this.width, this.height); // **Temporary** Hard coded offset values.
 
-    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight); // **Temporary** Hard coded offset values.
 }
 
 Player.prototype.draw = function () {
@@ -286,18 +280,18 @@ Player.prototype.update = function () {
         }
     }
 
-    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.playerWidth, this.playerHeight);
+    this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.width, this.height);
 }
 
 // Player prototype functions to determine map collision.
 Player.prototype.collideRight = function () {
-    return this.x + TILE_SIZE * 2 + this.playerWidth > canvasWidth; // This is the tile offset + the width of the character.
+    return this.x + TILE_SIZE * 2 + this.width > canvasWidth; // This is the tile offset + the width of the character.
 };
 Player.prototype.collideLeft = function () {
     return this.x - TILE_SIZE * 2 < 0; // This is the offset for a 2x2 of tiles.
 };
 Player.prototype.collideBottom = function () {
-    return this.y + TILE_SIZE * 2 + this.playerHeight > canvasHeight; // This is tile offset + the height of the character.
+    return this.y + TILE_SIZE * 2 + this.height > canvasHeight; // This is tile offset + the height of the character.
 };
 Player.prototype.collideTop = function () {
     return this.y - TILE_SIZE * 2 < 0; // This is the offset for a 2x2 of tiles.
@@ -367,25 +361,17 @@ Menu.prototype.draw = function () {
         this.ctx.fillText("Pick a Class!", 170, 330);
 }
 
-    AM.queueDownload("./img/NPC_22.png");
-    AM.queueDownload("./img/NPC_22_Flipped.png");
     AM.queueDownload("./img/NPC_21.png");
 
     // Ranger
-    AM.queueDownload("./img/ranger_idle.png");
-    AM.queueDownload("./img/ranger_idle_flipped.png");
     AM.queueDownload("./img/ranger_run.png");
     AM.queueDownload("./img/ranger_run_flipped.png");
 
     // Knight
-    AM.queueDownload("./img/knight_idle.png");
-    AM.queueDownload("./img/knight_idle_flipped.png");
     AM.queueDownload("./img/knight_run.png");
     AM.queueDownload("./img/knight_run_flipped.png");
 
     // Mage
-    AM.queueDownload("./img/mage_idle.png");
-    AM.queueDownload("./img/mage_idle_flipped.png");
     AM.queueDownload("./img/mage_run.png");
     AM.queueDownload("./img/mage_run_flipped.png");
 
