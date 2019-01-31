@@ -175,10 +175,11 @@ Trap.prototype.update = function () {
                 this.doAnimation = true;
             } else { // Else keep the spikes up as the player stands over the trap
                 this.doAnimation = false;
-                // Nuke the player, but start the damage .13 ticks after they stand
+                // Nuke the player, but start the damage .13 ticks after they stand on the trap
                 // This allows players to sprint accross taking 10 damage
-                if (gameEngine.playerEntities[i].health > 0 && this.counter > .13) {
-                    gameEngine.playerEntities[i].health -= 10;
+                if (gameEngine.playerEntities[i].health > 0 && this.counter > 0.18) {
+                    gameEngine.playerEntities[i].health -= 2;
+                    this.counter = .1;
                 }
             }
             this.activated = true;
@@ -204,10 +205,8 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     this.ctx = game.ctx;
     this.right = true;
 
-
-    this.health = 100000;
-
     this.health = 100;
+
     this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14,
          this.width, this.height); // **Temporary** Hard coded offset values.
 
@@ -234,7 +233,7 @@ Player.prototype.draw = function () {
 
 Player.prototype.update = function () {
     // Conditional check to see if player wants to sprint or not
-    var sprint = gameEngine.keyShift ? 2 : 1;
+    var sprint = gameEngine.keyShift ? 1.75 : 1;
 
     // Collision detection for player.
     if (this.collideLeft()) {
@@ -271,14 +270,6 @@ Player.prototype.update = function () {
         this.animationStill = this.animationRight;
     }
 
-    // Checking for collision for all entities.
-    // **Work in Progress** works only for player and trapEntities.
-    for (var i = 0; i < gameEngine.trapEntities.length; i++) {
-        var entityCollide = gameEngine.trapEntities[i];
-        if (this.boundingbox.collide(entityCollide.boundingbox)) {
-            this.health--;
-        }
-    }
     if (this.health <= 0) {
         this.game.reset();
     }
