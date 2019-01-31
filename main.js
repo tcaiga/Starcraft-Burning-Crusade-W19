@@ -179,7 +179,6 @@ Trap.prototype.update = function () {
                 // This allows players to sprint accross taking 10 damage
                 if (gameEngine.playerEntities[i].health > 0 && this.counter > .13) {
                     gameEngine.playerEntities[i].health -= 10;
-                    console.log("Player Health: " + gameEngine.playerEntities[i].health);
                 }
             }
             this.activated = true;
@@ -226,7 +225,11 @@ Player.prototype.draw = function () {
         }
     }
     gameEngine.ctx.strokeStyle = "blue";
-    gameEngine.ctx.strokeRect(this.x + 4, this.y + 13, this.boundingbox.width, this.boundingbox.height); // Hard coded offset values
+    gameEngine.ctx.strokeRect(this.x + 4, this.y + 13,
+         this.boundingbox.width, this.boundingbox.height); // Hard coded offset values
+    this.ctx.font = "30px Arial";
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("Health: " + this.health, 320, 60);
 }
 
 Player.prototype.update = function () {
