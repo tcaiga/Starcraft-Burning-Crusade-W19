@@ -18,12 +18,16 @@ window.requestAnimFrame = (function () {
 
 function GameEngine() {
     this.entities = [];
+
+    this.entitiesCount = 0;
+
     // Arrays necessary to check for collision. Made multiple because
     // of the need to check them against each other.
     // Array to hold player entities
     this.playerEntities = [];
     // Array to hold trap entities
     this.trapEntities = [];
+
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -76,7 +80,7 @@ GameEngine.prototype.startInput = function () {
         if (that.menu === true) {
             var classPicked = false;
             if (y >= gameEngine.entities[0].classButtonY &&
-                 y <= gameEngine.entities[0].classButtonTextY) {
+                 y <= gameEngine.entities[0].classButtonBottom) {
                 if(x >= gameEngine.entities[0].mageButtonX &&
                      x <= gameEngine.entities[0].mageButtonX + gameEngine.entities[0].classButtonW) {
                     classPicked = true;
@@ -93,7 +97,8 @@ GameEngine.prototype.startInput = function () {
             }
             if (classPicked) {
                 that.menu = false;
-                that.entities.pop();
+                that.entities[0].removeFromWorld = true;
+                classPicked = false;
                 that.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
                 gameEngine.addEntity(new Background(gameEngine));
                 
@@ -160,6 +165,18 @@ GameEngine.prototype.startInput = function () {
     }, false);
 }
 
+GameEngine.prototype.reset = function () {
+    console.log(this.entities);
+    this.entitiesCount = 0;
+    for (let i = this.entities.length - 1; i > 0; i--) {
+        this.entities[i].removeFromWorld = true;
+        this.entities.pop();
+    }
+    this.entitiesCount++;
+    this.menu = true;
+    this.entities[0].removeFromWorld = false;
+}
+
 // Necessary to let main.js access some information. In this case entities to
 // check for collision.
 GameEngine.prototype.addPlayerEntity = function (entity) {
@@ -172,21 +189,24 @@ GameEngine.prototype.addTrapEntity = function (entity) {
 
 GameEngine.prototype.addEntity = function (entity) {
     this.entities.push(entity);
+    this.entitiesCount++;
 }
 
 GameEngine.prototype.draw = function () {
     this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
     this.ctx.save();
-    for (var i = 0; i < this.entities.length; i++) {
-        this.entities[i].draw(this.ctx);
+    for (var i = 0; i < this.entitiesCount; i++) {
+        var entity = this.entities[i];
+        if (!entity.removeFromWorld) {
+            entity.draw(this.ctx);
+        }
     }
     this.ctx.restore();
 }
 
 GameEngine.prototype.update = function () {
-    var entitiesCount = this.entities.length;
 
-    for (var i = 0; i < entitiesCount; i++) {
+    for (var i = 0; i < this.entitiesCount; i++) {
         var entity = this.entities[i];
 
         if (!entity.removeFromWorld) {

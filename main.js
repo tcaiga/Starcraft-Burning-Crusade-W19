@@ -198,11 +198,8 @@ function Player(game, spritesheetLeft, spritesheetRight) {
     this.animationLeft = new Animation(spritesheetLeft, this.width, this.height, 1, 0.08, 4, true, 1.5);
     this.animationRight = new Animation(spritesheetRight, this.width, this.height, 1, 0.08, 4, true, 1.5);
     this.animationStill = this.animationRight;
-    this.x = 0;
-    this.y = 0;
-
-    // this.x = canvasWidth / 2 - 16; // Hardcorded center spawn
-    // this.y = canvasHeight / 2 - 28; // Hardcoded center spawn
+    this.x = 60;
+    this.y = 60;
 
     this.game = game;
     this.ctx = game.ctx;
@@ -276,8 +273,11 @@ Player.prototype.update = function () {
     for (var i = 0; i < gameEngine.trapEntities.length; i++) {
         var entityCollide = gameEngine.trapEntities[i];
         if (this.boundingbox.collide(entityCollide.boundingbox)) {
-            console.log("Collision with Player and Trap");
+            this.health--;
         }
+    }
+    if (this.health <= 0) {
+        this.game.reset();
     }
 
     this.boundingbox = new BoundingBox(this.x  + 4, this.y + 14, this.width, this.height);
@@ -324,6 +324,7 @@ function Menu(game) {
     this.mageButtonX = (canvasWidth - (this.classButtonW * 3)) / 4;
     this.rangerButtonX = 2 * this.mageButtonX + this.classButtonW;
     this.knightButtonX = this.rangerButtonX + this.classButtonW + this.mageButtonX;
+    this.classButtonBottom = this.classButtonY + this.classButtonH;
     this.game = game;
     this.background = new Image();
     this.background.src = "./img/menu_background.png";
