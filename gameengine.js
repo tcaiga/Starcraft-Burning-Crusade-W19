@@ -75,17 +75,14 @@ GameEngine.prototype.startInput = function () {
                  y <= gameEngine.entities[0].classButtonTextY) {
                 if(x >= gameEngine.entities[0].mageButtonX &&
                      x <= gameEngine.entities[0].mageButtonX + gameEngine.entities[0].classButtonW) {
-                    console.log("Mage Picked");
                     classPicked = true;
                     playerPick = 0;
                 }  else if (x >= gameEngine.entities[0].rangerButtonX &&
                     x <= gameEngine.entities[0].rangerButtonX + gameEngine.entities[0].classButtonW) {
-                    console.log("Ranger Picked");
                     classPicked = true;
                     playerPick = 1;
                 } else if (x >= gameEngine.entities[0].knightButtonX &&
                     x <= gameEngine.entities[0].knightButtonX + gameEngine.entities[0].classButtonW) {
-                    console.log("Knight Picked");
                     classPicked = true;
                     playerPick = 2;
                 }
@@ -93,14 +90,13 @@ GameEngine.prototype.startInput = function () {
             if (classPicked) {
                 that.menu = false;
                 that.entities.pop();
-                console.log("click");
                 that.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
                 gameEngine.addEntity(new Background(gameEngine));
                 
                 // Using players choice to grab the appropriate character sprite
                 gameEngine.addEntity(new Player(gameEngine, AM.getAsset(characterSprites[playerPick]["leftFace"]),
                     AM.getAsset(characterSprites[playerPick]["rightFace"])));
-                gameEngine.addEntity(new Monster1(gameEngine, AM.getAsset("./img/NPC_21.png")));
+                gameEngine.addEntity(new Monster(gameEngine, AM.getAsset("./img/NPC_21.png")));
 
                 // This is to add traps to an array that will be tested for collision.
                 var trap = new Trap(gameEngine, AM.getAsset("./img/whackFireTrap.png"));
@@ -179,7 +175,9 @@ GameEngine.prototype.update = function () {
     for (var i = 0; i < entitiesCount; i++) {
         var entity = this.entities[i];
 
-        entity.update();
+        if (!entity.removeFromWorld) {
+            entity.update();
+        }
     }
 }
 
@@ -223,21 +221,4 @@ Entity.prototype.draw = function (ctx) {
         this.game.ctx.stroke();
         this.game.ctx.closePath();
     }
-}
-
-Entity.prototype.rotateAndCache = function (image, angle) {
-    var offscreenCanvas = document.createElement('canvas');
-    var size = Math.max(image.width, image.height);
-    offscreenCanvas.width = size;
-    offscreenCanvas.height = size;
-    var offscreenCtx = offscreenCanvas.getContext('2d');
-    offscreenCtx.save();
-    offscreenCtx.translate(size / 2, size / 2);
-    offscreenCtx.rotate(angle);
-    offscreenCtx.translate(0, 0);
-    offscreenCtx.drawImage(image, -(image.width / 2), -(image.height / 2));
-    offscreenCtx.restore();
-    //offscreenCtx.strokeStyle = "red";
-    //offscreenCtx.strokeRect(0,0,size,size);
-    return offscreenCanvas;
 }
