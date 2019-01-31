@@ -47,7 +47,7 @@ GameEngine.prototype.start = function () {
 }
 
 // Keep track of origin of certain things. Will be important later down the road for collision.
-var origin = {
+const origin = {
     PLAYER: 1,
     ENEMY: 2,
     DUNGEON: 3
@@ -105,10 +105,18 @@ GameEngine.prototype.startInput = function () {
                 // Using players choice to grab the appropriate character sprite
                 gameEngine.addEntity(new Player(gameEngine, AM.getAsset(characterSprites[playerPick]["leftFace"]),
                     AM.getAsset(characterSprites[playerPick]["rightFace"])));
-                gameEngine.addEntity(new Monster1(gameEngine, AM.getAsset("./img/NPC_21.png")));
-                var m2 = new Monster1(gameEngine, AM.getAsset("./img/NPC_22.png"))
-                gameEngine.addEntity(m2);
-                m2.setPosition(150, 100);
+                gameEngine.addEntity(new Monster(gameEngine, AM.getAsset("./img/NPC_21.png")));
+                var s2 = new Skeleton(gameEngine, AM.getAsset("./img/skeleton.png"));
+                gameEngine.addEntity(s2);
+                s2.setPosition(150, 100);
+
+
+                //devil testing
+                var devil = new Devil(gameEngine, AM.getAsset("./img/devil.png"));
+                gameEngine.addEntity(devil);
+                devil.setPosition(400, 400);
+
+
                 // <TEST> testing projectile creation
                 gameEngine.addEntity(new Projectile(gameEngine, AM.getAsset("./img/fireball_upside.png"), origin.PLAYER));
 

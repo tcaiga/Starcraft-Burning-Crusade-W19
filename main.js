@@ -116,11 +116,11 @@ Background.prototype.update = function () {
 
 };
 
-function Monster1(game, spritesheet) {
-    this.zOffsetHeight = 5;
-    this.zWidth = 40;
-    this.zHeight = 56;
-    this.animation = new Animation(spritesheet, this.zWidth, this.zHeight, 1, 0.15, 15, true, 1);
+function Monster(game, spritesheet) {
+    this.offsetY = 5;
+    this.Width = 40;
+    this.Height = 56;
+    this.animation = new Animation(spritesheet, this.Width, this.Height, 1, 0.15, 15, true, 1);
     this.speed = 100;
     this.ctx = game.ctx;
     this.health = 100;
@@ -134,37 +134,161 @@ function Monster1(game, spritesheet) {
 
     enemyCollection.push(this);
 
-    this.boundingbox = new BoundingBox(this.x, this.y + this.zOffsetHeight, this.zWidth, this.zHeight, entTypeEnum.ENEMY, this.boundingbox);
+    this.boundingbox = new BoundingBox(this.x, this.y + this.offsetY, this.Width, this.Height, entTypeEnum.ENEMY, this.boundingbox);
     Entity.call(this, game, 0, 250);
     
 }
 
-Monster1.prototype.setPosition = function (x, y) {
+Monster.prototype.update = function () {
+    this.x -= this.game.clockTick * this.speed;
+    if (this.x < 0) this.x = 450;
+    Entity.prototype.update.call(this);
+    this.boundingbox = new BoundingBox(this.x, this.y, this.Width, this.Height, entTypeEnum.ENEMY, this.boundingbox);
+}
+
+Monster.prototype.setPosition = function (x, y) {
     this.x = x;
     this.y = y;
 }
 
-Monster1.prototype.draw = function () {
+Monster.prototype.draw = function() {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
     gameEngine.ctx.strokeStyle = "red";
-    gameEngine.ctx.strokeRect(this.x, this.y + this.zOffsetHeight, this.boundingbox.width, this.boundingbox.height);
+    gameEngine.ctx.strokeRect(this.x, this.y + this.OffsetHeight, this.boundingbox.width, this.boundingbox.height);
 }
 
-Monster1.prototype.getBoundingBox = function () {
+Monster.prototype.getBoundingBox = function() {
     return this.boundingbox;
 }
 
-Monster1.prototype.update = function () {
-    this.x -= this.game.clockTick * this.speed;
-    if (this.x < 0) this.x = 450;
-    Entity.prototype.update.call(this);
-    this.boundingbox = new BoundingBox(this.x, this.y, this.zWidth, this.zHeight, entTypeEnum.ENEMY, this.boundingbox);
+function Skeleton(game, spritesheet) {
+    this.ctx = game.ctx;
+
+    this.offsetY = 5;
+    this.Width = 16;
+    this.Height = 18;
+    this.animation = new Animation(spritesheet, this.Width, this.Height, 8, .10, 8, true, 1);
+
+    this.speed = 100;
+    this.health = 100;
+    this.armor = 0;
+    this.maxMovespeed = 100;
+    this.acceleration = [];
+    this.velocity = [];
+    this.damage = 0;
+    this.debuff = [];
+    this.hitbox = [];
+
+    enemyCollection.push(this);
+
+    this.boundingbox = new BoundingBox(this.x, this.y, this.Width, this.Height, entTypeEnum.ENEMY, this.boundingbox);
+    Entity.call(this, game, 0, 250);
 }
 
-function Skeleton(game, spritesheet) {
-    Monster1.call(this, game, spritesheet);
-    enemyCollection.push(this);
+Skeleton.prototype.update = function () {
+    //do stuff
 }
+
+Skeleton.prototype.setPosition = function (x, y) {
+    this.x = x;
+    this.y = y;
+}
+
+Skeleton.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    gameEngine.ctx.strokeStyle = "red";
+    gameEngine.ctx.strokeRect(this.x, this.y, this.boundingbox.width, this.boundingbox.height);
+}
+
+Skeleton.prototype.getBoundingBox = function () {
+    return this.boundingbox;
+}
+
+function Acolyte(game, spritesheet) {
+    this.Width = 0;
+    this.Height = 0;
+    this.animation = new Animation(spritesheet, this.Width, this.Height, 1, 0.15, 15, true, 1);
+
+    this.speed = 100;
+    this.ctx = game.ctx;
+    this.health = 100;
+    this.armor = 0;
+    this.maxMovespeed = 100;
+    this.acceleration = [];
+    this.velocity = [];
+    this.damage = 0;
+    this.debuff = [];
+    this.hitbox = [];
+
+    enemyCollection.push(this);
+
+    this.boundingbox = new BoundingBox(this.x, this.y, this.Width, this.Height, entTypeEnum.ENEMY, this.boundingbox);
+    Entity.call(this, game, 0, 250);
+}
+
+Acolyte.prototype.update = function () {
+    // do stuff
+}
+
+Acolyte.prototype.setPosition = function (x, y) {
+    this.x = x;
+    this.y = y;
+}
+
+Acolyte.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    gameEngine.ctx.strokeStyle = "red";
+    gameEngine.ctx.strokeRect(this.x, this.y, this.boundingbox.width, this.boundingbox.height);
+}
+
+Acolyte.prototype.getBoundingBox = function () {
+    return this.boundingbox;
+}
+
+
+function Devil(game, spritesheet) {
+    this.Width = 16;
+    this.Height = 23;
+    this.animation = new Animation(spritesheet, this.Width, this.Height, 8, .10, 8, true, 2);
+
+    this.speed = 100;
+    this.ctx = game.ctx;
+    this.health = 100;
+    this.armor = 0;
+    this.maxMovespeed = 100;
+    this.acceleration = [];
+    this.velocity = [];
+    this.damage = 0;
+    this.debuff = [];
+    this.hitbox = [];
+
+    enemyCollection.push(this);
+
+    this.boundingbox = new BoundingBox(this.x, this.y, this.Width * 2, this.Height * 2, entTypeEnum.ENEMY, this.boundingbox);
+    Entity.call(this, game, 0, 250);
+}
+
+Devil.prototype.update = function () {
+    // do stuff
+}
+
+Devil.prototype.setPosition = function (x, y) {
+    this.x = x;
+    this.y = y;
+}
+
+Devil.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    gameEngine.ctx.strokeStyle = "black";
+    gameEngine.ctx.strokeRect(this.x, this.y, this.boundingbox.width, this.boundingbox.height);
+}
+
+Devil.prototype.getBoundingBox = function () {
+    return this.boundingbox;
+}
+
+
+
 
 
 // Projectile object that will be used for creation of projectile sprites and their corresponding hitboxes and
@@ -180,7 +304,7 @@ function Projectile(game, spritesheet, origin) {
 
     this.game = game;
     this.ctx = game.ctx;
-    this.boundingbox = new BoundingBox(this.x, this.y, this.projWidth, this.projHeight, entTypeEnum.PROJECTILE, this.boundingbox);
+    this.boundingbox = new BoundingBox(this.x, this.y, this.projWidth, this.projHeight, entTypeEnum.PROJECTILE, this.boundingbox, this.belongsTo);
 
 }
 
@@ -315,7 +439,7 @@ Player.prototype.update = function () {
 // TODO: Finish enemy collision tests for projectiles.
 function testCollision(value, key, map) {
     entType = key.entType;
-    console.log(key.entType);
+
     if (playerObj1.boundingbox.collide(key) && entType - 4 > 0) {
         
         // enemy stuff (current design doesnt punish players for being in range, but we can potentially do something with this)
@@ -324,7 +448,6 @@ function testCollision(value, key, map) {
         } else if(entType == entTypeEnum.TRAP) {
             // not really functional--testing if its updating with the entity type which it is
             playerObj1.health--;
-            console.log(playerObj1.health);
        // door entity
         }  else if (entType == entTypeEnum.DOOR) {
         //      door lock stuff that will be implemented <PH>
@@ -336,11 +459,12 @@ function testCollision(value, key, map) {
     for (var i = 0; i < enemyCollection.length; i++) {
         var enemy = enemyCollection[i];
         if (enemy.boundingbox.collide(key)) {
-            
-            if (key.entType == entTypeEnum.PROJECTILE && key.belongsTo == origin.PLAYER) {
-                //<PH> damage stuff yet to be implemented/merged
-                console.log("oof ouch my bones");
+            if (key.entType == entTypeEnum.PROJECTILE) {
+                if (key.belongsTo == origin.PLAYER) {
+                    console.log("oof ouch my bones");
+                }
             }
+
         }
             
     }
@@ -362,7 +486,8 @@ Player.prototype.collideTop = function () {
     return this.y - TILE_SIZE * 2 < 0; // This is the offset for a 2x2 of tiles.
 };
 
-var entTypeEnum = {
+// enum to keep track of interactable entities
+const entTypeEnum = {
     PLAYER: 1,
     ENEMY: 5,
     TRAP: 6,
@@ -373,13 +498,14 @@ var entTypeEnum = {
 
 // <IMPORTANT> Entity type or "entType" vals: 1-4 for player(s), 5 for enemy, 6 for trap, 7 for items, and 8 for doors.
 // BoundingBox for entities to detect collision.
-function BoundingBox(x, y, width, height, entType, boundBox) {
+function BoundingBox(x, y, width, height, entType, boundBox, origin) {
     hitboxCollection.delete(boundBox);
     this.entType = entType;
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
+    this.belongsTo = origin;
 
     this.left = x;
     this.top = y;
@@ -443,6 +569,11 @@ Menu.prototype.draw = function () {
     AM.queueDownload("./img/NPC_22_Flipped.png");
     AM.queueDownload("./img/NPC_21.png");
     AM.queueDownload("./img/whackFireTrap.png");
+
+    // Skeleton
+    AM.queueDownload("./img/skeleton.png");
+    // Devil
+    AM.queueDownload("./img/devil.png");
 
     // Orange fireball sprites
     AM.queueDownload("./img/fireball_upside.png");
