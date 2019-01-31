@@ -166,7 +166,6 @@ GameEngine.prototype.startInput = function () {
 }
 
 GameEngine.prototype.reset = function () {
-    console.log(this.entities);
     this.entitiesCount = 0;
     for (let i = this.entities.length - 1; i > 0; i--) {
         this.entities[i].removeFromWorld = true;
