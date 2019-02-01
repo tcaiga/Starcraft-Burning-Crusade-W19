@@ -23,6 +23,7 @@ window.requestAnimFrame = (function () {
 })();
 
 function GameEngine() {
+    //menu, non-interactable (terrain, hud), enemies, projectiles, traps, player
     // this.entities = [[], [], [], [], [], []];
     this.entities = [];
     this.entitiesCount = 0;
@@ -75,14 +76,12 @@ GameEngine.prototype.startInput = function () {
     }
 
     var that = this;
-
     // event listeners are added here
-
-    this.ctx.canvas.addEventListener("click", function(e){
+    var playerPick = null;
+    this.ctx.canvas.addEventListener("click", function (e) {
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
-        var playerPick = null;
-        if (that.insideMenu === true) {
+        if (that.insideMenu) {
             var menu = that.entities[0];
             var classPicked = false;
             if (y >= menu.classButtonY &&
@@ -106,6 +105,7 @@ GameEngine.prototype.startInput = function () {
                 menu.removeFromWorld = true;
                 classPicked = false;
                 that.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
+
                 GAME_ENGINE.addEntity(new Background(GAME_ENGINE));
                 
                 // Using players choice to grab the appropriate character sprite
@@ -115,6 +115,7 @@ GameEngine.prototype.startInput = function () {
                 characterSprites[playerPick]["yOffset"]);
                 GAME_ENGINE.addEntity(myPlayer);
                 GAME_ENGINE.addPlayerEntity(myPlayer);
+
 
                 GAME_ENGINE.addEntity(new Monster(GAME_ENGINE, AM.getAsset("./img/NPC_21.png")));
 
@@ -130,6 +131,28 @@ GameEngine.prototype.startInput = function () {
                 hudHeight = hud.height;
                 gameWorldHeight = canvasHeight - hud.height;
             }
+        }
+
+        else if (!that.insideMenu && playerPick == 0) {
+            var projAsset = null;
+            if (x < myPlayer.x && y < myPlayer.y) {
+                projAsset = "./img/fireball/fireballleftup.png";
+            } else if (x > myPlayer.x && x < myPlayer.x + 16 && y < myPlayer.y + 14) {
+                projAsset = "./img/fireball/fireballup.png";
+            } else if (x > myPlayer.x && x < myPlayer.x + 16 && y > myPlayer.y + 14) {
+                projAsset = "./img/fireball/fireballdown.png";
+            } else if (x < myPlayer.x + 8 && y > myPlayer.y + 28) {
+                projAsset = "./img/fireball/fireballdownleft.png";
+            } else if (x > myPlayer.x && y > myPlayer.y && y < myPlayer.y + 28) { 
+                projAsset = "./img/fireball/fireballright.png";
+            } else if (x > myPlayer.x && y > myPlayer.y + 28) {
+                projAsset = "./img/fireball/fireballdownright.png";
+            } else if (x > myPlayer.x && y < myPlayer.y) {
+            projAsset = "./img/fireball/fireballrightup.png";
+            } else {
+            projAsset = "./img/fireball/fireballleft.png";
+}
+            GAME_ENGINE.addEntity(new Projectile(GAME_ENGINE, AM.getAsset(projAsset), myPlayer.x, myPlayer.y, x, y));
         }
     }, false);
 
@@ -151,7 +174,7 @@ GameEngine.prototype.startInput = function () {
         } else if (e.code === "KeyD") {
             that.keyD = true;
             that.movement = true;
-        } 
+        }
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
@@ -183,6 +206,17 @@ GameEngine.prototype.reset = function () {
         this.entities[i].removeFromWorld = true;
         this.entities.pop();
     }
+
+    // Popping playerEntities to remove duplicates.
+    for (let i = 0; i < this.playerEntities.length; i++) {
+        this.playerEntities.pop();
+    }
+
+    // Popping trapEntities to remove duplicates.
+    for (let i = 0; i < this.trapEntities.length; i++) {
+        this.trapEntities.pop();
+    }
+
     this.entitiesCount++;
     this.insideMenu = true;
     //menu is no longer removed from world
