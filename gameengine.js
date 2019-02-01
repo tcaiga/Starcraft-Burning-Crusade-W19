@@ -75,12 +75,12 @@ GameEngine.prototype.startInput = function () {
     }
 
     var that = this;
-
     // event listeners are added here
-
-    this.ctx.canvas.addEventListener("click", function(e){
+    var playerPick = null;
+    this.ctx.canvas.addEventListener("click", function (e) {
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
+
         var playerPick = null;
         if (that.insideMenu === true) {
             var menu = that.entities[0];
@@ -106,6 +106,7 @@ GameEngine.prototype.startInput = function () {
                 menu.removeFromWorld = true;
                 classPicked = false;
                 that.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
+
                 GAME_ENGINE.addEntity(new Background(GAME_ENGINE));
                 
                 // Using players choice to grab the appropriate character sprite
@@ -115,6 +116,7 @@ GameEngine.prototype.startInput = function () {
                 characterSprites[playerPick]["yOffset"]);
                 GAME_ENGINE.addEntity(myPlayer);
                 GAME_ENGINE.addPlayerEntity(myPlayer);
+
 
                 GAME_ENGINE.addEntity(new Monster(GAME_ENGINE, AM.getAsset("./img/NPC_21.png")));
 
@@ -130,6 +132,30 @@ GameEngine.prototype.startInput = function () {
                 hudHeight = hud.height;
                 gameWorldHeight = canvasHeight - hud.height;
             }
+        }
+
+        if (that.menu == false && playerPick == 0) {
+            console.log("Player (x, y)" + "(" + player.x + ", " + player.y + ")");
+            console.log("Click (x, y)" + "(" + x + ", " + y + ")");
+            var projAsset = null;
+            if (x < player.x && y < player.y) {
+                projAsset = "./img/fireball/fireballleftup.png";
+            } else if (x > player.x && x < player.x + 16 && y < player.y + 14) {
+                projAsset = "./img/fireball/fireballup.png";
+            } else if (x > player.x && x < player.x + 16 && y > player.y + 14) {
+                projAsset = "./img/fireball/fireballdown.png";
+            } else if (x < player.x + 8 && y > player.y + 28) {
+                projAsset = "./img/fireball/fireballdownleft.png";
+            } else if (x > player.x && y > player.y && y < player.y + 28) { 
+                projAsset = "./img/fireball/fireballright.png";
+            } else if (x > player.x && y > player.y + 28) {
+                projAsset = "./img/fireball/fireballdownright.png";
+            } else if (x > player.x && y < player.y) {
+            projAsset = "./img/fireball/fireballrightup.png";
+            } else {
+            projAsset = "./img/fireball/fireballleft.png";
+}
+            gameEngine.addEntity(new Projectile(gameEngine, AM.getAsset(projAsset), player.x, player.y, x, y));
         }
     }, false);
 
@@ -151,7 +177,7 @@ GameEngine.prototype.startInput = function () {
         } else if (e.code === "KeyD") {
             that.keyD = true;
             that.movement = true;
-        } 
+        }
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {

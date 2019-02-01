@@ -105,6 +105,7 @@ function Monster(game, spritesheet) {
     this.ctx = game.ctx;
     this.health = 100;
     Entity.call(this, game, 0, 350);
+    
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width, this.height); // **Temporary** Hard coded offset values.
 }
@@ -123,6 +124,61 @@ Monster.prototype.update = function () {
         this.width, this.height); // **Temporary** Hard coded offset values.
 }
 
+function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
+    this.width = 64;
+    this.height = 64;
+    this.animation = new Animation(spriteSheet, this.width, this.height, 1, 15, 8, true, 1);
+
+    this.originX = originX;
+    this.originY = originY;
+
+    this.xTar = xTarget;
+    this.yTar = yTarget;
+
+    this.speed = 200;
+    this.ctx = game.ctx;
+    Entity.call(this, game, originX, originY);
+
+    console.log(this);
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width, this.height);
+}
+
+Projectile.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    gameEngine.ctx.strokeStyle = "purple";
+    gameEngine.ctx.strokeRect(this.x, this.y, this.width, this.height);
+}
+
+Projectile.prototype.update = function () {
+    var speedMod = 1.3;
+    if (this.xTar < this.originX && this.yTar < this.originY) {
+        this.x -= this.game.clockTick * this.speed;
+        this.y -= this.game.clockTick * this.speed;
+    } else if (this.xTar > this.originX + 14&& this.yTar < this.originY) {
+        this.x += this.game.clockTick * this.speed;
+        this.y -= this.game.clockTick * this.speed;
+    } else if (this.xTar > this.originX + 14 && this.yTar > this.originY + 28) {
+        this.x += this.game.clockTick * this.speed;
+        this.y += this.game.clockTick * this.speed;
+    } else if (this.xTar < this.originX && this.yTar > this.originY + 28) {
+        this.x -= this.game.clockTick * this.speed;
+        this.y += this.game.clockTick * this.speed;
+    } else if (this.xTar > this.originX && this.yTar > this.originY && this.yTar < this.originY + 28) {
+        this.x += this.game.clockTick * this.speed * speedMod;
+    } else if (this.xTar < this.originX && this.yTar > this.originY && this.yTar < this.originY + 28) {
+        this.x -= this.game.clockTick * this.speed * speedMod;
+    } else if (this.xTar > this.originX && this.xTar < this.originX + 16 && this.yTar < this.originY) {
+        this.y -= this.game.clockTick * this.speed * speedMod;
+    } else {
+        this.y += this.game.clockTick * this.speed * speedMod;
+    }
+
+    if (this.x < 0 || this.x > 500) this.removeFromWorld = true;
+    Entity.prototype.update.call(this);
+    this.boundingbox = new BoundingBox(this.x, this.y,
+    this.width, this.height); // **Temporary** Hard coded offset values.
+}
 
 function Trap(game, spriteSheetUp, spriteSheetDown) {
     this.animationUp = new Animation(spriteSheetUp, 16, 16, 1, 0.13, 4, true, 1.25);
@@ -391,6 +447,18 @@ AM.queueDownload("./img/mage_run_flipped.png");
 AM.queueDownload("./img/floor_trap_up.png");
 AM.queueDownload("./img/floor_trap_down.png");
 
+    // Fireball stuff
+    AM.queueDownload("./img/fireball/fireballright.png");
+    AM.queueDownload("./img/fireball/fireballdownleft.png");
+    AM.queueDownload("./img/fireball/fireballleftup.png");
+    AM.queueDownload("./img/fireball/fireballup.png");
+    AM.queueDownload("./img/fireball/fireballdown.png");
+    AM.queueDownload("./img/fireball/fireballrightup.png");
+    AM.queueDownload("./img/fireball/fireballdownright.png");
+    AM.queueDownload("./img/fireball/fireballleft.png");
+
+
+
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
@@ -399,6 +467,7 @@ AM.downloadAll(function () {
     document.body.style.backgroundColor = "black";
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
+
 
     GAME_ENGINE.init(ctx);
     GAME_ENGINE.start();
