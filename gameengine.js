@@ -80,9 +80,7 @@ GameEngine.prototype.startInput = function () {
     this.ctx.canvas.addEventListener("click", function (e) {
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
-
-        var playerPick = null;
-        if (that.insideMenu === true) {
+        if (that.insideMenu) {
             var menu = that.entities[0];
             var classPicked = false;
             if (y >= menu.classButtonY &&
@@ -134,28 +132,26 @@ GameEngine.prototype.startInput = function () {
             }
         }
 
-        if (that.menu == false && playerPick == 0) {
-            console.log("Player (x, y)" + "(" + player.x + ", " + player.y + ")");
-            console.log("Click (x, y)" + "(" + x + ", " + y + ")");
+        else if (!that.insideMenu && playerPick == 0) {
             var projAsset = null;
-            if (x < player.x && y < player.y) {
+            if (x < myPlayer.x && y < myPlayer.y) {
                 projAsset = "./img/fireball/fireballleftup.png";
-            } else if (x > player.x && x < player.x + 16 && y < player.y + 14) {
+            } else if (x > myPlayer.x && x < myPlayer.x + 16 && y < myPlayer.y + 14) {
                 projAsset = "./img/fireball/fireballup.png";
-            } else if (x > player.x && x < player.x + 16 && y > player.y + 14) {
+            } else if (x > myPlayer.x && x < myPlayer.x + 16 && y > myPlayer.y + 14) {
                 projAsset = "./img/fireball/fireballdown.png";
-            } else if (x < player.x + 8 && y > player.y + 28) {
+            } else if (x < myPlayer.x + 8 && y > myPlayer.y + 28) {
                 projAsset = "./img/fireball/fireballdownleft.png";
-            } else if (x > player.x && y > player.y && y < player.y + 28) { 
+            } else if (x > myPlayer.x && y > myPlayer.y && y < myPlayer.y + 28) { 
                 projAsset = "./img/fireball/fireballright.png";
-            } else if (x > player.x && y > player.y + 28) {
+            } else if (x > myPlayer.x && y > myPlayer.y + 28) {
                 projAsset = "./img/fireball/fireballdownright.png";
-            } else if (x > player.x && y < player.y) {
+            } else if (x > myPlayer.x && y < myPlayer.y) {
             projAsset = "./img/fireball/fireballrightup.png";
             } else {
             projAsset = "./img/fireball/fireballleft.png";
 }
-            gameEngine.addEntity(new Projectile(gameEngine, AM.getAsset(projAsset), player.x, player.y, x, y));
+            GAME_ENGINE.addEntity(new Projectile(GAME_ENGINE, AM.getAsset(projAsset), myPlayer.x, myPlayer.y, x, y));
         }
     }, false);
 
