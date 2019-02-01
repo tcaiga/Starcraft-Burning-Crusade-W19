@@ -146,8 +146,8 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
 
 Projectile.prototype.draw = function () {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-    gameEngine.ctx.strokeStyle = "purple";
-    gameEngine.ctx.strokeRect(this.x, this.y, this.width, this.height);
+    GAME_ENGINE.ctx.strokeStyle = "purple";
+    GAME_ENGINE.ctx.strokeRect(this.x, this.y, this.width, this.height);
 }
 
 Projectile.prototype.update = function () {
@@ -155,7 +155,7 @@ Projectile.prototype.update = function () {
     if (this.xTar < this.originX && this.yTar < this.originY) {
         this.x -= this.game.clockTick * this.speed;
         this.y -= this.game.clockTick * this.speed;
-    } else if (this.xTar > this.originX + 14&& this.yTar < this.originY) {
+    } else if (this.xTar > this.originX + 14 && this.yTar < this.originY) {
         this.x += this.game.clockTick * this.speed;
         this.y -= this.game.clockTick * this.speed;
     } else if (this.xTar > this.originX + 14 && this.yTar > this.originY + 28) {
