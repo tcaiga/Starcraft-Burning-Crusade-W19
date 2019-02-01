@@ -23,6 +23,7 @@ window.requestAnimFrame = (function () {
 })();
 
 function GameEngine() {
+    //menu, non-interactable (terrain, hud), enemies, projectiles, traps, player
     // this.entities = [[], [], [], [], [], []];
     this.entities = [];
     this.entitiesCount = 0;
