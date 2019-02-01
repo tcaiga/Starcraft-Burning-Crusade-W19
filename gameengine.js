@@ -70,22 +70,21 @@ GameEngine.prototype.startInput = function () {
     }
 
     var that = this;
-
     // event listeners are added here
-
-    this.ctx.canvas.addEventListener("click", function(e){
+    var playerPick = null;
+    var player = null;
+    this.ctx.canvas.addEventListener("click", function (e) {
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
-        var playerPick = null;
         if (that.menu === true) {
             var classPicked = false;
             if (y >= gameEngine.entities[0].classButtonY &&
                  y <= gameEngine.entities[0].classButtonBottom) {
-                if(x >= gameEngine.entities[0].mageButtonX &&
+                if (x >= gameEngine.entities[0].mageButtonX &&
                      x <= gameEngine.entities[0].mageButtonX + gameEngine.entities[0].classButtonW) {
                     classPicked = true;
                     playerPick = 0;
-                }  else if (x >= gameEngine.entities[0].rangerButtonX &&
+                } else if (x >= gameEngine.entities[0].rangerButtonX &&
                     x <= gameEngine.entities[0].rangerButtonX + gameEngine.entities[0].classButtonW) {
                     classPicked = true;
                     playerPick = 1;
@@ -101,10 +100,10 @@ GameEngine.prototype.startInput = function () {
                 classPicked = false;
                 that.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
                 gameEngine.addEntity(new Background(gameEngine));
-                
+
                 // Using players choice to grab the appropriate character sprite
 
-                var player = new Player(gameEngine, AM.getAsset(characterSprites[playerPick]["leftFace"]),
+                player = new Player(gameEngine, AM.getAsset(characterSprites[playerPick]["leftFace"]),
                 AM.getAsset(characterSprites[playerPick]["rightFace"]))
                 gameEngine.addEntity(player);
                 gameEngine.addPlayerEntity(player);
@@ -118,6 +117,12 @@ GameEngine.prototype.startInput = function () {
                 gameEngine.addEntity(trap);
                 gameEngine.addTrapEntity(trap);
             }
+        }
+
+        if (that.menu == false && playerPick == 0) {
+            console.log("Player (x, y)" + "(" + player.x + ", " + player.y + ")");
+            console.log("Click (x, y)" + "(" + x + ", " + y + ")");
+            gameEngine.addEntity(new Projectile(gameEngine, AM.getAsset("./img/fireballright.png")), player.x, player.y, x, y);
         }
     }, false);
 
@@ -139,7 +144,7 @@ GameEngine.prototype.startInput = function () {
         } else if (e.code === "KeyD") {
             that.keyD = true;
             that.movement = true;
-        } 
+        }
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {

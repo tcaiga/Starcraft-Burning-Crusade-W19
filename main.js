@@ -115,6 +115,7 @@ function Monster(game, spritesheet) {
     this.ctx = game.ctx;
     this.health = 100;
     Entity.call(this, game, 0, 350);
+    
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width, this.height); // **Temporary** Hard coded offset values.
 }
@@ -133,6 +134,54 @@ Monster.prototype.update = function () {
         this.width, this.height); // **Temporary** Hard coded offset values.
 }
 
+function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
+    this.width = 64;
+    this.height = 64;
+
+    this.ctx = game.ctx;
+
+    this.originX = originX;
+    this.originY = originY;
+
+    this.xTar = xTarget;
+    this.yTar = yTarget;
+
+    this.animation = new Animation(spriteSheet, this.width, this.height, 1, 15, 8, true, 1);
+    this.speed = 100;
+    this.ctx = game.ctx;
+    Entity.call(this, game, originX, originY);
+
+    console.log(this);
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width, this.height);
+}
+
+Projectile.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    gameEngine.ctx.strokeStyle = "purple";
+    gameEngine.ctx.strokeRect(this.x, this.y, this.width, this.height);
+}
+
+Projectile.prototype.update = function () {
+/*    if (this.x > this.xTarget && this.y > this.yTarget) {
+        this.x -= this.xTarget / this.speed;
+        this.y -= this.yTarget / this.speed;
+    } else if (this.x > this.xTarget && this.y < this.yTarget) {
+        this.x -= this.xTarget / this.speed;
+        this.y += this.yTarget / this.speed;
+    } else if (this.x < this.xTarget && this.y > this.yTarget) {
+        this.x += this.xTarget / this.speed;
+        this.y -= this.yTarget / this.speed;
+    } else if (this.x < this.xTarget && this.y < this.yTarget) {
+        this.x += this.xTarget / this.speed;
+        this.y += this.yTarget / this.speed;
+    } else {
+        this.removeFromWorld = true;
+    }*/
+    Entity.prototype.update.call(this);
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width, this.height); // **Temporary** Hard coded offset values.
+}
 
 function Trap(game, spriteSheetUp, spriteSheetDown) {
     this.animationUp = new Animation(spriteSheetUp, 16, 16, 1, 0.13, 4, true, 1.25);
@@ -373,6 +422,9 @@ Menu.prototype.draw = function () {
     // Floor Trap
     AM.queueDownload("./img/floor_trap_up.png");
     AM.queueDownload("./img/floor_trap_down.png");
+
+    // Fireball
+    AM.queueDownload("./img/fireballright.png");
 
     AM.downloadAll(function () {
         var canvas = document.getElementById("canvas");
