@@ -1,9 +1,15 @@
 // Global Array that holds character sprites.
 // The first index of the array is the mage, second being ranger, and third being knight.
 // Each index contains a JSON object which has the left and right faces for the sprites.
-var characterSprites = [{leftFace: "./img/mage_run_flipped.png", rightFace: "./img/mage_run.png"},
-                        {leftFace: "./img/ranger_run_flipped.png", rightFace: "./img/ranger_run.png"},
-                        {leftFace: "./img/knight_run_flipped.png", rightFace: "./img/knight_run.png"}];
+// and the x and y offset to get bounds for room correct.
+var characterSprites = [{leftFace: "./img/mage_run_flipped.png", rightFace: "./img/mage_run.png", xOffset: 0,
+                        yOffset: 9},
+                        {leftFace: "./img/ranger_run_flipped.png", rightFace: "./img/ranger_run.png", xOffset: 0,
+                        yOffset: 8},
+                        {leftFace: "./img/knight_run_flipped.png", rightFace: "./img/knight_run.png", xOffset: 0,
+                        yOffset: 6}];
+
+var myPlayer;
 
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
@@ -17,17 +23,16 @@ window.requestAnimFrame = (function () {
 })();
 
 function GameEngine() {
+    // this.entities = [[], [], [], [], [], []];
     this.entities = [];
-
     this.entitiesCount = 0;
 
     // Arrays necessary to check for collision. Made multiple because
     // of the need to check them against each other.
     // Array to hold player entities
     this.playerEntities = [];
-    // Array to hold trap entities
+    // // Array to hold trap entities
     this.trapEntities = [];
-
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -37,7 +42,7 @@ function GameEngine() {
     this.keyW = false;
     this.keyShift = false;
     this.movement = false;
-    this.menu = true;
+    this.insideMenu = true;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -77,46 +82,53 @@ GameEngine.prototype.startInput = function () {
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
         var playerPick = null;
-        if (that.menu === true) {
+        if (that.insideMenu === true) {
+            var menu = that.entities[0];
             var classPicked = false;
-            if (y >= gameEngine.entities[0].classButtonY &&
-                 y <= gameEngine.entities[0].classButtonBottom) {
-                if(x >= gameEngine.entities[0].mageButtonX &&
-                     x <= gameEngine.entities[0].mageButtonX + gameEngine.entities[0].classButtonW) {
+            if (y >= menu.classButtonY &&
+                 y <= menu.classButtonBottom) {
+                if(x >= menu.mageButtonX &&
+                     x <= menu.mageButtonX + menu.classButtonW) {
                     classPicked = true;
                     playerPick = 0;
-                }  else if (x >= gameEngine.entities[0].rangerButtonX &&
-                    x <= gameEngine.entities[0].rangerButtonX + gameEngine.entities[0].classButtonW) {
+                }  else if (x >= menu.rangerButtonX &&
+                    x <= menu.rangerButtonX + menu.classButtonW) {
                     classPicked = true;
                     playerPick = 1;
-                } else if (x >= gameEngine.entities[0].knightButtonX &&
-                    x <= gameEngine.entities[0].knightButtonX + gameEngine.entities[0].classButtonW) {
+                } else if (x >= menu.knightButtonX &&
+                    x <= menu.knightButtonX + menu.classButtonW) {
                     classPicked = true;
                     playerPick = 2;
                 }
             }
             if (classPicked) {
-                that.menu = false;
-                that.entities[0].removeFromWorld = true;
+                that.insideMenu = false;
+                menu.removeFromWorld = true;
                 classPicked = false;
                 that.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
-                gameEngine.addEntity(new Background(gameEngine));
+                GAME_ENGINE.addEntity(new Background(GAME_ENGINE));
                 
                 // Using players choice to grab the appropriate character sprite
 
-                var player = new Player(gameEngine, AM.getAsset(characterSprites[playerPick]["leftFace"]),
-                AM.getAsset(characterSprites[playerPick]["rightFace"]))
-                gameEngine.addEntity(player);
-                gameEngine.addPlayerEntity(player);
+                myPlayer = new Player(GAME_ENGINE, AM.getAsset(characterSprites[playerPick]["leftFace"]),
+                AM.getAsset(characterSprites[playerPick]["rightFace"]), characterSprites[playerPick]["xOffset"],
+                characterSprites[playerPick]["yOffset"]);
+                GAME_ENGINE.addEntity(myPlayer);
+                GAME_ENGINE.addPlayerEntity(myPlayer);
 
-                gameEngine.addEntity(new Monster(gameEngine, AM.getAsset("./img/NPC_21.png")));
+                GAME_ENGINE.addEntity(new Monster(GAME_ENGINE, AM.getAsset("./img/NPC_21.png")));
 
 
                 // This is to add entityCheck to an array that will be tested for collision.
-                var trap = new Trap(gameEngine, AM.getAsset("./img/floor_trap_up.png"),
+                var trap = new Trap(GAME_ENGINE, AM.getAsset("./img/floor_trap_up.png"),
                 AM.getAsset("./img/floor_trap_down.png"));
-                gameEngine.addEntity(trap);
-                gameEngine.addTrapEntity(trap);
+                GAME_ENGINE.addEntity(trap);
+                GAME_ENGINE.addTrapEntity(trap);
+
+                var hud = new HUD(GAME_ENGINE);
+                GAME_ENGINE.addEntity(hud);
+                hudHeight = hud.height;
+                gameWorldHeight = canvasHeight - hud.height;
             }
         }
     }, false);
@@ -172,7 +184,8 @@ GameEngine.prototype.reset = function () {
         this.entities.pop();
     }
     this.entitiesCount++;
-    this.menu = true;
+    this.insideMenu = true;
+    //menu is no longer removed from world
     this.entities[0].removeFromWorld = false;
 }
 
