@@ -105,7 +105,7 @@ function Monster(game, spritesheet) {
     this.ctx = game.ctx;
     this.health = 100;
     Entity.call(this, game, 0, 350);
-    
+
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width, this.height); // **Temporary** Hard coded offset values.
 }
@@ -177,7 +177,7 @@ Projectile.prototype.update = function () {
     if (this.x < 0 || this.x > 500) this.removeFromWorld = true;
     Entity.prototype.update.call(this);
     this.boundingbox = new BoundingBox(this.x, this.y,
-    this.width, this.height); // **Temporary** Hard coded offset values.
+        this.width, this.height); // **Temporary** Hard coded offset values.
 }
 
 function Trap(game, spriteSheetUp, spriteSheetDown) {
@@ -318,11 +318,95 @@ function HUD(game) {
 }
 
 HUD.prototype.draw = function () {
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(0, canvasHeight - this.height, canvasWidth, this.height);
+    //ALL VALUES ARE HARCODED FOR NOW
+
+    //health
+    this.ctx.fillStyle = "red";
+    this.ctx.beginPath();
+    this.ctx.arc(40, canvasHeight - this.height / 2, 40, 0, 2 * Math.PI);
+    this.ctx.fill();
     this.ctx.font = "30px Arial";
     this.ctx.fillStyle = "white";
-    this.ctx.fillText("Health: " + myPlayer.health, 0, canvasHeight);
+    this.ctx.fillText(myPlayer.health, 15, canvasHeight - (this.height / 2) + 15);
+
+    //mana?
+    this.ctx.fillStyle = "blue";
+    this.ctx.beginPath();
+    this.ctx.arc(120, canvasHeight - this.height / 2, 40, 0, 2 * Math.PI);
+    this.ctx.fill();
+    this.ctx.font = "30px Arial";
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("Mana", 82, canvasHeight - (this.height / 2) + 15);
+
+    //ability 1
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(160, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.strokeStyle = "black";
+    this.ctx.strokeRect(160, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("1", 160, canvasHeight - this.height + 15);
+
+    //ability 2
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(223, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.strokeStyle = "black";
+    this.ctx.strokeRect(223, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("2", 223, canvasHeight - this.height + 15);
+
+    //ability 3
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(286, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.strokeStyle = "black";
+    this.ctx.strokeRect(286, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("3", 286, canvasHeight - this.height + 15);
+
+    //ability 4
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(349, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.strokeStyle = "black";
+    this.ctx.strokeRect(349, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("4", 349, canvasHeight - this.height + 15);
+
+    //stats
+    //ability 4
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(160, canvasHeight - this.height / 2,
+        252, this.height / 2);
+    this.ctx.strokeStyle = "black";
+    this.ctx.strokeRect(160, canvasHeight - this.height / 2,
+        252, this.height / 2);
+    this.ctx.fillStyle = "white";
+    var speed = (this.game.keyShift) ? 1.5 : 1
+    
+    this.ctx.fillText("Speed: " + speed, 160, canvasHeight - this.height / 2 + 15);
+
+    //map
+    //ability 4
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(412, canvasHeight - this.height,
+        100, this.height);
+    this.ctx.strokeStyle = "black";
+    this.ctx.strokeRect(412, canvasHeight - this.height,
+        100, this.height);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("map", 412, canvasHeight - this.height + 15);
 }
 
 HUD.prototype.update = function () {
@@ -447,15 +531,15 @@ AM.queueDownload("./img/mage_run_flipped.png");
 AM.queueDownload("./img/floor_trap_up.png");
 AM.queueDownload("./img/floor_trap_down.png");
 
-    // Fireball stuff
-    AM.queueDownload("./img/fireball/fireballright.png");
-    AM.queueDownload("./img/fireball/fireballdownleft.png");
-    AM.queueDownload("./img/fireball/fireballleftup.png");
-    AM.queueDownload("./img/fireball/fireballup.png");
-    AM.queueDownload("./img/fireball/fireballdown.png");
-    AM.queueDownload("./img/fireball/fireballrightup.png");
-    AM.queueDownload("./img/fireball/fireballdownright.png");
-    AM.queueDownload("./img/fireball/fireballleft.png");
+// Fireball stuff
+AM.queueDownload("./img/fireball/fireballright.png");
+AM.queueDownload("./img/fireball/fireballdownleft.png");
+AM.queueDownload("./img/fireball/fireballleftup.png");
+AM.queueDownload("./img/fireball/fireballup.png");
+AM.queueDownload("./img/fireball/fireballdown.png");
+AM.queueDownload("./img/fireball/fireballrightup.png");
+AM.queueDownload("./img/fireball/fireballdownright.png");
+AM.queueDownload("./img/fireball/fireballleft.png");
 
 
 
