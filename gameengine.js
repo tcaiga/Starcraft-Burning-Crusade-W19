@@ -183,6 +183,17 @@ GameEngine.prototype.reset = function () {
         this.entities[i].removeFromWorld = true;
         this.entities.pop();
     }
+
+    // Popping playerEntities to remove duplicates.
+    for (let i = 0; i < this.playerEntities.length; i++) {
+        this.playerEntities.pop();
+    }
+
+    // Popping trapEntities to remove duplicates.
+    for (let i = 0; i < this.trapEntities.length; i++) {
+        this.trapEntities.pop();
+    }
+
     this.entitiesCount++;
     this.insideMenu = true;
     //menu is no longer removed from world
