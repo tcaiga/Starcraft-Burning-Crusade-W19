@@ -122,7 +122,25 @@ GameEngine.prototype.startInput = function () {
         if (that.menu == false && playerPick == 0) {
             console.log("Player (x, y)" + "(" + player.x + ", " + player.y + ")");
             console.log("Click (x, y)" + "(" + x + ", " + y + ")");
-            gameEngine.addEntity(new Projectile(gameEngine, AM.getAsset("./img/fireballright.png")), player.x, player.y, x, y);
+            var projAsset = null;
+            if (x < player.x && y < player.y) {
+                projAsset = "./img/fireball/fireballleftup.png";
+            } else if (x > player.x && x < player.x + 16 && y < player.y + 14) {
+                projAsset = "./img/fireball/fireballup.png";
+            } else if (x > player.x && x < player.x + 16 && y > player.y + 14) {
+                projAsset = "./img/fireball/fireballdown.png";
+            } else if (x < player.x + 8 && y > player.y + 28) {
+                projAsset = "./img/fireball/fireballdownleft.png";
+            } else if (x > player.x && y > player.y && y < player.y + 28) { 
+                projAsset = "./img/fireball/fireballright.png";
+            } else if (x > player.x && y > player.y + 28) {
+                projAsset = "./img/fireball/fireballdownright.png";
+            } else if (x > player.x && y < player.y) {
+            projAsset = "./img/fireball/fireballrightup.png";
+            } else {
+            projAsset = "./img/fireball/fireballleft.png";
+}
+            gameEngine.addEntity(new Projectile(gameEngine, AM.getAsset(projAsset), player.x, player.y, x, y));
         }
     }, false);
 
