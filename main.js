@@ -116,7 +116,7 @@ Monster.prototype.draw = function () {
     GAME_ENGINE.ctx.strokeRect(this.x, this.y, this.width, this.height);
 
     // Displaying Monster health
-    this.ctx.font = "20px Arial";
+    this.ctx.font = "15px Arial";
     this.ctx.fillStyle = "white";
     this.ctx.fillText("Health: " + this.health, this.x - 5, this.y - 5);
 }
