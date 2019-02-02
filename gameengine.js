@@ -116,9 +116,15 @@ GameEngine.prototype.startInput = function () {
                 GAME_ENGINE.addEntity(new Background(GAME_ENGINE));
                 
                 // Monster
+                var devil = new Devil(GAME_ENGINE, AM.getAsset("./img/devil.png"));
+                var acolyte = new Acolyte(GAME_ENGINE, AM.getAsset("./img/acolyte.png"));
                 var monster = new Monster(GAME_ENGINE, AM.getAsset("./img/NPC_21.png"));
                 GAME_ENGINE.addEntity(monster);
                 GAME_ENGINE.addMonsterEntity(monster);
+                GAME_ENGINE.addEntity(devil);
+                GAME_ENGINE.addMonsterEntity(devil);
+                GAME_ENGINE.addEntity(acolyte);
+                GAME_ENGINE.addMonsterEntity(acolyte);
 
                 // Trap
                 var trap = new Trap(GAME_ENGINE, AM.getAsset("./img/floor_trap_up.png"),

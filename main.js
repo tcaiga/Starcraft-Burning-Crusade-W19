@@ -136,6 +136,62 @@ Monster.prototype.update = function () {
     if (this.health <= 0) this.removeFromWorld = true;
 }
 
+function Devil(game, spritesheet) {
+    Monster.call(this, game, spritesheet);
+    var scale;
+    this.scale = 3;
+    this.width = 16;
+    this.height = 23;
+    this.speed = 45;
+    this.health = 200;
+    this.animation = new Animation(spritesheet, this.width, this.height, 128, 0.15, 8, true, this.scale);
+
+    this.x = 250;
+    this.y = 250;
+
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
+}
+
+Devil.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    GAME_ENGINE.ctx.strokeStyle = "red";
+    GAME_ENGINE.ctx.strokeRect(this.x, this.y, this.width * this.scale, this.height * this.scale);
+
+    // Displaying Monster health
+    this.ctx.font = "15px Arial";
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("Health: " + this.health, this.x - 5, this.y - 5);
+}
+Devil.prototype.update = function () {
+    if (this.health <= 0) this.removeFromWorld = true;
+    this.x += this.game.clockTick * this.speed;
+    if (this.x >= 500 - TILE_SIZE * 2) this.x = 0;
+    Entity.prototype.update.call(this);
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
+}
+
+function Acolyte(game, spritesheet) {
+    Monster.call(this, game, spritesheet);
+    var scale;
+    this.scale = 2;
+    this.width = 16;
+    this.height = 19;
+    this.speed = 25;
+    this.health = 150;
+    this.animation = new Animation(spritesheet, this.width, this.height, 64, 0.15, 4, true, this.scale);
+
+    this.x = 100;
+    this.y = 100;
+
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
+}
+
+Acolyte.prototype.update = Devil.prototype.update;
+Acolyte.prototype.draw = Devil.prototype.draw;
+
 function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     this.width = 100;
     this.height = 100;
@@ -176,7 +232,7 @@ Projectile.prototype.update = function () {
     this.x += velX;
     this.y += velY;
 
-    if (this.x < 16 || this.x > 450 || this.y < 16 || this.y > 430) this.removeFromWorld = true;
+    if (this.x < 16 || this.x > 460 || this.y < 0 || this.y > 430) this.removeFromWorld = true;
     Entity.prototype.update.call(this);
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
@@ -185,7 +241,6 @@ Projectile.prototype.update = function () {
     for (var i = 0; i < GAME_ENGINE.monsterEntities.length; i++) {
         var entityCollide = GAME_ENGINE.monsterEntities[i];
         if (this.boundingbox.collide(entityCollide.boundingbox)) {
-            console.log("Monster: " + i + " health: " + GAME_ENGINE.monsterEntities[i].health)
             if (GAME_ENGINE.monsterEntities[i].health > 0) {
                 GAME_ENGINE.monsterEntities[i].health -= 3;
             }
@@ -634,6 +689,12 @@ AM.queueDownload("./img/mage_run_flipped.png");
 // Floor Trap
 AM.queueDownload("./img/floor_trap_up.png");
 AM.queueDownload("./img/floor_trap_down.png");
+
+// Devil
+AM.queueDownload("./img/devil.png");
+
+// Acolyte
+AM.queueDownload("./img/acolyte.png");
 
 // Fireball stuff
 AM.queueDownload("./img/fireball/fireballright.png");
