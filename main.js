@@ -111,6 +111,8 @@ function Monster(game, spritesheet) {
     this.health = 100;
     Entity.call(this, game, 0, 350);
 
+    this.counter = 0;
+
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width, this.height); // **Temporary** Hard coded offset values.
 }
@@ -133,6 +135,17 @@ Monster.prototype.update = function () {
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width, this.height); // **Temporary** Hard coded offset values.
 
+    for (var i = 0; i < GAME_ENGINE.playerEntities.length; i++) {
+        var entityCollide = GAME_ENGINE.playerEntities[i];
+        if (this.boundingbox.collide(entityCollide.boundingbox)) {
+            this.counter += this.game.clockTick;
+            if (this.counter > .018 && GAME_ENGINE.playerEntities[i].health > 0) {
+                    GAME_ENGINE.playerEntities[i].health -= 5;
+            }
+            this.counter = 0;
+        }
+    }
+
     if (this.health <= 0) this.removeFromWorld = true;
 }
 
@@ -148,6 +161,8 @@ function Devil(game, spritesheet) {
 
     this.x = 250;
     this.y = 250;
+
+    this.counter = 0;
 
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
@@ -170,6 +185,17 @@ Devil.prototype.update = function () {
     Entity.prototype.update.call(this);
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
+
+    for (var i = 0; i < GAME_ENGINE.playerEntities.length; i++) {
+        var entityCollide = GAME_ENGINE.playerEntities[i];
+        if (this.boundingbox.collide(entityCollide.boundingbox)) {
+            this.counter += this.game.clockTick;
+            if (this.counter > .018 && GAME_ENGINE.playerEntities[i].health > 0) {
+                    GAME_ENGINE.playerEntities[i].health -= 5;
+            }
+            this.counter = 0;
+        }
+    }
 }
 
 function Acolyte(game, spritesheet) {
@@ -184,6 +210,8 @@ function Acolyte(game, spritesheet) {
 
     this.x = 100;
     this.y = 100;
+
+    this.counter = 0;
 
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
@@ -239,13 +267,14 @@ Projectile.prototype.update = function () {
     this.width - 75, this.height - 75); // **Temporary** Hard coded offset values.
 
     for (var i = 0; i < GAME_ENGINE.monsterEntities.length; i++) {
-        var entityCollide = GAME_ENGINE.monsterEntities[i];
-        if (this.boundingbox.collide(entityCollide.boundingbox)) {
-            if (GAME_ENGINE.monsterEntities[i].health > 0) {
-                GAME_ENGINE.monsterEntities[i].health -= 3;
+            var entityCollide = GAME_ENGINE.monsterEntities[i];
+            if (this.boundingbox.collide(entityCollide.boundingbox)) {
+                if (GAME_ENGINE.monsterEntities[i].health > 0) {
+                    GAME_ENGINE.monsterEntities[i].health -= 15;
+                }
+                this.removeFromWorld = true;
             }
         }
-    }
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
         this.width - 75, this.height - 75); // Hardcoded a lot of offset values
