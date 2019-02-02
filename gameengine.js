@@ -23,6 +23,7 @@ window.requestAnimFrame = (function () {
 })();
 
 function GameEngine() {
+    //menu, non-interactable (terrain, hud), enemies, projectiles, traps, player
     // this.entities = [[], [], [], [], [], []];
     this.entities = [];
     this.entitiesCount = 0;
@@ -135,7 +136,10 @@ GameEngine.prototype.startInput = function () {
 
                 var hud = new HUD(GAME_ENGINE);
                 GAME_ENGINE.addEntity(hud);
+                var sidebar = new Sidebar(GAME_ENGINE);
+                GAME_ENGINE.addEntity(sidebar);
                 hudHeight = hud.height;
+                sidebarWidth = sidebar.width;
                 gameWorldHeight = canvasHeight - hud.height;
             }
         }

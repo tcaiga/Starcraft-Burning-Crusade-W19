@@ -4,8 +4,13 @@ const GAME_ENGINE = new GameEngine();
 var canvasWidth;
 var canvasHeight;
 var gameWorldHeight;
+var gameWorldWidth;
 
 var hudHeight;
+var sidebarWidth;
+
+var myFloorNum = 1;
+var myRoomNum = 1;
 
 // Constant variable for tile size
 const TILE_SIZE = 16;
@@ -105,7 +110,7 @@ function Monster(game, spritesheet) {
     this.ctx = game.ctx;
     this.health = 100;
     Entity.call(this, game, 0, 350);
-    
+
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width, this.height); // **Temporary** Hard coded offset values.
 }
@@ -152,6 +157,7 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
         this.width - 75, this.height - 75); // Hardcoded a lot of offset values
+
 }
 
 Projectile.prototype.draw = function () {
@@ -172,6 +178,7 @@ Projectile.prototype.update = function () {
 
     if (this.x < 16 || this.x > 450 || this.y < 16 || this.y > 430) this.removeFromWorld = true;
     Entity.prototype.update.call(this);
+
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
     this.width - 75, this.height - 75); // **Temporary** Hard coded offset values.
 
@@ -184,6 +191,10 @@ Projectile.prototype.update = function () {
             }
         }
     }
+
+    this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
+        this.width - 75, this.height - 75); // Hardcoded a lot of offset values
+
 }
 
 function Trap(game, spriteSheetUp, spriteSheetDown) {
@@ -287,10 +298,13 @@ Menu.prototype.draw = function () {
 
     this.ctx.font = "50px Arial";
     this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(100, this.titleY,
-        312, 50);
+    var title = "Last Labyrinth"
+    var titleLength = Math.floor(this.ctx.measureText(title).width);
+    var titleXStart = (canvasWidth - titleLength) / 2;
+    this.ctx.fillRect(titleXStart, this.titleY,
+        titleLength, 50);
     this.ctx.fillStyle = "white";
-    this.ctx.fillText("Last Labyrinth", 100, this.titleY + 38);
+    this.ctx.fillText(title, titleXStart, this.titleY + 38);
 
     this.ctx.font = "30px Arial";
     this.ctx.fillStyle = "grey";
@@ -311,10 +325,13 @@ Menu.prototype.draw = function () {
     this.ctx.fillStyle = "blue";
     this.ctx.fillText("Knight", this.knightButtonX, this.classButtonTextY);
 
+    var pickClassText = "Pick a Class!";
+    var pickClassLength = Math.floor(this.ctx.measureText(pickClassText).width);
+    var pickClassXStart = (canvasWidth - pickClassLength) / 2;
     this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(170, 300, 172, 37);
+    this.ctx.fillRect(pickClassXStart, 300, pickClassLength, 37);
     this.ctx.fillStyle = "white";
-    this.ctx.fillText("Pick a Class!", 170, 330);
+    this.ctx.fillText("Pick a Class!", pickClassXStart, 330);
 }
 
 function HUD(game) {
@@ -324,16 +341,181 @@ function HUD(game) {
 }
 
 HUD.prototype.draw = function () {
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(0, canvasHeight - this.height, canvasWidth, this.height);
+    //ALL VALUES ARE HARCODED FOR NOW
+
+    //health
+    this.ctx.fillStyle = "red";
+    this.ctx.beginPath();
+    this.ctx.arc(40, canvasHeight - this.height / 2, 40, 0, 2 * Math.PI);
+    this.ctx.fill();
     this.ctx.font = "30px Arial";
     this.ctx.fillStyle = "white";
-    this.ctx.fillText("Health: " + myPlayer.health, 0, canvasHeight);
+    this.ctx.fillText(myPlayer.health, 15, canvasHeight - (this.height / 2) + 15);
+
+    //mana?
+    this.ctx.fillStyle = "blue";
+    this.ctx.beginPath();
+    this.ctx.arc(120, canvasHeight - this.height / 2, 40, 0, 2 * Math.PI);
+    this.ctx.fill();
+    this.ctx.font = "30px Arial";
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("Mana", 82, canvasHeight - (this.height / 2) + 15);
+
+    //ability 1
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(160, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.strokeStyle = "black";
+    this.ctx.strokeRect(160, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("1", 160, canvasHeight - this.height + 15);
+    this.ctx.fillText("N/A", 160, canvasHeight - this.height + 35);
+
+    //ability 2
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(223, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.strokeStyle = "black";
+    this.ctx.strokeRect(223, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("2", 223, canvasHeight - this.height + 15);
+
+    this.ctx.fillText("N/A", 223, canvasHeight - this.height + 35);
+
+    //ability 3
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(286, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.strokeStyle = "black";
+    this.ctx.strokeRect(286, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("3", 286, canvasHeight - this.height + 15);
+    this.ctx.fillText("N/A", 286, canvasHeight - this.height + 35);
+
+    //ability 4
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(349, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.strokeStyle = "black";
+    this.ctx.strokeRect(349, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("4", 349, canvasHeight - this.height + 15);
+    this.ctx.fillText("N/A", 349, canvasHeight - this.height + 35);
+
+    //stats
+    //ability 4
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(160, canvasHeight - this.height / 2,
+        252, this.height / 2);
+    this.ctx.strokeStyle = "black";
+    this.ctx.strokeRect(160, canvasHeight - this.height / 2,
+        252, this.height / 2);
+    this.ctx.fillStyle = "white";
+    var speed = (this.game.keyShift) ? 1.5 : 1
+    
+    this.ctx.fillText("Speed: " + speed, 160, canvasHeight - this.height / 2 + 15);
+
+    //map
+    //ability 4
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(412, canvasHeight - this.height,
+        100, this.height);
+    this.ctx.strokeStyle = "black";
+    this.ctx.strokeRect(412, canvasHeight - this.height,
+        100, this.height);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("map (N/A)", 412, canvasHeight - this.height + 15);
 }
 
 HUD.prototype.update = function () {
 
 }
+
+Menu.prototype.draw = function () {
+    this.ctx.drawImage(this.background, 253, 0,
+        canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+
+    this.ctx.font = "50px Arial";
+    this.ctx.fillStyle = "grey";
+    var title = "Last Labyrinth"
+    var titleLength = Math.floor(this.ctx.measureText(title).width);
+    var titleXStart = (canvasWidth - titleLength) / 2;
+    this.ctx.fillRect(titleXStart, this.titleY,
+        titleLength, 50);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText(title, titleXStart, this.titleY + 38);
+
+    this.ctx.font = "30px Arial";
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(this.mageButtonX, this.classButtonY,
+        this.classButtonW, this.classButtonH);
+    this.ctx.fillStyle = "blue";
+    this.ctx.fillText("Mage", this.mageButtonX, this.classButtonTextY);
+
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(this.rangerButtonX, this.classButtonY,
+        this.classButtonW, this.classButtonH);
+    this.ctx.fillStyle = "blue";
+    this.ctx.fillText("Ranger", this.rangerButtonX, this.classButtonTextY);
+
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(this.knightButtonX, this.classButtonY,
+        this.classButtonW, this.classButtonH);
+    this.ctx.fillStyle = "blue";
+    this.ctx.fillText("Knight", this.knightButtonX, this.classButtonTextY);
+
+    var pickClassText = "Pick a Class!";
+    var pickClassLength = Math.floor(this.ctx.measureText(pickClassText).width);
+    var pickClassXStart = (canvasWidth - pickClassLength) / 2;
+    this.ctx.fillStyle = "grey";
+    this.ctx.fillRect(pickClassXStart, 300, pickClassLength, 37);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("Pick a Class!", pickClassXStart, 330);
+}
+
+function Sidebar(game) {
+    this.ctx = game.ctx;
+    this.game = game;
+    this.width = 250;
+}
+
+Sidebar.prototype.draw = function () {
+    this.ctx.font = "35px Arial";
+    this.ctx.fillStyle= "gray";
+    this.ctx.fillRect(gameWorldWidth, 0, this.width, canvasHeight);
+    this.ctx.strokeStyle= "black";
+    this.ctx.strokeRect(gameWorldWidth, 0, this.width, canvasHeight);
+    this.ctx.fillStyle = "black";
+    this.ctx.fillText("Last Labyrinth", gameWorldWidth, 30);
+
+    this.ctx.font = "20px Arial";
+    this.ctx.fillText("Floor # = " + myFloorNum, gameWorldWidth, 80);
+    this.ctx.fillText("Room # = " + myRoomNum, gameWorldWidth, 110);
+
+    this.ctx.fillText("Controls:", gameWorldWidth, 160);
+    this.ctx.fillText("Movement: W, A, S, D", gameWorldWidth, 190);
+    this.ctx.fillText("Sprint: Shift Click", gameWorldWidth, 220);
+    this.ctx.fillText("Projectile: Left Click", gameWorldWidth, 250);
+    this.ctx.fillText("Abilities (N/A): 1, 2, 3, 4", gameWorldWidth, 280);
+    this.ctx.fillText("More controls coming soon", gameWorldWidth, 310);
+
+}
+
+Sidebar.prototype.update = function () {
+
+}
+
+
 
 // No inheritance
 function Background(game) {
@@ -453,15 +635,15 @@ AM.queueDownload("./img/mage_run_flipped.png");
 AM.queueDownload("./img/floor_trap_up.png");
 AM.queueDownload("./img/floor_trap_down.png");
 
-    // Fireball stuff
-    AM.queueDownload("./img/fireball/fireballright.png");
-    AM.queueDownload("./img/fireball/fireballdownleft.png");
-    AM.queueDownload("./img/fireball/fireballleftup.png");
-    AM.queueDownload("./img/fireball/fireballup.png");
-    AM.queueDownload("./img/fireball/fireballdown.png");
-    AM.queueDownload("./img/fireball/fireballrightup.png");
-    AM.queueDownload("./img/fireball/fireballdownright.png");
-    AM.queueDownload("./img/fireball/fireballleft.png");
+// Fireball stuff
+AM.queueDownload("./img/fireball/fireballright.png");
+AM.queueDownload("./img/fireball/fireballdownleft.png");
+AM.queueDownload("./img/fireball/fireballleftup.png");
+AM.queueDownload("./img/fireball/fireballup.png");
+AM.queueDownload("./img/fireball/fireballdown.png");
+AM.queueDownload("./img/fireball/fireballrightup.png");
+AM.queueDownload("./img/fireball/fireballdownright.png");
+AM.queueDownload("./img/fireball/fireballleft.png");
 
 // Harrison's Fireball
 AM.queueDownload("./img/fireball.png");
@@ -471,10 +653,12 @@ AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     canvas.setAttribute("style",
-        "position: absolute; left: 50%; margin-left:-256px; top:50%; margin-top:-306px");
+        "position: absolute; left: 50%; margin-left:-381px; top:50%; margin-top:-306px");
     document.body.style.backgroundColor = "black";
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
+    gameWorldWidth = canvasWidth - 250;
+    gameWorldHeight = canvasWidth - 100;
 
 
     GAME_ENGINE.init(ctx);
