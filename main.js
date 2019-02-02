@@ -271,8 +271,8 @@ Projectile.prototype.update = function () {
             if (this.boundingbox.collide(entityCollide.boundingbox)) {
                 if (GAME_ENGINE.monsterEntities[i].health > 0) {
                     GAME_ENGINE.monsterEntities[i].health -= 15;
+                    this.removeFromWorld = true;
                 }
-                this.removeFromWorld = true;
             }
         }
 
