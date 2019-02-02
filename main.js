@@ -588,7 +588,7 @@ Sidebar.prototype.draw = function () {
 
     this.ctx.fillText("Controls:", gameWorldWidth, 160);
     this.ctx.fillText("Movement: W, A, S, D", gameWorldWidth, 190);
-    this.ctx.fillText("Sprint: Shift Click", gameWorldWidth, 220);
+    this.ctx.fillText("Sprint: Shift", gameWorldWidth, 220);
     this.ctx.fillText("Projectile: Left Click", gameWorldWidth, 250);
     this.ctx.fillText("Abilities (N/A): 1, 2, 3, 4", gameWorldWidth, 280);
     this.ctx.fillText("More controls coming soon", gameWorldWidth, 310);
@@ -597,6 +597,10 @@ Sidebar.prototype.draw = function () {
 
 Sidebar.prototype.update = function () {
 
+}
+
+function createRectAndText() {
+    
 }
 
 
