@@ -88,7 +88,7 @@ Player.prototype.update = function () {
 
 Player.prototype.collide = function (sprint) {
     //* 2 is the offset for a 2x2 of tiles.
-    if (this.x + this.width + this.xOffset >= canvasWidth - TILE_SIZE * 2) {
+    if (this.x + this.width + this.xOffset >= gameWorldWidth - TILE_SIZE * 2) {
         this.x += -2 * sprint;
     }
     if (this.x + this.xOffset <= TILE_SIZE * 2) {
