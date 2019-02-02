@@ -348,6 +348,7 @@ HUD.prototype.draw = function () {
         63, this.height / 2);
     this.ctx.fillStyle = "white";
     this.ctx.fillText("1", 160, canvasHeight - this.height + 15);
+    this.ctx.fillText("N/A", 160, canvasHeight - this.height + 35);
 
     //ability 2
     this.ctx.font = "20px Arial";
@@ -360,6 +361,8 @@ HUD.prototype.draw = function () {
     this.ctx.fillStyle = "white";
     this.ctx.fillText("2", 223, canvasHeight - this.height + 15);
 
+    this.ctx.fillText("N/A", 223, canvasHeight - this.height + 35);
+
     //ability 3
     this.ctx.font = "20px Arial";
     this.ctx.fillStyle = "grey";
@@ -370,6 +373,7 @@ HUD.prototype.draw = function () {
         63, this.height / 2);
     this.ctx.fillStyle = "white";
     this.ctx.fillText("3", 286, canvasHeight - this.height + 15);
+    this.ctx.fillText("N/A", 286, canvasHeight - this.height + 35);
 
     //ability 4
     this.ctx.font = "20px Arial";
@@ -381,6 +385,7 @@ HUD.prototype.draw = function () {
         63, this.height / 2);
     this.ctx.fillStyle = "white";
     this.ctx.fillText("4", 349, canvasHeight - this.height + 15);
+    this.ctx.fillText("N/A", 349, canvasHeight - this.height + 35);
 
     //stats
     //ability 4
@@ -406,7 +411,7 @@ HUD.prototype.draw = function () {
     this.ctx.strokeRect(412, canvasHeight - this.height,
         100, this.height);
     this.ctx.fillStyle = "white";
-    this.ctx.fillText("map", 412, canvasHeight - this.height + 15);
+    this.ctx.fillText("map (N/A)", 412, canvasHeight - this.height + 15);
 }
 
 HUD.prototype.update = function () {
