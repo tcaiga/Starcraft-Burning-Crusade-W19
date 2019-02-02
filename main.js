@@ -119,6 +119,11 @@ Monster.prototype.draw = function () {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
     GAME_ENGINE.ctx.strokeStyle = "red";
     GAME_ENGINE.ctx.strokeRect(this.x, this.y, this.width, this.height);
+
+    // Displaying Monster health
+    this.ctx.font = "15px Arial";
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("Health: " + this.health, this.x - 5, this.y - 5);
 }
 
 Monster.prototype.update = function () {
@@ -127,60 +132,69 @@ Monster.prototype.update = function () {
     Entity.prototype.update.call(this);
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width, this.height); // **Temporary** Hard coded offset values.
+
+    if (this.health <= 0) this.removeFromWorld = true;
 }
 
 function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
-    this.width = 64;
-    this.height = 64;
-    this.animation = new Animation(spriteSheet, this.width, this.height, 1, 15, 8, true, 1);
+    this.width = 100;
+    this.height = 100;
+    this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
 
     this.originX = originX;
     this.originY = originY;
 
-    this.xTar = xTarget;
-    this.yTar = yTarget;
+    this.xTar = xTarget - 20;
+    this.yTar = yTarget - 35;
+
+    // Determining where the projectile should go angle wise.
+    this.angle = Math.atan2(this.yTar - this.originY, this.xTar - this.originX);
+    this.counter = 0; // Counter to make damage consistent
 
     this.speed = 200;
     this.ctx = game.ctx;
     Entity.call(this, game, originX, originY);
-    this.boundingbox = new BoundingBox(this.x, this.y,
-        this.width, this.height);
+
+    this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
+        this.width - 75, this.height - 75); // Hardcoded a lot of offset values
+
 }
 
 Projectile.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-    GAME_ENGINE.ctx.strokeStyle = "purple";
-    GAME_ENGINE.ctx.strokeRect(this.x, this.y, this.width, this.height);
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x - 18, this.y - 4); // Hardcoded a lot of offset values
+    GAME_ENGINE.ctx.strokeStyle = "yellow";
+    GAME_ENGINE.ctx.strokeRect(this.x + 8, this.y + 25, this.width - 75, this.height - 75); // Hardcoded a lot of offset values
 }
 
 Projectile.prototype.update = function () {
-    var speedMod = 1.3;
-    if (this.xTar < this.originX && this.yTar < this.originY) {
-        this.x -= this.game.clockTick * this.speed;
-        this.y -= this.game.clockTick * this.speed;
-    } else if (this.xTar > this.originX + 14 && this.yTar < this.originY) {
-        this.x += this.game.clockTick * this.speed;
-        this.y -= this.game.clockTick * this.speed;
-    } else if (this.xTar > this.originX + 14 && this.yTar > this.originY + 28) {
-        this.x += this.game.clockTick * this.speed;
-        this.y += this.game.clockTick * this.speed;
-    } else if (this.xTar < this.originX && this.yTar > this.originY + 28) {
-        this.x -= this.game.clockTick * this.speed;
-        this.y += this.game.clockTick * this.speed;
-    } else if (this.xTar > this.originX && this.yTar > this.originY && this.yTar < this.originY + 28) {
-        this.x += this.game.clockTick * this.speed * speedMod;
-    } else if (this.xTar < this.originX && this.yTar > this.originY && this.yTar < this.originY + 28) {
-        this.x -= this.game.clockTick * this.speed * speedMod;
-    } else if (this.xTar > this.originX && this.xTar < this.originX + 16 && this.yTar < this.originY) {
-        this.y -= this.game.clockTick * this.speed * speedMod;
-    } else {
-        this.y += this.game.clockTick * this.speed * speedMod;
+    var projectileSpeed = 7.5;
+
+    // Generating the speed to move at target direction
+    var velY = Math.sin(this.angle) * projectileSpeed;
+    var velX = Math.cos(this.angle) * projectileSpeed;
+    // Moving the actual projectile.
+    this.x += velX;
+    this.y += velY;
+
+    if (this.x < 16 || this.x > 450 || this.y < 16 || this.y > 430) this.removeFromWorld = true;
+    Entity.prototype.update.call(this);
+
+    this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
+    this.width - 75, this.height - 75); // **Temporary** Hard coded offset values.
+
+    for (var i = 0; i < GAME_ENGINE.monsterEntities.length; i++) {
+        var entityCollide = GAME_ENGINE.monsterEntities[i];
+        if (this.boundingbox.collide(entityCollide.boundingbox)) {
+            console.log("Monster: " + i + " health: " + GAME_ENGINE.monsterEntities[i].health)
+            if (GAME_ENGINE.monsterEntities[i].health > 0) {
+                GAME_ENGINE.monsterEntities[i].health -= 3;
+            }
+        }
     }
 
-    if (this.x < 0 || this.x > 500) this.removeFromWorld = true;
-    Entity.prototype.update.call(this);
-    this.boundingbox = new BoundingBox(this.x, this.y,
-        this.width, this.height); // **Temporary** Hard coded offset values.
+    this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
+        this.width - 75, this.height - 75); // Hardcoded a lot of offset values
+
 }
 
 function Trap(game, spriteSheetUp, spriteSheetDown) {
@@ -631,6 +645,8 @@ AM.queueDownload("./img/fireball/fireballrightup.png");
 AM.queueDownload("./img/fireball/fireballdownright.png");
 AM.queueDownload("./img/fireball/fireballleft.png");
 
+// Harrison's Fireball
+AM.queueDownload("./img/fireball.png");
 
 
 AM.downloadAll(function () {

@@ -32,8 +32,15 @@ function GameEngine() {
     // of the need to check them against each other.
     // Array to hold player entities
     this.playerEntities = [];
-    // // Array to hold trap entities
+    // Array to hold trap entities
     this.trapEntities = [];
+    // Array to hold projectiles
+    this.projectileEntities = [];
+    // Array to hold monsters
+    this.monsterEntities = [];
+
+
+
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -109,18 +116,19 @@ GameEngine.prototype.startInput = function () {
                 GAME_ENGINE.addEntity(new Background(GAME_ENGINE));
                 
                 // Using players choice to grab the appropriate character sprite
-
+                // Player
                 myPlayer = new Player(GAME_ENGINE, AM.getAsset(characterSprites[playerPick]["leftFace"]),
                 AM.getAsset(characterSprites[playerPick]["rightFace"]), characterSprites[playerPick]["xOffset"],
                 characterSprites[playerPick]["yOffset"]);
                 GAME_ENGINE.addEntity(myPlayer);
                 GAME_ENGINE.addPlayerEntity(myPlayer);
 
+                // Monster
+                var monster = new Monster(GAME_ENGINE, AM.getAsset("./img/NPC_21.png"));
+                GAME_ENGINE.addEntity(monster);
+                GAME_ENGINE.addMonsterEntity(monster);
 
-                GAME_ENGINE.addEntity(new Monster(GAME_ENGINE, AM.getAsset("./img/NPC_21.png")));
-
-
-                // This is to add entityCheck to an array that will be tested for collision.
+                // Trap
                 var trap = new Trap(GAME_ENGINE, AM.getAsset("./img/floor_trap_up.png"),
                 AM.getAsset("./img/floor_trap_down.png"));
                 GAME_ENGINE.addEntity(trap);
@@ -137,25 +145,11 @@ GameEngine.prototype.startInput = function () {
         }
 
         else if (!that.insideMenu && playerPick == 0) {
-            var projAsset = null;
-            if (x < myPlayer.x && y < myPlayer.y) {
-                projAsset = "./img/fireball/fireballleftup.png";
-            } else if (x > myPlayer.x && x < myPlayer.x + 16 && y < myPlayer.y + 14) {
-                projAsset = "./img/fireball/fireballup.png";
-            } else if (x > myPlayer.x && x < myPlayer.x + 16 && y > myPlayer.y + 14) {
-                projAsset = "./img/fireball/fireballdown.png";
-            } else if (x < myPlayer.x + 8 && y > myPlayer.y + 28) {
-                projAsset = "./img/fireball/fireballdownleft.png";
-            } else if (x > myPlayer.x && y > myPlayer.y && y < myPlayer.y + 28) { 
-                projAsset = "./img/fireball/fireballright.png";
-            } else if (x > myPlayer.x && y > myPlayer.y + 28) {
-                projAsset = "./img/fireball/fireballdownright.png";
-            } else if (x > myPlayer.x && y < myPlayer.y) {
-            projAsset = "./img/fireball/fireballrightup.png";
-            } else {
-            projAsset = "./img/fireball/fireballleft.png";
-}
-            GAME_ENGINE.addEntity(new Projectile(GAME_ENGINE, AM.getAsset(projAsset), myPlayer.x, myPlayer.y, x, y));
+            // Projectile
+            var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
+            myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
+            GAME_ENGINE.addEntity(projectile);
+            GAME_ENGINE.addProjectileEntity(projectile);
         }
     }, false);
 
@@ -220,6 +214,16 @@ GameEngine.prototype.reset = function () {
         this.trapEntities.pop();
     }
 
+    // Popping projectileEntities to remove duplicates.
+    for (let i = 0; i < this.projectileEntities.length; i++) {
+        this.projectileEntities.pop();
+    }
+
+    // Popping projectileEntities to remove duplicates.
+    for (let i = 0; i < this.monsterEntities.length; i++) {
+        this.monsterEntities.pop();
+    }
+
     this.entitiesCount++;
     this.insideMenu = true;
     //menu is no longer removed from world
@@ -234,6 +238,14 @@ GameEngine.prototype.addPlayerEntity = function (entity) {
 
 GameEngine.prototype.addTrapEntity = function (entity) {
     this.trapEntities.push(entity);
+}
+
+GameEngine.prototype.addProjectileEntity = function (entity) {
+    this.projectileEntities.push(entity);
+}
+
+GameEngine.prototype.addMonsterEntity = function (entity) {
+    this.monsterEntities.push(entity);
 }
 
 GameEngine.prototype.addEntity = function (entity) {
