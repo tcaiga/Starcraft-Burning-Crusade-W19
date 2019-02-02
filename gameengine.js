@@ -118,7 +118,8 @@ GameEngine.prototype.startInput = function () {
 
 
                 GAME_ENGINE.addEntity(new Monster(GAME_ENGINE, AM.getAsset("./img/NPC_21.png")));
-
+                GAME_ENGINE.addEntity(new Devil(GAME_ENGINE, AM.getAsset("./img/devil.png")));
+                GAME_ENGINE.addEntity(new Acolyte(GAME_ENGINE, AM.getAsset("./img/acolyte.png")));
 
                 // This is to add entityCheck to an array that will be tested for collision.
                 var trap = new Trap(GAME_ENGINE, AM.getAsset("./img/floor_trap_up.png"),

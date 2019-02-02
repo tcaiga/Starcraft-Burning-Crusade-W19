@@ -124,6 +124,55 @@ Monster.prototype.update = function () {
         this.width, this.height); // **Temporary** Hard coded offset values.
 }
 
+function Devil(game, spritesheet) {
+    Monster.call(this, game, spritesheet);
+    var scale;
+    this.scale = 3;
+    this.width = 16;
+    this.height = 23;
+    this.speed = 45;
+    this.animation = new Animation(spritesheet, this.width, this.height, 128, 0.15, 8, true, this.scale);
+
+    this.x = 250;
+    this.y = 250;
+
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
+}
+
+Devil.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    GAME_ENGINE.ctx.strokeStyle = "red";
+    GAME_ENGINE.ctx.strokeRect(this.x, this.y, this.width * this.scale, this.height * this.scale);
+}
+Devil.prototype.update = function () {
+    this.x += this.game.clockTick * this.speed;
+    if (this.x >= 500 - TILE_SIZE * 2) this.x = 0;
+    Entity.prototype.update.call(this);
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
+}
+
+function Acolyte(game, spritesheet) {
+    Monster.call(this, game, spritesheet);
+    var scale;
+    this.scale = 2;
+    this.width = 16;
+    this.height = 19;
+    this.speed = 25;
+    this.animation = new Animation(spritesheet, this.width, this.height, 64, 0.15, 4, true, this.scale);
+
+    this.x = 100;
+    this.y = 100;
+
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
+}
+
+Acolyte.prototype.update = Devil.prototype.update;
+Acolyte.prototype.draw = Devil.prototype.draw;
+
+
 function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     this.width = 64;
     this.height = 64;
@@ -139,7 +188,6 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     this.ctx = game.ctx;
     Entity.call(this, game, originX, originY);
 
-    console.log(this);
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width, this.height);
 }
@@ -535,6 +583,12 @@ AM.queueDownload("./img/mage_run_flipped.png");
 // Floor Trap
 AM.queueDownload("./img/floor_trap_up.png");
 AM.queueDownload("./img/floor_trap_down.png");
+
+// Devil
+AM.queueDownload("./img/devil.png");
+
+// Acolyte
+AM.queueDownload("./img/acolyte.png");
 
 // Fireball stuff
 AM.queueDownload("./img/fireball/fireballright.png");
