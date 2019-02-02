@@ -115,14 +115,6 @@ GameEngine.prototype.startInput = function () {
 
                 GAME_ENGINE.addEntity(new Background(GAME_ENGINE));
                 
-                // Using players choice to grab the appropriate character sprite
-                // Player
-                myPlayer = new Player(GAME_ENGINE, AM.getAsset(characterSprites[playerPick]["leftFace"]),
-                AM.getAsset(characterSprites[playerPick]["rightFace"]), characterSprites[playerPick]["xOffset"],
-                characterSprites[playerPick]["yOffset"]);
-                GAME_ENGINE.addEntity(myPlayer);
-                GAME_ENGINE.addPlayerEntity(myPlayer);
-
                 // Monster
                 var monster = new Monster(GAME_ENGINE, AM.getAsset("./img/NPC_21.png"));
                 GAME_ENGINE.addEntity(monster);
@@ -141,6 +133,14 @@ GameEngine.prototype.startInput = function () {
                 hudHeight = hud.height;
                 sidebarWidth = sidebar.width;
                 gameWorldHeight = canvasHeight - hud.height;
+
+                // Using players choice to grab the appropriate character sprite
+                // Player
+                myPlayer = new Player(GAME_ENGINE, AM.getAsset(characterSprites[playerPick]["leftFace"]),
+                AM.getAsset(characterSprites[playerPick]["rightFace"]), characterSprites[playerPick]["xOffset"],
+                characterSprites[playerPick]["yOffset"]);
+                GAME_ENGINE.addEntity(myPlayer);
+                GAME_ENGINE.addPlayerEntity(myPlayer);
             }
         }
 
