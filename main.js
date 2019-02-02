@@ -166,7 +166,7 @@ Devil.prototype.draw = function () {
 Devil.prototype.update = function () {
     if (this.health <= 0) this.removeFromWorld = true;
     this.x += this.game.clockTick * this.speed;
-    if (this.x >= 500 - TILE_SIZE * 2) this.x = 0;
+    if (this.x >= gameWorldWidth - TILE_SIZE * 2 - this.boundingbox.width) this.x = TILE_SIZE * 2;
     Entity.prototype.update.call(this);
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
