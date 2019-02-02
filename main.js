@@ -592,7 +592,9 @@ Sidebar.prototype.draw = function () {
     this.ctx.fillText("Projectile: Left Click", gameWorldWidth, 250);
     this.ctx.fillText("Abilities (N/A): 1, 2, 3, 4", gameWorldWidth, 280);
     this.ctx.fillText("More controls coming soon", gameWorldWidth, 310);
-
+    this.ctx.font = "15px Arial";
+    this.ctx.fillText("*Projectile is mage only", gameWorldWidth, 340);
+    this.ctx.fillText("*Other 2 projectiles coming soon", gameWorldWidth, 370);
 }
 
 Sidebar.prototype.update = function () {
@@ -600,7 +602,7 @@ Sidebar.prototype.update = function () {
 }
 
 function createRectAndText() {
-    
+
 }
 
 
