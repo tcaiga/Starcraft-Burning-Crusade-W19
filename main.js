@@ -15,19 +15,18 @@ var myRoomNum = 1;
 // Constant variable for tile size
 const TILE_SIZE = 16;
 
-function Player(game, spritesheetLeft, spritesheetRight, xOffset, yOffset) {
+function Player(game, spritesheet, xOffset, yOffset) {
     // Relevant for Player box
     this.width = 16;
     this.height = 28;
     this.scale = 1.5;
     this.xOffset = xOffset * this.scale;
     this.yOffset = yOffset * this.scale;
-    this.animationLeft = new Animation(spritesheetLeft, this.width, this.height, 1, 0.08, 4, true, this.scale);
-    this.animationRight = new Animation(spritesheetRight, this.width, this.height, 1, 0.08, 4, true, this.scale);
-    this.animationStill = this.animationRight;
+    this.animationRun = new Animation(spritesheet, this.width, this.height, 1, 0.08, 4, true, this.scale);
+    this.animationIdle = this.animationRun;
     this.x = 60;
     this.y = 60;
-
+    this.xScale = 1;
     this.game = game;
     this.ctx = game.ctx;
     this.right = true;
@@ -40,19 +39,24 @@ function Player(game, spritesheetLeft, spritesheetRight, xOffset, yOffset) {
 }
 
 Player.prototype.draw = function () {
+    this.xScale = 1;
+    var xValue = this.x;
+    if (!this.right) {
+        this.ctx.save();
+        this.ctx.scale(-1, 1);
+        this.xScale = -1;
+        xValue = -this.x - this.width;
+    }
     //draw player character with no animation if player is not currently moving
     if (!GAME_ENGINE.movement) {
-        this.animationStill.drawFrameStill(this.ctx, this.x, this.y);
+        this.animationIdle.drawFrameIdle(this.ctx, xValue, this.y);
     } else {
-        if (this.right) {
-            this.animationRight.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        } else {
-            this.animationLeft.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        }
+        this.animationRun.drawFrame(this.game.clockTick, this.ctx, xValue, this.y);
     }
+    this.ctx.restore();
     GAME_ENGINE.ctx.strokeStyle = "blue";
-    GAME_ENGINE.ctx.strokeRect(this.x + 4, this.y + 13,
-        this.boundingbox.width, this.boundingbox.height); // Hard coded offset values
+    GAME_ENGINE.ctx.strokeRect(this.x + (this.xScale * 4), this.y + 13,
+        this.boundingbox.width, this.boundingbox.height);
 }
 
 Player.prototype.update = function () {
@@ -68,7 +72,6 @@ Player.prototype.update = function () {
     if (GAME_ENGINE.keyA === true) {
         this.x -= 2 * sprint;
         this.right = false;
-        this.animationStill = this.animationLeft;
     }
     if (GAME_ENGINE.keyS === true) {
         this.y += 2 * sprint;
@@ -76,14 +79,14 @@ Player.prototype.update = function () {
     if (GAME_ENGINE.keyD === true) {
         this.x += 2 * sprint;
         this.right = true;
-        this.animationStill = this.animationRight;
     }
 
     if (this.health <= 0) {
         this.game.reset();
     }
 
-    this.boundingbox = new BoundingBox(this.x + 4, this.y + 14, this.width, this.height);
+    this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
+        this.width, this.height);
 }
 
 Player.prototype.collide = function (sprint) {
@@ -284,7 +287,7 @@ Projectile.prototype.update = function () {
 function Trap(game, spriteSheetUp, spriteSheetDown) {
     this.animationUp = new Animation(spriteSheetUp, 16, 16, 1, 0.13, 4, true, 1.25);
     this.animationDown = new Animation(spriteSheetDown, 16, 16, 1, 0.13, 4, true, 1.25);
-    this.animationStill = this.animationUp;
+    this.animationIdle = this.animationUp;
     this.x = 200; // Hardcorded temp spawn
     this.y = 200; // Hardcorded temp spawn
     this.activated = false; // Determining if trap has been activated
@@ -299,12 +302,12 @@ function Trap(game, spriteSheetUp, spriteSheetDown) {
 
 Trap.prototype.draw = function () {
     if (!this.activated) {
-        this.animationStill.drawFrameStill(this.ctx, this.x, this.y);
+        this.animationIdle.drawFrameIdle(this.ctx, this.x, this.y);
     } else {
         if (this.doAnimation) {
             this.animationUp.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
         } else {
-            this.animationDown.drawFrameStill(this.ctx, this.x, this.y);
+            this.animationDown.drawFrameIdle(this.ctx, this.x, this.y);
         }
     }
     GAME_ENGINE.ctx.strokeStyle = "red";
@@ -690,7 +693,7 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
         this.frameHeight * this.scale);
 }
 
-Animation.prototype.drawFrameStill = function (ctx, x, y) {
+Animation.prototype.drawFrameIdle = function (ctx, x, y) {
     ctx.drawImage(this.spriteSheet,
         0, 0,
         this.frameWidth, this.frameHeight,

@@ -2,12 +2,9 @@
 // The first index of the array is the mage, second being ranger, and third being knight.
 // Each index contains a JSON object which has the left and right faces for the sprites.
 // and the x and y offset to get bounds for room correct.
-var characterSprites = [{leftFace: "./img/mage_run_flipped.png", rightFace: "./img/mage_run.png", xOffset: 0,
-                        yOffset: 9},
-                        {leftFace: "./img/ranger_run_flipped.png", rightFace: "./img/ranger_run.png", xOffset: 0,
-                        yOffset: 8},
-                        {leftFace: "./img/knight_run_flipped.png", rightFace: "./img/knight_run.png", xOffset: 0,
-                        yOffset: 6}];
+var characterSprites = [{spritesheet: "./img/mage_run.png", xOffset: 0, yOffset: 9},
+                        {spritesheet: "./img/ranger_run.png", xOffset: 0, yOffset: 8},
+                        {spritesheet: "./img/knight_run.png", xOffset: 0, yOffset: 6}];
 
 var myPlayer;
 
@@ -142,9 +139,8 @@ GameEngine.prototype.startInput = function () {
 
                 // Using players choice to grab the appropriate character sprite
                 // Player
-                myPlayer = new Player(GAME_ENGINE, AM.getAsset(characterSprites[playerPick]["leftFace"]),
-                AM.getAsset(characterSprites[playerPick]["rightFace"]), characterSprites[playerPick]["xOffset"],
-                characterSprites[playerPick]["yOffset"]);
+                myPlayer = new Player(GAME_ENGINE, AM.getAsset(characterSprites[playerPick]["spritesheet"]), 
+                characterSprites[playerPick]["xOffset"], characterSprites[playerPick]["yOffset"]);
                 GAME_ENGINE.addEntity(myPlayer);
                 GAME_ENGINE.addPlayerEntity(myPlayer);
             }
