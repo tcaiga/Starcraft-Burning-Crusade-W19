@@ -2,12 +2,9 @@
 // The first index of the array is the mage, second being ranger, and third being knight.
 // Each index contains a JSON object which has the left and right faces for the sprites.
 // and the x and y offset to get bounds for room correct.
-var characterSprites = [{leftFace: "./img/mage_run_flipped.png", rightFace: "./img/mage_run.png", xOffset: 0,
-                        yOffset: 9},
-                        {leftFace: "./img/ranger_run_flipped.png", rightFace: "./img/ranger_run.png", xOffset: 0,
-                        yOffset: 8},
-                        {leftFace: "./img/knight_run_flipped.png", rightFace: "./img/knight_run.png", xOffset: 0,
-                        yOffset: 6}];
+var characterSprites = [{spritesheet: "./img/mage_run.png", xOffset: 0, yOffset: 9},
+                        {spritesheet: "./img/ranger_run.png", xOffset: 0, yOffset: 8},
+                        {spritesheet: "./img/knight_run.png", xOffset: 0, yOffset: 6}];
 
 var myPlayer;
 
@@ -38,9 +35,6 @@ function GameEngine() {
     this.projectileEntities = [];
     // Array to hold monsters
     this.monsterEntities = [];
-
-
-
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -51,6 +45,7 @@ function GameEngine() {
     this.keyShift = false;
     this.movement = false;
     this.insideMenu = true;
+    this.playerPick;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -88,69 +83,10 @@ GameEngine.prototype.startInput = function () {
     this.ctx.canvas.addEventListener("click", function (e) {
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
-        if (that.insideMenu) {
-            var menu = that.entities[0];
-            var classPicked = false;
-            if (y >= menu.classButtonY &&
-                 y <= menu.classButtonBottom) {
-                if(x >= menu.mageButtonX &&
-                     x <= menu.mageButtonX + menu.classButtonW) {
-                    classPicked = true;
-                    playerPick = 0;
-                }  else if (x >= menu.rangerButtonX &&
-                    x <= menu.rangerButtonX + menu.classButtonW) {
-                    classPicked = true;
-                    playerPick = 1;
-                } else if (x >= menu.knightButtonX &&
-                    x <= menu.knightButtonX + menu.classButtonW) {
-                    classPicked = true;
-                    playerPick = 2;
-                }
-            }
-            if (classPicked) {
-                that.insideMenu = false;
-                menu.removeFromWorld = true;
-                classPicked = false;
-                that.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
-
-                GAME_ENGINE.addEntity(new Background(GAME_ENGINE));
-                
-                // Monster
-                var devil = new Devil(GAME_ENGINE, AM.getAsset("./img/devil.png"));
-                var acolyte = new Acolyte(GAME_ENGINE, AM.getAsset("./img/acolyte.png"));
-                var monster = new Monster(GAME_ENGINE, AM.getAsset("./img/NPC_21.png"));
-                GAME_ENGINE.addEntity(monster);
-                GAME_ENGINE.addMonsterEntity(monster);
-                GAME_ENGINE.addEntity(devil);
-                GAME_ENGINE.addMonsterEntity(devil);
-                GAME_ENGINE.addEntity(acolyte);
-                GAME_ENGINE.addMonsterEntity(acolyte);
-
-                // Trap
-                var trap = new Trap(GAME_ENGINE, AM.getAsset("./img/floor_trap_up.png"),
-                AM.getAsset("./img/floor_trap_down.png"));
-                GAME_ENGINE.addEntity(trap);
-                GAME_ENGINE.addTrapEntity(trap);
-
-                var hud = new HUD(GAME_ENGINE);
-                GAME_ENGINE.addEntity(hud);
-                var sidebar = new Sidebar(GAME_ENGINE);
-                GAME_ENGINE.addEntity(sidebar);
-                hudHeight = hud.height;
-                sidebarWidth = sidebar.width;
-                gameWorldHeight = canvasHeight - hud.height;
-
-                // Using players choice to grab the appropriate character sprite
-                // Player
-                myPlayer = new Player(GAME_ENGINE, AM.getAsset(characterSprites[playerPick]["leftFace"]),
-                AM.getAsset(characterSprites[playerPick]["rightFace"]), characterSprites[playerPick]["xOffset"],
-                characterSprites[playerPick]["yOffset"]);
-                GAME_ENGINE.addEntity(myPlayer);
-                GAME_ENGINE.addPlayerEntity(myPlayer);
-            }
+        if (SCENE_MANAGER.insideMenu) {
+            SCENE_MANAGER.menuSelection(x, y);
         }
-
-        else if (!that.insideMenu && playerPick == 0) {
+        else if (that.playerPick == 0) {
             // Projectile
             var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
             myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
