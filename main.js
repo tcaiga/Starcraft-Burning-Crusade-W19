@@ -1,18 +1,15 @@
 const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
-var SCENE_MANAGER;
 
+var SCENE_MANAGER;
 var canvasWidth;
 var canvasHeight;
 var gameWorldHeight;
 var gameWorldWidth;
-
 var hudHeight;
 var sidebarWidth;
-
 var myFloorNum = 1;
 var myRoomNum = 1;
-
 // Constant variable for tile size
 const TILE_SIZE = 16;
 
@@ -31,12 +28,9 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.game = game;
     this.ctx = game.ctx;
     this.right = true;
-
     this.health = 100;
-
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
         this.width, this.height); // **Temporary** Hard coded offset values.
-
 }
 
 Player.prototype.draw = function () {
@@ -162,7 +156,6 @@ function Devil(game, spritesheet) {
     this.speed = 45;
     this.health = 200;
     this.animation = new Animation(spritesheet, this.width, this.height, 128, 0.15, 8, true, this.scale);
-
     this.x = 250;
     this.y = 250;
 
@@ -373,8 +366,7 @@ function Menu(game) {
     this.background.src = "./img/menu_background.png";
 }
 
-Menu.prototype.update = function () {
-}
+Menu.prototype.update = function () {}
 
 Menu.prototype.draw = function () {
     this.ctx.drawImage(this.background, 253, 0,
@@ -399,7 +391,7 @@ Menu.prototype.createClassButton = function (text, xPosition) {
     this.ctx.strokeStyle = "black";
     this.ctx.lineWidth = "1";
     this.ctx.font = "35px Arial";
-    this.ctx.strokeText(text, xPosition, this.classButtonY+ this.classButtonH);
+    this.ctx.strokeText(text, xPosition, this.classButtonY + this.classButtonH);
     this.ctx.fillStyle = "white";
     this.ctx.fillText(text, xPosition, this.classButtonY + this.classButtonH);
 }
@@ -412,15 +404,11 @@ function HUD(game) {
 
 HUD.prototype.draw = function () {
     //ALL VALUES ARE HARCODED FOR NOW
-
     //health
     this.ctx.fillStyle = "red";
     this.ctx.beginPath();
     this.ctx.arc(40, canvasHeight - this.height / 2, 40, 0, 2 * Math.PI);
     this.ctx.fill();
-    this.ctx.font = "30px Arial";
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText(myPlayer.health, 15, canvasHeight - (this.height / 2) + 15);
 
     //mana?
     this.ctx.fillStyle = "blue";
@@ -430,88 +418,54 @@ HUD.prototype.draw = function () {
     this.ctx.font = "30px Arial";
     this.ctx.fillStyle = "white";
     this.ctx.fillText("Mana", 82, canvasHeight - (this.height / 2) + 15);
+    this.ctx.fillText(myPlayer.health, 15, canvasHeight - (this.height / 2) + 15);
 
-    //ability 1
     this.ctx.font = "20px Arial";
     this.ctx.fillStyle = "grey";
     this.ctx.fillRect(160, canvasHeight - this.height,
         63, this.height / 2);
+    this.ctx.fillRect(223, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.fillRect(286, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.fillRect(349, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.fillRect(160, canvasHeight - this.height / 2,
+        252, this.height / 2);
+    this.ctx.fillRect(412, canvasHeight - this.height,
+        100, this.height);
+
     this.ctx.strokeStyle = "black";
     this.ctx.strokeRect(160, canvasHeight - this.height,
         63, this.height / 2);
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("1", 160, canvasHeight - this.height + 15);
-    this.ctx.fillText("N/A", 160, canvasHeight - this.height + 35);
-
-    //ability 2
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(223, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.strokeStyle = "black";
     this.ctx.strokeRect(223, canvasHeight - this.height,
         63, this.height / 2);
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("2", 223, canvasHeight - this.height + 15);
-
-    this.ctx.fillText("N/A", 223, canvasHeight - this.height + 35);
-
-    //ability 3
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(286, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.strokeStyle = "black";
     this.ctx.strokeRect(286, canvasHeight - this.height,
         63, this.height / 2);
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("3", 286, canvasHeight - this.height + 15);
-    this.ctx.fillText("N/A", 286, canvasHeight - this.height + 35);
-
-    //ability 4
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(349, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.strokeStyle = "black";
     this.ctx.strokeRect(349, canvasHeight - this.height,
         63, this.height / 2);
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("4", 349, canvasHeight - this.height + 15);
-    this.ctx.fillText("N/A", 349, canvasHeight - this.height + 35);
-
-    //stats
-    //ability 4
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(160, canvasHeight - this.height / 2,
-        252, this.height / 2);
-    this.ctx.strokeStyle = "black";
     this.ctx.strokeRect(160, canvasHeight - this.height / 2,
         252, this.height / 2);
-    this.ctx.fillStyle = "white";
-    var speed = (this.game.keyShift) ? 1.5 : 1
-
-    this.ctx.fillText("Speed: " + speed, 160, canvasHeight - this.height / 2 + 15);
-
-    //map
-    //ability 4
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(412, canvasHeight - this.height,
-        100, this.height);
-    this.ctx.strokeStyle = "black";
     this.ctx.strokeRect(412, canvasHeight - this.height,
         100, this.height);
+
     this.ctx.fillStyle = "white";
-    this.ctx.fillText("map (N/A)", 412, canvasHeight - this.height + 15);
+    //ability 1
+    this.ctx.fillText("1", 160, canvasHeight - this.height + 15);
+    //ability 2
+    this.ctx.fillText("2", 223, canvasHeight - this.height + 15);
+    //ability 3
+    this.ctx.fillText("3", 286, canvasHeight - this.height + 15);
+    //ability 4
+    this.ctx.fillText("4", 349, canvasHeight - this.height + 15);
+    //stats
+    var speed = (this.game.keyShift) ? 1.5 : 1
+    this.ctx.fillText("Speed: " + speed, 160, canvasHeight - this.height / 2 + 15);
+    //map
+    this.ctx.fillText("Map", 412, canvasHeight - this.height + 15);
 }
 
-HUD.prototype.update = function () {
-
-}
-
-
+HUD.prototype.update = function () {}
 
 function Sidebar(game) {
     this.ctx = game.ctx;
@@ -536,18 +490,14 @@ Sidebar.prototype.draw = function () {
     this.ctx.fillText("Movement: W, A, S, D", gameWorldWidth, 190);
     this.ctx.fillText("Sprint: Shift", gameWorldWidth, 220);
     this.ctx.fillText("Projectile: Left Click", gameWorldWidth, 250);
-    this.ctx.fillText("Abilities (N/A): 1, 2, 3, 4", gameWorldWidth, 280);
+    this.ctx.fillText("Abilities: 1, 2, 3, 4", gameWorldWidth, 280);
 }
 
-Sidebar.prototype.update = function () {
+Sidebar.prototype.update = function () {}
 
-}
-
-// No inheritance
 function Background(game) {
     this.x = 0;
     this.y = 0;
-    this.game = game;
     this.ctx = game.ctx;
     this.map = [
 
@@ -589,9 +539,7 @@ Background.prototype.draw = function () {
     }
 };
 
-Background.prototype.update = function () {
-
-};
+Background.prototype.update = function () {};
 
 function Animation(spriteSheet, frameWidth, frameHeight,
     sheetWidth, frameDuration, frames, loop, scale) {
@@ -643,7 +591,6 @@ Animation.prototype.isDone = function () {
     return (this.elapsedTime >= this.totalTime);
 }
 
-AM.queueDownload("./img/NPC_21.png");
 // Ranger
 AM.queueDownload("./img/ranger_run.png");
 // Knight

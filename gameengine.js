@@ -2,21 +2,20 @@
 // The first index of the array is the mage, second being ranger, and third being knight.
 // Each index contains a JSON object which has the left and right faces for the sprites.
 // and the x and y offset to get bounds for room correct.
-var characterSprites = [{spritesheet: "./img/mage_run.png", xOffset: 0, yOffset: 9},
-                        {spritesheet: "./img/ranger_run.png", xOffset: 0, yOffset: 8},
-                        {spritesheet: "./img/knight_run.png", xOffset: 0, yOffset: 6}];
-
+var characterSprites = [{ spritesheet: "./img/mage_run.png", xOffset: 0, yOffset: 9 },
+{ spritesheet: "./img/ranger_run.png", xOffset: 0, yOffset: 8 },
+{ spritesheet: "./img/knight_run.png", xOffset: 0, yOffset: 6 }];
 var myPlayer;
 
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimationFrame ||
-            function (/* function */ callback, /* DOMElement */ element) {
-                window.setTimeout(callback, 1000 / 60);
-            };
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function (/* function */ callback, /* DOMElement */ element) {
+            window.setTimeout(callback, 1000 / 60);
+        };
 })();
 
 function GameEngine() {
@@ -44,7 +43,6 @@ function GameEngine() {
     this.keyW = false;
     this.keyShift = false;
     this.movement = false;
-    this.insideMenu = true;
     this.playerPick;
 }
 
@@ -85,13 +83,14 @@ GameEngine.prototype.startInput = function () {
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
         if (SCENE_MANAGER.insideMenu) {
             SCENE_MANAGER.menuSelection(x, y);
-        }
-        else if (that.playerPick == 0) {
-            // Projectile
-            var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
-            myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
-            GAME_ENGINE.addEntity(projectile);
-            GAME_ENGINE.addProjectileEntity(projectile);
+        } else {
+            if (that.playerPick == 0) {
+                // Projectile
+                var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
+                    myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
+                GAME_ENGINE.addEntity(projectile);
+                GAME_ENGINE.addProjectileEntity(projectile);
+            }
         }
     }, false);
 
@@ -161,15 +160,17 @@ GameEngine.prototype.reset = function () {
         this.projectileEntities.pop();
     }
 
-    // Popping projectileEntities to remove duplicates.
+    // Popping monsterEntities to remove duplicates.
     for (let i = 0; i < this.monsterEntities.length; i++) {
         this.monsterEntities.pop();
     }
 
     this.entitiesCount++;
-    this.insideMenu = true;
     //menu is no longer removed from world
     this.entities[0].removeFromWorld = false;
+    SCENE_MANAGER.menu = this.entities[0];
+    SCENE_MANAGER.insideMenu = true;
+    this.playerPick = -1;
 }
 
 // Necessary to let main.js access some information. In this case entities to
