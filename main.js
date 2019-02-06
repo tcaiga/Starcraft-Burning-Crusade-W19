@@ -1,5 +1,6 @@
 const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
+var SCENE_MANAGER;
 
 var canvasWidth;
 var canvasHeight;
@@ -764,4 +765,5 @@ AM.downloadAll(function () {
     GAME_ENGINE.start();
 
     GAME_ENGINE.addEntity(new Menu(GAME_ENGINE));
+    SCENE_MANAGER = new SceneManager();
 });
