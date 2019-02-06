@@ -1,18 +1,15 @@
 const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
-var SCENE_MANAGER;
 
+var SCENE_MANAGER;
 var canvasWidth;
 var canvasHeight;
 var gameWorldHeight;
 var gameWorldWidth;
-
 var hudHeight;
 var sidebarWidth;
-
 var myFloorNum = 1;
 var myRoomNum = 1;
-
 // Constant variable for tile size
 const TILE_SIZE = 16;
 
@@ -31,12 +28,9 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.game = game;
     this.ctx = game.ctx;
     this.right = true;
-
     this.health = 100;
-
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
         this.width, this.height); // **Temporary** Hard coded offset values.
-
 }
 
 Player.prototype.draw = function () {
@@ -372,8 +366,7 @@ function Menu(game) {
     this.background.src = "./img/menu_background.png";
 }
 
-Menu.prototype.update = function () {
-}
+Menu.prototype.update = function () {}
 
 Menu.prototype.draw = function () {
     this.ctx.drawImage(this.background, 253, 0,
@@ -472,9 +465,7 @@ HUD.prototype.draw = function () {
     this.ctx.fillText("Map", 412, canvasHeight - this.height + 15);
 }
 
-HUD.prototype.update = function () {
-
-}
+HUD.prototype.update = function () {}
 
 function Sidebar(game) {
     this.ctx = game.ctx;
@@ -499,18 +490,14 @@ Sidebar.prototype.draw = function () {
     this.ctx.fillText("Movement: W, A, S, D", gameWorldWidth, 190);
     this.ctx.fillText("Sprint: Shift", gameWorldWidth, 220);
     this.ctx.fillText("Projectile: Left Click", gameWorldWidth, 250);
-    this.ctx.fillText("Abilities (N/A): 1, 2, 3, 4", gameWorldWidth, 280);
+    this.ctx.fillText("Abilities: 1, 2, 3, 4", gameWorldWidth, 280);
 }
 
-Sidebar.prototype.update = function () {
+Sidebar.prototype.update = function () {}
 
-}
-
-// No inheritance
 function Background(game) {
     this.x = 0;
     this.y = 0;
-    this.game = game;
     this.ctx = game.ctx;
     this.map = [
 
@@ -552,9 +539,7 @@ Background.prototype.draw = function () {
     }
 };
 
-Background.prototype.update = function () {
-
-};
+Background.prototype.update = function () {};
 
 function Animation(spriteSheet, frameWidth, frameHeight,
     sheetWidth, frameDuration, frames, loop, scale) {

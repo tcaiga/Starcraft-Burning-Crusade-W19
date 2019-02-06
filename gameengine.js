@@ -5,7 +5,6 @@
 var characterSprites = [{ spritesheet: "./img/mage_run.png", xOffset: 0, yOffset: 9 },
 { spritesheet: "./img/ranger_run.png", xOffset: 0, yOffset: 8 },
 { spritesheet: "./img/knight_run.png", xOffset: 0, yOffset: 6 }];
-
 var myPlayer;
 
 window.requestAnimFrame = (function () {
