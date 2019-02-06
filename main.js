@@ -398,7 +398,7 @@ Menu.prototype.createClassButton = function (text, xPosition) {
     this.ctx.strokeStyle = "black";
     this.ctx.lineWidth = "1";
     this.ctx.font = "35px Arial";
-    this.ctx.strokeText(text, xPosition, this.classButtonY+ this.classButtonH);
+    this.ctx.strokeText(text, xPosition, this.classButtonY + this.classButtonH);
     this.ctx.fillStyle = "white";
     this.ctx.fillText(text, xPosition, this.classButtonY + this.classButtonH);
 }
@@ -411,7 +411,6 @@ function HUD(game) {
 
 HUD.prototype.draw = function () {
     //ALL VALUES ARE HARCODED FOR NOW
-
     //health
     this.ctx.fillStyle = "red";
     this.ctx.beginPath();
@@ -428,80 +427,54 @@ HUD.prototype.draw = function () {
     this.ctx.fillText("Mana", 82, canvasHeight - (this.height / 2) + 15);
     this.ctx.fillText(myPlayer.health, 15, canvasHeight - (this.height / 2) + 15);
 
-    //ability 1
     this.ctx.font = "20px Arial";
     this.ctx.fillStyle = "grey";
     this.ctx.fillRect(160, canvasHeight - this.height,
         63, this.height / 2);
+    this.ctx.fillRect(223, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.fillRect(286, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.fillRect(349, canvasHeight - this.height,
+        63, this.height / 2);
+    this.ctx.fillRect(160, canvasHeight - this.height / 2,
+        252, this.height / 2);
+    this.ctx.fillRect(412, canvasHeight - this.height,
+        100, this.height);
+
     this.ctx.strokeStyle = "black";
     this.ctx.strokeRect(160, canvasHeight - this.height,
         63, this.height / 2);
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("1", 160, canvasHeight - this.height + 15);
-
-    //ability 2
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(223, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.strokeStyle = "black";
     this.ctx.strokeRect(223, canvasHeight - this.height,
         63, this.height / 2);
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("2", 223, canvasHeight - this.height + 15);
-
-    //ability 3
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(286, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.strokeStyle = "black";
     this.ctx.strokeRect(286, canvasHeight - this.height,
         63, this.height / 2);
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("3", 286, canvasHeight - this.height + 15);
-
-    //ability 4
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(349, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.strokeStyle = "black";
     this.ctx.strokeRect(349, canvasHeight - this.height,
         63, this.height / 2);
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("4", 349, canvasHeight - this.height + 15);
-
-    //stats
-    //ability 4
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(160, canvasHeight - this.height / 2,
-        252, this.height / 2);
-    this.ctx.strokeStyle = "black";
     this.ctx.strokeRect(160, canvasHeight - this.height / 2,
         252, this.height / 2);
-    this.ctx.fillStyle = "white";
-    var speed = (this.game.keyShift) ? 1.5 : 1
-
-    this.ctx.fillText("Speed: " + speed, 160, canvasHeight - this.height / 2 + 15);
-
-    //map
-    //ability 4
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(412, canvasHeight - this.height,
-        100, this.height);
-    this.ctx.strokeStyle = "black";
     this.ctx.strokeRect(412, canvasHeight - this.height,
         100, this.height);
+
+    this.ctx.fillStyle = "white";
+    //ability 1
+    this.ctx.fillText("1", 160, canvasHeight - this.height + 15);
+    //ability 2
+    this.ctx.fillText("2", 223, canvasHeight - this.height + 15);
+    //ability 3
+    this.ctx.fillText("3", 286, canvasHeight - this.height + 15);
+    //ability 4
+    this.ctx.fillText("4", 349, canvasHeight - this.height + 15);
+    //stats
+    var speed = (this.game.keyShift) ? 1.5 : 1
+    this.ctx.fillText("Speed: " + speed, 160, canvasHeight - this.height / 2 + 15);
+    //map
+    this.ctx.fillText("Map", 412, canvasHeight - this.height + 15);
 }
 
 HUD.prototype.update = function () {
 
 }
-
-
 
 function Sidebar(game) {
     this.ctx = game.ctx;
