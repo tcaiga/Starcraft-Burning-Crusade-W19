@@ -162,7 +162,6 @@ function Devil(game, spritesheet) {
     this.speed = 45;
     this.health = 200;
     this.animation = new Animation(spritesheet, this.width, this.height, 128, 0.15, 8, true, this.scale);
-
     this.x = 250;
     this.y = 250;
 
@@ -418,9 +417,6 @@ HUD.prototype.draw = function () {
     this.ctx.beginPath();
     this.ctx.arc(40, canvasHeight - this.height / 2, 40, 0, 2 * Math.PI);
     this.ctx.fill();
-    this.ctx.font = "30px Arial";
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText(myPlayer.health, 15, canvasHeight - (this.height / 2) + 15);
 
     //mana?
     this.ctx.fillStyle = "blue";
@@ -430,6 +426,7 @@ HUD.prototype.draw = function () {
     this.ctx.font = "30px Arial";
     this.ctx.fillStyle = "white";
     this.ctx.fillText("Mana", 82, canvasHeight - (this.height / 2) + 15);
+    this.ctx.fillText(myPlayer.health, 15, canvasHeight - (this.height / 2) + 15);
 
     //ability 1
     this.ctx.font = "20px Arial";
@@ -441,7 +438,6 @@ HUD.prototype.draw = function () {
         63, this.height / 2);
     this.ctx.fillStyle = "white";
     this.ctx.fillText("1", 160, canvasHeight - this.height + 15);
-    this.ctx.fillText("N/A", 160, canvasHeight - this.height + 35);
 
     //ability 2
     this.ctx.font = "20px Arial";
@@ -454,8 +450,6 @@ HUD.prototype.draw = function () {
     this.ctx.fillStyle = "white";
     this.ctx.fillText("2", 223, canvasHeight - this.height + 15);
 
-    this.ctx.fillText("N/A", 223, canvasHeight - this.height + 35);
-
     //ability 3
     this.ctx.font = "20px Arial";
     this.ctx.fillStyle = "grey";
@@ -466,7 +460,6 @@ HUD.prototype.draw = function () {
         63, this.height / 2);
     this.ctx.fillStyle = "white";
     this.ctx.fillText("3", 286, canvasHeight - this.height + 15);
-    this.ctx.fillText("N/A", 286, canvasHeight - this.height + 35);
 
     //ability 4
     this.ctx.font = "20px Arial";
@@ -478,7 +471,6 @@ HUD.prototype.draw = function () {
         63, this.height / 2);
     this.ctx.fillStyle = "white";
     this.ctx.fillText("4", 349, canvasHeight - this.height + 15);
-    this.ctx.fillText("N/A", 349, canvasHeight - this.height + 35);
 
     //stats
     //ability 4
@@ -503,8 +495,6 @@ HUD.prototype.draw = function () {
     this.ctx.strokeStyle = "black";
     this.ctx.strokeRect(412, canvasHeight - this.height,
         100, this.height);
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("map (N/A)", 412, canvasHeight - this.height + 15);
 }
 
 HUD.prototype.update = function () {
@@ -643,7 +633,6 @@ Animation.prototype.isDone = function () {
     return (this.elapsedTime >= this.totalTime);
 }
 
-AM.queueDownload("./img/NPC_21.png");
 // Ranger
 AM.queueDownload("./img/ranger_run.png");
 // Knight
