@@ -144,7 +144,7 @@ Monster.prototype.update = function () {
         if (this.boundingbox.collide(entityCollide.boundingbox)) {
             this.counter += this.game.clockTick;
             if (this.counter > .018 && GAME_ENGINE.playerEntities[i].health > 0) {
-                    GAME_ENGINE.playerEntities[i].health -= 5;
+                GAME_ENGINE.playerEntities[i].health -= 5;
             }
             this.counter = 0;
         }
@@ -195,7 +195,7 @@ Devil.prototype.update = function () {
         if (this.boundingbox.collide(entityCollide.boundingbox)) {
             this.counter += this.game.clockTick;
             if (this.counter > .018 && GAME_ENGINE.playerEntities[i].health > 0) {
-                    GAME_ENGINE.playerEntities[i].health -= 5;
+                GAME_ENGINE.playerEntities[i].health -= 5;
             }
             this.counter = 0;
         }
@@ -268,17 +268,17 @@ Projectile.prototype.update = function () {
     Entity.prototype.update.call(this);
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
-    this.width - 75, this.height - 75); // **Temporary** Hard coded offset values.
+        this.width - 75, this.height - 75); // **Temporary** Hard coded offset values.
 
     for (var i = 0; i < GAME_ENGINE.monsterEntities.length; i++) {
-            var entityCollide = GAME_ENGINE.monsterEntities[i];
-            if (this.boundingbox.collide(entityCollide.boundingbox)) {
-                if (GAME_ENGINE.monsterEntities[i].health > 0) {
-                    GAME_ENGINE.monsterEntities[i].health -= 15;
-                    this.removeFromWorld = true;
-                }
+        var entityCollide = GAME_ENGINE.monsterEntities[i];
+        if (this.boundingbox.collide(entityCollide.boundingbox)) {
+            if (GAME_ENGINE.monsterEntities[i].health > 0) {
+                GAME_ENGINE.monsterEntities[i].health -= 15;
+                this.removeFromWorld = true;
             }
         }
+    }
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
         this.width - 75, this.height - 75); // Hardcoded a lot of offset values
@@ -363,15 +363,12 @@ BoundingBox.prototype.collide = function (oth) {
 function Menu(game) {
     this.ctx = game.ctx;
     this.classButtonW = 100;
-    this.classButtonH = 37;
+    this.classButtonH = 35;
     this.classButtonY = 400;
-    this.classButtonTextY = 430;
-    this.titleY = 200;
+    this.classButtonBottom = this.classButtonY + this.classButtonH;
     this.mageButtonX = (canvasWidth - (this.classButtonW * 3)) / 4;
     this.rangerButtonX = 2 * this.mageButtonX + this.classButtonW;
     this.knightButtonX = this.rangerButtonX + this.classButtonW + this.mageButtonX;
-    this.classButtonBottom = this.classButtonY + this.classButtonH;
-    this.game = game;
     this.background = new Image();
     this.background.src = "./img/menu_background.png";
 }
@@ -379,47 +376,32 @@ function Menu(game) {
 Menu.prototype.update = function () {
 }
 
-//values are TEMP. will change later.
 Menu.prototype.draw = function () {
     this.ctx.drawImage(this.background, 253, 0,
         canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
 
-    this.ctx.font = "50px Arial";
-    this.ctx.fillStyle = "grey";
     var title = "Last Labyrinth"
+    this.ctx.font = "bold 80px Arial";
+    this.ctx.fillStyle = "black";
     var titleLength = Math.floor(this.ctx.measureText(title).width);
     var titleXStart = (canvasWidth - titleLength) / 2;
-    this.ctx.fillRect(titleXStart, this.titleY,
-        titleLength, 50);
+    this.ctx.fillText(title, titleXStart, 238);
+    this.ctx.strokeStyle = "grey";
+    this.ctx.lineWidth = "1";
+    this.ctx.strokeText(title, titleXStart, 238);
+
+    this.createClassButton("Mage", this.mageButtonX);
+    this.createClassButton("Ranger", this.rangerButtonX);
+    this.createClassButton("Knight", this.knightButtonX);
+}
+
+Menu.prototype.createClassButton = function (text, xPosition) {
+    this.ctx.strokeStyle = "black";
+    this.ctx.lineWidth = "1";
+    this.ctx.font = "35px Arial";
+    this.ctx.strokeText(text, xPosition, this.classButtonY+ this.classButtonH);
     this.ctx.fillStyle = "white";
-    this.ctx.fillText(title, titleXStart, this.titleY + 38);
-
-    this.ctx.font = "30px Arial";
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(this.mageButtonX, this.classButtonY,
-        this.classButtonW, this.classButtonH);
-    this.ctx.fillStyle = "blue";
-    this.ctx.fillText("Mage", this.mageButtonX, this.classButtonTextY);
-
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(this.rangerButtonX, this.classButtonY,
-        this.classButtonW, this.classButtonH);
-    this.ctx.fillStyle = "blue";
-    this.ctx.fillText("Ranger", this.rangerButtonX, this.classButtonTextY);
-
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(this.knightButtonX, this.classButtonY,
-        this.classButtonW, this.classButtonH);
-    this.ctx.fillStyle = "blue";
-    this.ctx.fillText("Knight", this.knightButtonX, this.classButtonTextY);
-
-    var pickClassText = "Pick a Class!";
-    var pickClassLength = Math.floor(this.ctx.measureText(pickClassText).width);
-    var pickClassXStart = (canvasWidth - pickClassLength) / 2;
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(pickClassXStart, 300, pickClassLength, 37);
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("Pick a Class!", pickClassXStart, 330);
+    this.ctx.fillText(text, xPosition, this.classButtonY + this.classButtonH);
 }
 
 function HUD(game) {
@@ -509,7 +491,7 @@ HUD.prototype.draw = function () {
         252, this.height / 2);
     this.ctx.fillStyle = "white";
     var speed = (this.game.keyShift) ? 1.5 : 1
-    
+
     this.ctx.fillText("Speed: " + speed, 160, canvasHeight - this.height / 2 + 15);
 
     //map
@@ -529,47 +511,7 @@ HUD.prototype.update = function () {
 
 }
 
-Menu.prototype.draw = function () {
-    this.ctx.drawImage(this.background, 253, 0,
-        canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
 
-    this.ctx.font = "50px Arial";
-    this.ctx.fillStyle = "grey";
-    var title = "Last Labyrinth"
-    var titleLength = Math.floor(this.ctx.measureText(title).width);
-    var titleXStart = (canvasWidth - titleLength) / 2;
-    this.ctx.fillRect(titleXStart, this.titleY,
-        titleLength, 50);
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText(title, titleXStart, this.titleY + 38);
-
-    this.ctx.font = "30px Arial";
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(this.mageButtonX, this.classButtonY,
-        this.classButtonW, this.classButtonH);
-    this.ctx.fillStyle = "blue";
-    this.ctx.fillText("Mage", this.mageButtonX, this.classButtonTextY);
-
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(this.rangerButtonX, this.classButtonY,
-        this.classButtonW, this.classButtonH);
-    this.ctx.fillStyle = "blue";
-    this.ctx.fillText("Ranger", this.rangerButtonX, this.classButtonTextY);
-
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(this.knightButtonX, this.classButtonY,
-        this.classButtonW, this.classButtonH);
-    this.ctx.fillStyle = "blue";
-    this.ctx.fillText("Knight", this.knightButtonX, this.classButtonTextY);
-
-    var pickClassText = "Pick a Class!";
-    var pickClassLength = Math.floor(this.ctx.measureText(pickClassText).width);
-    var pickClassXStart = (canvasWidth - pickClassLength) / 2;
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(pickClassXStart, 300, pickClassLength, 37);
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("Pick a Class!", pickClassXStart, 330);
-}
 
 function Sidebar(game) {
     this.ctx = game.ctx;
@@ -579,9 +521,9 @@ function Sidebar(game) {
 
 Sidebar.prototype.draw = function () {
     this.ctx.font = "35px Arial";
-    this.ctx.fillStyle= "gray";
+    this.ctx.fillStyle = "gray";
     this.ctx.fillRect(gameWorldWidth, 0, this.width, canvasHeight);
-    this.ctx.strokeStyle= "black";
+    this.ctx.strokeStyle = "black";
     this.ctx.strokeRect(gameWorldWidth, 0, this.width, canvasHeight);
     this.ctx.fillStyle = "black";
     this.ctx.fillText("Last Labyrinth", gameWorldWidth, 30);
@@ -595,21 +537,11 @@ Sidebar.prototype.draw = function () {
     this.ctx.fillText("Sprint: Shift", gameWorldWidth, 220);
     this.ctx.fillText("Projectile: Left Click", gameWorldWidth, 250);
     this.ctx.fillText("Abilities (N/A): 1, 2, 3, 4", gameWorldWidth, 280);
-    this.ctx.fillText("More controls coming soon", gameWorldWidth, 310);
-    this.ctx.font = "15px Arial";
-    this.ctx.fillText("*Projectile is mage only", gameWorldWidth, 340);
-    this.ctx.fillText("*Other 2 projectiles coming soon", gameWorldWidth, 370);
 }
 
 Sidebar.prototype.update = function () {
 
 }
-
-function createRectAndText() {
-
-}
-
-
 
 // No inheritance
 function Background(game) {
@@ -712,54 +644,30 @@ Animation.prototype.isDone = function () {
 }
 
 AM.queueDownload("./img/NPC_21.png");
-
 // Ranger
 AM.queueDownload("./img/ranger_run.png");
-AM.queueDownload("./img/ranger_run_flipped.png");
-
 // Knight
 AM.queueDownload("./img/knight_run.png");
-AM.queueDownload("./img/knight_run_flipped.png");
-
 // Mage
 AM.queueDownload("./img/mage_run.png");
-AM.queueDownload("./img/mage_run_flipped.png");
-
 // Floor Trap
 AM.queueDownload("./img/floor_trap_up.png");
 AM.queueDownload("./img/floor_trap_down.png");
-
 // Devil
 AM.queueDownload("./img/devil.png");
-
 // Acolyte
 AM.queueDownload("./img/acolyte.png");
-
-// Fireball stuff
-AM.queueDownload("./img/fireball/fireballright.png");
-AM.queueDownload("./img/fireball/fireballdownleft.png");
-AM.queueDownload("./img/fireball/fireballleftup.png");
-AM.queueDownload("./img/fireball/fireballup.png");
-AM.queueDownload("./img/fireball/fireballdown.png");
-AM.queueDownload("./img/fireball/fireballrightup.png");
-AM.queueDownload("./img/fireball/fireballdownright.png");
-AM.queueDownload("./img/fireball/fireballleft.png");
-
 // Harrison's Fireball
 AM.queueDownload("./img/fireball.png");
-
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
-    canvas.setAttribute("style",
-        "position: absolute; left: 50%; margin-left:-381px; top:50%; margin-top:-306px");
     document.body.style.backgroundColor = "black";
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
     gameWorldWidth = canvasWidth - 250;
     gameWorldHeight = canvasWidth - 100;
-
 
     GAME_ENGINE.init(ctx);
     GAME_ENGINE.start();
