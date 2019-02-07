@@ -1,2 +1,2 @@
 # Last-Labyrinth-W19
-Roguelike game played in your browser.
+Roguelike browser game made for TCSS491 Computational Worlds
