@@ -19,21 +19,8 @@ window.requestAnimFrame = (function () {
 })();
 
 function GameEngine() {
-    //menu, non-interactable (terrain, hud), enemies, projectiles, traps, player
-    // this.entities = [[], [], [], [], [], []];
-    this.entities = [];
-    this.entitiesCount = 0;
-
-    // Arrays necessary to check for collision. Made multiple because
-    // of the need to check them against each other.
-    // Array to hold player entities
-    this.playerEntities = [];
-    // Array to hold trap entities
-    this.trapEntities = [];
-    // Array to hold projectiles
-    this.projectileEntities = [];
-    // Array to hold monsters
-    this.monsterEntities = [];
+    //menu, non-interactable (terrain, hud),traps, projectiles, enemies, player
+    this.entities = [[], [], [], [], [], []];
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -89,7 +76,6 @@ GameEngine.prototype.startInput = function () {
                 var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
                     myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
                 GAME_ENGINE.addEntity(projectile);
-                GAME_ENGINE.addProjectileEntity(projectile);
             }
         }
     }, false);
@@ -139,70 +125,45 @@ GameEngine.prototype.startInput = function () {
 }
 
 GameEngine.prototype.reset = function () {
-    this.entitiesCount = 0;
-    for (let i = this.entities.length - 1; i > 0; i--) {
-        this.entities[i].removeFromWorld = true;
-        this.entities.pop();
+    for (let i = 1; i < entities.length; i++) {
+        for (let j = 0; j < entities[i].length; j++) {
+            var entity = entities[i][j];
+            this.entity.removeFromWorld = true;
+            this.entity.pop();
+        }
     }
-
-    // Popping playerEntities to remove duplicates.
-    for (let i = 0; i < this.playerEntities.length; i++) {
-        this.playerEntities.pop();
-    }
-
-    // Popping trapEntities to remove duplicates.
-    for (let i = 0; i < this.trapEntities.length; i++) {
-        this.trapEntities.pop();
-    }
-
-    // Popping projectileEntities to remove duplicates.
-    for (let i = 0; i < this.projectileEntities.length; i++) {
-        this.projectileEntities.pop();
-    }
-
-    // Popping monsterEntities to remove duplicates.
-    for (let i = 0; i < this.monsterEntities.length; i++) {
-        this.monsterEntities.pop();
-    }
-
-    this.entitiesCount++;
     //menu is no longer removed from world
-    this.entities[0].removeFromWorld = false;
-    SCENE_MANAGER.menu = this.entities[0];
+    this.entities[0][0].removeFromWorld = false;
+    SCENE_MANAGER.menu = this.entities[0][0];
     SCENE_MANAGER.insideMenu = true;
     this.playerPick = -1;
 }
 
-// Necessary to let main.js access some information. In this case entities to
-// check for collision.
-GameEngine.prototype.addPlayerEntity = function (entity) {
-    this.playerEntities.push(entity);
-}
-
-GameEngine.prototype.addTrapEntity = function (entity) {
-    this.trapEntities.push(entity);
-}
-
-GameEngine.prototype.addProjectileEntity = function (entity) {
-    this.projectileEntities.push(entity);
-}
-
-GameEngine.prototype.addMonsterEntity = function (entity) {
-    this.monsterEntities.push(entity);
-}
-
 GameEngine.prototype.addEntity = function (entity) {
-    this.entities.push(entity);
-    this.entitiesCount++;
+    if (entity instanceof Player) {
+        this.entities[5].push(entity);
+    } else if (entity instanceof Monster) {
+        this.entities[4].push(entity);
+    } else if (entity instanceof Projectile) {
+        this.entities[3].push(entity);
+    } else if (entity instanceof Trap) {
+        this.entities[2].push(entity);
+    } else if (entity instanceof Menu) {
+        this.entities[0].push(entity);
+    } else {
+        this.entities[1].push(entity);
+    }
 }
 
 GameEngine.prototype.draw = function () {
     this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
     this.ctx.save();
-    for (var i = 0; i < this.entitiesCount; i++) {
-        var entity = this.entities[i];
-        if (!entity.removeFromWorld) {
-            entity.draw(this.ctx);
+    for (let i = 0; i < this.entities.length; i++) {
+        for (let j = 0; j < this.entities[i].length; j++) {
+            var entity = this.entities[i][j];
+            if (!entity.removeFromWorld) {
+                entity.draw(this.ctx);
+            }
         }
     }
     this.ctx.restore();
@@ -210,11 +171,12 @@ GameEngine.prototype.draw = function () {
 
 GameEngine.prototype.update = function () {
 
-    for (var i = 0; i < this.entitiesCount; i++) {
-        var entity = this.entities[i];
-
-        if (!entity.removeFromWorld) {
-            entity.update();
+    for (let i = 0; i < this.entities.length; i++) {
+        for (let j = 0; j < this.entities[i].length; j++) {
+            var entity = this.entities[i][j];
+            if (!entity.removeFromWorld) {
+                entity.update();
+            }
         }
     }
 }
@@ -248,8 +210,7 @@ function Entity(game, x, y) {
     this.removeFromWorld = false;
 }
 
-Entity.prototype.update = function () {
-}
+Entity.prototype.update = function () {}
 
 Entity.prototype.draw = function (ctx) {
     if (this.game.showOutlines && this.radius) {
