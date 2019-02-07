@@ -125,11 +125,12 @@ GameEngine.prototype.startInput = function () {
 }
 
 GameEngine.prototype.reset = function () {
-    for (let i = 1; i < entities.length; i++) {
-        for (let j = 0; j < entities[i].length; j++) {
-            var entity = entities[i][j];
-            this.entity.removeFromWorld = true;
-            this.entity.pop();
+    for (let i = 1; i < this.entities.length; i++) {
+        var entitySubArr = this.entities[i];
+        for (let j = 0; j < entitySubArr.length; j++) {
+            var entity = this.entities[i][j];
+            entity.removeFromWorld = true;
+            this.entities[i].pop();
         }
     }
     //menu is no longer removed from world
@@ -159,7 +160,8 @@ GameEngine.prototype.draw = function () {
     this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
     this.ctx.save();
     for (let i = 0; i < this.entities.length; i++) {
-        for (let j = 0; j < this.entities[i].length; j++) {
+        var entitySubArr = this.entities[i];
+        for (let j = 0; j < entitySubArr.length; j++) {
             var entity = this.entities[i][j];
             if (!entity.removeFromWorld) {
                 entity.draw(this.ctx);

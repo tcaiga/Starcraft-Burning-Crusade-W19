@@ -259,9 +259,7 @@ Projectile.prototype.update = function () {
 
     for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
         var entityCollide = GAME_ENGINE.entities[4][i];
-        console.log(2);
         if (this.boundingbox.collide(entityCollide.boundingbox)) {
-            console.log("1");
             if (GAME_ENGINE.entities[4][i].health > 0) {
                 GAME_ENGINE.entities[4][i].health -= 15;
                 this.removeFromWorld = true;
