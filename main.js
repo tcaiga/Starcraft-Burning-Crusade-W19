@@ -101,60 +101,14 @@ Player.prototype.collide = function (sprint) {
 }
 
 function Monster(game, spritesheet) {
+    Entity.call(this, game, 0, 350);
+    this.scale = 1;
     this.width = 40;
     this.height = 56;
-    this.animation = new Animation(spritesheet, this.width, this.height, 1, 0.15, 15, true, 1);
+    this.animation = new Animation(spritesheet, this.width, this.height, 1, 0.15, 15, true, this.scale);
     this.speed = 100;
     this.ctx = game.ctx;
     this.health = 100;
-    Entity.call(this, game, 0, 350);
-
-    this.counter = 0;
-
-    this.boundingbox = new BoundingBox(this.x, this.y,
-        this.width, this.height); // **Temporary** Hard coded offset values.
-}
-
-Monster.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-    GAME_ENGINE.ctx.strokeStyle = "red";
-    GAME_ENGINE.ctx.strokeRect(this.x, this.y, this.width, this.height);
-
-    // Displaying Monster health
-    this.ctx.font = "15px Arial";
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("Health: " + this.health, this.x - 5, this.y - 5);
-}
-
-Monster.prototype.update = function () {
-    this.x -= this.game.clockTick * this.speed;
-    if (this.x <= TILE_SIZE * 2) this.x = 450;
-    Entity.prototype.update.call(this);
-    this.boundingbox = new BoundingBox(this.x, this.y,
-        this.width, this.height); // **Temporary** Hard coded offset values.
-
-    if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        this.counter += this.game.clockTick;
-        if (this.counter > .018 && myPlayer.health > 0) {
-            myPlayer.health -= 5;
-        }
-        this.counter = 0;
-    }
-
-    if (this.health <= 0) this.removeFromWorld = true;
-}
-
-function Devil(game, spritesheet) {
-    Monster.call(this, game, spritesheet);
-    var scale;
-    this.scale = 3;
-    this.width = 16;
-    this.height = 23;
-    this.speed = 45;
-    this.health = 200;
-    this.animation = new Animation(spritesheet, this.width, this.height, 128, 0.15, 8, true, this.scale);
-    this.x = 250;
-    this.y = 250;
 
     this.counter = 0;
 
@@ -162,7 +116,8 @@ function Devil(game, spritesheet) {
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 }
 
-Devil.prototype.draw = function () {
+
+Monster.prototype.draw = function () {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
     GAME_ENGINE.ctx.strokeStyle = "red";
     GAME_ENGINE.ctx.strokeRect(this.x, this.y, this.width * this.scale, this.height * this.scale);
@@ -172,10 +127,11 @@ Devil.prototype.draw = function () {
     this.ctx.fillStyle = "white";
     this.ctx.fillText("Health: " + this.health, this.x - 5, this.y - 5);
 }
-Devil.prototype.update = function () {
+
+Monster.prototype.update = function () {
     if (this.health <= 0) this.removeFromWorld = true;
-    this.x += this.game.clockTick * this.speed;
-    if (this.x >= gameWorldWidth - TILE_SIZE * 2 - this.boundingbox.width) this.x = TILE_SIZE * 2;
+    this.x -= this.game.clockTick * this.speed;
+    if (this.x <= TILE_SIZE * 2) this.x = 450;
     Entity.prototype.update.call(this);
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
@@ -187,29 +143,43 @@ Devil.prototype.update = function () {
         }
         this.counter = 0;
     }
+    
+}
+
+Devil.prototype = Monster.prototype;
+Acolyte.prototype = Monster.prototype;
+
+function Devil(game, spritesheet) {
+    Monster.call(this, game, spritesheet);
+    this.scale = 3;
+    this.width = 16;
+    this.height = 23;
+    this.speed = 45;
+    this.health = 200;
+    
+    this.x = 250;
+    this.y = 250;
+
+    this.counter = 0;
+    this.animation = new Animation(spritesheet, this.width, this.height, 128, 0.15, 8, true, this.scale);
 }
 
 function Acolyte(game, spritesheet) {
     Monster.call(this, game, spritesheet);
-    var scale;
+    Acolyte.prototype = Monster.prototype;
     this.scale = 2;
     this.width = 16;
     this.height = 19;
     this.speed = 25;
     this.health = 150;
+
     this.animation = new Animation(spritesheet, this.width, this.height, 64, 0.15, 4, true, this.scale);
 
     this.x = 100;
     this.y = 100;
 
     this.counter = 0;
-
-    this.boundingbox = new BoundingBox(this.x, this.y,
-        this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 }
-
-Acolyte.prototype.update = Devil.prototype.update;
-Acolyte.prototype.draw = Devil.prototype.draw;
 
 function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     this.width = 100;
