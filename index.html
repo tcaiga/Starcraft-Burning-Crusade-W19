@@ -4,13 +4,25 @@
 <head>
     <meta charset="utf-8">
     <title>Last Labyrinth</title>
+    <link href="style/index.css" rel="stylesheet" type="text/css">
     <script type="text/javascript" src="./gameengine.js"></script>
     <script type="text/javascript" src="./assetmanager.js"></script>
     <script type="text/javascript" src="./scenemanager.js"></script>
     <script type="text/javascript" src="./main.js"></script>
 </head>
 <body>
-    <canvas id="canvas" tabindex="1" width="762" height="612" 
-    style="position: absolute; left: 50%; margin-left:-381px; top:50%; margin-top:-306px"></canvas>
+    <canvas id="canvas" tabindex="1" width="512" height="512"></canvas>
+    <div class="sidebar">
+        <h1>Last Labyrinth</h1>
+        <h2 class="floor">Floor # = 1</h2>
+        <h2 class="room">Room # = 1</h2>
+        <h2>Controls:</h2>
+        <h2>Movement: W, A, S, D</h2>
+        <h2>Movement: Sprint: Shift</h2>
+        <h2>Projectile: Left Click</h2>
+        <h2>Abilities: 1, 2, 3, 4</h2>
+      </div>
+    <div class="hud">
+    </div>
 </body>
 </html>
