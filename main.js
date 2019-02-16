@@ -7,8 +7,18 @@ var canvasWidth;
 var canvasHeight;
 var myFloorNum = 1;
 var myRoomNum = 1;
+var playerX;
+var playerY;
+
 // Constant variable for tile size
 const TILE_SIZE = 16;
+
+// Gives us the distance between player and monster.
+function distance(a) {
+    var dx = playerX - a.x;
+    var dy = playerY - a.y;
+    return Math.sqrt(dx * dx + dy * dy);
+}
 
 function Player(game, spritesheet, xOffset, yOffset) {
     // Relevant for Player box
@@ -77,6 +87,9 @@ Player.prototype.update = function () {
         this.game.reset();
     }
 
+    playerX = this.x;
+    playerY = this.y;
+
     this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
         this.width, this.height);
 }
@@ -130,8 +143,14 @@ Monster.prototype.draw = function () {
 }
 
 Monster.prototype.update = function () {
+    var dist = distance(this);
+    var difX = (this.x - playerX) / dist;
+    var difY = (this.y - playerY) / dist;
+
+    this.x += difX;
+    this.y += difY;
+
     if (this.health <= 0) this.removeFromWorld = true;
-    this.x += this.game.clockTick * this.speed;
     if (this.x <= TILE_SIZE * 2) this.x = 450;
     Entity.prototype.update.call(this);
     this.boundingbox = new BoundingBox(this.x, this.y,
