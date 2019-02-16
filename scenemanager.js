@@ -1,7 +1,7 @@
 function SceneManager() {
     this.insideMenu = true;
     this.ctx = GAME_ENGINE.ctx;
-    this.menu = GAME_ENGINE.entities[0];
+    this.menu = GAME_ENGINE.entities[0][0];
 }
 
 SceneManager.prototype.menuSelection = function(x, y) {
@@ -33,15 +33,12 @@ SceneManager.prototype.gameInit = function () {
     var acolyte = new Acolyte(GAME_ENGINE, AM.getAsset("./img/acolyte.png"));
     
     GAME_ENGINE.addEntity(devil);
-    GAME_ENGINE.addMonsterEntity(devil);
     GAME_ENGINE.addEntity(acolyte);
-    GAME_ENGINE.addMonsterEntity(acolyte);
 
     // Trap
     var trap = new Trap(GAME_ENGINE, AM.getAsset("./img/floor_trap_up.png"),
     AM.getAsset("./img/floor_trap_down.png"));
     GAME_ENGINE.addEntity(trap);
-    GAME_ENGINE.addTrapEntity(trap);
 
     var hud = new HUD(GAME_ENGINE);
     GAME_ENGINE.addEntity(hud);
@@ -56,5 +53,4 @@ SceneManager.prototype.gameInit = function () {
     myPlayer = new Player(GAME_ENGINE, AM.getAsset(characterSprites[GAME_ENGINE.playerPick]["spritesheet"]), 
     characterSprites[GAME_ENGINE.playerPick]["xOffset"], characterSprites[GAME_ENGINE.playerPick]["yOffset"]);
     GAME_ENGINE.addEntity(myPlayer);
-    GAME_ENGINE.addPlayerEntity(myPlayer);
 }
