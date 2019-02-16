@@ -77,9 +77,6 @@ GameEngine.prototype.startInput = function () {
                     myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
                 GAME_ENGINE.addEntity(projectile);
             }
-        }
-<<<<<<< HEAD
-
         else if (!that.insideMenu && playerPick == 0) {
             // Projectile
             var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
@@ -103,8 +100,7 @@ GameEngine.prototype.startInput = function () {
             GAME_ENGINE.addEntity(projectile);
             GAME_ENGINE.addProjectileEntity(projectile);
         }
-=======
->>>>>>> 286223079da4307b458bf8edb599730c953c90bc
+    }
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
