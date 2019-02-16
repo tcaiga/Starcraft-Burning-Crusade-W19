@@ -157,6 +157,22 @@ GameEngine.prototype.startInput = function () {
             GAME_ENGINE.addEntity(projectile);
             GAME_ENGINE.addProjectileEntity(projectile);
         }
+
+        else if (!that.insideMenu && playerPick == 1) {
+            // Projectile
+            var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
+            myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
+            GAME_ENGINE.addEntity(projectile);
+            GAME_ENGINE.addProjectileEntity(projectile);
+        }
+
+        else if (!that.insideMenu && playerPick == 2) {
+            // Projectile
+            var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
+            myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
+            GAME_ENGINE.addEntity(projectile);
+            GAME_ENGINE.addProjectileEntity(projectile);
+        }
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
