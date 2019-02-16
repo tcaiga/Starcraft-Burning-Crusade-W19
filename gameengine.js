@@ -71,36 +71,30 @@ GameEngine.prototype.startInput = function () {
         if (SCENE_MANAGER.insideMenu) {
             SCENE_MANAGER.menuSelection(x, y);
         } else {
-            if (that.playerPick == 0) {
+            if (!that.insideMenu && playerPick == 0) {
                 // Projectile
                 var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
                     myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
                 GAME_ENGINE.addEntity(projectile);
+                GAME_ENGINE.addProjectileEntity(projectile);
             }
-        else if (!that.insideMenu && playerPick == 0) {
-            // Projectile
-            var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
-            myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
-            GAME_ENGINE.addEntity(projectile);
-            GAME_ENGINE.addProjectileEntity(projectile);
-        }
 
-        else if (!that.insideMenu && playerPick == 1) {
-            // Projectile
-            var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
-            myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
-            GAME_ENGINE.addEntity(projectile);
-            GAME_ENGINE.addProjectileEntity(projectile);
-        }
+            else if (!that.insideMenu && playerPick == 1) {
+                // Projectile
+                var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
+                    myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
+                GAME_ENGINE.addEntity(projectile);
+                GAME_ENGINE.addProjectileEntity(projectile);
+            }
 
-        else if (!that.insideMenu && playerPick == 2) {
-            // Projectile
-            var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
-            myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
-            GAME_ENGINE.addEntity(projectile);
-            GAME_ENGINE.addProjectileEntity(projectile);
+            else if (!that.insideMenu && playerPick == 2) {
+                // Projectile
+                var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
+                    myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
+                GAME_ENGINE.addEntity(projectile);
+                GAME_ENGINE.addProjectileEntity(projectile);
+            }
         }
-    }
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
@@ -235,7 +229,7 @@ function Entity(game, x, y) {
     this.removeFromWorld = false;
 }
 
-Entity.prototype.update = function () {}
+Entity.prototype.update = function () { }
 
 Entity.prototype.draw = function (ctx) {
     if (this.game.showOutlines && this.radius) {
