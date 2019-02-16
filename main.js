@@ -1,13 +1,10 @@
 const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
+const CAMERA = new Camera(GAME_ENGINE);
 
 var SCENE_MANAGER;
 var canvasWidth;
 var canvasHeight;
-var gameWorldHeight;
-var gameWorldWidth;
-var hudHeight;
-var sidebarWidth;
 var myFloorNum = 1;
 var myRoomNum = 1;
 // Constant variable for tile size
@@ -86,75 +83,33 @@ Player.prototype.update = function () {
 
 Player.prototype.collide = function (sprint) {
     //* 2 is the offset for a 2x2 of tiles.
-    if (this.x + this.width + this.xOffset >= gameWorldWidth - TILE_SIZE * 2) {
-        this.x += -2 * sprint;
+    if (this.x + this.width + this.xOffset >= CAMERA.x + canvasWidth - TILE_SIZE * 2) {
+        //this.x += -2 * sprint;
+        CAMERA.move("right");
     }
     if (this.x + this.xOffset <= TILE_SIZE * 2) {
-        this.x += 2 * sprint;
+        //this.x += 2 * sprint;
+        CAMERA.move("left");
     }
-    if (this.y + this.yOffset + myPlayer.height >= canvasHeight - hudHeight - TILE_SIZE * 2) {
-        this.y -= 2 * sprint;
+    if (this.y + this.yOffset + myPlayer.height >= canvasHeight - TILE_SIZE * 2) {
+        //this.y -= 2 * sprint;
+        CAMERA.move("down");
     }
     if (this.y + this.yOffset <= TILE_SIZE * 2) {
-        this.y += 2 * sprint;
+        //this.y += 2 * sprint;
+        CAMERA.move("up");
     }
 }
 
 function Monster(game, spritesheet) {
+    Entity.call(this, game, 0, 350);
+    this.scale = 1;
     this.width = 40;
     this.height = 56;
-    this.animation = new Animation(spritesheet, this.width, this.height, 1, 0.15, 15, true, 1);
+    this.animation = new Animation(spritesheet, this.width, this.height, 1, 0.15, 15, true, this.scale);
     this.speed = 100;
     this.ctx = game.ctx;
     this.health = 100;
-    Entity.call(this, game, 0, 350);
-
-    this.counter = 0;
-
-    this.boundingbox = new BoundingBox(this.x, this.y,
-        this.width, this.height); // **Temporary** Hard coded offset values.
-}
-
-Monster.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-    GAME_ENGINE.ctx.strokeStyle = "red";
-    GAME_ENGINE.ctx.strokeRect(this.x, this.y, this.width, this.height);
-
-    // Displaying Monster health
-    this.ctx.font = "15px Arial";
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("Health: " + this.health, this.x - 5, this.y - 5);
-}
-
-Monster.prototype.update = function () {
-    this.x -= this.game.clockTick * this.speed;
-    if (this.x <= TILE_SIZE * 2) this.x = 450;
-    Entity.prototype.update.call(this);
-    this.boundingbox = new BoundingBox(this.x, this.y,
-        this.width, this.height); // **Temporary** Hard coded offset values.
-
-    if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        this.counter += this.game.clockTick;
-        if (this.counter > .018 && myPlayer.health > 0) {
-            myPlayer.health -= 5;
-        }
-        this.counter = 0;
-    }
-
-    if (this.health <= 0) this.removeFromWorld = true;
-}
-
-function Devil(game, spritesheet) {
-    Monster.call(this, game, spritesheet);
-    var scale;
-    this.scale = 3;
-    this.width = 16;
-    this.height = 23;
-    this.speed = 45;
-    this.health = 200;
-    this.animation = new Animation(spritesheet, this.width, this.height, 128, 0.15, 8, true, this.scale);
-    this.x = 250;
-    this.y = 250;
 
     this.counter = 0;
 
@@ -162,7 +117,8 @@ function Devil(game, spritesheet) {
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 }
 
-Devil.prototype.draw = function () {
+
+Monster.prototype.draw = function () {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
     GAME_ENGINE.ctx.strokeStyle = "red";
     GAME_ENGINE.ctx.strokeRect(this.x, this.y, this.width * this.scale, this.height * this.scale);
@@ -172,10 +128,11 @@ Devil.prototype.draw = function () {
     this.ctx.fillStyle = "white";
     this.ctx.fillText("Health: " + this.health, this.x - 5, this.y - 5);
 }
-Devil.prototype.update = function () {
+
+Monster.prototype.update = function () {
     if (this.health <= 0) this.removeFromWorld = true;
     this.x += this.game.clockTick * this.speed;
-    if (this.x >= gameWorldWidth - TILE_SIZE * 2 - this.boundingbox.width) this.x = TILE_SIZE * 2;
+    if (this.x <= TILE_SIZE * 2) this.x = 450;
     Entity.prototype.update.call(this);
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
@@ -187,29 +144,43 @@ Devil.prototype.update = function () {
         }
         this.counter = 0;
     }
+    
+}
+
+Devil.prototype = Monster.prototype;
+Acolyte.prototype = Monster.prototype;
+
+function Devil(game, spritesheet) {
+    Monster.call(this, game, spritesheet);
+    this.scale = 3;
+    this.width = 16;
+    this.height = 23;
+    this.speed = 45;
+    this.health = 200;
+    
+    this.x = 250;
+    this.y = 250;
+
+    this.counter = 0;
+    this.animation = new Animation(spritesheet, this.width, this.height, 128, 0.15, 8, true, this.scale);
 }
 
 function Acolyte(game, spritesheet) {
     Monster.call(this, game, spritesheet);
-    var scale;
+    Acolyte.prototype = Monster.prototype;
     this.scale = 2;
     this.width = 16;
     this.height = 19;
     this.speed = 25;
     this.health = 150;
+
     this.animation = new Animation(spritesheet, this.width, this.height, 64, 0.15, 4, true, this.scale);
 
     this.x = 100;
     this.y = 100;
 
     this.counter = 0;
-
-    this.boundingbox = new BoundingBox(this.x, this.y,
-        this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 }
-
-Acolyte.prototype.update = Devil.prototype.update;
-Acolyte.prototype.draw = Devil.prototype.draw;
 
 function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     this.width = 100;
@@ -344,6 +315,35 @@ BoundingBox.prototype.collide = function (oth) {
     return false;
 }
 
+function Terrain(game) {
+
+}
+
+function Camera(game) {
+    this.x = 0;
+    this.y = 0;
+}
+
+Camera.prototype.update = function () { }
+
+Camera.prototype.draw = function () {}
+
+Camera.prototype.move = function (direction) {
+    if (direction === "right") {
+        this.x += canvasWidth;
+        myPlayer.x = 60 + CAMERA.x;
+    } else if (direction === "left") {
+        this.x -= canvasWidth;
+        myPlayer.x = canvasWidth - TILE_SIZE * 2 - 60 + CAMERA.x;
+    } else if (direction === "up") {
+        this.y -= canvasHeight;
+        myPlayer.y = canvasHeight + TILE_SIZE * 2 + 60 + CAMERA.y;
+    } else if (direction === "down") {
+        this.y += canvasHeight;
+        myPlayer.y = 60 + CAMERA.y; 
+    }
+}
+
 function Menu(game) {
     this.ctx = game.ctx;
     this.classButtonW = 100;
@@ -363,16 +363,6 @@ Menu.prototype.draw = function () {
     this.ctx.drawImage(this.background, 253, 0,
         canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
 
-    var title = "Last Labyrinth"
-    this.ctx.font = "bold 80px Arial";
-    this.ctx.fillStyle = "black";
-    var titleLength = Math.floor(this.ctx.measureText(title).width);
-    var titleXStart = (canvasWidth - titleLength) / 2;
-    this.ctx.fillText(title, titleXStart, 238);
-    this.ctx.strokeStyle = "grey";
-    this.ctx.lineWidth = "1";
-    this.ctx.strokeText(title, titleXStart, 238);
-
     this.createClassButton("Mage", this.mageButtonX);
     this.createClassButton("Ranger", this.rangerButtonX);
     this.createClassButton("Knight", this.knightButtonX);
@@ -387,104 +377,6 @@ Menu.prototype.createClassButton = function (text, xPosition) {
     this.ctx.fillText(text, xPosition, this.classButtonY + this.classButtonH);
 }
 
-function HUD(game) {
-    this.ctx = game.ctx;
-    this.game = game;
-    this.height = 100;
-}
-
-HUD.prototype.draw = function () {
-    //ALL VALUES ARE HARCODED FOR NOW
-    //health
-    this.ctx.fillStyle = "red";
-    this.ctx.beginPath();
-    this.ctx.arc(40, canvasHeight - this.height / 2, 40, 0, 2 * Math.PI);
-    this.ctx.fill();
-
-    //mana?
-    this.ctx.fillStyle = "blue";
-    this.ctx.beginPath();
-    this.ctx.arc(120, canvasHeight - this.height / 2, 40, 0, 2 * Math.PI);
-    this.ctx.fill();
-    this.ctx.font = "30px Arial";
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("Mana", 82, canvasHeight - (this.height / 2) + 15);
-    this.ctx.fillText(myPlayer.health, 15, canvasHeight - (this.height / 2) + 15);
-
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(160, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.fillRect(223, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.fillRect(286, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.fillRect(349, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.fillRect(160, canvasHeight - this.height / 2,
-        252, this.height / 2);
-    this.ctx.fillRect(412, canvasHeight - this.height,
-        100, this.height);
-
-    this.ctx.strokeStyle = "black";
-    this.ctx.strokeRect(160, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.strokeRect(223, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.strokeRect(286, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.strokeRect(349, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.strokeRect(160, canvasHeight - this.height / 2,
-        252, this.height / 2);
-    this.ctx.strokeRect(412, canvasHeight - this.height,
-        100, this.height);
-
-    this.ctx.fillStyle = "white";
-    //ability 1
-    this.ctx.fillText("1", 160, canvasHeight - this.height + 15);
-    //ability 2
-    this.ctx.fillText("2", 223, canvasHeight - this.height + 15);
-    //ability 3
-    this.ctx.fillText("3", 286, canvasHeight - this.height + 15);
-    //ability 4
-    this.ctx.fillText("4", 349, canvasHeight - this.height + 15);
-    //stats
-    var speed = (this.game.keyShift) ? 1.5 : 1
-    this.ctx.fillText("Speed: " + speed, 160, canvasHeight - this.height / 2 + 15);
-    //map
-    this.ctx.fillText("Map", 412, canvasHeight - this.height + 15);
-}
-
-HUD.prototype.update = function () { }
-
-function Sidebar(game) {
-    this.ctx = game.ctx;
-    this.game = game;
-    this.width = 250;
-}
-
-Sidebar.prototype.draw = function () {
-    this.ctx.font = "35px Arial";
-    this.ctx.fillStyle = "gray";
-    this.ctx.fillRect(gameWorldWidth, 0, this.width, canvasHeight);
-    this.ctx.strokeStyle = "black";
-    this.ctx.strokeRect(gameWorldWidth, 0, this.width, canvasHeight);
-    this.ctx.fillStyle = "black";
-    this.ctx.fillText("Last Labyrinth", gameWorldWidth, 30);
-
-    this.ctx.font = "20px Arial";
-    this.ctx.fillText("Floor # = " + myFloorNum, gameWorldWidth, 80);
-    this.ctx.fillText("Room # = " + myRoomNum, gameWorldWidth, 110);
-
-    this.ctx.fillText("Controls:", gameWorldWidth, 160);
-    this.ctx.fillText("Movement: W, A, S, D", gameWorldWidth, 190);
-    this.ctx.fillText("Sprint: Shift", gameWorldWidth, 220);
-    this.ctx.fillText("Projectile: Left Click", gameWorldWidth, 250);
-    this.ctx.fillText("Abilities: 1, 2, 3, 4", gameWorldWidth, 280);
-}
-
-Sidebar.prototype.update = function () { }
 
 function Background(game) {
     this.x = 0;
@@ -514,14 +406,14 @@ function Background(game) {
     this.zero = new Image();
     this.zero.src = "./img/floor_1.png";
     this.one = new Image();
-    this.one.src = "./img/floor_spikes_anim_f3.png";
+    this.one.src = "./img/tile_0117.png";
     this.tile = null;
 };
 
 Background.prototype.draw = function () {
     for (let i = 0; i < this.mapLength; i++) {
         for (let j = 0; j < this.mapLength; j++) {
-            this.tile = (this.map[i * this.mapLength + j] == 1) ? this.one : this.zero;
+            this.tile = (this.map[i * this.mapLength + j] == 1) ? this.zero : this.one;
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2 + TILE_SIZE);
@@ -560,7 +452,7 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     ctx.drawImage(this.spriteSheet,
         xindex * this.frameWidth, yindex * this.frameHeight,
         this.frameWidth, this.frameHeight,
-        x, y,
+        x - CAMERA.x, y - CAMERA.y,
         this.frameWidth * this.scale,
         this.frameHeight * this.scale);
 }
@@ -569,7 +461,7 @@ Animation.prototype.drawFrameIdle = function (ctx, x, y) {
     ctx.drawImage(this.spriteSheet,
         0, 0,
         this.frameWidth, this.frameHeight,
-        x, y,
+        x - CAMERA.x, y - CAMERA.y,
         this.frameWidth * this.scale,
         this.frameHeight * this.scale);
 }
@@ -601,11 +493,9 @@ AM.queueDownload("./img/fireball.png");
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
-    document.body.style.backgroundColor = "black";
+    //document.body.style.backgroundColor = "black";
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
-    gameWorldWidth = canvasWidth - 250;
-    gameWorldHeight = canvasWidth - 100;
 
     GAME_ENGINE.init(ctx);
     GAME_ENGINE.start();
