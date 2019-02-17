@@ -1,0 +1,34 @@
+canvas {
+    position: absolute;
+    left: 50%;
+    margin-left:-266px;
+    top:46%;
+    margin-top:-286px;
+}
+
+.sidebar {
+    float: right;
+    margin-right: 132px;
+    margin-top: -13px;
+    border: 1px solid;
+    height: 611px;
+    background-color: darkgray;
+}
+
+.hud {
+    position: absolute;
+    border: 1px solid;
+    width: 511px;
+    bottom: 0;
+    margin-bottom: 2px;
+    margin-left:366px;
+    background-color: darkgray;
+    height:100px;
+}
+
+body {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}

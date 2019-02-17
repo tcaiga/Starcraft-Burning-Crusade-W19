@@ -64,7 +64,7 @@ GameEngine.prototype.startInput = function () {
 
     var that = this;
     // event listeners are added here
-    var playerPick = null;
+
     this.ctx.canvas.addEventListener("click", function (e) {
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
@@ -163,7 +163,8 @@ GameEngine.prototype.draw = function () {
         var entitySubArr = this.entities[i];
         for (let j = 0; j < entitySubArr.length; j++) {
             var entity = this.entities[i][j];
-            if (!entity.removeFromWorld) {
+            if (!entity.removeFromWorld && (i <= 1 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth && 
+                entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {  
                 entity.draw(this.ctx);
             }
         }

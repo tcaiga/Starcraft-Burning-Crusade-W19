@@ -39,15 +39,6 @@ SceneManager.prototype.gameInit = function () {
     var trap = new Trap(GAME_ENGINE, AM.getAsset("./img/floor_trap_up.png"),
     AM.getAsset("./img/floor_trap_down.png"));
     GAME_ENGINE.addEntity(trap);
-
-    var hud = new HUD(GAME_ENGINE);
-    GAME_ENGINE.addEntity(hud);
-    var sidebar = new Sidebar(GAME_ENGINE);
-    GAME_ENGINE.addEntity(sidebar);
-    hudHeight = hud.height;
-    sidebarWidth = sidebar.width;
-    gameWorldHeight = canvasHeight - hud.height;
-
     // Using players choice to grab the appropriate character sprite
     // Player
     myPlayer = new Player(GAME_ENGINE, AM.getAsset(characterSprites[GAME_ENGINE.playerPick]["spritesheet"]), 
