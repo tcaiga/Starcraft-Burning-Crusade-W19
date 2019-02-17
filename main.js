@@ -55,8 +55,6 @@ Player.prototype.update = function () {
     // Conditional check to see if player wants to sprint or not
     var sprint = GAME_ENGINE.keyShift ? 1.75 : 1;
 
-    this.collide(sprint);
-
     // Player movement controls
     if (GAME_ENGINE.keyW === true) {
         this.y -= 2 * sprint;
@@ -79,26 +77,6 @@ Player.prototype.update = function () {
 
     this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
         this.width, this.height);
-}
-
-Player.prototype.collide = function (sprint) {
-    //* 2 is the offset for a 2x2 of tiles.
-    if (this.x + this.width + this.xOffset >= CAMERA.x + canvasWidth - TILE_SIZE * 2) {
-        //this.x += -2 * sprint;
-        CAMERA.move("right");
-    }
-    if (this.x + this.xOffset <= TILE_SIZE * 2) {
-        //this.x += 2 * sprint;
-        CAMERA.move("left");
-    }
-    if (this.y + this.yOffset + myPlayer.height >= canvasHeight - TILE_SIZE * 2) {
-        //this.y -= 2 * sprint;
-        CAMERA.move("down");
-    }
-    if (this.y + this.yOffset <= TILE_SIZE * 2) {
-        //this.y += 2 * sprint;
-        CAMERA.move("up");
-    }
 }
 
 function Monster(game, spritesheet) {
@@ -324,25 +302,11 @@ function Camera(game) {
     this.y = 0;
 }
 
-Camera.prototype.update = function () { }
+Camera.prototype.update = function () { 
+   
+}
 
 Camera.prototype.draw = function () {}
-
-Camera.prototype.move = function (direction) {
-    if (direction === "right") {
-        this.x += canvasWidth;
-        myPlayer.x = 60 + CAMERA.x;
-    } else if (direction === "left") {
-        this.x -= canvasWidth;
-        myPlayer.x = canvasWidth - TILE_SIZE * 2 - 60 + CAMERA.x;
-    } else if (direction === "up") {
-        this.y -= canvasHeight;
-        myPlayer.y = canvasHeight + TILE_SIZE * 2 + 60 + CAMERA.y;
-    } else if (direction === "down") {
-        this.y += canvasHeight;
-        myPlayer.y = 60 + CAMERA.y; 
-    }
-}
 
 function Menu(game) {
     this.ctx = game.ctx;
@@ -413,7 +377,7 @@ function Background(game) {
 Background.prototype.draw = function () {
     for (let i = 0; i < this.mapLength; i++) {
         for (let j = 0; j < this.mapLength; j++) {
-            this.tile = (this.map[i * this.mapLength + j] == 1) ? this.zero : this.one;
+            this.tile = (this.map[i * this.mapLength + j] == 1) ? this.one : this.zero;
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2 + TILE_SIZE);
