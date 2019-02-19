@@ -1,6 +1,7 @@
 const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
 const CAMERA = new Camera(GAME_ENGINE);
+const DAMAGE_SYSTEM = new DamageSystem();
 
 var SCENE_MANAGER;
 var canvasWidth;
@@ -22,6 +23,8 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.x = 60;
     this.y = 60;
     this.xScale = 1;
+    this.damageObj = [];
+    this.buffObj = [];
     this.game = game;
     this.ctx = game.ctx;
     this.right = true;
@@ -77,6 +80,36 @@ Player.prototype.update = function () {
         this.game.reset();
     }
 
+    /* #region Damage system updates */
+    let dmgObj;
+    let dmgRemove = [];
+    let dmgFlag;
+    let buff;
+    let buffRemove = [];
+    let buffFlag;
+    /* #region Updates */
+    for (dmgObj in this.damageObj) {//Updates damage objects
+        this.damageObj[dmgObj].update();
+        if (this.damageObj[dmgObj].timeLeft <= 0) {
+            dmgRemove.push(dmgObj);//Adds to trash system
+        }
+    }
+    for (buff in this.buffObj) {//Updates buff objects
+        this.buffObj[buff].update(this);
+        if (this.buffObj[buff].timeLeft <= 0) {
+            buffRemove.push(buff);//Adds to trash system
+        }
+    }
+    /* #endregion */
+    /* #region Removal */
+    for (dmgFlag in dmgRemove) {//Removes flagged damage objects
+        damageObj.splice(dmgRemove[dmgFlag],1);
+    }
+    for (buffFlag in buffRemove) {//Removes flagged buff objects
+        buffObj.splice(buffRemove[buffFlag],1);
+    }
+    /* #endregion */
+    /* #endregion */
     this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
         this.width, this.height);
 }
@@ -101,6 +134,30 @@ Player.prototype.collide = function (sprint) {
     }
 }
 
+Player.prototype.isValidHit = function (theDamageObj) {
+    let d;
+    let y = true;
+    for (d in this.damageObj) {
+        if (this.damageObj[d] === theDamageObj) {
+            y = false;
+        }
+    }
+    return y;
+}
+
+Player.prototype.ChangeHealth = function (amount) {
+    if (amount > 0) {
+        //display healing animation
+        //maybe have a health change threshold 
+        //to actually have it display
+    } else if (amount < 0) {
+        //display damage animation
+        //maybe have a health change threshold 
+        //to actually have it display
+    }
+    this.health += amount;//Damage will come in as a negative value;
+}
+
 function Monster(game, spritesheet) {
     Entity.call(this, game, 0, 350);
     this.scale = 1;
@@ -110,13 +167,13 @@ function Monster(game, spritesheet) {
     this.speed = 100;
     this.ctx = game.ctx;
     this.health = 100;
-
+    this.damageObj = [];
+    this.buffObj = [];
     this.counter = 0;
 
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 }
-
 
 Monster.prototype.draw = function () {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
@@ -144,7 +201,62 @@ Monster.prototype.update = function () {
         }
         this.counter = 0;
     }
-    
+
+    /* #region Damage system updates */
+    let dmgObj;
+    let dmgRemove = [];
+    let dmgFlag;
+    let buff;
+    let buffRemove = [];
+    let buffFlag;
+    /* #region Updates */
+    for (dmgObj in this.damageObj) {//Updates damage objects
+        this.damageObj[dmgObj].update();
+        if (this.damageObj[dmgObj].timeLeft <= 0) {
+            dmgRemove.push(dmgObj);//Adds to trash system
+        }
+    }
+    for (buff in this.buffObj) {//Updates buff objects
+        this.buffObj[buff].update(this);
+        if (this.buffObj[buff].timeLeft <= 0) {
+            buffRemove.push(buff);//Adds to trash system
+        }
+    }
+    /* #endregion */
+    /* #region Removal */
+    for (dmgFlag in dmgRemove) {//Removes flagged damage objects
+        damageObj.splice(dmgRemove[dmgFlag],1);
+    }
+    for (buffFlag in buffRemove) {//Removes flagged buff objects
+        buffObj.splice(buffRemove[buffFlag],1);
+    }
+    /* #endregion */
+    /* #endregion */
+
+}
+
+Monster.prototype.isValidHit = function (theDamageObj) {
+    let d;
+    let y = true;
+    for (d in this.damageObj) {
+        if (this.damageObj[d] === theDamageObj) {
+            y = false;
+        }
+    }
+    return y;
+}
+
+Monster.prototype.ChangeHealth = function (amount) {
+    if (amount > 0) {
+        //display healing animation
+        //maybe have a health change threshold 
+        //to actually have it display
+    } else if (amount < 0) {
+        //display damage animation
+        //maybe have a health change threshold 
+        //to actually have it display
+    }
+    this.health += amount;//Healing will come in as a positive number
 }
 
 Devil.prototype = Monster.prototype;
@@ -157,7 +269,7 @@ function Devil(game, spritesheet) {
     this.height = 23;
     this.speed = 45;
     this.health = 200;
-    
+
     this.x = 250;
     this.y = 250;
 
@@ -198,7 +310,8 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     this.counter = 0; // Counter to make damage consistent
 
     this.speed = 200;
-    this.ctx = game.ctx;
+    this.
+        this.ctx = game.ctx;
     Entity.call(this, game, originX, originY);
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
@@ -326,7 +439,7 @@ function Camera(game) {
 
 Camera.prototype.update = function () { }
 
-Camera.prototype.draw = function () {}
+Camera.prototype.draw = function () { }
 
 Camera.prototype.move = function (direction) {
     if (direction === "right") {
@@ -340,7 +453,7 @@ Camera.prototype.move = function (direction) {
         myPlayer.y = canvasHeight + TILE_SIZE * 2 + 60 + CAMERA.y;
     } else if (direction === "down") {
         this.y += canvasHeight;
-        myPlayer.y = 60 + CAMERA.y; 
+        myPlayer.y = 60 + CAMERA.y;
     }
 }
 
@@ -473,6 +586,7 @@ Animation.prototype.currentFrame = function () {
 Animation.prototype.isDone = function () {
     return (this.elapsedTime >= this.totalTime);
 }
+/* #region Download queue and download */
 
 // Ranger
 AM.queueDownload("./img/ranger_run.png");
@@ -503,3 +617,4 @@ AM.downloadAll(function () {
     GAME_ENGINE.addEntity(new Menu(GAME_ENGINE));
     SCENE_MANAGER = new SceneManager();
 });
+/* #endregion */

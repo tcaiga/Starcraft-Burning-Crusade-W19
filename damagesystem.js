@@ -1,124 +1,42 @@
 /* #region Notes */
-/*
-Armor is 50 = 50% damage reduction.
-This is currently not limited to <=100 or >=0
-It would be easy to do so.
- 
-I currently am not checking for buffs of the same name. 
-That means buffs will stack freely.
- 
 
-Damage types and armor types have interactions.
-I have the armor types commented.
-    Each '+' is representing 33 % increase in damage against that armor.
-        The '-' is 33 % as well but '---' is only 90 % reduction.
-            Example: Light(l) takes 33 % more damage from Riercing(p) and Magic(m)
-
-I honestly don't remember what we ended up on in regards to hitstun.
-I am just going to assume it exists.
-Can work to change.
-
-Systems I think should be unconstrained:
-Health and armor
-Systems I think should have a lower limit(0):
-Attack speed, Move speed, and Cast speed
-Systems I think should have an upper limit:
-        ?
-    Systems I think should have both limits:
-        ?
-    These systems will be confusing to control so for now I will not constrain any of them.
-That means things like negative speed is completele Rossible.
-    * /
 
 //THIS SHOULD BE ADDED TO UNIT TYPES OR HERO/MONSTER
+/* #region New Constructor Variables */
 /*
 IN CONSTRUCTOR
-    //CHANGES
-    this.acceleration = {x:2,y:2};//Place holder values
-    this.velocity = {x:0,y:0};
-    this.isStunned = false;
-    this.isSilenced = false;
-    this.isBlind = false;
-    this.isDisarmed = false;
-    this.baseMaxMovespeed = 100;
-    this.maxMovespeedRatio = 1;
-    this.maxMovespeedAdj = 0;
-    this.currentHealth = 1000;
-    //ahhhhh
-    //Things at the Roint of calculation will either be:
-    //totalAttackDamage = attackDamage * Ratio + Adj <== This for now. Can be changed.
-    //or
-    //totalAttackDamage = (attackDamage + Adj) * Ratio
-    this.baseMaxHealth = 1000;
-    this.maxHealthAdj = 0;
-    this.maxHealthRatio = 1;
-    this.armorRatio = 1;
-    this.armorAdj = 0;
-    this.baseAttackSpeed = 100;
-    this.attackSpeedAdj = 0;
-    this.attackSpeedRatio = 1;
-    this.baseCastSpeed = 100;
-    this.castSpeedAdj = 0;
-    this.castSpeedRatio = 1;
-    this.baseAttackDamage = 100;
-    this.attackDamageAdj = 0
-    this.attackDamageRatio = 1;
-    this.baseMagicDamage = 100;
-    this.magicDamageRatio = 1;
-    this.cooldownRate = 1;
-    this.cooldownAdj = 0;//Calculated RER ABILITY
-NEW FUNCTION
-unit.prototype.ChangeHealth = function (amount)  {
-    if (amount > 0){
-        //display healing animation
-        //maybe have a health change threshold 
-        //to actually have it display
-    } else if (amount < 0){
-        //display damage animation
-        //maybe have a health change threshold 
-        //to actually have it display
-    }
-    this.health += amount;
-}
-unit.prototype.isValidHit = function (theDamageObj)  {
-    let d;
-    let y = true;
-    for (d in this.damageObj){
-        if (d === theDamageObj){
-            y = false;
-        }
-    }
-    return y;
-}
-IN UPDATE
-    let dmgObj;
-    let dmgRemove = [];
-    let dmgFlag;
-    let buffObj;
-    let buffRemove = [];
-    let buffFlag;
-    for(dmgObj in this.damageObj){//Updates damage objects
-        dmgObj.update();
-        if (dmgObj.timeLeft <= 0){
-            dmgRemove.push(dmgObj);//Adds to trash system
-        }
-    }
-    for(buffObj in this.buff){//Updates buff objects
-        buffObj.update(this);
-        if (buffObj.timeLeft <= 0){
-            buffRemove.push(buffObj);//Adds to trash system
-        }
-    }
-    for(dmgFlag in dmgRemove){//Removes flagged damage objects
-        damageObj.splice(damageObj
-            .findIndex((element)  {return element === dmgFlag;})
-            ,1);
-    }
-    for(buffFlag in buffRemove){//Removes flagged buff objects
-        buffObj.splice(buffObj
-            .findIndex((element)  {return element === buffFlag;})
-            ,1);
-    }
+Only to be added at approval of group
+Systems in place to handle if false call is made.
+//CHANGES
+this.acceleration = { x: 2, y: 2 };//Place holder values
+this.velocity = { x: 0, y: 0 };
+this.isStunned = false;
+this.isSilenced = false;
+this.isBlind = false;
+this.isDisarmed = false;
+this.baseMaxMovespeed = 100;
+this.maxMovespeedRatio = 1;
+this.maxMovespeedAdj = 0;
+this.currentHealth = 100;
+this.baseMaxHealth = 100;
+this.maxHealthAdj = 0;
+this.maxHealthRatio = 1;
+this.armorRatio = 1;
+this.armorAdj = 0;
+this.baseAttackSpeed = 100;
+this.attackSpeedAdj = 0;
+this.attackSpeedRatio = 1;
+this.baseCastSpeed = 100;
+this.castSpeedAdj = 0;
+this.castSpeedRatio = 1;
+this.baseAttackDamage = 100;
+this.attackDamageAdj = 0
+this.attackDamageRatio = 1;
+this.baseMagicDamage = 100;
+this.magicDamageRatio = 1;
+this.cooldownRate = 1;
+this.cooldownAdj = 0;//Calculated RER ABILITY
+/* #endregion *//*
 *///END OF WHAT SHOULD BE ADDED TO UNIT OR HERO/MONSTER
 /* #endregion */
 
@@ -129,10 +47,6 @@ Add a buff constraint so that the unit cannot receive two buffs of equal title.
 Add constrains to systems that should be constrained
  
 Make a set of premade buffs i.e. 'weak slow, slow, strong slow'
- 
-Add Effects:
-    Max hp
-    Spell dmg
 */
 /* #endregion */
 
@@ -239,7 +153,21 @@ const ETypes = {
     None: "na e"
 
 }
-
+/**
+ * Premade buffs to be added simple
+ */
+const PremadeBuffs = {
+    Slow: new BuffObj("slow",[new EffectObj(ETypes.MoveSpeedR, 0.6, 1/0.6, 120,0)]),		
+    SlowWeak: new BuffObj("weak slow",[new EffectObj(ETypes.MoveSpeedR, 0.8, 1/0.8, 120,0)]),		
+    SlowStrong: new BuffObj("strong slow",[new EffectObj(ETypes.MoveSpeedR, 0.4, 1/0.4, 120,0)]),		
+    Heal: new BuffObj("heal",[new EffectObj(ETypes.CurrentHealthF, 20, 0, 2, 0)]),		
+    HealStrong: new BuffObj("strong heal",[new EffectObj(ETypes.CurrentHealthF, 30, 0, 2, 0)]),		
+    HealWeak: new BuffObj("weak heal",[new EffectObj(ETypes.CurrentHealthF, 10, 0, 2, 0)]),		
+    HealOvertime: new BuffObj("heal overtime",[new EffectObj(ETypes.CurrentHealthF, 2, 0, 120, 10)]),		
+    DamageOvertime: new BuffObj("damage overtime",[new EffectObj(ETypes.CurrentHealthF, -3.5, 0, 120,20)]),		
+    PurifyingFlames: new BuffObj("purifying flames",[new EffectObj(ETypes.CurrentHealthF, -25, 0, 2, 0)		
+                                                    ,new EffectObj(ETypes.CurrentHealthF, 32/(180/5), 0, 180, 5)]),
+}
 function DamageSystem() {
     //I don't know what I would put in here as of yet.
 }
@@ -257,6 +185,13 @@ DamageSystem.prototype.CreateDamageObject = function (theDamage = 0, theHitstun 
     theDamageType = DTypes.None, theBuffObject = null) {
     return new DamageObj(theDamage, theHitstun, theDamageType, theBuffObject);
 }
+/**
+ * @returns A deep clone of the input damage object.
+ */
+DamageSystem.prototype.CloneDamageObject = function (obj){
+    let newBuffObj = this.CloneBuffObject(obj.buffObj);
+    return this.CreateDamageObject(obj.damage, obj.hitstun, obj.damageType, newBuffObj);
+}
 /* #region Create buff object description */
 /**
  * Creates a buff object that holds the list of effects and is in charge of managing them.
@@ -266,8 +201,18 @@ DamageSystem.prototype.CreateDamageObject = function (theDamage = 0, theHitstun 
  * @returns Buff Object
  */
 /* #endregion */
-DamageSystem.prototype.CreateBuffObject = function (theName = "", theEffectList = [])  {
+DamageSystem.prototype.CreateBuffObject = function (theName = "", theEffectList = []) {
     return new BuffObj(theName, theEffectList);
+}
+/**
+ * @returns A deep clone of the input buff object.
+ */
+DamageSystem.prototype.CloneBuffObject = function (obj) {
+    let newList = [],a=0;
+    for (a in obj.effectList){
+        newList.push(this.CloneEffectObject(obj.effectList[a]));
+    }
+    return new BuffObj(DamageSystem.CreateBuffObject(obj.name,newList));
 }
 /* #region Create effect object description */
 /**
@@ -282,13 +227,20 @@ DamageSystem.prototype.CreateBuffObject = function (theName = "", theEffectList 
  */
 /* #endregion */
 DamageSystem.prototype.CreateEffectObject = function (theEffect = ETypes.None, theDo = 0
-    , theUndo = 0, theDuration = 0, theInterval = 0, theOperation)  {
+    , theUndo = 0, theDuration = 0, theInterval = 0, theOperation) {
     return new EffectObj(theEffect, theDo, theUndo, theDuration, theInterval, theOperation);
+}
+/**
+ * @returns A clone of the input effect object.
+ */
+DamageSystem.prototype.CloneEffectObject = function (obj) {
+    return this.CreateEffectObject(obj.effect,obj.do,obj.undo,obj.duration
+                                    ,obj.interval,obj.operation);
 }
 /**
  * Applies the do effect to unit based on effect type
  */
-EffectObj.prototype.Do = function (unit)  {
+EffectObj.prototype.Do = function (unit) {
     if (timeLeft <= 0) { break; }
     if (this.interval > 0 || !this.isApplied) {
         isApplied = true;
@@ -433,12 +385,12 @@ function EffectObj(theEffect = ETypes.None, theDo = 0, theUndo = 0
     this.timeLeft = this.duration;//Timeleft until it no longer does.
     this.isApplied = false;
     this.undone = false;
-    this.Operation = theOperation;
+    this.operation = theOperation;
 }
 /**
  * Applies the undo effect on the unit based on effect type
  */
-EffectObj.prototype.Undo = function (unit)  {
+EffectObj.prototype.Undo = function (unit) {
     if (this.timeLeft <= 0 && !this.undone) {
         this.undone = true;
         //Undo
@@ -586,49 +538,54 @@ function DamageObj(dmg = 0, stun = 0,
  * @returns The -damage total.
  */
 /* #endregion */
-DamageObj.prototype.ApplyDamage = function (unit)  {
+DamageObj.prototype.ApplyDamage = function (unit) {
     let unitArmor = unit.armor;
     let unitArmorType = unit.armorType;
-    let dmgMultiplier = 1;
-    let dt = this.damageType;
-    //Determines damage multiplier considering armor and damage types
-    switch (unitArmorType) {
-        case ATypes.Unarmored:
-            if (dt === DTypes.Piercing
-                || dt === DTypes.Slashing) {
-                dmgMultiplier += 1 / 3;
-            }
-            break;
-        case ATypes.Light:
-            if (dt === DTypes.Piercing
-                || dt === DTypes.Magic) {
-                dmgMultiplier += 1 / 3;
-            }
-            break;
-        case ATypes.Medium:
-            if (dt === DTypes.Normal) {
-                dmgMultiplier += 1 / 3;
-            }
-            if (dt === DTypes.Piercing
-                || dt === DTypes.Magic
-                || dt === DTypes.Slashing) {
-                dmgMultiplier -= 1 / 3;
-            }
-            break;
-        case ATypes.Heavy:
-            if (dt === DTypes.Magic) {
-                dmgMultiplier += 1 / 3;
-            }
-            break;
-        case ATypes.Ethereal:
-            if (dt === DTypes.Magic) {
-                dmgMultiplier += 2 / 3;
-            } else {
-                dmgMultiplier -= .9;
-            }
-            break;
+    let healthChange;
+    if (typeof unitArmor !== 'undefined' && typeof unitArmorType !== 'undefined'){
+        let dmgMultiplier = 1;
+        let dt = this.damageType;
+        //Determines damage multiplier considering armor and damage types
+        switch (unitArmorType) {
+            case ATypes.Unarmored:
+                if (dt === DTypes.Piercing
+                    || dt === DTypes.Slashing) {
+                    dmgMultiplier += 1 / 3;
+                }
+                break;
+            case ATypes.Light:
+                if (dt === DTypes.Piercing
+                    || dt === DTypes.Magic) {
+                    dmgMultiplier += 1 / 3;
+                }
+                break;
+            case ATypes.Medium:
+                if (dt === DTypes.Normal) {
+                    dmgMultiplier += 1 / 3;
+                }
+                if (dt === DTypes.Piercing
+                    || dt === DTypes.Magic
+                    || dt === DTypes.Slashing) {
+                    dmgMultiplier -= 1 / 3;
+                }
+                break;
+            case ATypes.Heavy:
+                if (dt === DTypes.Magic) {
+                    dmgMultiplier += 1 / 3;
+                }
+                break;
+            case ATypes.Ethereal:
+                if (dt === DTypes.Magic) {
+                    dmgMultiplier += 2 / 3;
+                } else {
+                    dmgMultiplier -= .9;
+                }
+                break;
+        }
+        healthChange = this.damage * dmgMultiplier * (1 - unitArmor / 100);
+    } else {
+        healthChange = this.damage;
     }
-    let healthChange = this.damage * dmgMultiplier * (1 - unitArmor / 100);
     //unit.health -= healthChange;
     unit.ChangeHealth(-healthChange);//Negative b/c damage
     return -healthChange;
@@ -636,17 +593,17 @@ DamageObj.prototype.ApplyDamage = function (unit)  {
 /**
  * Adds the buff object of the damage object to the unit buff list.
  */
-DamageObj.prototype.ApplyBuff = function (unit)  {
+DamageObj.prototype.ApplyBuff = function (unit) {
     let b;
     for (b in unit.buffObj) {
-        if (b.name === this.buff.name) { return; }
+        if (unit.name[b] === this.buff.name) { return; }
     }
     unit.buffObj.push(this.buff);
 }
 /**
  * Adds the hitstun of the damage object to the unit hitstun.
  */
-DamageObj.prototype.ApplyHitstun = function (unit)  {
+DamageObj.prototype.ApplyHitstun = function (unit) {
     unit.hitstun += this.hitstun;
 }
 /* #region Apply Effects description */
@@ -655,7 +612,7 @@ DamageObj.prototype.ApplyHitstun = function (unit)  {
  * @param unit The unit that the collision hits.
  */
 /* #endregion */
-DamageObj.prototype.ApplyEffects = function (unit)  {
+DamageObj.prototype.ApplyEffects = function (unit) {
     if (!unit.isValidHit(this)) { break; }//Needs to be added to unit types
     unit.damageObj.push(this);
     this.ApplyDamage(unit);
@@ -677,7 +634,7 @@ function BuffObj(theName = "", theEffectList = []) {
     let max = -1;
     let e;
     for (e in this.effectList) {
-        max = Math.max(e.duration, max);
+        max = Math.max(this.effectList[e].duration, max);
     }
     this.duration = max;
     this.timeLeft = this.duration;
@@ -689,17 +646,17 @@ function BuffObj(theName = "", theEffectList = []) {
  * @param unit This should be 'this'.
  */
 /* #endregion */
-BuffObj.prototype.update = function (unit)  {
+BuffObj.prototype.update = function (unit) {
     this.timeLeft--;
     let e;
     for (e in this.effectList) {
-        //e is effectobj
-        if (e.intervalTimer <= 0) {
-            e.intervalTimer = e.interval;
-            e.Operation(unit);
-            e.Do(unit);
-            e.Undo(unit);
-        } else { e.intervalTimer--; }
-        e.timeLeft--;
+        //this.effectList[e] is effectobj
+        if (this.effectList[e].intervalTimer <= 0) {
+            this.effectList[e].intervalTimer = e.interval;
+            this.effectList[e].operation(unit);
+            this.effectList[e].Do(unit);
+            this.effectList[e].Undo(unit);
+        } else { this.effectList[e].intervalTimer--; }
+        this.effectList[e].timeLeft--;
     }
 }
