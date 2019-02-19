@@ -251,8 +251,13 @@ Player.prototype.knightAbilities = function (number) {
             case 0:
                 //Ability at keyboard number 0
                 break;
-            case 1:
+            case 1://Sword Boomerang
                 //Ability at keyboard number 1
+                let tempPro = new swordBoomerang(GAME_ENGINE, AM.getAsset("./img/swordBoomerang.png"),
+                    this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
+                tempPro.thrower = this;
+                GAME_ENGINE.addEntity(tempPro);
+                this.abilityCD[number] = 60;
                 break;
             case 2:
                 //Ability at keyboard number 2
@@ -465,9 +470,11 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     // Determining where the projectile should go angle wise.
     this.angle = Math.atan2(this.yTar - this.originY, this.xTar - this.originX);
     this.counter = 0; // Counter to make damage consistent
-
+    this.childUpdate;//function
     this.speed = 200;
+    this.projectileSpeed = 7.5;
     this.damageObj = DS.CreateDamageObject(15, 0, DTypes.Normal, null);
+    this.penetrative = false;
     this.ctx = game.ctx;
     Entity.call(this, game, originX, originY);
 
@@ -483,11 +490,13 @@ Projectile.prototype.draw = function () {
 }
 
 Projectile.prototype.update = function () {
-    var projectileSpeed = 7.5;
-
+    //var projectileSpeed = 7.5;
+    if (typeof this.childUpdate === 'function') {
+        this.childUpdate();
+    }
     // Generating the speed to move at target direction
-    var velY = Math.sin(this.angle) * projectileSpeed;
-    var velX = Math.cos(this.angle) * projectileSpeed;
+    var velY = Math.sin(this.angle) * this.projectileSpeed;
+    var velX = Math.cos(this.angle) * this.projectileSpeed;
     // Moving the actual projectile.
     this.x += velX;
     this.y += velY;
@@ -503,7 +512,7 @@ Projectile.prototype.update = function () {
         if (this.boundingbox.collide(entityCollide.boundingbox)) {
             if (GAME_ENGINE.entities[4][i].health > 0) {
                 this.damageObj.ApplyEffects(GAME_ENGINE.entities[4][i]);
-                this.removeFromWorld = true;
+                this.removeFromWorld = (this.penetrative) ? false : true;
             }
         }
     }
@@ -515,7 +524,28 @@ Projectile.prototype.update = function () {
 /* #endregion */
 
 /* #region Projetile Types */
+swordBoomerang.prototype = Projectile.prototype;
 
+function swordBoomerang (game, spriteSheet, originX, originY, xTarget, yTarget) {
+    Projectile.call(this, game, spriteSheet, originX, originY, xTarget, yTarget);
+    this.projectileSpeed = 7;
+    this.timeLeft = 60;
+    this.thrower = null;
+    this.speedChange = -7/30;
+    this.penetrative = true;
+    this.damageObj = DS.CreateDamageObject(45,0,DTypes.Slashing
+            ,DS.CloneBuffObject(PremadeBuffs.DamageOvertime));
+    this.childUpdate = function () {
+        this.projectileSpeed += this.speedChange;
+        this.timeLeft--;
+        if (this.thrower !== null && this.timeLeft < 30){
+            if (Math.abs(this.thrower.x-this.x) < 5 && Math.abs(this.thrower.y-this.y) < 5){
+                this.removeFromWorld = true;
+            }
+            this.angle = Math.atan2(this.y - this.thrower.y, this.x - this.thrower.x);
+        }
+    }
+}
 /* #endregion */
 /* #endregion */
 
@@ -792,6 +822,7 @@ Animation.prototype.isDone = function () {
 AM.queueDownload("./img/ranger_run.png");
 // Knight
 AM.queueDownload("./img/knight_run.png");
+AM.queueDownload("./img/swordBoomerang.png");
 // Mage
 AM.queueDownload("./img/mage_run.png");
 // Floor Trap
