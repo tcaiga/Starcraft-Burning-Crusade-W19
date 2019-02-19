@@ -1,6 +1,4 @@
 /* #region Notes */
-
-
 //THIS SHOULD BE ADDED TO UNIT TYPES OR HERO/MONSTER
 /* #region New Constructor Variables */
 /*
@@ -14,8 +12,6 @@ this.isStunned = false;
 this.isSilenced = false;
 this.isBlind = false;
 this.isDisarmed = false;
-this.maxMovespeedRatio = 1;
-this.maxMovespeedAdj = 0;
 this.currentHealth = 100;
 this.baseMaxHealth = 100;
 this.maxHealthAdj = 0;
@@ -33,8 +29,6 @@ this.attackDamageAdj = 0
 this.attackDamageRatio = 1;
 this.baseMagicDamage = 100;
 this.magicDamageRatio = 1;
-this.cooldownRate = 1;
-this.cooldownAdj = 0;//Calculated RER ABILITY
 /* #endregion *//*
 *///END OF WHAT SHOULD BE ADDED TO UNIT OR HERO/MONSTER
 /* #endregion */
@@ -392,7 +386,7 @@ function EffectObj(theEffect = ETypes.None, theDo = 0, theUndo = 0
     this.duration = theDuration;//Number of game ticks to happen
     this.interval = theInterval;//How often the effect is applied or 0
     this.intervalTimer = 0;
-    this.timeLeft = this.duration;//Timeleft until it no longer does.
+    this.timeLeft = theDuration;//Timeleft until it no longer does.
     this.isApplied = false;
     this.undone = false;
     this.operation = theOperation;
@@ -686,7 +680,7 @@ BuffObj.prototype.update = function (unit) {
     for (e in this.effectList) {
         //this.effectList[e] is effectobj
         if (this.effectList[e].intervalTimer <= 0) {
-            this.effectList[e].intervalTimer = e.interval;
+            this.effectList[e].intervalTimer = this.effectList[e].interval;
             if (typeof this.effectList[e].operation === 'function'){
                 this.effectList[e].operation(unit);}
             this.effectList[e].Do(unit);

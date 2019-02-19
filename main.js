@@ -1,3 +1,4 @@
+/* #region Constants */
 const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
 const CAMERA = new Camera(GAME_ENGINE);
@@ -10,7 +11,9 @@ var myFloorNum = 1;
 var myRoomNum = 1;
 // Constant variable for tile size
 const TILE_SIZE = 16;
+/* #endregion */
 
+/* #region Player */
 function Player(game, spritesheet, xOffset, yOffset) {
     // Relevant for Player box
     this.width = 16;
@@ -25,6 +28,9 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.xScale = 1;
     this.damageObjArr = [];
     this.buffObj = [];
+    this.abilityCD = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    this.cooldownRate = 1;
+    this.cooldownAdj = 0;
     this.game = game;
     this.ctx = game.ctx;
     this.baseMaxMovespeed = 2;
@@ -63,7 +69,8 @@ Player.prototype.update = function () {
 
     this.collide(sprint);
 
-    // Player movement controls
+
+    /* #region Player movement controls */
     if (GAME_ENGINE.keyW === true) {
         this.y -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
     }
@@ -78,6 +85,30 @@ Player.prototype.update = function () {
         this.x += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
         this.right = true;
     }
+    /* #endregion */
+    
+    /* #region Abilities */
+    let t;
+    for (t in this.abilityCD){
+        this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
+    }
+    for (t in GAME_ENGINE.digit){
+        if (GAME_ENGINE.digit[t]){
+            switch(GAME_ENGINE.playerPick){
+                case 0:
+                    this.mageAbilities(t);
+                    break;
+                case 1:
+                    this.rangerAbilities(t);
+                    break;
+                case 2:
+                    this.knightAbilities(t);
+                    break;
+            }
+        }
+    }
+    /* #endregion */
+
 
     if (this.health <= 0) {
         this.game.reset();
@@ -106,16 +137,138 @@ Player.prototype.update = function () {
     /* #endregion */
     /* #region Removal */
     for (dmgFlag in dmgRemove) {//Removes flagged damage objects
-        this.damageObjArr.splice(dmgRemove[dmgFlag],1);
+        this.damageObjArr.splice(dmgRemove[dmgFlag], 1);
     }
     for (buffFlag in buffRemove) {//Removes flagged buff objects
-        this.buffObj.splice(buffRemove[buffFlag],1);
+        this.buffObj.splice(buffRemove[buffFlag], 1);
+        console.log(this);
     }
     /* #endregion */
     /* #endregion */
+    
+    
     this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
         this.width, this.height);
 }
+
+/* #region Player Ability functions */
+Player.prototype.rangerAbilities = function (number) {
+    if (this.abilityCD[number] <= 0){
+        console.log(number);
+        switch (parseInt(number)){
+            case 0:
+                //Ability at keyboard number 0
+                break;
+            case 1://Create BoostPad
+                //Ability at keyboard number 1
+                let tempTrap = new RangerBoostPad(GAME_ENGINE, AM.getAsset("./img/floor_trap_up.png"),
+                                                AM.getAsset("./img/floor_trap_down.png"));
+                tempTrap.x = GAME_ENGINE.mouseX-10;
+                tempTrap.y = GAME_ENGINE.mouseY-10;
+                tempTrap.boundingbox = new BoundingBox(tempTrap.x, tempTrap.y, 20, 20);
+                GAME_ENGINE.addEntity(tempTrap);
+                this.abilityCD[number] = 60;
+                break;
+            case 2:
+                //Ability at keyboard number 2
+                break;
+            case 3:
+                //Ability at keyboard number 3
+                break;
+            case 4:
+                //Ability at keyboard number 4
+                break;
+            case 5:
+                //Ability at keyboard number 5
+                break;
+            case 6:
+                //Ability at keyboard number 6
+                break;
+            case 7:
+                //Ability at keyboard number 7
+                break;
+            case 8:
+                //Ability at keyboard number 8
+                break;
+            case 9:
+                //Ability at keyboard number 9
+                break;                
+        }
+    }
+}
+Player.prototype.mageAbilities = function (number) {
+    if (this.abilityCD[number] <= 0){
+        switch (number){
+            case 0:
+                //Ability at keyboard number 0
+                break;
+            case 1:
+                //Ability at keyboard number 1
+                break;
+            case 2:
+                //Ability at keyboard number 2
+                break;
+            case 3:
+                //Ability at keyboard number 3
+                break;
+            case 4:
+                //Ability at keyboard number 4
+                break;
+            case 5:
+                //Ability at keyboard number 5
+                break;
+            case 6:
+                //Ability at keyboard number 6
+                break;
+            case 7:
+                //Ability at keyboard number 7
+                break;
+            case 8:
+                //Ability at keyboard number 8
+                break;
+            case 9:
+                //Ability at keyboard number 9
+                break;                
+        }
+    }
+}
+Player.prototype.knightAbilities = function (number) {
+    if (this.abilityCD[number] <= 0){
+        switch (number){
+            case 0:
+                //Ability at keyboard number 0
+                break;
+            case 1:
+                //Ability at keyboard number 1
+                break;
+            case 2:
+                //Ability at keyboard number 2
+                break;
+            case 3:
+                //Ability at keyboard number 3
+                break;
+            case 4:
+                //Ability at keyboard number 4
+                break;
+            case 5:
+                //Ability at keyboard number 5
+                break;
+            case 6:
+                //Ability at keyboard number 6
+                break;
+            case 7:
+                //Ability at keyboard number 7
+                break;
+            case 8:
+                //Ability at keyboard number 8
+                break;
+            case 9:
+                //Ability at keyboard number 9
+                break;                
+        }
+    }
+}
+/* #endregion */
 
 Player.prototype.collide = function (sprint) {
     //* 2 is the offset for a 2x2 of tiles.
@@ -149,7 +302,10 @@ Player.prototype.ChangeHealth = function (amount) {
     }
     this.health += amount;//Damage will come in as a negative value;
 }
+/* #endregion */
 
+/* #region Monster */
+/* #region Base Monster */
 function Monster(game, spritesheet) {
     Entity.call(this, game, 0, 350);
     this.scale = 1;
@@ -160,7 +316,7 @@ function Monster(game, spritesheet) {
     this.ctx = game.ctx;
     this.health = 100;
     this.damageObjArr = [];
-    this.damageObj = DS.CreateDamageObject(20,0,DTypes.Normal,DS.CloneBuffObject(PremadeBuffs.HasteWeak));
+    this.damageObj = DS.CreateDamageObject(20, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.HasteWeak));
     this.buffObj = [];
     this.counter = 0;
 
@@ -219,10 +375,10 @@ Monster.prototype.update = function () {
     /* #endregion */
     /* #region Removal */
     for (dmgFlag in dmgRemove) {//Removes flagged damage objects
-        this.damageObjArr.splice(dmgRemove[dmgFlag],1);
+        this.damageObjArr.splice(dmgRemove[dmgFlag], 1);
     }
     for (buffFlag in buffRemove) {//Removes flagged buff objects
-        this.buffObj.splice(buffRemove[buffFlag],1);
+        this.buffObj.splice(buffRemove[buffFlag], 1);
     }
     /* #endregion */
     /* #endregion */
@@ -241,7 +397,9 @@ Monster.prototype.ChangeHealth = function (amount) {
     }
     this.health += amount;//Healing will come in as a positive number
 }
+/* #endregion */
 
+/* #region Monster Types */
 Devil.prototype = Monster.prototype;
 Acolyte.prototype = Monster.prototype;
 
@@ -262,7 +420,6 @@ function Devil(game, spritesheet) {
 
 function Acolyte(game, spritesheet) {
     Monster.call(this, game, spritesheet);
-    Acolyte.prototype = Monster.prototype;
     this.scale = 2;
     this.width = 16;
     this.height = 19;
@@ -276,7 +433,11 @@ function Acolyte(game, spritesheet) {
 
     this.counter = 0;
 }
+/* #endregion */
+/* #endregion */
 
+/* #region Projectile */
+/* #region Base Projectile */
 function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     this.width = 100;
     this.height = 100;
@@ -293,7 +454,7 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     this.counter = 0; // Counter to make damage consistent
 
     this.speed = 200;
-    this.damageObj = DS.CreateDamageObject(15,0,DTypes.Normal,null);
+    this.damageObj = DS.CreateDamageObject(15, 0, DTypes.Normal, null);
     this.ctx = game.ctx;
     Entity.call(this, game, originX, originY);
 
@@ -338,7 +499,15 @@ Projectile.prototype.update = function () {
         this.width - 75, this.height - 75); // Hardcoded a lot of offset values
 
 }
+/* #endregion */
 
+/* #region Projetile Types */
+
+/* #endregion */
+/* #endregion */
+
+/* #region Trap */
+/* #region Base Trap */
 function Trap(game, spriteSheetUp, spriteSheetDown) {
     this.animationUp = new Animation(spriteSheetUp, 16, 16, 1, 0.13, 4, true, 1.25);
     this.animationDown = new Animation(spriteSheetDown, 16, 16, 1, 0.13, 4, true, 1.25);
@@ -348,7 +517,7 @@ function Trap(game, spriteSheetUp, spriteSheetDown) {
     this.activated = false; // Determining if trap has been activated
     this.counter = 0; // Counter to calculate when trap related events should occur
     this.doAnimation = false; // Flag to determine if the spikes should animate or stay still
-    this.damageObj = DS.CreateDamageObject(10,0,DTypes.Normal,DS.CloneBuffObject(PremadeBuffs.SlowStrong));
+    this.damageObj = DS.CreateDamageObject(10, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.SlowStrong));
     this.game = game;
     this.ctx = game.ctx;
 
@@ -370,6 +539,13 @@ Trap.prototype.draw = function () {
 }
 
 Trap.prototype.update = function () {
+    if (typeof this.lifeTime !== 'undefined') {
+        if (this.lifeTime <= 0) {
+            this.removeFromWorld = true;
+        } else {
+            this.lifeTime--;
+        }
+    }
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         // Remember what tick the collision happened
         this.counter += this.game.clockTick;
@@ -394,7 +570,24 @@ Trap.prototype.update = function () {
         this.counter = 0;
     }
 }
+/* #endregion */
 
+/* #region Trap Types */
+RangerBoostPad.prototype = Trap.prototype;
+
+function RangerBoostPad(game, spriteSheetUp, spriteSheetDown) {
+    Trap.call(this, game, spriteSheetUp, spriteSheetDown);
+    this.damageObj = DS.CreateDamageObject(0, 0, DTypes.None
+        , DS.CreateBuffObject("ranger boost", [
+            DS.CreateEffectObject(ETypes.MoveSpeedR, Math.pow(1.1,10), 1, 1, 0),
+            DS.CreateEffectObject(ETypes.MoveSpeedR, 1/1.1, 1, 100, 10)
+        ]));
+    this.lifeTime = 120;
+}
+/* #endregion */
+/* #endregion */
+
+/* #region BoundingBox */
 // BoundingBox for entities to detect collision.
 function BoundingBox(x, y, width, height) {
     this.x = x;
@@ -412,11 +605,13 @@ BoundingBox.prototype.collide = function (oth) {
     if (this.right > oth.left && this.left < oth.right && this.top < oth.bottom && this.bottom > oth.top) return true;
     return false;
 }
+/* #endregion */
 
 function Terrain(game) {
 
 }
 
+/* #region Camera */
 function Camera(game) {
     this.x = 0;
     this.y = 0;
@@ -441,7 +636,9 @@ Camera.prototype.move = function (direction) {
         myPlayer.y = 60 + CAMERA.y;
     }
 }
+/* #endregion */
 
+/* #region Menu */
 function Menu(game) {
     this.ctx = game.ctx;
     this.classButtonW = 100;
@@ -474,8 +671,10 @@ Menu.prototype.createClassButton = function (text, xPosition) {
     this.ctx.fillStyle = "white";
     this.ctx.fillText(text, xPosition, this.classButtonY + this.classButtonH);
 }
+/* #endregion */
 
 
+/* #region Background */
 function Background(game) {
     this.x = 0;
     this.y = 0;
@@ -521,7 +720,9 @@ Background.prototype.draw = function () {
 };
 
 Background.prototype.update = function () { };
+/* #endregion */
 
+/* #region Animation */
 function Animation(spriteSheet, frameWidth, frameHeight,
     sheetWidth, frameDuration, frames, loop, scale) {
     this.spriteSheet = spriteSheet;
@@ -571,6 +772,7 @@ Animation.prototype.currentFrame = function () {
 Animation.prototype.isDone = function () {
     return (this.elapsedTime >= this.totalTime);
 }
+/* #endregion */
 /* #region Download queue and download */
 
 // Ranger

@@ -29,6 +29,8 @@ function GameEngine() {
     this.keyD = false;
     this.keyW = false;
     this.digit = [false,false,false,false,false,false,false,false,false,false];
+    this.mouseX = 0;
+    this.mouseY = 0;
     this.keyShift = false;
     this.movement = false;
     this.playerPick;
@@ -81,6 +83,11 @@ GameEngine.prototype.startInput = function () {
         }
     }, false);
 
+    this.ctx.canvas.addEventListener("mousemove", function (e) {
+        that.mouseX = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
+        that.mouseY = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
+    }, false);
+
     this.ctx.canvas.addEventListener("keydown", function (e) {
         // Sprint functionality
         if (e.code === "ShiftLeft") {
@@ -106,8 +113,6 @@ GameEngine.prototype.startInput = function () {
         if (e.code.includes("Digit")){
             that.digit[parseInt(e.code.charAt(5))] = true;
         }
-        
-        /* #endregion */
 
     }, false);
 
