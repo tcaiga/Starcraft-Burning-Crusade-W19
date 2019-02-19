@@ -141,7 +141,6 @@ Player.prototype.update = function () {
     }
     for (buffFlag in buffRemove) {//Removes flagged buff objects
         this.buffObj.splice(buffRemove[buffFlag], 1);
-        console.log(this);
     }
     /* #endregion */
     /* #endregion */
@@ -154,17 +153,23 @@ Player.prototype.update = function () {
 /* #region Player Ability functions */
 Player.prototype.rangerAbilities = function (number) {
     if (this.abilityCD[number] <= 0){
-        console.log(number);
         switch (parseInt(number)){
             case 0:
                 //Ability at keyboard number 0
                 break;
             case 1://Create BoostPad
                 //Ability at keyboard number 1
-                let tempTrap = new RangerBoostPad(GAME_ENGINE, AM.getAsset("./img/floor_trap_up.png"),
-                                                AM.getAsset("./img/floor_trap_down.png"));
-                tempTrap.x = GAME_ENGINE.mouseX-10;
-                tempTrap.y = GAME_ENGINE.mouseY-10;
+                let castDistance = 125;
+                let tempTrap = new RangerBoostPad(GAME_ENGINE, AM.getAsset("./img/floor_boostpad_on.png"),
+                                                AM.getAsset("./img/floor_boostpad_off.png"));
+                let xDif,yDif,mag;
+                xDif = this.x - GAME_ENGINE.mouseX + 10;
+                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                mag = Math.pow(Math.pow(xDif,2) + Math.pow(yDif,2),0.5);
+                castDistance = Math.min(mag, castDistance);
+
+                tempTrap.x = this.x-(xDif/mag)*castDistance;
+                tempTrap.y = this.y-(yDif/mag)*castDistance;
                 tempTrap.boundingbox = new BoundingBox(tempTrap.x, tempTrap.y, 20, 20);
                 GAME_ENGINE.addEntity(tempTrap);
                 this.abilityCD[number] = 60;
@@ -681,7 +686,6 @@ Menu.prototype.createClassButton = function (text, xPosition) {
 }
 /* #endregion */
 
-
 /* #region Background */
 function Background(game) {
     this.x = 0;
@@ -781,6 +785,7 @@ Animation.prototype.isDone = function () {
     return (this.elapsedTime >= this.totalTime);
 }
 /* #endregion */
+
 /* #region Download queue and download */
 
 // Ranger
@@ -792,6 +797,9 @@ AM.queueDownload("./img/mage_run.png");
 // Floor Trap
 AM.queueDownload("./img/floor_trap_up.png");
 AM.queueDownload("./img/floor_trap_down.png");
+// Boostpad
+AM.queueDownload("./img/floor_boostpad_on.png");
+AM.queueDownload("./img/floor_boostpad_off.png");
 // Devil
 AM.queueDownload("./img/devil.png");
 // Acolyte

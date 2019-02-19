@@ -684,6 +684,7 @@ BuffObj.prototype.update = function (unit) {
             if (typeof this.effectList[e].operation === 'function'){
                 this.effectList[e].operation(unit);}
             this.effectList[e].Do(unit);
+            console.log(unit);
         } else { this.effectList[e].intervalTimer--; }
         this.effectList[e].timeLeft--;
         this.effectList[e].Undo(unit);
