@@ -23,7 +23,7 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.x = 60;
     this.y = 60;
     this.xScale = 1;
-    this.damageObj = [];
+    this.damageObjArr = [];
     this.buffObj = [];
     this.game = game;
     this.ctx = game.ctx;
@@ -91,9 +91,9 @@ Player.prototype.update = function () {
     let buffRemove = [];
     let buffFlag;
     /* #region Updates */
-    for (dmgObj in this.damageObj) {//Updates damage objects
-        this.damageObj[dmgObj].update();
-        if (this.damageObj[dmgObj].timeLeft <= 0) {
+    for (dmgObj in this.damageObjArr) {//Updates damage objects
+        this.damageObjArr[dmgObj].update();
+        if (this.damageObjArr[dmgObj].timeLeft <= 0) {
             dmgRemove.push(dmgObj);//Adds to trash system
         }
     }
@@ -106,7 +106,7 @@ Player.prototype.update = function () {
     /* #endregion */
     /* #region Removal */
     for (dmgFlag in dmgRemove) {//Removes flagged damage objects
-        this.damageObj.splice(dmgRemove[dmgFlag],1);
+        this.damageObjArr.splice(dmgRemove[dmgFlag],1);
     }
     for (buffFlag in buffRemove) {//Removes flagged buff objects
         this.buffObj.splice(buffRemove[buffFlag],1);
@@ -159,7 +159,8 @@ function Monster(game, spritesheet) {
     this.speed = 100;
     this.ctx = game.ctx;
     this.health = 100;
-    this.damageObj = [];
+    this.damageObjArr = [];
+    this.damageObj = DS.CreateDamageObject(20,0,DTypes.Normal,DS.CloneBuffObject(PremadeBuffs.HasteWeak));
     this.buffObj = [];
     this.counter = 0;
 
@@ -188,8 +189,9 @@ Monster.prototype.update = function () {
 
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         this.counter += this.game.clockTick;
+        this.damageObj.ApplyEffects(myPlayer);
         if (this.counter > .018 && myPlayer.health > 0) {
-            myPlayer.health -= 5;
+            //myPlayer.health -= 5;
         }
         this.counter = 0;
     }
@@ -202,9 +204,9 @@ Monster.prototype.update = function () {
     let buffRemove = [];
     let buffFlag;
     /* #region Updates */
-    for (dmgObj in this.damageObj) {//Updates damage objects
-        this.damageObj[dmgObj].update();
-        if (this.damageObj[dmgObj].timeLeft <= 0) {
+    for (dmgObj in this.damageObjArr) {//Updates damage objects
+        this.damageObjArr[dmgObj].update();
+        if (this.damageObjArr[dmgObj].timeLeft <= 0) {
             dmgRemove.push(dmgObj);//Adds to trash system
         }
     }
@@ -217,7 +219,7 @@ Monster.prototype.update = function () {
     /* #endregion */
     /* #region Removal */
     for (dmgFlag in dmgRemove) {//Removes flagged damage objects
-        this.damageObj.splice(dmgRemove[dmgFlag],1);
+        this.damageObjArr.splice(dmgRemove[dmgFlag],1);
     }
     for (buffFlag in buffRemove) {//Removes flagged buff objects
         this.buffObj.splice(buffRemove[buffFlag],1);
@@ -346,7 +348,7 @@ function Trap(game, spriteSheetUp, spriteSheetDown) {
     this.activated = false; // Determining if trap has been activated
     this.counter = 0; // Counter to calculate when trap related events should occur
     this.doAnimation = false; // Flag to determine if the spikes should animate or stay still
-    this.damageObj = DS.CreateDamageObject(10,0,DTypes.Normal,DS.CloneBuffObject(PremadeBuffs.Slow));
+    this.damageObj = DS.CreateDamageObject(10,0,DTypes.Normal,DS.CloneBuffObject(PremadeBuffs.SlowStrong));
     this.game = game;
     this.ctx = game.ctx;
 

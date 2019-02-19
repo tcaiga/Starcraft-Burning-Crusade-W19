@@ -158,6 +158,9 @@ const PremadeBuffs = {
     Slow: new BuffObj("slow", [new EffectObj(ETypes.MoveSpeedR, 0.6, 1 / 0.6, 60, 0)]),
     SlowWeak: new BuffObj("weak slow", [new EffectObj(ETypes.MoveSpeedR, 0.8, 1 / 0.8, 60, 0)]),
     SlowStrong: new BuffObj("strong slow", [new EffectObj(ETypes.MoveSpeedR, 0.4, 1 / 0.4, 60, 0)]),
+    Haste: new BuffObj("haste", [new EffectObj(ETypes.MoveSpeedR,1.25, 1/1.25, 60, 0)]),
+    HasteWeak: new BuffObj("weak haste", [new EffectObj(ETypes.MoveSpeedR,1.1, 1/1.1, 60, 0)]),
+    HasteStrong: new BuffObj("strong haste", [new EffectObj(ETypes.MoveSpeedR,1.5, 1/1.5, 60, 0)]),
     Heal: new BuffObj("heal", [new EffectObj(ETypes.CurrentHealthF, 20, 0, 2, 0)]),
     HealStrong: new BuffObj("strong heal", [new EffectObj(ETypes.CurrentHealthF, 30, 0, 2, 0)]),
     HealWeak: new BuffObj("weak heal", [new EffectObj(ETypes.CurrentHealthF, 10, 0, 2, 0)]),
@@ -634,8 +637,8 @@ DamageObj.prototype.ApplyHitstun = function (unit) {
 /* #endregion */
 DamageObj.prototype.ApplyEffects = function (unit) {
     let y = true;
-    for (d in unit.damageObj) {
-        if (unit.damageObj[d].id === this.id) {
+    for (d in unit.damageObjArr) {
+        if (unit.damageObjArr[d].id === this.id) {
             y = false;
             break;
         }
@@ -643,7 +646,7 @@ DamageObj.prototype.ApplyEffects = function (unit) {
     if (!y) { return; }//Needs to be added to unit types
     let tempDmg = DS.CloneDamageObject(this);
     tempDmg.id = this.id;
-    unit.damageObj.push(tempDmg);
+    unit.damageObjArr.push(tempDmg);
     tempDmg.ApplyDamage(unit);
     tempDmg.ApplyHitstun(unit);
     tempDmg.ApplyBuff(unit);
