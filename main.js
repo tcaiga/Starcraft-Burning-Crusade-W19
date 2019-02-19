@@ -74,10 +74,14 @@ Player.prototype.update = function () {
     // Conditional check to see if player wants to sprint or not
     var sprint = GAME_ENGINE.keyShift ? 1.75 : 1;
 
+
+    // Player movement controls
+
     this.collide(sprint);
 
     if (this.isStunned <= 0){
     /* #region Player movement controls */
+
     if (GAME_ENGINE.keyW === true) {
         this.y -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
     }
@@ -158,6 +162,7 @@ Player.prototype.update = function () {
     this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
         this.width, this.height);
 }
+
 
 /* #region Player Ability functions */
 Player.prototype.rangerAbilities = function (number) {
@@ -341,6 +346,7 @@ Player.prototype.ChangeHealth = function (amount) {
 
 /* #region Monster */
 /* #region Base Monster */
+
 function Monster(game, spritesheet) {
     Entity.call(this, game, 0, 350);
     this.scale = 1;
@@ -699,9 +705,12 @@ function Camera(game) {
     this.y = 0;
 }
 
-Camera.prototype.update = function () { }
+Camera.prototype.update = function () { 
+   
+}
 
 Camera.prototype.draw = function () { }
+
 
 Camera.prototype.move = function (direction) {
     if (direction === "right") {
@@ -721,6 +730,7 @@ Camera.prototype.move = function (direction) {
 /* #endregion */
 
 /* #region Menu */
+
 function Menu(game) {
     this.ctx = game.ctx;
     this.classButtonW = 100;
@@ -791,7 +801,7 @@ function Background(game) {
 Background.prototype.draw = function () {
     for (let i = 0; i < this.mapLength; i++) {
         for (let j = 0; j < this.mapLength; j++) {
-            this.tile = (this.map[i * this.mapLength + j] == 1) ? this.zero : this.one;
+            this.tile = (this.map[i * this.mapLength + j] == 1) ? this.one : this.zero;
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2 + TILE_SIZE);

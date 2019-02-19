@@ -2,31 +2,29 @@ canvas {
     position: absolute;
     left: 50%;
     margin-left:-266px;
-    top:46%;
-    margin-top:-286px;
-}
-
-.sidebar {
-    float: right;
-    margin-right: 132px;
-    margin-top: -13px;
+    top:50%;
+    margin-top:-266px;
     border: 1px solid;
-    height: 611px;
-    background-color: darkgray;
 }
 
-.hud {
+#sidebar {
     position: absolute;
+    margin-left: 629px;
+    margin-top: 39px;
     border: 1px solid;
-    width: 511px;
-    bottom: 0;
-    margin-bottom: 2px;
-    margin-left:366px;
+    height: 512px;
+    width: 250px;
     background-color: darkgray;
-    height:100px;
+}
+
+#wrapper {
+    margin-left:auto;
+    margin-right:auto;
+    width:762px;
 }
 
 body {
+    margin:0;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;

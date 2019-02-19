@@ -12,18 +12,22 @@
     <script type="text/javascript" src="./main.js"></script>
 </head>
 <body>
-    <canvas id="canvas" tabindex="1" width="512" height="512"></canvas>
-    <div class="sidebar">
-        <h1>Last Labyrinth</h1>
-        <h2 class="floor">Floor # = 1</h2>
-        <h2 class="room">Room # = 1</h2>
-        <h2>Controls:</h2>
-        <h2>Movement: W, A, S, D</h2>
-        <h2>Movement: Sprint: Shift</h2>
-        <h2>Projectile: Left Click</h2>
-        <h2>Abilities: 1, 2, 3, 4</h2>
-      </div>
-    <div class="hud">
+    <div id="wrapper">
+        <canvas id="canvas" tabindex="1" width="512" height="512"></canvas>
+        <div id="sidebar">
+            <h1>Last Labyrinth</h1>
+            <h2>Location: 1-1</h2>
+            <h2>Health: </h2>
+            <h4>Controls:</h4>
+            <h4>Movement: W, A, S, D</h4>
+            <h4>Sprint: Shift</h4>
+            <h4>Projectile: Left Click</h4>
+            <h4>Abilities:</h4>
+            <h3 id="spell1">1</h3>
+            <h3 id="spell2">2</h3>
+            <h3 id="spell3">3</h3>
+            <h3 id="spell4">4</h3>
+          </div>
     </div>
 </body>
 </html>
