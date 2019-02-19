@@ -31,6 +31,7 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.abilityCD = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     this.cooldownRate = 1;
     this.cooldownAdj = 0;
+    this.isStunned = 0;
     this.game = game;
     this.ctx = game.ctx;
     this.baseMaxMovespeed = 2;
@@ -38,6 +39,7 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.maxMovespeedAdj = 0;
     this.right = true;
     this.health = 100;
+    this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
         this.width, this.height); // **Temporary** Hard coded offset values.
 }
@@ -52,15 +54,20 @@ Player.prototype.draw = function () {
         xValue = -this.x - this.width;
     }
     //draw player character with no animation if player is not currently moving
-    if (!GAME_ENGINE.movement) {
-        this.animationIdle.drawFrameIdle(this.ctx, xValue, this.y);
+    if (this.dontdraw <= 0){
+        if (!GAME_ENGINE.movement) {
+            this.animationIdle.drawFrameIdle(this.ctx, xValue, this.y);
+        } else {
+            this.animationRun.drawFrame(this.game.clockTick, this.ctx, xValue, this.y);
+        }
+    
+        this.ctx.restore();
+        GAME_ENGINE.ctx.strokeStyle = "blue";
+        GAME_ENGINE.ctx.strokeRect(this.x + (this.xScale * 4), this.y + 13,
+            this.boundingbox.width, this.boundingbox.height);
     } else {
-        this.animationRun.drawFrame(this.game.clockTick, this.ctx, xValue, this.y);
+        this.dontdraw--;
     }
-    this.ctx.restore();
-    GAME_ENGINE.ctx.strokeStyle = "blue";
-    GAME_ENGINE.ctx.strokeRect(this.x + (this.xScale * 4), this.y + 13,
-        this.boundingbox.width, this.boundingbox.height);
 }
 
 Player.prototype.update = function () {
@@ -69,7 +76,7 @@ Player.prototype.update = function () {
 
     this.collide(sprint);
 
-
+    if (this.isStunned <= 0){
     /* #region Player movement controls */
     if (GAME_ENGINE.keyW === true) {
         this.y -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
@@ -86,15 +93,17 @@ Player.prototype.update = function () {
         this.right = true;
     }
     /* #endregion */
-    
+    } else {
+        this.isStunned--;
+    } 
     /* #region Abilities */
     let t;
-    for (t in this.abilityCD){
+    for (t in this.abilityCD) {
         this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
     }
-    for (t in GAME_ENGINE.digit){
-        if (GAME_ENGINE.digit[t]){
-            switch(GAME_ENGINE.playerPick){
+    for (t in GAME_ENGINE.digit) {
+        if (GAME_ENGINE.digit[t]) {
+            switch (GAME_ENGINE.playerPick) {
                 case 0:
                     this.mageAbilities(t);
                     break;
@@ -144,16 +153,16 @@ Player.prototype.update = function () {
     }
     /* #endregion */
     /* #endregion */
-    
-    
+
+
     this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
         this.width, this.height);
 }
 
 /* #region Player Ability functions */
 Player.prototype.rangerAbilities = function (number) {
-    if (this.abilityCD[number] <= 0){
-        switch (parseInt(number)){
+    if (this.abilityCD[number] <= 0) {
+        switch (parseInt(number)) {
             case 0:
                 //Ability at keyboard number 0
                 break;
@@ -161,15 +170,15 @@ Player.prototype.rangerAbilities = function (number) {
                 //Ability at keyboard number 1
                 let castDistance = 125;
                 let tempTrap = new RangerBoostPad(GAME_ENGINE, AM.getAsset("./img/floor_boostpad_on.png"),
-                                                AM.getAsset("./img/floor_boostpad_off.png"));
-                let xDif,yDif,mag;
+                    AM.getAsset("./img/floor_boostpad_off.png"));
+                let xDif, yDif, mag;
                 xDif = this.x - GAME_ENGINE.mouseX + 10;
                 yDif = this.y - GAME_ENGINE.mouseY + 10;
-                mag = Math.pow(Math.pow(xDif,2) + Math.pow(yDif,2),0.5);
+                mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 castDistance = Math.min(mag, castDistance);
 
-                tempTrap.x = this.x-(xDif/mag)*castDistance;
-                tempTrap.y = this.y-(yDif/mag)*castDistance;
+                tempTrap.x = this.x - (xDif / mag) * castDistance;
+                tempTrap.y = this.y - (yDif / mag) * castDistance;
                 tempTrap.boundingbox = new BoundingBox(tempTrap.x, tempTrap.y, 20, 20);
                 GAME_ENGINE.addEntity(tempTrap);
                 this.abilityCD[number] = 60;
@@ -197,25 +206,33 @@ Player.prototype.rangerAbilities = function (number) {
                 break;
             case 9:
                 //Ability at keyboard number 9
-                break;                
+                break;
         }
     }
 }
 Player.prototype.mageAbilities = function (number) {
-    if (this.abilityCD[number] <= 0){
-        switch (parseInt(number)){
+    if (this.abilityCD[number] <= 0) {
+        switch (parseInt(number)) {
             case 0:
                 //Ability at keyboard number 0
                 break;
             case 1://Blink!
                 //Ability at keyboard number 1
                 let blinkDistance = 100;
-                let xDif = this.x-GAME_ENGINE.mouseX;
-                let yDif = this.y-GAME_ENGINE.mouseY;
-                let mag = Math.pow(Math.pow(xDif,2) + Math.pow(yDif,2),0.5);
+                let xDif = this.x - GAME_ENGINE.mouseX;
+                let yDif = this.y - GAME_ENGINE.mouseY;
+                let mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 blinkDistance = Math.min(blinkDistance, mag);
-                this.x -= (xDif/mag)*blinkDistance + 12;
-                this.y -= (yDif/mag)*blinkDistance + 30;
+                let ss1Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
+                let ss2Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
+                let ss1 = new stillStand(this.game,ss1Ani,10,this.x,this.y);
+                this.x -= (xDif / mag) * blinkDistance + 12;
+                this.y -= (yDif / mag) * blinkDistance + 30;
+                let ss2 = new stillStand(this.game,ss2Ani,10,this.x,this.y);
+                this.dontdraw = 10;
+                this.isStunned = 10;
+                GAME_ENGINE.addEntity(ss1);
+                GAME_ENGINE.addEntity(ss2);
                 this.abilityCD[number] = 120;
                 break;
             case 2:
@@ -241,13 +258,13 @@ Player.prototype.mageAbilities = function (number) {
                 break;
             case 9:
                 //Ability at keyboard number 9
-                break;                
+                break;
         }
     }
 }
 Player.prototype.knightAbilities = function (number) {
-    if (this.abilityCD[number] <= 0){
-        switch (parseInt(number)){
+    if (this.abilityCD[number] <= 0) {
+        switch (parseInt(number)) {
             case 0:
                 //Ability at keyboard number 0
                 break;
@@ -282,7 +299,7 @@ Player.prototype.knightAbilities = function (number) {
                 break;
             case 9:
                 //Ability at keyboard number 9
-                break;                
+                break;
         }
     }
 }
@@ -526,20 +543,20 @@ Projectile.prototype.update = function () {
 /* #region Projetile Types */
 swordBoomerang.prototype = Projectile.prototype;
 
-function swordBoomerang (game, spriteSheet, originX, originY, xTarget, yTarget) {
+function swordBoomerang(game, spriteSheet, originX, originY, xTarget, yTarget) {
     Projectile.call(this, game, spriteSheet, originX, originY, xTarget, yTarget);
     this.projectileSpeed = 7;
     this.timeLeft = 60;
     this.thrower = null;
-    this.speedChange = -7/30;
+    this.speedChange = -7 / 30;
     this.penetrative = true;
-    this.damageObj = DS.CreateDamageObject(45,0,DTypes.Slashing
-            ,DS.CloneBuffObject(PremadeBuffs.DamageOvertime));
+    this.damageObj = DS.CreateDamageObject(45, 0, DTypes.Slashing
+        , DS.CloneBuffObject(PremadeBuffs.DamageOvertime));
     this.childUpdate = function () {
         this.projectileSpeed += this.speedChange;
         this.timeLeft--;
-        if (this.thrower !== null && this.timeLeft < 30){
-            if (Math.abs(this.thrower.x-this.x) < 5 && Math.abs(this.thrower.y-this.y) < 5){
+        if (this.thrower !== null && this.timeLeft < 30) {
+            if (Math.abs(this.thrower.x - this.x) < 5 && Math.abs(this.thrower.y - this.y) < 5) {
                 this.removeFromWorld = true;
             }
             this.angle = Math.atan2(this.y - this.thrower.y, this.x - this.thrower.x);
@@ -622,12 +639,34 @@ function RangerBoostPad(game, spriteSheetUp, spriteSheetDown) {
     Trap.call(this, game, spriteSheetUp, spriteSheetDown);
     this.damageObj = DS.CreateDamageObject(0, 0, DTypes.None
         , DS.CreateBuffObject("ranger boost", [
-            DS.CreateEffectObject(ETypes.MoveSpeedR, Math.pow(1.1,10), 1, 1, 0),
-            DS.CreateEffectObject(ETypes.MoveSpeedR, 1/1.1, 1, 100, 10)
+            DS.CreateEffectObject(ETypes.MoveSpeedR, Math.pow(1.1, 10), 1, 1, 0),
+            DS.CreateEffectObject(ETypes.MoveSpeedR, 1 / 1.1, 1, 100, 10)
         ]));
     this.lifeTime = 120;
 }
 /* #endregion */
+/* #endregion */
+
+/* #region Still Stand */
+function stillStand(game, animation, duration, theX, theY) {
+    this.timeLeft = duration;
+    this.ani = animation;
+    this.game = game;
+    this.ctx = game.ctx;
+    this.x = theX;
+    this.y = theY;
+    Entity.call(this, game, theX,theY);
+}
+
+stillStand.prototype.update = function () {
+    this.timeLeft--;
+    if (this.timeLeft <= 0) {
+        this.removeFromWorld = true;
+    }
+}
+stillStand.prototype.draw = function () {
+    this.ani.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+}
 /* #endregion */
 
 /* #region BoundingBox */
@@ -825,6 +864,7 @@ AM.queueDownload("./img/knight_run.png");
 AM.queueDownload("./img/swordBoomerang.png");
 // Mage
 AM.queueDownload("./img/mage_run.png");
+AM.queueDownload("./img/flash.png");
 // Floor Trap
 AM.queueDownload("./img/floor_trap_up.png");
 AM.queueDownload("./img/floor_trap_down.png");
