@@ -1,7 +1,7 @@
 const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
 const CAMERA = new Camera(GAME_ENGINE);
-const DAMAGE_SYSTEM = new DamageSystem();
+const DS = new DamageSystem();
 
 var SCENE_MANAGER;
 var canvasWidth;
@@ -225,10 +225,10 @@ Monster.prototype.update = function () {
     /* #endregion */
     /* #region Removal */
     for (dmgFlag in dmgRemove) {//Removes flagged damage objects
-        damageObj.splice(dmgRemove[dmgFlag],1);
+        this.damageObj.splice(dmgRemove[dmgFlag],1);
     }
     for (buffFlag in buffRemove) {//Removes flagged buff objects
-        buffObj.splice(buffRemove[buffFlag],1);
+        this.buffObj.splice(buffRemove[buffFlag],1);
     }
     /* #endregion */
     /* #endregion */
@@ -310,8 +310,8 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     this.counter = 0; // Counter to make damage consistent
 
     this.speed = 200;
-    this.
-        this.ctx = game.ctx;
+    this.damageObj = DS.CreateDamageObject(15,0,DTypes.Normal,null);
+    this.ctx = game.ctx;
     Entity.call(this, game, originX, originY);
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
@@ -345,7 +345,7 @@ Projectile.prototype.update = function () {
         var entityCollide = GAME_ENGINE.entities[4][i];
         if (this.boundingbox.collide(entityCollide.boundingbox)) {
             if (GAME_ENGINE.entities[4][i].health > 0) {
-                GAME_ENGINE.entities[4][i].health -= 15;
+                this.damageObj.ApplyEffects(GAME_ENGINE.entities[4][i]);
                 this.removeFromWorld = true;
             }
         }

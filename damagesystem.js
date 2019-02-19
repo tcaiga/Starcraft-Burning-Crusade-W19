@@ -39,7 +39,6 @@ this.cooldownAdj = 0;//Calculated RER ABILITY
 /* #endregion *//*
 *///END OF WHAT SHOULD BE ADDED TO UNIT OR HERO/MONSTER
 /* #endregion */
-
 /* #region Self notes */
 /*
 Add a buff constraint so that the unit cannot receive two buffs of equal title.
@@ -49,7 +48,7 @@ Add constrains to systems that should be constrained
 Make a set of premade buffs i.e. 'weak slow, slow, strong slow'
 */
 /* #endregion */
-
+/* #region Constants */
 /* #region Damage type descriptions */
 /**
  * Damage types
@@ -157,17 +156,19 @@ const ETypes = {
  * Premade buffs to be added simple
  */
 const PremadeBuffs = {
-    Slow: new BuffObj("slow",[new EffectObj(ETypes.MoveSpeedR, 0.6, 1/0.6, 120,0)]),		
-    SlowWeak: new BuffObj("weak slow",[new EffectObj(ETypes.MoveSpeedR, 0.8, 1/0.8, 120,0)]),		
-    SlowStrong: new BuffObj("strong slow",[new EffectObj(ETypes.MoveSpeedR, 0.4, 1/0.4, 120,0)]),		
-    Heal: new BuffObj("heal",[new EffectObj(ETypes.CurrentHealthF, 20, 0, 2, 0)]),		
-    HealStrong: new BuffObj("strong heal",[new EffectObj(ETypes.CurrentHealthF, 30, 0, 2, 0)]),		
-    HealWeak: new BuffObj("weak heal",[new EffectObj(ETypes.CurrentHealthF, 10, 0, 2, 0)]),		
-    HealOvertime: new BuffObj("heal overtime",[new EffectObj(ETypes.CurrentHealthF, 2, 0, 120, 10)]),		
-    DamageOvertime: new BuffObj("damage overtime",[new EffectObj(ETypes.CurrentHealthF, -3.5, 0, 120,20)]),		
-    PurifyingFlames: new BuffObj("purifying flames",[new EffectObj(ETypes.CurrentHealthF, -25, 0, 2, 0)		
-                                                    ,new EffectObj(ETypes.CurrentHealthF, 32/(180/5), 0, 180, 5)]),
+    Slow: new BuffObj("slow", [new EffectObj(ETypes.MoveSpeedR, 0.6, 1 / 0.6, 120, 0)]),
+    SlowWeak: new BuffObj("weak slow", [new EffectObj(ETypes.MoveSpeedR, 0.8, 1 / 0.8, 120, 0)]),
+    SlowStrong: new BuffObj("strong slow", [new EffectObj(ETypes.MoveSpeedR, 0.4, 1 / 0.4, 120, 0)]),
+    Heal: new BuffObj("heal", [new EffectObj(ETypes.CurrentHealthF, 20, 0, 2, 0)]),
+    HealStrong: new BuffObj("strong heal", [new EffectObj(ETypes.CurrentHealthF, 30, 0, 2, 0)]),
+    HealWeak: new BuffObj("weak heal", [new EffectObj(ETypes.CurrentHealthF, 10, 0, 2, 0)]),
+    HealOvertime: new BuffObj("heal overtime", [new EffectObj(ETypes.CurrentHealthF, 2, 0, 120, 10)]),
+    DamageOvertime: new BuffObj("damage overtime", [new EffectObj(ETypes.CurrentHealthF, -3.5, 0, 120, 20)]),
+    PurifyingFlames: new BuffObj("purifying flames", [new EffectObj(ETypes.CurrentHealthF, -25, 0, 2, 0)
+        , new EffectObj(ETypes.CurrentHealthF, 32 / (180 / 5), 0, 180, 5)]),
 }
+/* #endregion */
+/* #region Damage System */
 function DamageSystem() {
     //I don't know what I would put in here as of yet.
 }
@@ -188,7 +189,7 @@ DamageSystem.prototype.CreateDamageObject = function (theDamage = 0, theHitstun 
 /**
  * @returns A deep clone of the input damage object.
  */
-DamageSystem.prototype.CloneDamageObject = function (obj){
+DamageSystem.prototype.CloneDamageObject = function (obj) {
     let newBuffObj = this.CloneBuffObject(obj.buffObj);
     return this.CreateDamageObject(obj.damage, obj.hitstun, obj.damageType, newBuffObj);
 }
@@ -208,11 +209,11 @@ DamageSystem.prototype.CreateBuffObject = function (theName = "", theEffectList 
  * @returns A deep clone of the input buff object.
  */
 DamageSystem.prototype.CloneBuffObject = function (obj) {
-    let newList = [],a=0;
-    for (a in obj.effectList){
+    let newList = [], a = 0;
+    for (a in obj.effectList) {
         newList.push(this.CloneEffectObject(obj.effectList[a]));
     }
-    return new BuffObj(DamageSystem.CreateBuffObject(obj.name,newList));
+    return new BuffObj(DamageSystem.CreateBuffObject(obj.name, newList));
 }
 /* #region Create effect object description */
 /**
@@ -234,9 +235,11 @@ DamageSystem.prototype.CreateEffectObject = function (theEffect = ETypes.None, t
  * @returns A clone of the input effect object.
  */
 DamageSystem.prototype.CloneEffectObject = function (obj) {
-    return this.CreateEffectObject(obj.effect,obj.do,obj.undo,obj.duration
-                                    ,obj.interval,obj.operation);
+    return this.CreateEffectObject(obj.effect, obj.do, obj.undo, obj.duration
+        , obj.interval, obj.operation);
 }
+/* #endregion */
+/* #region Effect Object */
 /**
  * Applies the do effect to unit based on effect type
  */
@@ -512,6 +515,8 @@ EffectObj.prototype.Undo = function (unit) {
         }
     }
 }
+/* #endregion */
+/* #region Damage Object */
 /* #region Damage object description */
 //This function object controls how damage is applied and 
 //types along with buffs and hitstuns
@@ -529,6 +534,13 @@ function DamageObj(dmg = 0, stun = 0,
     this.hitstun = stun;
     this.damageType = dmgType;
     this.buff = buffObj;
+    this.timeLeft = 50;
+}
+/**
+ * Updates the timeLeft of damage obj.
+ */
+DamageObj.prototype.update = function () {
+    this.timeLeft--;
 }
 /* #region Apply damage description */
 //Consideres armor type and damage type and armor then removes health from unit.
@@ -542,7 +554,7 @@ DamageObj.prototype.ApplyDamage = function (unit) {
     let unitArmor = unit.armor;
     let unitArmorType = unit.armorType;
     let healthChange;
-    if (typeof unitArmor !== 'undefined' && typeof unitArmorType !== 'undefined'){
+    if (typeof unitArmor !== 'undefined' && typeof unitArmorType !== 'undefined') {
         let dmgMultiplier = 1;
         let dt = this.damageType;
         //Determines damage multiplier considering armor and damage types
@@ -595,10 +607,12 @@ DamageObj.prototype.ApplyDamage = function (unit) {
  */
 DamageObj.prototype.ApplyBuff = function (unit) {
     let b;
-    for (b in unit.buffObj) {
-        if (unit.name[b] === this.buff.name) { return; }
+    if (typeof this.buff !== 'undefined' && this.buff !== null) {
+        for (b in unit.buffObj) {
+            if (unit.name[b] === this.buff.name) { return; }
+        }
+        unit.buffObj.push(this.buff);
     }
-    unit.buffObj.push(this.buff);
 }
 /**
  * Adds the hitstun of the damage object to the unit hitstun.
@@ -613,12 +627,14 @@ DamageObj.prototype.ApplyHitstun = function (unit) {
  */
 /* #endregion */
 DamageObj.prototype.ApplyEffects = function (unit) {
-    if (!unit.isValidHit(this)) { break; }//Needs to be added to unit types
+    if (!unit.isValidHit(this)) { return; }//Needs to be added to unit types
     unit.damageObj.push(this);
     this.ApplyDamage(unit);
     this.ApplyHitstun(unit);
     this.ApplyBuff(unit);
 }
+/* #endregion */
+/* #region Buff Object */
 /* #region Buff object description */
 /**
  * This buff object holds the list of effects and is in charge of managing them.
@@ -660,3 +676,4 @@ BuffObj.prototype.update = function (unit) {
         this.effectList[e].timeLeft--;
     }
 }
+/* #endregion */
