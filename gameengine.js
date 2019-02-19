@@ -28,6 +28,7 @@ function GameEngine() {
     this.keyS = false;
     this.keyD = false;
     this.keyW = false;
+    this.digit = [false,false,false,false,false,false,false,false,false,false];
     this.keyShift = false;
     this.movement = false;
     this.playerPick;
@@ -86,7 +87,7 @@ GameEngine.prototype.startInput = function () {
             that.keyShift = true;
         }
 
-        /* #region Movement */
+
         if (e.code === "KeyW") {
             that.keyW = true;
             that.movement = true;
@@ -100,57 +101,11 @@ GameEngine.prototype.startInput = function () {
             that.keyD = true;
             that.movement = true;
         }
-        /* #endregion */
-
-        /* #region Abilities */
-        if (that.playerPick == 0){// Mage
-            switch (e.code){
-                case "Digit1":
-                    //Ability 1
-                    break;
-                case "Digit2":
-                    //Ability 2
-                    break;
-                case "Digit3":
-                    //Ability 3
-                    break;
-                case "Digit4":
-                    //Ability 4
-                    break;
-            }
+        //Abilities
+        if (e.code.includes("Digit")){
+            that.digit[parseInt(e.code.charAt(5))] = true;
         }
-        if (that.playerPick == 1){// Ranger
-            switch (e.code){
-                case "Digit1":
-                    //Ability 1
-                    break;
-                case "Digit2":
-                    //Ability 2
-                    break;
-                case "Digit3":
-                    //Ability 3
-                    break;
-                case "Digit4":
-                    //Ability 4
-                    break;
-            }
-        }
-        if (that.playerPick == 2){// Knight
-            switch (e.code){
-                case "Digit1":
-                    //Ability 1
-                    break;
-                case "Digit2":
-                    //Ability 2
-                    break;
-                case "Digit3":
-                    //Ability 3
-                    break;
-                case "Digit4":
-                    //Ability 4
-                    break;
-            }
-        }
+        
         /* #endregion */
 
     }, false);
@@ -169,6 +124,10 @@ GameEngine.prototype.startInput = function () {
             that.keyS = false;
         } else if (e.code === "KeyD") {
             that.keyD = false;
+        }
+        //Abilities
+        if (e.code.includes("Digit")){
+            that.digit[parseInt(e.code.charAt(5))] = false;
         }
         /*if key is still being pressed down when another key is pressed up
           then movement is still happening. */
