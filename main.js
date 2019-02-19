@@ -198,12 +198,20 @@ Player.prototype.rangerAbilities = function (number) {
 }
 Player.prototype.mageAbilities = function (number) {
     if (this.abilityCD[number] <= 0){
-        switch (number){
+        switch (parseInt(number)){
             case 0:
                 //Ability at keyboard number 0
                 break;
-            case 1:
+            case 1://Blink!
                 //Ability at keyboard number 1
+                let blinkDistance = 100;
+                let xDif = this.x-GAME_ENGINE.mouseX;
+                let yDif = this.y-GAME_ENGINE.mouseY;
+                let mag = Math.pow(Math.pow(xDif,2) + Math.pow(yDif,2),0.5);
+                blinkDistance = Math.min(blinkDistance, mag);
+                this.x -= (xDif/mag)*blinkDistance + 12;
+                this.y -= (yDif/mag)*blinkDistance + 30;
+                this.abilityCD[number] = 120;
                 break;
             case 2:
                 //Ability at keyboard number 2
@@ -234,7 +242,7 @@ Player.prototype.mageAbilities = function (number) {
 }
 Player.prototype.knightAbilities = function (number) {
     if (this.abilityCD[number] <= 0){
-        switch (number){
+        switch (parseInt(number)){
             case 0:
                 //Ability at keyboard number 0
                 break;
