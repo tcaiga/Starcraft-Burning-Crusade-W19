@@ -247,7 +247,7 @@ DamageSystem.prototype.CloneEffectObject = function (obj) {
 EffectObj.prototype.Do = function (unit) {
     if (this.timeLeft <= 0) { return; }
     if (this.interval > 0 || !this.isApplied) {
-        isApplied = true;
+        this.isApplied = true;
         switch (this.effect) {
             case ETypes.MoveSpeedF:
                 if (typeof unit.maxMovespeedAdj !== 'undefined') {
@@ -684,7 +684,6 @@ BuffObj.prototype.update = function (unit) {
             if (typeof this.effectList[e].operation === 'function'){
                 this.effectList[e].operation(unit);}
             this.effectList[e].Do(unit);
-            console.log(unit);
         } else { this.effectList[e].intervalTimer--; }
         this.effectList[e].timeLeft--;
         this.effectList[e].Undo(unit);
