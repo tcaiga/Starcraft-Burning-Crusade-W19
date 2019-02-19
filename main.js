@@ -54,13 +54,13 @@ Player.prototype.draw = function () {
         xValue = -this.x - this.width;
     }
     //draw player character with no animation if player is not currently moving
-    if (this.dontdraw <= 0){
+    if (this.dontdraw <= 0) {
         if (!GAME_ENGINE.movement) {
             this.animationIdle.drawFrameIdle(this.ctx, xValue, this.y);
         } else {
             this.animationRun.drawFrame(this.game.clockTick, this.ctx, xValue, this.y);
         }
-    
+
         this.ctx.restore();
         GAME_ENGINE.ctx.strokeStyle = "blue";
         GAME_ENGINE.ctx.strokeRect(this.x + (this.xScale * 4), this.y + 13,
@@ -77,29 +77,27 @@ Player.prototype.update = function () {
 
     // Player movement controls
 
-    this.collide(sprint);
+    if (this.isStunned <= 0) {
+        /* #region Player movement controls */
 
-    if (this.isStunned <= 0){
-    /* #region Player movement controls */
-
-    if (GAME_ENGINE.keyW === true) {
-        this.y -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
-    }
-    if (GAME_ENGINE.keyA === true) {
-        this.x -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
-        this.right = false;
-    }
-    if (GAME_ENGINE.keyS === true) {
-        this.y += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
-    }
-    if (GAME_ENGINE.keyD === true) {
-        this.x += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
-        this.right = true;
-    }
-    /* #endregion */
+        if (GAME_ENGINE.keyW === true) {
+            this.y -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+        }
+        if (GAME_ENGINE.keyA === true) {
+            this.x -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+            this.right = false;
+        }
+        if (GAME_ENGINE.keyS === true) {
+            this.y += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+        }
+        if (GAME_ENGINE.keyD === true) {
+            this.x += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+            this.right = true;
+        }
+        /* #endregion */
     } else {
         this.isStunned--;
-    } 
+    }
     /* #region Abilities */
     let t;
     for (t in this.abilityCD) {
@@ -197,21 +195,6 @@ Player.prototype.rangerAbilities = function (number) {
             case 4:
                 //Ability at keyboard number 4
                 break;
-            case 5:
-                //Ability at keyboard number 5
-                break;
-            case 6:
-                //Ability at keyboard number 6
-                break;
-            case 7:
-                //Ability at keyboard number 7
-                break;
-            case 8:
-                //Ability at keyboard number 8
-                break;
-            case 9:
-                //Ability at keyboard number 9
-                break;
         }
     }
 }
@@ -230,10 +213,10 @@ Player.prototype.mageAbilities = function (number) {
                 blinkDistance = Math.min(blinkDistance, mag);
                 let ss1Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
                 let ss2Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
-                let ss1 = new stillStand(this.game,ss1Ani,10,this.x,this.y);
+                let ss1 = new stillStand(this.game, ss1Ani, 10, this.x, this.y);
                 this.x -= (xDif / mag) * blinkDistance + 12;
                 this.y -= (yDif / mag) * blinkDistance + 30;
-                let ss2 = new stillStand(this.game,ss2Ani,10,this.x,this.y);
+                let ss2 = new stillStand(this.game, ss2Ani, 10, this.x, this.y);
                 this.dontdraw = 10;
                 this.isStunned = 10;
                 GAME_ENGINE.addEntity(ss1);
@@ -248,21 +231,6 @@ Player.prototype.mageAbilities = function (number) {
                 break;
             case 4:
                 //Ability at keyboard number 4
-                break;
-            case 5:
-                //Ability at keyboard number 5
-                break;
-            case 6:
-                //Ability at keyboard number 6
-                break;
-            case 7:
-                //Ability at keyboard number 7
-                break;
-            case 8:
-                //Ability at keyboard number 8
-                break;
-            case 9:
-                //Ability at keyboard number 9
                 break;
         }
     }
@@ -290,45 +258,10 @@ Player.prototype.knightAbilities = function (number) {
             case 4:
                 //Ability at keyboard number 4
                 break;
-            case 5:
-                //Ability at keyboard number 5
-                break;
-            case 6:
-                //Ability at keyboard number 6
-                break;
-            case 7:
-                //Ability at keyboard number 7
-                break;
-            case 8:
-                //Ability at keyboard number 8
-                break;
-            case 9:
-                //Ability at keyboard number 9
-                break;
         }
     }
 }
 /* #endregion */
-
-Player.prototype.collide = function (sprint) {
-    //* 2 is the offset for a 2x2 of tiles.
-    if (this.x + this.width + this.xOffset >= CAMERA.x + canvasWidth - TILE_SIZE * 2) {
-        //this.x += -2 * sprint;
-        CAMERA.move("right");
-    }
-    if (this.x + this.xOffset <= TILE_SIZE * 2) {
-        //this.x += 2 * sprint;
-        CAMERA.move("left");
-    }
-    if (this.y + this.yOffset + myPlayer.height >= canvasHeight - TILE_SIZE * 2) {
-        //this.y -= 2 * sprint;
-        CAMERA.move("down");
-    }
-    if (this.y + this.yOffset <= TILE_SIZE * 2) {
-        //this.y += 2 * sprint;
-        CAMERA.move("up");
-    }
-}
 
 Player.prototype.ChangeHealth = function (amount) {
     if (amount > 0) {
@@ -661,7 +594,7 @@ function stillStand(game, animation, duration, theX, theY) {
     this.ctx = game.ctx;
     this.x = theX;
     this.y = theY;
-    Entity.call(this, game, theX,theY);
+    Entity.call(this, game, theX, theY);
 }
 
 stillStand.prototype.update = function () {
@@ -705,8 +638,8 @@ function Camera(game) {
     this.y = 0;
 }
 
-Camera.prototype.update = function () { 
-   
+Camera.prototype.update = function () {
+
 }
 
 Camera.prototype.draw = function () { }

@@ -9,8 +9,8 @@ canvas {
 
 #sidebar {
     position: absolute;
-    margin-left: 629px;
-    margin-top: 39px;
+    left: 888px;
+    top: 39px;
     border: 1px solid;
     height: 512px;
     width: 250px;
