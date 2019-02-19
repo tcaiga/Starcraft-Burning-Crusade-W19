@@ -86,6 +86,7 @@ GameEngine.prototype.startInput = function () {
         if (e.code === "ShiftLeft") {
             that.keyShift = true;
         }
+        
 
 
         if (e.code === "KeyW") {

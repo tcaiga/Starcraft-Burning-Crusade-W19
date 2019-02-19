@@ -14,7 +14,6 @@ this.isStunned = false;
 this.isSilenced = false;
 this.isBlind = false;
 this.isDisarmed = false;
-this.baseMaxMovespeed = 100;
 this.maxMovespeedRatio = 1;
 this.maxMovespeedAdj = 0;
 this.currentHealth = 100;
@@ -184,14 +183,17 @@ function DamageSystem() {
 /* #endregion */
 DamageSystem.prototype.CreateDamageObject = function (theDamage = 0, theHitstun = 0,
     theDamageType = DTypes.None, theBuffObject = null) {
-    return new DamageObj(theDamage, theHitstun, theDamageType, theBuffObject);
+    let newObj = new DamageObj(theDamage, theHitstun, theDamageType, theBuffObject);
+    newObj.id = Math.random() * Math.pow(10,15);
+    return newObj;
 }
 /**
  * @returns A deep clone of the input damage object.
  */
 DamageSystem.prototype.CloneDamageObject = function (obj) {
     let newBuffObj = this.CloneBuffObject(obj.buffObj);
-    return this.CreateDamageObject(obj.damage, obj.hitstun, obj.damageType, newBuffObj);
+    let newObj  = this.CreateDamageObject(obj.damage, obj.hitstun, obj.damageType, newBuffObj);
+    return newObj;
 }
 /* #region Create buff object description */
 /**
@@ -210,12 +212,11 @@ DamageSystem.prototype.CreateBuffObject = function (theName = "", theEffectList 
  */
 DamageSystem.prototype.CloneBuffObject = function (obj) {
     if (obj === null || typeof obj === 'undefined') {return null;}
-    console.log(obj);
     let newList = [], a = 0;
     for (a in obj.effectList) {
         newList.push(this.CloneEffectObject(obj.effectList[a]));
     }
-    return new BuffObj(this.CreateBuffObject(obj.name, newList));
+    return this.CreateBuffObject(obj.name, newList);
 }
 /* #region Create effect object description */
 /**
@@ -611,10 +612,13 @@ DamageObj.prototype.ApplyDamage = function (unit) {
  */
 DamageObj.prototype.ApplyBuff = function (unit) {
     let b;
+    console.log("applying buff");
+    console.log(this);
     if (typeof this.buff !== 'undefined' && this.buff !== null) {
         for (b in unit.buffObj) {
             if (unit.name[b] === this.buff.name) { return; }
         }
+        console.log("Applied buff)");
         unit.buffObj.push(this.buff);
     }
 }

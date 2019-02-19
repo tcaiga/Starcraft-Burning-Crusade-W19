@@ -27,6 +27,9 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.buffObj = [];
     this.game = game;
     this.ctx = game.ctx;
+    this.baseMaxMovespeed = 2;
+    this.maxMovespeedRatio = 1;
+    this.maxMovespeedAdj = 0;
     this.right = true;
     this.health = 100;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
@@ -62,17 +65,17 @@ Player.prototype.update = function () {
 
     // Player movement controls
     if (GAME_ENGINE.keyW === true) {
-        this.y -= 2 * sprint;
+        this.y -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
     }
     if (GAME_ENGINE.keyA === true) {
-        this.x -= 2 * sprint;
+        this.x -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
         this.right = false;
     }
     if (GAME_ENGINE.keyS === true) {
-        this.y += 2 * sprint;
+        this.y += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
     }
     if (GAME_ENGINE.keyD === true) {
-        this.x += 2 * sprint;
+        this.x += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
         this.right = true;
     }
 
@@ -343,7 +346,7 @@ function Trap(game, spriteSheetUp, spriteSheetDown) {
     this.activated = false; // Determining if trap has been activated
     this.counter = 0; // Counter to calculate when trap related events should occur
     this.doAnimation = false; // Flag to determine if the spikes should animate or stay still
-    this.damageObj = DS.CreateDamageObject(20,0,DTypes.Normal,DS.CloneBuffObject(PremadeBuffs.Slow));
+    this.damageObj = DS.CreateDamageObject(10,0,DTypes.Normal,DS.CloneBuffObject(PremadeBuffs.Slow));
     this.game = game;
     this.ctx = game.ctx;
 
@@ -378,7 +381,7 @@ Trap.prototype.update = function () {
             if (myPlayer.health > 0 && this.counter > 0.18) {
                 //myPlayer.health -= 2;
                 this.damageObj.ApplyEffects(myPlayer);
-                console.log(myPlayer.health);
+                //console.log(myPlayer);
                 this.counter = .1;
             }
         }
