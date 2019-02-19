@@ -28,6 +28,9 @@ function GameEngine() {
     this.keyS = false;
     this.keyD = false;
     this.keyW = false;
+    this.digit = [false,false,false,false,false,false,false,false,false,false];
+    this.mouseX = 0;
+    this.mouseY = 0;
     this.keyShift = false;
     this.movement = false;
     this.playerPick;
@@ -80,11 +83,18 @@ GameEngine.prototype.startInput = function () {
         }
     }, false);
 
+    this.ctx.canvas.addEventListener("mousemove", function (e) {
+        that.mouseX = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
+        that.mouseY = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
+    }, false);
+
     this.ctx.canvas.addEventListener("keydown", function (e) {
         // Sprint functionality
         if (e.code === "ShiftLeft") {
             that.keyShift = true;
         }
+        
+
 
         if (e.code === "KeyW") {
             that.keyW = true;
@@ -99,6 +109,11 @@ GameEngine.prototype.startInput = function () {
             that.keyD = true;
             that.movement = true;
         }
+        //Abilities
+        if (e.code.includes("Digit")){
+            that.digit[parseInt(e.code.charAt(5))] = true;
+        }
+
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
@@ -115,6 +130,10 @@ GameEngine.prototype.startInput = function () {
             that.keyS = false;
         } else if (e.code === "KeyD") {
             that.keyD = false;
+        }
+        //Abilities
+        if (e.code.includes("Digit")){
+            that.digit[parseInt(e.code.charAt(5))] = false;
         }
         /*if key is still being pressed down when another key is pressed up
           then movement is still happening. */
@@ -163,8 +182,8 @@ GameEngine.prototype.draw = function () {
         var entitySubArr = this.entities[i];
         for (let j = 0; j < entitySubArr.length; j++) {
             var entity = this.entities[i][j];
-            if (!entity.removeFromWorld && (i <= 1 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth && 
-                entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {  
+            if (!entity.removeFromWorld && (i <= 1 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
+                entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.draw(this.ctx);
             }
         }
@@ -213,7 +232,7 @@ function Entity(game, x, y) {
     this.removeFromWorld = false;
 }
 
-Entity.prototype.update = function () {}
+Entity.prototype.update = function () { }
 
 Entity.prototype.draw = function (ctx) {
     if (this.game.showOutlines && this.radius) {
