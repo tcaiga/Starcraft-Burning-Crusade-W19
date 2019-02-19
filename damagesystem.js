@@ -155,16 +155,16 @@ const ETypes = {
  * Premade buffs to be added simple
  */
 const PremadeBuffs = {
-    Slow: new BuffObj("slow", [new EffectObj(ETypes.MoveSpeedR, 0.6, 1 / 0.6, 120, 0)]),
-    SlowWeak: new BuffObj("weak slow", [new EffectObj(ETypes.MoveSpeedR, 0.8, 1 / 0.8, 120, 0)]),
-    SlowStrong: new BuffObj("strong slow", [new EffectObj(ETypes.MoveSpeedR, 0.4, 1 / 0.4, 120, 0)]),
+    Slow: new BuffObj("slow", [new EffectObj(ETypes.MoveSpeedR, 0.6, 1 / 0.6, 60, 0)]),
+    SlowWeak: new BuffObj("weak slow", [new EffectObj(ETypes.MoveSpeedR, 0.8, 1 / 0.8, 60, 0)]),
+    SlowStrong: new BuffObj("strong slow", [new EffectObj(ETypes.MoveSpeedR, 0.4, 1 / 0.4, 60, 0)]),
     Heal: new BuffObj("heal", [new EffectObj(ETypes.CurrentHealthF, 20, 0, 2, 0)]),
     HealStrong: new BuffObj("strong heal", [new EffectObj(ETypes.CurrentHealthF, 30, 0, 2, 0)]),
     HealWeak: new BuffObj("weak heal", [new EffectObj(ETypes.CurrentHealthF, 10, 0, 2, 0)]),
     HealOvertime: new BuffObj("heal overtime", [new EffectObj(ETypes.CurrentHealthF, 2, 0, 120, 10)]),
-    DamageOvertime: new BuffObj("damage overtime", [new EffectObj(ETypes.CurrentHealthF, -3.5, 0, 120, 20)]),
+    DamageOvertime: new BuffObj("damage overtime", [new EffectObj(ETypes.CurrentHealthF, -3.5, 0, 60, 10)]),
     PurifyingFlames: new BuffObj("purifying flames", [new EffectObj(ETypes.CurrentHealthF, -25, 0, 2, 0)
-        , new EffectObj(ETypes.CurrentHealthF, 32 / (180 / 5), 0, 180, 5)]),
+        , new EffectObj(ETypes.CurrentHealthF, 3.2 / (180 / 5), 0, 180, 5)]),
 }
 /* #endregion */
 /* #region Damage System */
@@ -191,7 +191,7 @@ DamageSystem.prototype.CreateDamageObject = function (theDamage = 0, theHitstun 
  * @returns A deep clone of the input damage object.
  */
 DamageSystem.prototype.CloneDamageObject = function (obj) {
-    let newBuffObj = this.CloneBuffObject(obj.buffObj);
+    let newBuffObj = this.CloneBuffObject(obj.buff);
     let newObj  = this.CreateDamageObject(obj.damage, obj.hitstun, obj.damageType, newBuffObj);
     return newObj;
 }
@@ -248,7 +248,7 @@ DamageSystem.prototype.CloneEffectObject = function (obj) {
  * Applies the do effect to unit based on effect type
  */
 EffectObj.prototype.Do = function (unit) {
-    if (timeLeft <= 0) { break; }
+    if (this.timeLeft <= 0) { return; }
     if (this.interval > 0 || !this.isApplied) {
         isApplied = true;
         switch (this.effect) {
@@ -612,13 +612,11 @@ DamageObj.prototype.ApplyDamage = function (unit) {
  */
 DamageObj.prototype.ApplyBuff = function (unit) {
     let b;
-    console.log("applying buff");
-    console.log(this);
     if (typeof this.buff !== 'undefined' && this.buff !== null) {
         for (b in unit.buffObj) {
-            if (unit.name[b] === this.buff.name) { return; }
+            if (unit.buffObj[b].name === this.buff.name) { return; }
         }
-        console.log("Applied buff)");
+
         unit.buffObj.push(this.buff);
     }
 }
@@ -686,11 +684,12 @@ BuffObj.prototype.update = function (unit) {
         //this.effectList[e] is effectobj
         if (this.effectList[e].intervalTimer <= 0) {
             this.effectList[e].intervalTimer = e.interval;
-            this.effectList[e].operation(unit);
+            if (typeof this.effectList[e].operation === 'function'){
+                this.effectList[e].operation(unit);}
             this.effectList[e].Do(unit);
-            this.effectList[e].Undo(unit);
         } else { this.effectList[e].intervalTimer--; }
         this.effectList[e].timeLeft--;
+        this.effectList[e].Undo(unit);
     }
 }
 /* #endregion */
