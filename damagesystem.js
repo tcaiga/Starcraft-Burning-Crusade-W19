@@ -68,7 +68,7 @@ IN CONSTRUCTOR
     this.cooldownRate = 1;
     this.cooldownAdj = 0;//Calculated RER ABILITY
 NEW FUNCTION
-unit.prototype.ChangeHealth = (amount) => {
+unit.prototype.ChangeHealth = function (amount)  {
     if (amount > 0){
         //display healing animation
         //maybe have a health change threshold 
@@ -80,7 +80,7 @@ unit.prototype.ChangeHealth = (amount) => {
     }
     this.health += amount;
 }
-unit.prototype.isValidHit = (theDamageObj) => {
+unit.prototype.isValidHit = function (theDamageObj)  {
     let d;
     let y = true;
     for (d in this.damageObj){
@@ -111,12 +111,12 @@ IN UPDATE
     }
     for(dmgFlag in dmgRemove){//Removes flagged damage objects
         damageObj.splice(damageObj
-            .findIndex((element) => {return element === dmgFlag;})
+            .findIndex((element)  {return element === dmgFlag;})
             ,1);
     }
     for(buffFlag in buffRemove){//Removes flagged buff objects
         buffObj.splice(buffObj
-            .findIndex((element) => {return element === buffFlag;})
+            .findIndex((element)  {return element === buffFlag;})
             ,1);
     }
 *///END OF WHAT SHOULD BE ADDED TO UNIT OR HERO/MONSTER
@@ -253,8 +253,8 @@ function DamageSystem() {
  * @returns Damage Object
  */
 /* #endregion */
-DamageSystem.prototype.CreateDamageObject = (theDamage = 0, theHitstun = 0,
-    theDamageType = DTypes.None, theBuffObject = null) => {
+DamageSystem.prototype.CreateDamageObject = function (theDamage = 0, theHitstun = 0,
+    theDamageType = DTypes.None, theBuffObject = null) {
     return new DamageObj(theDamage, theHitstun, theDamageType, theBuffObject);
 }
 /* #region Create buff object description */
@@ -266,7 +266,7 @@ DamageSystem.prototype.CreateDamageObject = (theDamage = 0, theHitstun = 0,
  * @returns Buff Object
  */
 /* #endregion */
-DamageSystem.prototype.CreateBuffObject = (theName = "", theEffectList = []) => {
+DamageSystem.prototype.CreateBuffObject = function (theName = "", theEffectList = [])  {
     return new BuffObj(theName, theEffectList);
 }
 /* #region Create effect object description */
@@ -281,14 +281,14 @@ DamageSystem.prototype.CreateBuffObject = (theName = "", theEffectList = []) => 
  * @returns Effect Object
  */
 /* #endregion */
-DamageSystem.prototype.CreateEffectObject = (theEffect = ETypes.None, theDo = 0
-    , theUndo = 0, theDuration = 0, theInterval = 0, theOperation) => {
+DamageSystem.prototype.CreateEffectObject = function (theEffect = ETypes.None, theDo = 0
+    , theUndo = 0, theDuration = 0, theInterval = 0, theOperation)  {
     return new EffectObj(theEffect, theDo, theUndo, theDuration, theInterval, theOperation);
 }
 /**
  * Applies the do effect to unit based on effect type
  */
-EffectObj.prototype.Do = (unit) => {
+EffectObj.prototype.Do = function (unit)  {
     if (timeLeft <= 0) { break; }
     if (this.interval > 0 || !this.isApplied) {
         isApplied = true;
@@ -438,7 +438,7 @@ function EffectObj(theEffect = ETypes.None, theDo = 0, theUndo = 0
 /**
  * Applies the undo effect on the unit based on effect type
  */
-EffectObj.prototype.Undo = (unit) => {
+EffectObj.prototype.Undo = function (unit)  {
     if (this.timeLeft <= 0 && !this.undone) {
         this.undone = true;
         //Undo
@@ -578,13 +578,15 @@ function DamageObj(dmg = 0, stun = 0,
     this.damageType = dmgType;
     this.buff = buffObj;
 }
+/* #region Apply damage description */
 //Consideres armor type and damage type and armor then removes health from unit.
 //Return: -healthChanged which is damage
 /**
  * Applies damage to unit based on armor types and damage types. unit.HealthChange(-damage).
  * @returns The -damage total.
  */
-DamageObj.prototype.ApplyDamage = (unit) => {
+/* #endregion */
+DamageObj.prototype.ApplyDamage = function (unit)  {
     let unitArmor = unit.armor;
     let unitArmorType = unit.armorType;
     let dmgMultiplier = 1;
@@ -634,7 +636,7 @@ DamageObj.prototype.ApplyDamage = (unit) => {
 /**
  * Adds the buff object of the damage object to the unit buff list.
  */
-DamageObj.prototype.ApplyBuff = (unit) => {
+DamageObj.prototype.ApplyBuff = function (unit)  {
     let b;
     for (b in unit.buffObj) {
         if (b.name === this.buff.name) { return; }
@@ -644,14 +646,16 @@ DamageObj.prototype.ApplyBuff = (unit) => {
 /**
  * Adds the hitstun of the damage object to the unit hitstun.
  */
-DamageObj.prototype.ApplyHitstun = (unit) => {
+DamageObj.prototype.ApplyHitstun = function (unit)  {
     unit.hitstun += this.hitstun;
 }
+/* #region Apply Effects description */
 /**
  * This is the main call to use when hitting a unit. Other functions should not be called.
  * @param unit The unit that the collision hits.
  */
-DamageObj.prototype.ApplyEffects = (unit) => {
+/* #endregion */
+DamageObj.prototype.ApplyEffects = function (unit)  {
     if (!unit.isValidHit(this)) { break; }//Needs to be added to unit types
     unit.damageObj.push(this);
     this.ApplyDamage(unit);
@@ -678,12 +682,14 @@ function BuffObj(theName = "", theEffectList = []) {
     this.duration = max;
     this.timeLeft = this.duration;
 }
+/* #region Buff object update description */
 /**
  * This function should be called by the unit in update.
  * This handles the updates of all effects in the buff object.
  * @param unit This should be 'this'.
  */
-BuffObj.prototype.update = (unit) => {
+/* #endregion */
+BuffObj.prototype.update = function (unit)  {
     this.timeLeft--;
     let e;
     for (e in this.effectList) {
