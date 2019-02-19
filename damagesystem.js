@@ -209,11 +209,13 @@ DamageSystem.prototype.CreateBuffObject = function (theName = "", theEffectList 
  * @returns A deep clone of the input buff object.
  */
 DamageSystem.prototype.CloneBuffObject = function (obj) {
+    if (obj === null || typeof obj === 'undefined') {return null;}
+    console.log(obj);
     let newList = [], a = 0;
     for (a in obj.effectList) {
         newList.push(this.CloneEffectObject(obj.effectList[a]));
     }
-    return new BuffObj(DamageSystem.CreateBuffObject(obj.name, newList));
+    return new BuffObj(this.CreateBuffObject(obj.name, newList));
 }
 /* #region Create effect object description */
 /**
@@ -235,6 +237,7 @@ DamageSystem.prototype.CreateEffectObject = function (theEffect = ETypes.None, t
  * @returns A clone of the input effect object.
  */
 DamageSystem.prototype.CloneEffectObject = function (obj) {
+    if (obj === null){return null;}
     return this.CreateEffectObject(obj.effect, obj.do, obj.undo, obj.duration
         , obj.interval, obj.operation);
 }
@@ -534,7 +537,8 @@ function DamageObj(dmg = 0, stun = 0,
     this.hitstun = stun;
     this.damageType = dmgType;
     this.buff = buffObj;
-    this.timeLeft = 50;
+    this.timeLeft = 30;
+    this.id = Math.random() * Math.pow(10,15);
 }
 /**
  * Updates the timeLeft of damage obj.
@@ -627,11 +631,20 @@ DamageObj.prototype.ApplyHitstun = function (unit) {
  */
 /* #endregion */
 DamageObj.prototype.ApplyEffects = function (unit) {
-    if (!unit.isValidHit(this)) { return; }//Needs to be added to unit types
-    unit.damageObj.push(this);
-    this.ApplyDamage(unit);
-    this.ApplyHitstun(unit);
-    this.ApplyBuff(unit);
+    let y = true;
+    for (d in unit.damageObj) {
+        if (unit.damageObj[d].id === this.id) {
+            y = false;
+            break;
+        }
+    }
+    if (!y) { return; }//Needs to be added to unit types
+    let tempDmg = DS.CloneDamageObject(this);
+    tempDmg.id = this.id;
+    unit.damageObj.push(tempDmg);
+    tempDmg.ApplyDamage(unit);
+    tempDmg.ApplyHitstun(unit);
+    tempDmg.ApplyBuff(unit);
 }
 /* #endregion */
 /* #region Buff Object */

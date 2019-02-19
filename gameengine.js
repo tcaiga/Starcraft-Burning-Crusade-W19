@@ -86,6 +86,7 @@ GameEngine.prototype.startInput = function () {
             that.keyShift = true;
         }
 
+        /* #region Movement */
         if (e.code === "KeyW") {
             that.keyW = true;
             that.movement = true;
@@ -99,6 +100,59 @@ GameEngine.prototype.startInput = function () {
             that.keyD = true;
             that.movement = true;
         }
+        /* #endregion */
+
+        /* #region Abilities */
+        if (that.playerPick == 0){// Mage
+            switch (e.code){
+                case "Digit1":
+                    //Ability 1
+                    break;
+                case "Digit2":
+                    //Ability 2
+                    break;
+                case "Digit3":
+                    //Ability 3
+                    break;
+                case "Digit4":
+                    //Ability 4
+                    break;
+            }
+        }
+        if (that.playerPick == 1){// Ranger
+            switch (e.code){
+                case "Digit1":
+                    //Ability 1
+                    break;
+                case "Digit2":
+                    //Ability 2
+                    break;
+                case "Digit3":
+                    //Ability 3
+                    break;
+                case "Digit4":
+                    //Ability 4
+                    break;
+            }
+        }
+        if (that.playerPick == 2){// Knight
+            switch (e.code){
+                case "Digit1":
+                    //Ability 1
+                    break;
+                case "Digit2":
+                    //Ability 2
+                    break;
+                case "Digit3":
+                    //Ability 3
+                    break;
+                case "Digit4":
+                    //Ability 4
+                    break;
+            }
+        }
+        /* #endregion */
+
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
@@ -163,8 +217,8 @@ GameEngine.prototype.draw = function () {
         var entitySubArr = this.entities[i];
         for (let j = 0; j < entitySubArr.length; j++) {
             var entity = this.entities[i][j];
-            if (!entity.removeFromWorld && (i <= 1 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth && 
-                entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {  
+            if (!entity.removeFromWorld && (i <= 1 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
+                entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.draw(this.ctx);
             }
         }
@@ -213,7 +267,7 @@ function Entity(game, x, y) {
     this.removeFromWorld = false;
 }
 
-Entity.prototype.update = function () {}
+Entity.prototype.update = function () { }
 
 Entity.prototype.draw = function (ctx) {
     if (this.game.showOutlines && this.radius) {

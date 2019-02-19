@@ -103,10 +103,10 @@ Player.prototype.update = function () {
     /* #endregion */
     /* #region Removal */
     for (dmgFlag in dmgRemove) {//Removes flagged damage objects
-        damageObj.splice(dmgRemove[dmgFlag],1);
+        this.damageObj.splice(dmgRemove[dmgFlag],1);
     }
     for (buffFlag in buffRemove) {//Removes flagged buff objects
-        buffObj.splice(buffRemove[buffFlag],1);
+        this.buffObj.splice(buffRemove[buffFlag],1);
     }
     /* #endregion */
     /* #endregion */
@@ -132,17 +132,6 @@ Player.prototype.collide = function (sprint) {
         //this.y += 2 * sprint;
         CAMERA.move("up");
     }
-}
-
-Player.prototype.isValidHit = function (theDamageObj) {
-    let d;
-    let y = true;
-    for (d in this.damageObj) {
-        if (this.damageObj[d] === theDamageObj) {
-            y = false;
-        }
-    }
-    return y;
 }
 
 Player.prototype.ChangeHealth = function (amount) {
@@ -233,17 +222,6 @@ Monster.prototype.update = function () {
     /* #endregion */
     /* #endregion */
 
-}
-
-Monster.prototype.isValidHit = function (theDamageObj) {
-    let d;
-    let y = true;
-    for (d in this.damageObj) {
-        if (this.damageObj[d] === theDamageObj) {
-            y = false;
-        }
-    }
-    return y;
 }
 
 Monster.prototype.ChangeHealth = function (amount) {
@@ -365,7 +343,7 @@ function Trap(game, spriteSheetUp, spriteSheetDown) {
     this.activated = false; // Determining if trap has been activated
     this.counter = 0; // Counter to calculate when trap related events should occur
     this.doAnimation = false; // Flag to determine if the spikes should animate or stay still
-
+    this.damageObj = DS.CreateDamageObject(20,0,DTypes.Normal,DS.CloneBuffObject(PremadeBuffs.Slow));
     this.game = game;
     this.ctx = game.ctx;
 
@@ -398,7 +376,9 @@ Trap.prototype.update = function () {
             // Nuke the player, but start the damage .13 ticks after they stand on the trap
             // This allows players to sprint accross taking 10 damage
             if (myPlayer.health > 0 && this.counter > 0.18) {
-                myPlayer.health -= 2;
+                //myPlayer.health -= 2;
+                this.damageObj.ApplyEffects(myPlayer);
+                console.log(myPlayer.health);
                 this.counter = .1;
             }
         }
