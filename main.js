@@ -662,6 +662,20 @@ Camera.prototype.move = function (direction) {
 }
 /* #endregion */
 
+// function Door (theGame, theX, theY) {} {
+//     this.x = theX;
+//     this.y = theY;
+//     this.ctx = theGame.ctx;
+// }
+
+// Door.prototype.update = function () {
+
+// }
+
+// Door.prototype.draw = function () {
+
+// }
+
 /* #region Menu */
 
 function Menu(game) {
@@ -824,7 +838,7 @@ AM.queueDownload("./img/fireball.png");
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
-    //document.body.style.backgroundColor = "black";
+    document.body.style.backgroundColor = "black";
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
 

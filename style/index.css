@@ -9,18 +9,26 @@ canvas {
 
 #sidebar {
     position: absolute;
-    left: 888px;
-    top: 39px;
+    right:0;
+    height:100%;
     border: 1px solid;
-    height: 512px;
-    width: 250px;
     background-color: darkgray;
+    float: right;
 }
 
 #wrapper {
     margin-left:auto;
     margin-right:auto;
     width:762px;
+}
+
+.spell {
+    display: inline;
+}
+
+.spellText {
+    display: inline;
+    color: green;
 }
 
 body {

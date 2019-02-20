@@ -19,7 +19,7 @@ window.requestAnimFrame = (function () {
 })();
 
 function GameEngine() {
-    //menu, non-interactable (terrain, hud),traps, projectiles, enemies, player
+    //menu, non-interactable (terrain),traps, projectiles, enemies, player
     this.entities = [[], [], [], [], [], []];
     this.ctx = null;
     this.surfaceWidth = null;
