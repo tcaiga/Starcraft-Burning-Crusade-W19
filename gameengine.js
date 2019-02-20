@@ -76,8 +76,9 @@ GameEngine.prototype.startInput = function () {
         } else {
             if (that.playerPick == 0) {
                 // Projectile
-                var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
-                    myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
+                var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
+                    myPlayer.x - (myPlayer.width / 2),
+                     myPlayer.y - (myPlayer.height / 2), x, y);
                 GAME_ENGINE.addEntity(projectile);
             }
         }
@@ -93,9 +94,6 @@ GameEngine.prototype.startInput = function () {
         if (e.code === "ShiftLeft") {
             that.keyShift = true;
         }
-        
-
-
         if (e.code === "KeyW") {
             that.keyW = true;
             that.movement = true;
@@ -157,6 +155,9 @@ GameEngine.prototype.reset = function () {
     SCENE_MANAGER.menu = this.entities[0][0];
     SCENE_MANAGER.insideMenu = true;
     this.playerPick = -1;
+    document.getElementById("health").innerHTML = "Health: ";
+    document.getElementById("speed").innerHTML = "Speed: " 
+    document.getElementById("location").innerHTML = "Location: " 
 }
 
 GameEngine.prototype.addEntity = function (entity) {

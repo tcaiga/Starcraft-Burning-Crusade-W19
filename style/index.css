@@ -4,22 +4,26 @@ canvas {
     margin-left:-266px;
     top:50%;
     margin-top:-266px;
-    border: 1px solid;
+    border: 1px solid black;
 }
 
 #sidebar {
     position: absolute;
     right:0;
     height:100%;
-    border: 1px solid;
-    background-color: darkgray;
+    background-color: #4C4C4C;
     float: right;
+    border: 1px solid black;
 }
 
 #wrapper {
     margin-left:auto;
     margin-right:auto;
     width:762px;
+}
+
+.abilities {
+    display: inline;
 }
 
 .spell {
@@ -33,6 +37,12 @@ canvas {
 
 body {
     margin:0;
+    color:white;
+    text-shadow:
+		-1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
