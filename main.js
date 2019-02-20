@@ -31,7 +31,7 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.abilityCD = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     this.cooldownRate = 1;
     this.cooldownAdj = 0;
-    this.isStunned = 0;
+    this.castTime = 0;
     this.game = game;
     this.ctx = game.ctx;
     this.baseMaxMovespeed = 2;
@@ -77,7 +77,7 @@ Player.prototype.update = function () {
 
     // Player movement controls
 
-    if (this.isStunned <= 0) {
+    if (this.castTime <= 0) {
         /* #region Player movement controls */
 
         if (GAME_ENGINE.keyW === true) {
@@ -96,7 +96,7 @@ Player.prototype.update = function () {
         }
         /* #endregion */
     } else {
-        this.isStunned--;
+        this.castTime--;
     }
     /* #region Abilities */
     let t;
@@ -204,7 +204,8 @@ Player.prototype.mageAbilities = function (number) {
             case 0:
                 //Ability at keyboard number 0
                 break;
-            case 1://Blink!
+            case 1:
+                /* #region Blink */
                 //Ability at keyboard number 1
                 let blinkDistance = 100;
                 let xDif = this.x - GAME_ENGINE.mouseX;
@@ -213,18 +214,28 @@ Player.prototype.mageAbilities = function (number) {
                 blinkDistance = Math.min(blinkDistance, mag);
                 let ss1Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
                 let ss2Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
-                let ss1 = new stillStand(this.game, ss1Ani, 10, this.x, this.y);
+                let ss1 = new StillStand(this.game, ss1Ani, 10, this.x, this.y);
                 this.x -= (xDif / mag) * blinkDistance + 12;
                 this.y -= (yDif / mag) * blinkDistance + 30;
-                let ss2 = new stillStand(this.game, ss2Ani, 10, this.x, this.y);
+                let ss2 = new StillStand(this.game, ss2Ani, 10, this.x, this.y);
                 this.dontdraw = 10;
-                this.isStunned = 10;
+                this.castTime = 10;
                 GAME_ENGINE.addEntity(ss1);
                 GAME_ENGINE.addEntity(ss2);
                 this.abilityCD[number] = 120;
+                /* #endregion */
                 break;
             case 2:
+                /* #region Greater Fireball */
                 //Ability at keyboard number 2
+                let tempPro = new GreaterFireball(GAME_ENGINE, AM.getAsset("./img/fireball.png"),AM.getAsset("./img/fireball.png")
+                            ,this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX,GAME_ENGINE.mouseY);
+                tempPro.targetType = EntityTypes.enemies;
+                tempPro.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
+                    this.width - 25, this.height - 25); // Hardcoded a lot of offset values
+                GAME_ENGINE.addEntity(tempPro);
+                this.abilityCD[number] = 12;
+                /* #endregion */
                 break;
             case 3:
                 //Ability at keyboard number 3
@@ -243,7 +254,7 @@ Player.prototype.knightAbilities = function (number) {
                 break;
             case 1://Sword Boomerang
                 //Ability at keyboard number 1
-                let tempPro = new swordBoomerang(GAME_ENGINE, AM.getAsset("./img/swordBoomerang.png"),
+                let tempPro = new SwordBoomerang(GAME_ENGINE, AM.getAsset("./img/SwordBoomerang.png"),
                     this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
                 tempPro.thrower = this;
                 GAME_ENGINE.addEntity(tempPro);
@@ -427,6 +438,7 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     this.angle = Math.atan2(this.yTar - this.originY, this.xTar - this.originX);
     this.counter = 0; // Counter to make damage consistent
     this.childUpdate;//function
+    this.childDraw;//function
     this.speed = 200;
     this.projectileSpeed = 7.5;
     this.damageObj = DS.CreateDamageObject(15, 0, DTypes.Normal, null);
@@ -440,9 +452,11 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
 }
 
 Projectile.prototype.draw = function () {
+    this.childDraw();
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x - 18, this.y - 4); // Hardcoded a lot of offset values
     GAME_ENGINE.ctx.strokeStyle = "yellow";
     GAME_ENGINE.ctx.strokeRect(this.x + 8, this.y + 25, this.width - 75, this.height - 75); // Hardcoded a lot of offset values
+    
 }
 
 Projectile.prototype.update = function () {
@@ -480,9 +494,10 @@ Projectile.prototype.update = function () {
 /* #endregion */
 
 /* #region Projetile Types */
-swordBoomerang.prototype = Projectile.prototype;
+SwordBoomerang.prototype = Projectile.prototype;
+GreaterFireball.prototype = Projectile.prototype;
 
-function swordBoomerang(game, spriteSheet, originX, originY, xTarget, yTarget) {
+function SwordBoomerang(game, spriteSheet, originX, originY, xTarget, yTarget) {
     Projectile.call(this, game, spriteSheet, originX, originY, xTarget, yTarget);
     this.projectileSpeed = 7;
     this.timeLeft = 60;
@@ -499,6 +514,57 @@ function swordBoomerang(game, spriteSheet, originX, originY, xTarget, yTarget) {
                 this.removeFromWorld = true;
             }
             this.angle = Math.atan2(this.y - this.thrower.y, this.x - this.thrower.x);
+        }
+    }
+}
+
+function GreaterFireball(game, spriteSheet,spriteSheetAoe, originX, originY, xTarget, yTarget, targetType){
+    Projectile.call(this, game, spriteSheet, originX, originY, xTarget, yTarget);
+    this.projectileSpeed = 5;
+    this.penetrative = false;
+    this.aoe = 100;//square
+    this.targetType = targetType;
+    this.animation = new Animation(spriteSheet, 100, 100, 1, .085, 8, true, 1);
+    this.animationAoe = new Animation(spriteSheetAoe, 100, 100, 1, .085, 8, true, 3.75);
+    this.damageObj = DS.CreateDamageObject(10,4,DTypes.Magic
+        , DS.CreateBuffObject("lesser burning"
+        ,[DS.CreateEffectObject(ETypes.CurrentHealthF,-2,0,40,2)]));
+    this.childDraw = function () {
+        GAME_ENGINE.ctx.strokeStyle = "blue";
+        let xPos,yPos,width = height = this.aoe;
+        xPos = this.x - 25;
+        yPos = this.y - 25;
+        GAME_ENGINE.ctx.strokeRect(xPos, yPos, this.aoe, this.aoe); // Hardcoded a lot of offset values
+    }
+    this.childUpdate = function () {
+        //GAME_ENGINE.ctx.strokeStyle = "blue";
+        let xPos,yPos,width = height = this.aoe;
+        xPos = this.x - 25;
+        yPos = this.y - 25;
+        //GAME_ENGINE.ctx.strokeRect(xPos, yPos, this.aoe, this.aoe); // Hardcoded a lot of offset values
+        console.log(GAME_ENGINE.entities);
+        console.log(this);
+        for (var i = 0; i < GAME_ENGINE.entities[this.targetType].length; i++) {
+            var entityCollide = GAME_ENGINE.entities[this.targetType][i];
+            console.log(entityCollide);
+            if (this.boundingbox.collide(entityCollide.boundingbox)) {
+                console.log("hit!");
+                if (GAME_ENGINE.entities[this.targetType][i].health > 0) {
+                    //Dont do damage here
+                    //Make still stand for fire blast aoe
+                    //** */temp
+                    console.log("hit");
+                    let aBox = new BoundingBox(xPos,yPos,width,height);
+                    let aCrow = new StillStand(this.game,this.animationAoe,6,this.x,this.y);
+                    let aHit = DS.CreateDamageObject(35,2,DTypes.Magic
+                            ,  DS.CreateBuffObject("burning"
+                            ,[ DS.CreateEffectObject(ETypes.CurrentHealthF,-3,0,40,2)]));
+                    aCrow.boundingbox = aBox;
+                    aCrow.penetrative = true;
+                    aCrow.entityHitType = EntityTypes.enemies;
+                    aCrow.damageObj = aHit;
+                }
+            }
         }
     }
 }
@@ -587,9 +653,13 @@ function RangerBoostPad(game, spriteSheetUp, spriteSheetDown) {
 /* #endregion */
 
 /* #region Still Stand */
-function stillStand(game, animation, duration, theX, theY) {
+function StillStand(game, animation, duration, theX, theY) {
     this.timeLeft = duration;
     this.ani = animation;
+    this.boundingbox;
+    this.damageObj;
+    this.entityHitType;
+    this.penetrative;
     this.game = game;
     this.ctx = game.ctx;
     this.x = theX;
@@ -597,13 +667,24 @@ function stillStand(game, animation, duration, theX, theY) {
     Entity.call(this, game, theX, theY);
 }
 
-stillStand.prototype.update = function () {
+StillStand.prototype.update = function () {
     this.timeLeft--;
     if (this.timeLeft <= 0) {
         this.removeFromWorld = true;
     }
+    if (typeof this.boundingbox !== 'undefined') {
+        for (var i = 0; i < GAME_ENGINE.entities[this.entityHitType].length; i++) {
+            var entityCollide = GAME_ENGINE.entities[this.entityHitType][i];
+            if (this.boundingbox.collide(entityCollide.boundingbox)) {
+                if (GAME_ENGINE.entities[this.entityHitType][i].health > 0) {
+                    this.damageObj.ApplyEffects(GAME_ENGINE.entities[this.entityHitType][i]);
+                    this.removeFromWorld = (this.penetrative) ? false : true;
+                }
+            }
+        }
+    }
 }
-stillStand.prototype.draw = function () {
+StillStand.prototype.draw = function () {
     this.ani.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
 }
 /* #endregion */
@@ -818,7 +899,7 @@ Animation.prototype.isDone = function () {
 AM.queueDownload("./img/ranger_run.png");
 // Knight
 AM.queueDownload("./img/knight_run.png");
-AM.queueDownload("./img/swordBoomerang.png");
+AM.queueDownload("./img/SwordBoomerang.png");
 // Mage
 AM.queueDownload("./img/mage_run.png");
 AM.queueDownload("./img/flash.png");
