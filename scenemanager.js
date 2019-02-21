@@ -27,22 +27,24 @@ SceneManager.prototype.menuSelection = function(x, y) {
 }
 
 SceneManager.prototype.gameInit = function () {
-    GAME_ENGINE.addEntity(new Background(GAME_ENGINE));
+    GAME_ENGINE.addEntity(new Background());
     // Monster
-    var devil = new Devil(GAME_ENGINE, AM.getAsset("./img/devil.png"));
-    var acolyte = new Acolyte(GAME_ENGINE, AM.getAsset("./img/acolyte.png"));
+    var devil = new Devil(AM.getAsset("./img/devil.png"));
+    var acolyte = new Acolyte(AM.getAsset("./img/acolyte.png"));
     
     GAME_ENGINE.addEntity(devil);
     GAME_ENGINE.addEntity(acolyte);
-
+    GAME_ENGINE.addEntity(new Door(480, 480, "right"));
     // Trap
-    var trap = new Trap(GAME_ENGINE, AM.getAsset("./img/floor_trap_up.png"),
+    var trap = new Trap(AM.getAsset("./img/floor_trap_up.png"),
     AM.getAsset("./img/floor_trap_down.png"));
     GAME_ENGINE.addEntity(trap);
     // Using players choice to grab the appropriate character sprite
     // Player
-    myPlayer = new Player(GAME_ENGINE, AM.getAsset(characterSprites[GAME_ENGINE.playerPick]["spritesheet"]), 
+    myPlayer = new Player(AM.getAsset(characterSprites[GAME_ENGINE.playerPick]["spritesheet"]), 
     characterSprites[GAME_ENGINE.playerPick]["xOffset"], characterSprites[GAME_ENGINE.playerPick]["yOffset"]);
     GAME_ENGINE.addEntity(myPlayer);
+    document.getElementById("health").innerHTML = "Health: 100";
+    document.getElementById("location").innerHTML = "Location: 1-1";
     GAME_ENGINE.addEntity(CAMERA);
 }
