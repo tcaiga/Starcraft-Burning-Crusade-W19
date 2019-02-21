@@ -107,10 +107,6 @@ function SceneManager() {
 
 SceneManager.prototype.menuSelection = function(x, y) {
     var classPicked = false;
-    console.log(x >= this.menu.mageButtonX);
-    console.log(x <= this.menu.mageButtonX + this.menu.classButtonW);
-    console.log(y >= this.menu.mageButtonY);
-    console.log(y <= this.menu.mageButtonY + this.menu.classButtonH);
     if(x >= this.menu.mageButtonX && x <= this.menu.mageButtonX + this.menu.mageWidth
         && y >= this.menu.mageButtonY && y <= this.menu.mageButtonY + this.menu.classButtonH) {
         classPicked = true;
