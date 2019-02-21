@@ -1,19 +1,19 @@
 canvas {
     position: absolute;
     left: 50%;
-    margin-left:-266px;
+    margin-left:-160px;
     top:50%;
-    margin-top:-266px;
-    border: 1px solid;
+    margin-top:-160px;
+    border: 1px solid black;
 }
 
 #sidebar {
     position: absolute;
     right:0;
     height:100%;
-    border: 1px solid;
-    background-color: darkgray;
+    background-color: #4C4C4C;
     float: right;
+    border: 1px solid black;
 }
 
 #wrapper {
@@ -22,17 +22,34 @@ canvas {
     width:762px;
 }
 
-.spell {
+.abilities {
     display: inline;
 }
 
-.spellText {
+
+.spell {
     display: inline;
-    color: green;
+    color: lightgreen;
+}
+
+#health {
+    display: inline;
+    color: lightgreen;
+}
+
+#speed {
+    display: inline;
+    color: lightgreen;
 }
 
 body {
     margin:0;
+    color:silver;
+    text-shadow:
+		-1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
