@@ -1,6 +1,8 @@
+/* #region Constants */
 const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
 const CAMERA = new Camera(GAME_ENGINE);
+const DS = new DamageSystem();
 
 var SCENE_MANAGER;
 var canvasWidth;
@@ -9,7 +11,9 @@ var myFloorNum = 1;
 var myRoomNum = 1;
 // Constant variable for tile size
 const TILE_SIZE = 16;
+/* #endregion */
 
+/* #region Player */
 function Player(game, spritesheet, xOffset, yOffset) {
     // Relevant for Player box
     this.width = 16;
@@ -22,10 +26,20 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.x = 60;
     this.y = 60;
     this.xScale = 1;
+    this.damageObjArr = [];
+    this.buffObj = [];
+    this.abilityCD = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    this.cooldownRate = 1;
+    this.cooldownAdj = 0;
+    this.isStunned = 0;
     this.game = game;
     this.ctx = game.ctx;
+    this.baseMaxMovespeed = 2;
+    this.maxMovespeedRatio = 1;
+    this.maxMovespeedAdj = 0;
     this.right = true;
     this.health = 100;
+    this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
         this.width, this.height); // **Temporary** Hard coded offset values.
 }
@@ -40,66 +54,231 @@ Player.prototype.draw = function () {
         xValue = -this.x - this.width;
     }
     //draw player character with no animation if player is not currently moving
-    if (!GAME_ENGINE.movement) {
-        this.animationIdle.drawFrameIdle(this.ctx, xValue, this.y);
+    if (this.dontdraw <= 0) {
+        if (!GAME_ENGINE.movement) {
+            this.animationIdle.drawFrameIdle(this.ctx, xValue, this.y);
+        } else {
+            this.animationRun.drawFrame(this.game.clockTick, this.ctx, xValue, this.y);
+        }
+
+        this.ctx.restore();
+        GAME_ENGINE.ctx.strokeStyle = "blue";
+        GAME_ENGINE.ctx.strokeRect(this.x + (this.xScale * 4), this.y + 13,
+            this.boundingbox.width, this.boundingbox.height);
     } else {
-        this.animationRun.drawFrame(this.game.clockTick, this.ctx, xValue, this.y);
+        this.dontdraw--;
     }
-    this.ctx.restore();
-    GAME_ENGINE.ctx.strokeStyle = "blue";
-    GAME_ENGINE.ctx.strokeRect(this.x + (this.xScale * 4), this.y + 13,
-        this.boundingbox.width, this.boundingbox.height);
 }
 
 Player.prototype.update = function () {
     // Conditional check to see if player wants to sprint or not
     var sprint = GAME_ENGINE.keyShift ? 1.75 : 1;
 
-    this.collide(sprint);
 
     // Player movement controls
-    if (GAME_ENGINE.keyW === true) {
-        this.y -= 2 * sprint;
+
+    if (this.isStunned <= 0) {
+        /* #region Player movement controls */
+
+        if (GAME_ENGINE.keyW === true) {
+            this.y -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+        }
+        if (GAME_ENGINE.keyA === true) {
+            this.x -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+            this.right = false;
+        }
+        if (GAME_ENGINE.keyS === true) {
+            this.y += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+        }
+        if (GAME_ENGINE.keyD === true) {
+            this.x += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+            this.right = true;
+        }
+        /* #endregion */
+    } else {
+        this.isStunned--;
     }
-    if (GAME_ENGINE.keyA === true) {
-        this.x -= 2 * sprint;
-        this.right = false;
+    /* #region Abilities */
+    let t;
+    for (t in this.abilityCD) {
+        this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
     }
-    if (GAME_ENGINE.keyS === true) {
-        this.y += 2 * sprint;
+    for (t in GAME_ENGINE.digit) {
+        if (GAME_ENGINE.digit[t]) {
+            switch (GAME_ENGINE.playerPick) {
+                case 0:
+                    this.mageAbilities(t);
+                    break;
+                case 1:
+                    this.rangerAbilities(t);
+                    break;
+                case 2:
+                    this.knightAbilities(t);
+                    break;
+            }
+        }
     }
-    if (GAME_ENGINE.keyD === true) {
-        this.x += 2 * sprint;
-        this.right = true;
-    }
+    /* #endregion */
+
 
     if (this.health <= 0) {
         this.game.reset();
     }
 
+    /* #region Damage system updates */
+    let dmgObj;
+    let dmgRemove = [];
+    let dmgFlag;
+    let buff;
+    let buffRemove = [];
+    let buffFlag;
+    /* #region Updates */
+    for (dmgObj in this.damageObjArr) {//Updates damage objects
+        this.damageObjArr[dmgObj].update();
+        if (this.damageObjArr[dmgObj].timeLeft <= 0) {
+            dmgRemove.push(dmgObj);//Adds to trash system
+        }
+    }
+    for (buff in this.buffObj) {//Updates buff objects
+        this.buffObj[buff].update(this);
+        if (this.buffObj[buff].timeLeft <= 0) {
+            buffRemove.push(buff);//Adds to trash system
+        }
+    }
+    /* #endregion */
+    /* #region Removal */
+    for (dmgFlag in dmgRemove) {//Removes flagged damage objects
+        this.damageObjArr.splice(dmgRemove[dmgFlag], 1);
+    }
+    for (buffFlag in buffRemove) {//Removes flagged buff objects
+        this.buffObj.splice(buffRemove[buffFlag], 1);
+    }
+    /* #endregion */
+    /* #endregion */
+
+
     this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
         this.width, this.height);
 }
 
-Player.prototype.collide = function (sprint) {
-    //* 2 is the offset for a 2x2 of tiles.
-    if (this.x + this.width + this.xOffset >= CAMERA.x + canvasWidth - TILE_SIZE * 2) {
-        //this.x += -2 * sprint;
-        CAMERA.move("right");
-    }
-    if (this.x + this.xOffset <= TILE_SIZE * 2) {
-        //this.x += 2 * sprint;
-        CAMERA.move("left");
-    }
-    if (this.y + this.yOffset + myPlayer.height >= canvasHeight - TILE_SIZE * 2) {
-        //this.y -= 2 * sprint;
-        CAMERA.move("down");
-    }
-    if (this.y + this.yOffset <= TILE_SIZE * 2) {
-        //this.y += 2 * sprint;
-        CAMERA.move("up");
+
+/* #region Player Ability functions */
+Player.prototype.rangerAbilities = function (number) {
+    if (this.abilityCD[number] <= 0) {
+        switch (parseInt(number)) {
+            case 0:
+                //Ability at keyboard number 0
+                break;
+            case 1://Create BoostPad
+                //Ability at keyboard number 1
+                let castDistance = 125;
+                let tempTrap = new RangerBoostPad(GAME_ENGINE, AM.getAsset("./img/floor_boostpad_on.png"),
+                    AM.getAsset("./img/floor_boostpad_off.png"));
+                let xDif, yDif, mag;
+                xDif = this.x - GAME_ENGINE.mouseX + 10;
+                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
+                castDistance = Math.min(mag, castDistance);
+
+                tempTrap.x = this.x - (xDif / mag) * castDistance;
+                tempTrap.y = this.y - (yDif / mag) * castDistance;
+                tempTrap.boundingbox = new BoundingBox(tempTrap.x, tempTrap.y, 20, 20);
+                GAME_ENGINE.addEntity(tempTrap);
+                this.abilityCD[number] = 60;
+                break;
+            case 2:
+                //Ability at keyboard number 2
+                break;
+            case 3:
+                //Ability at keyboard number 3
+                break;
+            case 4:
+                //Ability at keyboard number 4
+                break;
+        }
     }
 }
+Player.prototype.mageAbilities = function (number) {
+    if (this.abilityCD[number] <= 0) {
+        switch (parseInt(number)) {
+            case 0:
+                //Ability at keyboard number 0
+                break;
+            case 1://Blink!
+                //Ability at keyboard number 1
+                let blinkDistance = 100;
+                let xDif = this.x - GAME_ENGINE.mouseX;
+                let yDif = this.y - GAME_ENGINE.mouseY;
+                let mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
+                blinkDistance = Math.min(blinkDistance, mag);
+                let ss1Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
+                let ss2Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
+                let ss1 = new stillStand(this.game, ss1Ani, 10, this.x, this.y);
+                this.x -= (xDif / mag) * blinkDistance + 12;
+                this.y -= (yDif / mag) * blinkDistance + 30;
+                let ss2 = new stillStand(this.game, ss2Ani, 10, this.x, this.y);
+                this.dontdraw = 10;
+                this.isStunned = 10;
+                GAME_ENGINE.addEntity(ss1);
+                GAME_ENGINE.addEntity(ss2);
+                this.abilityCD[number] = 120;
+                break;
+            case 2:
+                //Ability at keyboard number 2
+                break;
+            case 3:
+                //Ability at keyboard number 3
+                break;
+            case 4:
+                //Ability at keyboard number 4
+                break;
+        }
+    }
+}
+Player.prototype.knightAbilities = function (number) {
+    if (this.abilityCD[number] <= 0) {
+        switch (parseInt(number)) {
+            case 0:
+                //Ability at keyboard number 0
+                break;
+            case 1://Sword Boomerang
+                //Ability at keyboard number 1
+                let tempPro = new swordBoomerang(GAME_ENGINE, AM.getAsset("./img/swordBoomerang.png"),
+                    this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
+                tempPro.thrower = this;
+                GAME_ENGINE.addEntity(tempPro);
+                this.abilityCD[number] = 60;
+                break;
+            case 2:
+                //Ability at keyboard number 2
+                break;
+            case 3:
+                //Ability at keyboard number 3
+                break;
+            case 4:
+                //Ability at keyboard number 4
+                break;
+        }
+    }
+}
+/* #endregion */
+
+Player.prototype.ChangeHealth = function (amount) {
+    if (amount > 0) {
+        //display healing animation
+        //maybe have a health change threshold 
+        //to actually have it display
+    } else if (amount < 0) {
+        //display damage animation
+        //maybe have a health change threshold 
+        //to actually have it display
+    }
+    this.health += amount;//Damage will come in as a negative value;
+}
+/* #endregion */
+
+/* #region Monster */
+/* #region Base Monster */
 
 function Monster(game, spritesheet) {
     Entity.call(this, game, 0, 350);
@@ -110,13 +289,14 @@ function Monster(game, spritesheet) {
     this.speed = 100;
     this.ctx = game.ctx;
     this.health = 100;
-
+    this.damageObjArr = [];
+    this.damageObj = DS.CreateDamageObject(20, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.HasteWeak));
+    this.buffObj = [];
     this.counter = 0;
 
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 }
-
 
 Monster.prototype.draw = function () {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
@@ -139,14 +319,61 @@ Monster.prototype.update = function () {
 
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         this.counter += this.game.clockTick;
+        this.damageObj.ApplyEffects(myPlayer);
         if (this.counter > .018 && myPlayer.health > 0) {
-            myPlayer.health -= 5;
+            //myPlayer.health -= 5;
         }
         this.counter = 0;
     }
-    
+
+    /* #region Damage system updates */
+    let dmgObj;
+    let dmgRemove = [];
+    let dmgFlag;
+    let buff;
+    let buffRemove = [];
+    let buffFlag;
+    /* #region Updates */
+    for (dmgObj in this.damageObjArr) {//Updates damage objects
+        this.damageObjArr[dmgObj].update();
+        if (this.damageObjArr[dmgObj].timeLeft <= 0) {
+            dmgRemove.push(dmgObj);//Adds to trash system
+        }
+    }
+    for (buff in this.buffObj) {//Updates buff objects
+        this.buffObj[buff].update(this);
+        if (this.buffObj[buff].timeLeft <= 0) {
+            buffRemove.push(buff);//Adds to trash system
+        }
+    }
+    /* #endregion */
+    /* #region Removal */
+    for (dmgFlag in dmgRemove) {//Removes flagged damage objects
+        this.damageObjArr.splice(dmgRemove[dmgFlag], 1);
+    }
+    for (buffFlag in buffRemove) {//Removes flagged buff objects
+        this.buffObj.splice(buffRemove[buffFlag], 1);
+    }
+    /* #endregion */
+    /* #endregion */
+
 }
 
+Monster.prototype.ChangeHealth = function (amount) {
+    if (amount > 0) {
+        //display healing animation
+        //maybe have a health change threshold 
+        //to actually have it display
+    } else if (amount < 0) {
+        //display damage animation
+        //maybe have a health change threshold 
+        //to actually have it display
+    }
+    this.health += amount;//Healing will come in as a positive number
+}
+/* #endregion */
+
+/* #region Monster Types */
 Devil.prototype = Monster.prototype;
 Acolyte.prototype = Monster.prototype;
 
@@ -157,7 +384,7 @@ function Devil(game, spritesheet) {
     this.height = 23;
     this.speed = 45;
     this.health = 200;
-    
+
     this.x = 250;
     this.y = 250;
 
@@ -167,7 +394,6 @@ function Devil(game, spritesheet) {
 
 function Acolyte(game, spritesheet) {
     Monster.call(this, game, spritesheet);
-    Acolyte.prototype = Monster.prototype;
     this.scale = 2;
     this.width = 16;
     this.height = 19;
@@ -181,7 +407,11 @@ function Acolyte(game, spritesheet) {
 
     this.counter = 0;
 }
+/* #endregion */
+/* #endregion */
 
+/* #region Projectile */
+/* #region Base Projectile */
 function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     this.width = 100;
     this.height = 100;
@@ -196,8 +426,11 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     // Determining where the projectile should go angle wise.
     this.angle = Math.atan2(this.yTar - this.originY, this.xTar - this.originX);
     this.counter = 0; // Counter to make damage consistent
-
+    this.childUpdate;//function
     this.speed = 200;
+    this.projectileSpeed = 7.5;
+    this.damageObj = DS.CreateDamageObject(15, 0, DTypes.Normal, null);
+    this.penetrative = false;
     this.ctx = game.ctx;
     Entity.call(this, game, originX, originY);
 
@@ -213,11 +446,13 @@ Projectile.prototype.draw = function () {
 }
 
 Projectile.prototype.update = function () {
-    var projectileSpeed = 7.5;
-
+    //var projectileSpeed = 7.5;
+    if (typeof this.childUpdate === 'function') {
+        this.childUpdate();
+    }
     // Generating the speed to move at target direction
-    var velY = Math.sin(this.angle) * projectileSpeed;
-    var velX = Math.cos(this.angle) * projectileSpeed;
+    var velY = Math.sin(this.angle) * this.projectileSpeed;
+    var velX = Math.cos(this.angle) * this.projectileSpeed;
     // Moving the actual projectile.
     this.x += velX;
     this.y += velY;
@@ -232,8 +467,8 @@ Projectile.prototype.update = function () {
         var entityCollide = GAME_ENGINE.entities[4][i];
         if (this.boundingbox.collide(entityCollide.boundingbox)) {
             if (GAME_ENGINE.entities[4][i].health > 0) {
-                GAME_ENGINE.entities[4][i].health -= 15;
-                this.removeFromWorld = true;
+                this.damageObj.ApplyEffects(GAME_ENGINE.entities[4][i]);
+                this.removeFromWorld = (this.penetrative) ? false : true;
             }
         }
     }
@@ -242,7 +477,36 @@ Projectile.prototype.update = function () {
         this.width - 75, this.height - 75); // Hardcoded a lot of offset values
 
 }
+/* #endregion */
 
+/* #region Projetile Types */
+swordBoomerang.prototype = Projectile.prototype;
+
+function swordBoomerang(game, spriteSheet, originX, originY, xTarget, yTarget) {
+    Projectile.call(this, game, spriteSheet, originX, originY, xTarget, yTarget);
+    this.projectileSpeed = 7;
+    this.timeLeft = 60;
+    this.thrower = null;
+    this.speedChange = -7 / 30;
+    this.penetrative = true;
+    this.damageObj = DS.CreateDamageObject(45, 0, DTypes.Slashing
+        , DS.CloneBuffObject(PremadeBuffs.DamageOvertime));
+    this.childUpdate = function () {
+        this.projectileSpeed += this.speedChange;
+        this.timeLeft--;
+        if (this.thrower !== null && this.timeLeft < 30) {
+            if (Math.abs(this.thrower.x - this.x) < 5 && Math.abs(this.thrower.y - this.y) < 5) {
+                this.removeFromWorld = true;
+            }
+            this.angle = Math.atan2(this.y - this.thrower.y, this.x - this.thrower.x);
+        }
+    }
+}
+/* #endregion */
+/* #endregion */
+
+/* #region Trap */
+/* #region Base Trap */
 function Trap(game, spriteSheetUp, spriteSheetDown) {
     this.animationUp = new Animation(spriteSheetUp, 16, 16, 1, 0.13, 4, true, 1.25);
     this.animationDown = new Animation(spriteSheetDown, 16, 16, 1, 0.13, 4, true, 1.25);
@@ -252,7 +516,7 @@ function Trap(game, spriteSheetUp, spriteSheetDown) {
     this.activated = false; // Determining if trap has been activated
     this.counter = 0; // Counter to calculate when trap related events should occur
     this.doAnimation = false; // Flag to determine if the spikes should animate or stay still
-
+    this.damageObj = DS.CreateDamageObject(10, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.SlowStrong));
     this.game = game;
     this.ctx = game.ctx;
 
@@ -274,6 +538,13 @@ Trap.prototype.draw = function () {
 }
 
 Trap.prototype.update = function () {
+    if (typeof this.lifeTime !== 'undefined') {
+        if (this.lifeTime <= 0) {
+            this.removeFromWorld = true;
+        } else {
+            this.lifeTime--;
+        }
+    }
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         // Remember what tick the collision happened
         this.counter += this.game.clockTick;
@@ -285,7 +556,9 @@ Trap.prototype.update = function () {
             // Nuke the player, but start the damage .13 ticks after they stand on the trap
             // This allows players to sprint accross taking 10 damage
             if (myPlayer.health > 0 && this.counter > 0.18) {
-                myPlayer.health -= 2;
+                //myPlayer.health -= 2;
+                this.damageObj.ApplyEffects(myPlayer);
+                //console.log(myPlayer);
                 this.counter = .1;
             }
         }
@@ -296,7 +569,46 @@ Trap.prototype.update = function () {
         this.counter = 0;
     }
 }
+/* #endregion */
 
+/* #region Trap Types */
+RangerBoostPad.prototype = Trap.prototype;
+
+function RangerBoostPad(game, spriteSheetUp, spriteSheetDown) {
+    Trap.call(this, game, spriteSheetUp, spriteSheetDown);
+    this.damageObj = DS.CreateDamageObject(0, 0, DTypes.None
+        , DS.CreateBuffObject("ranger boost", [
+            DS.CreateEffectObject(ETypes.MoveSpeedR, Math.pow(1.1, 10), 1, 1, 0),
+            DS.CreateEffectObject(ETypes.MoveSpeedR, 1 / 1.1, 1, 100, 10)
+        ]));
+    this.lifeTime = 120;
+}
+/* #endregion */
+/* #endregion */
+
+/* #region Still Stand */
+function stillStand(game, animation, duration, theX, theY) {
+    this.timeLeft = duration;
+    this.ani = animation;
+    this.game = game;
+    this.ctx = game.ctx;
+    this.x = theX;
+    this.y = theY;
+    Entity.call(this, game, theX, theY);
+}
+
+stillStand.prototype.update = function () {
+    this.timeLeft--;
+    if (this.timeLeft <= 0) {
+        this.removeFromWorld = true;
+    }
+}
+stillStand.prototype.draw = function () {
+    this.ani.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+}
+/* #endregion */
+
+/* #region BoundingBox */
 // BoundingBox for entities to detect collision.
 function BoundingBox(x, y, width, height) {
     this.x = x;
@@ -314,19 +626,24 @@ BoundingBox.prototype.collide = function (oth) {
     if (this.right > oth.left && this.left < oth.right && this.top < oth.bottom && this.bottom > oth.top) return true;
     return false;
 }
+/* #endregion */
 
 function Terrain(game) {
 
 }
 
+/* #region Camera */
 function Camera(game) {
     this.x = 0;
     this.y = 0;
 }
 
-Camera.prototype.update = function () { }
+Camera.prototype.update = function () {
 
-Camera.prototype.draw = function () {}
+}
+
+Camera.prototype.draw = function () { }
+
 
 Camera.prototype.move = function (direction) {
     if (direction === "right") {
@@ -340,9 +657,26 @@ Camera.prototype.move = function (direction) {
         myPlayer.y = canvasHeight + TILE_SIZE * 2 + 60 + CAMERA.y;
     } else if (direction === "down") {
         this.y += canvasHeight;
-        myPlayer.y = 60 + CAMERA.y; 
+        myPlayer.y = 60 + CAMERA.y;
     }
 }
+/* #endregion */
+
+// function Door (theGame, theX, theY) {} {
+//     this.x = theX;
+//     this.y = theY;
+//     this.ctx = theGame.ctx;
+// }
+
+// Door.prototype.update = function () {
+
+// }
+
+// Door.prototype.draw = function () {
+
+// }
+
+/* #region Menu */
 
 function Menu(game) {
     this.ctx = game.ctx;
@@ -376,8 +710,9 @@ Menu.prototype.createClassButton = function (text, xPosition) {
     this.ctx.fillStyle = "white";
     this.ctx.fillText(text, xPosition, this.classButtonY + this.classButtonH);
 }
+/* #endregion */
 
-
+/* #region Background */
 function Background(game) {
     this.x = 0;
     this.y = 0;
@@ -413,7 +748,7 @@ function Background(game) {
 Background.prototype.draw = function () {
     for (let i = 0; i < this.mapLength; i++) {
         for (let j = 0; j < this.mapLength; j++) {
-            this.tile = (this.map[i * this.mapLength + j] == 1) ? this.zero : this.one;
+            this.tile = (this.map[i * this.mapLength + j] == 1) ? this.one : this.zero;
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2);
             this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2 + TILE_SIZE);
@@ -423,7 +758,9 @@ Background.prototype.draw = function () {
 };
 
 Background.prototype.update = function () { };
+/* #endregion */
 
+/* #region Animation */
 function Animation(spriteSheet, frameWidth, frameHeight,
     sheetWidth, frameDuration, frames, loop, scale) {
     this.spriteSheet = spriteSheet;
@@ -473,16 +810,24 @@ Animation.prototype.currentFrame = function () {
 Animation.prototype.isDone = function () {
     return (this.elapsedTime >= this.totalTime);
 }
+/* #endregion */
+
+/* #region Download queue and download */
 
 // Ranger
 AM.queueDownload("./img/ranger_run.png");
 // Knight
 AM.queueDownload("./img/knight_run.png");
+AM.queueDownload("./img/swordBoomerang.png");
 // Mage
 AM.queueDownload("./img/mage_run.png");
+AM.queueDownload("./img/flash.png");
 // Floor Trap
 AM.queueDownload("./img/floor_trap_up.png");
 AM.queueDownload("./img/floor_trap_down.png");
+// Boostpad
+AM.queueDownload("./img/floor_boostpad_on.png");
+AM.queueDownload("./img/floor_boostpad_off.png");
 // Devil
 AM.queueDownload("./img/devil.png");
 // Acolyte
@@ -493,7 +838,7 @@ AM.queueDownload("./img/fireball.png");
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
-    //document.body.style.backgroundColor = "black";
+    document.body.style.backgroundColor = "black";
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
 
@@ -503,3 +848,4 @@ AM.downloadAll(function () {
     GAME_ENGINE.addEntity(new Menu(GAME_ENGINE));
     SCENE_MANAGER = new SceneManager();
 });
+/* #endregion */

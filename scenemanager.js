@@ -44,4 +44,5 @@ SceneManager.prototype.gameInit = function () {
     myPlayer = new Player(GAME_ENGINE, AM.getAsset(characterSprites[GAME_ENGINE.playerPick]["spritesheet"]), 
     characterSprites[GAME_ENGINE.playerPick]["xOffset"], characterSprites[GAME_ENGINE.playerPick]["yOffset"]);
     GAME_ENGINE.addEntity(myPlayer);
+    GAME_ENGINE.addEntity(CAMERA);
 }
