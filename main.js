@@ -61,9 +61,11 @@ Player.prototype.draw = function () {
         }
 
         this.ctx.restore();
+       if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = "blue";
-        GAME_ENGINE.ctx.strokeRect(this.x + (this.xScale * 4), this.y + 13,
+        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
             this.boundingbox.width, this.boundingbox.height);
+       }
     } else {
         this.dontdraw--;
     }
@@ -101,6 +103,18 @@ Player.prototype.update = function () {
     let t;
     for (t in this.abilityCD) {
         this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
+        //ignoring index 0 of cd array
+        if (t > 0) {
+            var spellTextHTML = document.getElementById("spellText" + t);
+            //display if spell is ready to use or not
+            if (this.abilityCD[t] > 0) {
+                spellTextHTML.innerHTML = "- " + this.abilityCD[t] / 10;
+                spellTextHTML.style.color = "red";
+            } else {
+                spellTextHTML.innerHTML = "- Ready";
+                spellTextHTML.style.color = "green";
+            }
+        }
     }
     for (t in GAME_ENGINE.digit) {
         if (GAME_ENGINE.digit[t]) {
@@ -300,13 +314,16 @@ function Monster(spritesheet) {
 
 Monster.prototype.draw = function () {
     this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
-    GAME_ENGINE.ctx.strokeStyle = "red";
-    GAME_ENGINE.ctx.strokeRect(this.x, this.y, this.width * this.scale, this.height * this.scale);
+    if (GAME_ENGINE.debug) {
+        GAME_ENGINE.ctx.strokeStyle = "red";
+    GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+         this.boundingbox.width, this.boundingbox.height);
+    }
 
     // Displaying Monster health
     this.ctx.font = "15px Arial";
     this.ctx.fillStyle = "white";
-    this.ctx.fillText("Health: " + this.health, this.x - 5, this.y - 5);
+    this.ctx.fillText("Health: " + this.health, this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
 }
 
 Monster.prototype.update = function () {
@@ -416,15 +433,14 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget) {
     this.width = 100;
     this.height = 100;
     this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
-
-    this.originX = originX;
-    this.originY = originY;
+    
+    this.x = originX - CAMERA.x;
+    this.y = originY - CAMERA.y;
 
     this.xTar = xTarget - 20;
     this.yTar = yTarget - 35;
-
     // Determining where the projectile should go angle wise.
-    this.angle = Math.atan2(this.yTar - this.originY, this.xTar - this.originX);
+    this.angle = Math.atan2(this.yTar - this.y, this.xTar - this.x);
     this.counter = 0; // Counter to make damage consistent
     this.childUpdate;//function
     this.speed = 200;
@@ -441,8 +457,11 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget) {
 
 Projectile.prototype.draw = function () {
     this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x - 18, this.y - 4); // Hardcoded a lot of offset values
-    GAME_ENGINE.ctx.strokeStyle = "yellow";
-    GAME_ENGINE.ctx.strokeRect(this.x + 8, this.y + 25, this.width - 75, this.height - 75); // Hardcoded a lot of offset values
+    if (GAME_ENGINE.debug) {
+        GAME_ENGINE.ctx.strokeStyle = "yellow";
+        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+             this.boundingbox.width, this.boundingbox.height); 
+    }
 }
 
 Projectile.prototype.update = function () {
@@ -457,7 +476,8 @@ Projectile.prototype.update = function () {
     this.x += velX;
     this.y += velY;
 
-    if (this.x < 16 || this.x > 460 || this.y < 0 || this.y > 430) this.removeFromWorld = true;
+    if (this.x - CAMERA.x < 16  || this.x - CAMERA.x > 460
+        || this.y - CAMERA.y < 0 || this.y - CAMERA.y > 430) this.removeFromWorld = true;
     Entity.prototype.update.call(this);
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
@@ -532,8 +552,10 @@ Trap.prototype.draw = function () {
             this.animationDown.drawFrameIdle(this.ctx, this.x, this.y);
         }
     }
-    GAME_ENGINE.ctx.strokeStyle = "red";
-    GAME_ENGINE.ctx.strokeRect(this.x, this.y, 20, 20); // **Temporary** Hard coded offset values
+    if (GAME_ENGINE.debug) {
+        GAME_ENGINE.ctx.strokeStyle = "red";
+        GAME_ENGINE.ctx.strokeRect(this.x, this.y, 20, 20); // **Temporary** Hard coded offset values
+    }
 }
 
 Trap.prototype.update = function () {
@@ -608,8 +630,8 @@ stillStand.prototype.draw = function () {
 /* #region BoundingBox */
 // BoundingBox for entities to detect collision.
 function BoundingBox(x, y, width, height) {
-    this.x = x;
-    this.y = y;
+    this.x = x - CAMERA.x;
+    this.y = y - CAMERA.y;
     this.width = width;
     this.height = height;
 
@@ -631,11 +653,9 @@ function Camera() {
     this.y = 0;
 }
 
-Camera.prototype.update = function () {
+Camera.prototype.update = function () {}
 
-}
-
-Camera.prototype.draw = function () { }
+Camera.prototype.draw = function () {}
 
 
 Camera.prototype.move = function (direction) {
