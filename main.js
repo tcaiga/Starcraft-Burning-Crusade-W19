@@ -914,7 +914,7 @@ Background.prototype.draw = function () {
             // Drawing doors
             if (this.drawFaceCount < 6) {
                 if (this.face[this.drawFaceCount] === 0) {
-                    GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320 + 0, "up"));
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320, "up"));
                     console.log("Door Up");
                 } else if (this.face[this.drawFaceCount] === 1) {
                     GAME_ENGINE.addEntity(new Door(i * 320 + 304, j * 320 + 144, "right"));
@@ -923,7 +923,7 @@ Background.prototype.draw = function () {
                     GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320 + 304, "down"));
                     console.log("Door Down");
                 } else if (this.face[this.drawFaceCount] === 3) {
-                    GAME_ENGINE.addEntity(new Door(i * 320 + 0, j * 320 + 144, "left"));
+                    GAME_ENGINE.addEntity(new Door(i * 320, j * 320 + 144, "left"));
                     console.log("Door Left");
                 }
                 this.drawFaceCount++;
