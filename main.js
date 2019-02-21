@@ -165,7 +165,7 @@ Player.prototype.update = function () {
 
 /* #region Player Ability functions */
 let castDistance, xDif, yDif, mag, xPos, yPos
-    , dmg, aoe, ss1, ss2, ss1Ani, ss2Ani;
+    , dmg, aoe, ss1, ss2, ss1Ani, ss2Ani, tempPro = {};
 Player.prototype.rangerAbilities = function (number) {
     if (this.abilityCD[number] <= 0) {
         switch (parseInt(number)) {
@@ -265,14 +265,16 @@ Player.prototype.mageAbilities = function (number) {
                 /* #endregion */
                 break;
             case 3:
-                //Ability at keyboard number 3
                 /* #region Flame Breath */
-                //15 projectiles that do 10 damage in a randomized cone based on where the user points.
-                //cd 75, projectile range 75, spread of hopefully 120, projectile speed 3-7
-                //Randomize speed and spread on the firebreath function obj.
-
-
-                
+                //Ability at keyboard number 3
+                let tempPro2;
+                for (let i = 0; i < 30; i++){
+                    tempPro2 = new FlameBreathBolt(GAME_ENGINE, AM.getAsset("./img/flame_breath_bolt.png")
+                    ,this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
+                    GAME_ENGINE.addEntity(tempPro2);
+                }
+                this.castTime = 8;
+                this.abilityCD[number] = 75;
                 /* #endregion */
                 break;
             case 4:
@@ -290,7 +292,7 @@ Player.prototype.knightAbilities = function (number) {
             case 1:
                 /* #region Sword Boomerang */
                 //Ability at keyboard number 1
-                let tempPro = new SwordBoomerang(GAME_ENGINE, AM.getAsset("./img/SwordBoomerang.png"),
+                tempPro = new SwordBoomerang(GAME_ENGINE, AM.getAsset("./img/SwordBoomerang.png"),
                     this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
                 tempPro.thrower = this;
                 GAME_ENGINE.addEntity(tempPro);
@@ -505,6 +507,8 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     this.damageObj = DS.CreateDamageObject(15, 0, DTypes.Normal, null);
     this.penetrative = false;
     this.ctx = game.ctx;
+    this.aniX = originX,
+    this.aniY = originY;
     Entity.call(this, game, originX, originY);
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
@@ -514,9 +518,9 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
 
 Projectile.prototype.draw = function () {
     (typeof this.childDraw === 'function') ? this.childDraw() : null;
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x - 18, this.y - 4); // Hardcoded a lot of offset values
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.aniX - 18, this.aniY - 4); // Hardcoded a lot of offset values
     GAME_ENGINE.ctx.strokeStyle = "yellow";
-    GAME_ENGINE.ctx.strokeRect(this.x + 8, this.y + 25, this.width - 75, this.height - 75); // Hardcoded a lot of offset values
+    //GAME_ENGINE.ctx.strokeRect(this.x + 8, this.y + 25, this.width - 75, this.height - 75); // Hardcoded a lot of offset values
 
 }
 
@@ -529,6 +533,8 @@ Projectile.prototype.update = function () {
     // Moving the actual projectile.
     this.x += velX;
     this.y += velY;
+    this.aniX += velX,
+    this.aniY += velY;
 
     if (this.x < 16 || this.x > 460 || this.y < 0 || this.y > 430) this.removeFromWorld = true;
     Entity.prototype.update.call(this);
@@ -556,6 +562,7 @@ Projectile.prototype.update = function () {
 /* #region Projetile Types */
 SwordBoomerang.prototype = Projectile.prototype;
 GreaterFireball.prototype = Projectile.prototype;
+FlameBreathBolt.prototype = Projectile.prototype;
 
 function SwordBoomerang(game, spriteSheet, originX, originY, xTarget, yTarget) {
     Projectile.call(this, game, spriteSheet, originX, originY, xTarget, yTarget);
@@ -605,6 +612,31 @@ function GreaterFireball(game, spriteSheet, spriteSheetAoe, originX, originY, xT
         GAME_ENGINE.addEntity(aCrow);
     }
 
+}
+
+function FlameBreathBolt(game, spriteSheet, originX, originY, xTarget, yTarget) {
+    Projectile.call(this, game, spriteSheet, originX, originY, xTarget, yTarget);
+    this.xTar = xTarget - 20;
+    this.yTar = yTarget - 35;
+    this.range = 90;
+    this.damageObj = DS.CreateDamageObject(2.25, 0, DTypes.Magic);
+    this.animation = new Animation(spriteSheet, 8, 8, 1, .084, 4, true, 1);
+    this.aniX += 34;
+    this.aniY += 38;
+    // Determining where the projectile should go angle wise.
+    //radians
+    let converter = Math.PI/360;
+    let spread = 90;
+    this.angle = Math.atan2(this.yTar - this.originY, this.xTar - this.originX);
+    this.angle += spread*converter*Math.random()*((Math.random() - 0.5 >= 0) ? 1 : -1);
+    this.projectileSpeed = Math.random()*5 + 2;
+    this.timeLeft = this.range/this.projectileSpeed;
+    this.childUpdate = function () {
+        this.timeLeft--;
+        if (this.timeLeft <= 0){
+            this.removeFromWorld = true;
+        }
+    }
 }
 /* #endregion */
 /* #endregion */
@@ -948,6 +980,7 @@ AM.queueDownload("./img/Shield Flash.png");
 // Mage
 AM.queueDownload("./img/mage_run.png");
 AM.queueDownload("./img/flash.png");
+AM.queueDownload("./img/flame_breath_bolt.png");
 // Floor Trap
 AM.queueDownload("./img/floor_trap_up.png");
 AM.queueDownload("./img/floor_trap_down.png");
