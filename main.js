@@ -418,11 +418,6 @@ Monster.prototype.update = function () {
             // get the player's coordiantes
             var tarX = myPlayer.x;
             var tarY = myPlayer.y;
-
-            // create a projectile targeted at the player's location
-            var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
-                this.x - (this.width / 2), this.y - (this.height / 2), tarX, tarY);
-            this.game.addEntity(projectile);
         }
         // if we're in range of a player, we can continue to cast at them (based on a cooldown)
         // otherwise we'd just cast when a player's bounding box collides with their vision box.
@@ -431,10 +426,12 @@ Monster.prototype.update = function () {
             this.castCooldown += 1
             // reset after 45 ticks and then cast again
             if (this.castCooldown > 45) {
+                console.log(this.castCoooldown);
                 this.castCooldown = 0;
-                var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
+                var projectile = new Projectile(AM.getAsset("./img/fireball.png", 4),
                     this.x - (this.width / 2), this.y - (this.height / 2), tarX, tarY);
-                this.game.addEntity(projectile);
+                GAME_ENGINE.addEntity(projectile);
+                projectile.penetrative = true;
             }
         }
     }
@@ -518,8 +515,8 @@ function Acolyte(spritesheet) {
 
     this.animation = new Animation(spritesheet, this.width, this.height, 64, 0.15, 4, true, this.scale);
     
-    this.x = 100;
-    this.y = 100;
+    this.x = 200;
+    this.y = 200;
 
     this.counter = 0;
 }
@@ -528,7 +525,9 @@ function Acolyte(spritesheet) {
 
 /* #region Projectile */
 /* #region Base Projectile */
-function Projectile(spriteSheet, originX, originY, xTarget, yTarget) {
+function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) {
+    this.origin = belongsTo;
+
     this.width = 100;
     this.height = 100;
     this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
@@ -582,11 +581,21 @@ Projectile.prototype.update = function () {
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
         this.width - 75, this.height - 75); // **Temporary** Hard coded offset values.
 
-    for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
-        var entityCollide = GAME_ENGINE.entities[4][i];
-        if (this.boundingbox.collide(entityCollide.boundingbox)) {
-            if (GAME_ENGINE.entities[4][i].health > 0) {
-                this.damageObj.ApplyEffects(GAME_ENGINE.entities[4][i]);
+    if (this.origin == 5) {
+        for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
+            var entityCollide = GAME_ENGINE.entities[4][i];
+            if (this.boundingbox.collide(entityCollide.boundingbox)) {
+                if (GAME_ENGINE.entities[4][i].health > 0) {
+                    this.damageObj.ApplyEffects(GAME_ENGINE.entities[4][i]);
+                    this.removeFromWorld = (this.penetrative) ? false : true;
+                }
+            }
+        }
+    }
+    else {
+        if (this.boundingbox.collide(myPlayer.boundingbox)) {
+            if (myPlayer.health > 0) {
+                this.damageObj.ApplyEffects(myPlayer);
                 this.removeFromWorld = (this.penetrative) ? false : true;
             }
         }
@@ -602,7 +611,7 @@ Projectile.prototype.update = function () {
 swordBoomerang.prototype = Projectile.prototype;
 
 function swordBoomerang(spriteSheet, originX, originY, xTarget, yTarget) {
-    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget);
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, 5/* same number assignment as the ent array*/);
     this.projectileSpeed = 7;
     this.timeLeft = 60;
     this.thrower = null;
