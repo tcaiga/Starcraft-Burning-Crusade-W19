@@ -288,7 +288,10 @@ Player.prototype.ChangeHealth = function (amount) {
 
 function Monster(game, spritesheet) {
     Entity.call(this, game, 0, 350);
+    this.visionWidth = 100
+    this.visionHeight = 100;
     this.ticksSinceLastHit = 0;
+    this.ranged = false;
     this.pause = false;
     this.scale = 1;
     this.width = 40;
@@ -302,6 +305,8 @@ function Monster(game, spritesheet) {
     this.buffObj = [];
     this.counter = 0;
 
+    this.visionBox = new BoundingBox(this.x, this.y,
+        this.visionWidth * this.scale, this.visionHeight * this.scale);
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 }
@@ -352,15 +357,29 @@ Monster.prototype.update = function () {
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 
+    this.visionBox = new BoundingBox(this.x, this.y,
+        this.visionWidth * this.scale * 5, this.visionHeight * this.scale * 5);
+    
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         this.counter += this.game.clockTick;
         this.damageObj.ApplyEffects(myPlayer);
         this.pause = true;
-        console.log(this.pause);
         if (this.counter > .018 && myPlayer.health > 0) {
             //player.health -= 5;
         }
         this.counter = 0;
+    }
+
+    if (this.ranged) {
+        if (this.visionBox.collide(myPlayer.boundingbox)) {
+            this.pause = true;
+            var tarX = myPlayer.x;
+            var tarY = myPlayer.y;
+
+            var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
+                this.x - (this.width / 2), this.y - (this.height / 2), tarX, tarY);
+            this.game.addEntity(projectile);
+        }
     }
 
 
@@ -438,9 +457,10 @@ function Acolyte(game, spritesheet) {
     this.height = 19;
     this.speed = 25;
     this.health = 150;
+    this.ranged = true;
 
     this.animation = new Animation(spritesheet, this.width, this.height, 64, 0.15, 4, true, this.scale);
-
+    
     this.x = 100;
     this.y = 100;
 
