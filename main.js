@@ -175,7 +175,7 @@ Player.prototype.rangerAbilities = function (number) {
             case 1:
                 /* #region Boostpad */
                 //Ability at keyboard number 1
-                castDistance = 125;
+                castDistance = 100;
                 let tempTrap = new RangerBoostPad(GAME_ENGINE, AM.getAsset("./img/floor_boostpad_on.png"),
                     AM.getAsset("./img/floor_boostpad_off.png"));
                 xDif, yDif, mag;
@@ -212,7 +212,7 @@ Player.prototype.rangerAbilities = function (number) {
                 ss1.damageObj = dmg;
                 ss1.penetrative = true;
                 GAME_ENGINE.addEntity(ss1);
-                this.abilityCD[number] = 12;
+                this.abilityCD[number] = 120;
                 /* #endregion */
                 break;
             case 3:
@@ -318,7 +318,7 @@ Player.prototype.knightAbilities = function (number) {
                 ss1.onDraw = function () {
                     //console.log(xPos - aoe/2, yPos - aoe/2, aoe, aoe);
                     this.game.ctx.strokeStyle = "yellow";
-                    this.game.ctx.strokeRect(xPos + 5, yPos + 2, aoe, aoe);
+                    //this.game.ctx.strokeRect(xPos + 5, yPos + 2, aoe, aoe);
                 }
                 ss1.damageObj = DS.CreateDamageObject(21, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.Stun));
                 ss1.penetrative = true;
