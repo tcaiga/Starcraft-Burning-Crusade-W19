@@ -288,11 +288,16 @@ Player.prototype.ChangeHealth = function (amount) {
 
 function Monster(game, spritesheet) {
     Entity.call(this, game, 0, 350);
+
+    // behavior stuff
     this.visionWidth = 100
     this.visionHeight = 100;
     this.ticksSinceLastHit = 0;
-    this.ranged = false;
+    this.isRanged = false;
     this.pause = false;
+    this.inRange = false;
+    this.castCooldown = 0;
+
     this.scale = 1;
     this.width = 40;
     this.height = 56;
@@ -370,15 +375,35 @@ Monster.prototype.update = function () {
         this.counter = 0;
     }
 
-    if (this.ranged) {
+    if (this.isRanged) {
+
+        // if we're in range of the player, fire a projectile at them
         if (this.visionBox.collide(myPlayer.boundingbox)) {
+            // flag that we're in range (or not)
+            this.inRange = !this.inRange;
+            // pause to cast at the player
             this.pause = true;
+            // get the player's coordiantes
             var tarX = myPlayer.x;
             var tarY = myPlayer.y;
 
+            // create a projectile targeted at the player's location
             var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
                 this.x - (this.width / 2), this.y - (this.height / 2), tarX, tarY);
             this.game.addEntity(projectile);
+        }
+        // if we're in range of a player, we can continue to cast at them (based on a cooldown)
+        // otherwise we'd just cast when a player's bounding box collides with their vision box.
+        if (this.inRange) {
+            // keep track of time since the last cast
+            this.castCooldown += 1
+            // reset after 45 ticks and then cast again
+            if (this.castCooldown > 45) {
+                this.castCooldown = 0;
+                var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
+                    this.x - (this.width / 2), this.y - (this.height / 2), tarX, tarY);
+                this.game.addEntity(projectile);
+            }
         }
     }
 
@@ -457,7 +482,7 @@ function Acolyte(game, spritesheet) {
     this.height = 19;
     this.speed = 25;
     this.health = 150;
-    this.ranged = true;
+    this.isRanged = true;
 
     this.animation = new Animation(spritesheet, this.width, this.height, 64, 0.15, 4, true, this.scale);
     
