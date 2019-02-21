@@ -9,6 +9,8 @@ var canvasWidth;
 var canvasHeight;
 var myFloorNum = 1;
 var myRoomNum = 1;
+var playerX;
+var playerY;
 // Constant variable for tile size
 const TILE_SIZE = 16;
 /* #endregion */
@@ -25,6 +27,8 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.animationIdle = this.animationRun;
     this.x = 60;
     this.y = 60;
+    playerX = this.x;
+    playerY = this.y;
     this.xScale = 1;
     this.damageObjArr = [];
     this.buffObj = [];
@@ -156,6 +160,8 @@ Player.prototype.update = function () {
     /* #endregion */
     /* #endregion */
 
+    playerX = this.x;
+    playerY = this.y;
 
     this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
         this.width, this.height);
@@ -282,6 +288,8 @@ Player.prototype.ChangeHealth = function (amount) {
 
 function Monster(game, spritesheet) {
     Entity.call(this, game, 0, 350);
+    this.ticksSinceLastHit = 0;
+    this.pause = false;
     this.scale = 1;
     this.width = 40;
     this.height = 56;
@@ -309,10 +317,37 @@ Monster.prototype.draw = function () {
     this.ctx.fillText("Health: " + this.health, this.x - 5, this.y - 5);
 }
 
+function distance(monster) {
+    var dx = playerX - monster.x;
+    var dy = playerX - monster.y;
+    return Math.sqrt(dx * dx, dy * dy);
+}
+
 Monster.prototype.update = function () {
     if (this.health <= 0) this.removeFromWorld = true;
-    this.x += this.game.clockTick * this.speed;
-    if (this.x <= TILE_SIZE * 2) this.x = 450;
+
+
+    // based on the number of ticks since the player was last hit, we pause the monster
+    if (this.pause == false) {
+        // get the direction vector pointing towards player
+        var dirX = playerX - this.x;
+        var dirY = playerY - this.y;
+        // get the distance from the player
+        var dis = Math.sqrt(dirX * dirX + dirY * dirY);
+        // nomralize the vector
+        dirX = dirX / dis;
+        dirY = dirY / dis;
+        // change x and y based on our vector
+        this.x += dirX * (this.speed / 100);
+        this.y += dirY * (this.speed / 100);
+    } else {
+        this.ticksSinceLastHit += 1;
+        if (this.ticksSinceLastHit >= 60) {
+            this.pause = false;
+            ticksSinceLastHit = 0;
+        }
+    }
+
     Entity.prototype.update.call(this);
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
@@ -320,11 +355,15 @@ Monster.prototype.update = function () {
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         this.counter += this.game.clockTick;
         this.damageObj.ApplyEffects(myPlayer);
+        this.pause = true;
+        console.log(this.pause);
         if (this.counter > .018 && myPlayer.health > 0) {
-            //myPlayer.health -= 5;
+            //player.health -= 5;
         }
         this.counter = 0;
     }
+
+
 
     /* #region Damage system updates */
     let dmgObj;
