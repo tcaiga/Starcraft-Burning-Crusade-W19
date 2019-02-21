@@ -107,17 +107,22 @@ function SceneManager() {
 
 SceneManager.prototype.menuSelection = function(x, y) {
     var classPicked = false;
-    if (y >= this.menu.classButtonY && y <= this.menu.classButtonBottom) {
-        if(x >= this.menu.mageButtonX && x <= this.menu.mageButtonX + this.menu.classButtonW) {
-            classPicked = true;
-            GAME_ENGINE.playerPick = 0;
-        }  else if (x >= this.menu.rangerButtonX && x <= this.menu.rangerButtonX + this.menu.classButtonW) {
-            classPicked = true;
-            GAME_ENGINE.playerPick = 1;
-        } else if (x >= this.menu.knightButtonX && x <= this.menu.knightButtonX + this.menu.classButtonW) {
-            classPicked = true;
-            GAME_ENGINE.playerPick = 2;
-        }
+    console.log(x >= this.menu.mageButtonX);
+    console.log(x <= this.menu.mageButtonX + this.menu.classButtonW);
+    console.log(y >= this.menu.mageButtonY);
+    console.log(y <= this.menu.mageButtonY + this.menu.classButtonH);
+    if(x >= this.menu.mageButtonX && x <= this.menu.mageButtonX + this.menu.mageWidth
+        && y >= this.menu.mageButtonY && y <= this.menu.mageButtonY + this.menu.classButtonH) {
+        classPicked = true;
+        GAME_ENGINE.playerPick = 0;
+    }  else if (x >= this.menu.rangerButtonX && x <= this.menu.rangerButtonX + this.menu.rangerWidth
+        && y >= this.menu.rangerButtonY && y <= this.menu.rangerButtonY + this.menu.classButtonH) {
+        classPicked = true;
+        GAME_ENGINE.playerPick = 1;
+    } else if (x >= this.menu.knightButtonX && x <= this.menu.knightButtonX + this.menu.knightWidth
+        && y >= this.menu.knightButtonY && y <= this.menu.knightButtonY + this.menu.classButtonH) {
+        classPicked = true;
+        GAME_ENGINE.playerPick = 2;
     }
 
     if (classPicked) {
