@@ -799,8 +799,8 @@ function Door(theX, theY, theDirection) {
     this.ctx = GAME_ENGINE.ctx;
     this.direction = theDirection;
     this.image = new Image();
-    this.image.src = "./img/wall_hole_2.png";
-    this.boundingbox = new BoundingBox(this.x, this.y, 16, 16);
+    this.image.src = "./img/door_closed.png";
+    this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 }
 
 Door.prototype.update = function () {
@@ -810,7 +810,7 @@ Door.prototype.update = function () {
 }
 
 Door.prototype.draw = function () {
-    this.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 16, 16);
+    this.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 32, 32);
 }
 
 /* #region Menu */
@@ -917,10 +917,10 @@ Background.prototype.draw = function () {
                     GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320, "up"));
                     console.log("Door Up");
                 } else if (this.face[this.drawFaceCount] === 1) {
-                    GAME_ENGINE.addEntity(new Door(i * 320 + 304, j * 320 + 144, "right"));
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 288, j * 320 + 144, "right"));
                     console.log("Door Right");
                 } else if (this.face[this.drawFaceCount] === 2) {
-                    GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320 + 304, "down"));
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320 + 288, "down"));
                     console.log("Door Down");
                 } else if (this.face[this.drawFaceCount] === 3) {
                     GAME_ENGINE.addEntity(new Door(i * 320, j * 320 + 144, "left"));
@@ -1055,6 +1055,7 @@ AM.queueDownload("./img/fireball.png");
 AM.queueDownload("./img/floor1.png");
 AM.queueDownload("./img/floor2.png");
 AM.queueDownload("./img/blacktile.png");
+AM.queueDownload("./img/door_closed.png");
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
