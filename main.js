@@ -1,9 +1,10 @@
 /* #region Constants */
 const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
-const CAMERA = new Camera(GAME_ENGINE);
+const CAMERA = new Camera();
 const DS = new DamageSystem();
 
+var BACKGROUND;
 var SCENE_MANAGER;
 var canvasWidth;
 var canvasHeight;
@@ -11,12 +12,13 @@ var myFloorNum = 1;
 var myRoomNum = 1;
 var playerX;
 var playerY;
+
 // Constant variable for tile size
 const TILE_SIZE = 16;
 /* #endregion */
 
 /* #region Player */
-function Player(game, spritesheet, xOffset, yOffset) {
+function Player(spritesheet, xOffset, yOffset) {
     // Relevant for Player box
     this.width = 16;
     this.height = 28;
@@ -32,12 +34,11 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.xScale = 1;
     this.damageObjArr = [];
     this.buffObj = [];
-    this.abilityCD = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    this.abilityCD = [0, 0, 0, 0, 0];
     this.cooldownRate = 1;
     this.cooldownAdj = 0;
     this.isStunned = 0;
-    this.game = game;
-    this.ctx = game.ctx;
+    this.ctx = GAME_ENGINE.ctx;
     this.baseMaxMovespeed = 2;
     this.maxMovespeedRatio = 1;
     this.maxMovespeedAdj = 0;
@@ -62,13 +63,15 @@ Player.prototype.draw = function () {
         if (!GAME_ENGINE.movement) {
             this.animationIdle.drawFrameIdle(this.ctx, xValue, this.y);
         } else {
-            this.animationRun.drawFrame(this.game.clockTick, this.ctx, xValue, this.y);
+            this.animationRun.drawFrame(GAME_ENGINE.clockTick, this.ctx, xValue, this.y);
         }
 
         this.ctx.restore();
-        GAME_ENGINE.ctx.strokeStyle = "blue";
-        GAME_ENGINE.ctx.strokeRect(this.x + (this.xScale * 4), this.y + 13,
-            this.boundingbox.width, this.boundingbox.height);
+        if (GAME_ENGINE.debug) {
+            GAME_ENGINE.ctx.strokeStyle = "blue";
+            GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+                this.boundingbox.width, this.boundingbox.height);
+        }
     } else {
         this.dontdraw--;
     }
@@ -77,8 +80,6 @@ Player.prototype.draw = function () {
 Player.prototype.update = function () {
     // Conditional check to see if player wants to sprint or not
     var sprint = GAME_ENGINE.keyShift ? 1.75 : 1;
-
-
     // Player movement controls
 
     if (this.isStunned <= 0) {
@@ -98,6 +99,15 @@ Player.prototype.update = function () {
             this.x += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
             this.right = true;
         }
+        var actualSpeed = Math.floor((this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint * 100);
+        var speedHTML = document.getElementById("speed");
+        speedHTML.innerHTML = + actualSpeed + "%";
+        if (actualSpeed === 100)
+        speedHTML.style.color = "lightgreen";
+        else if (actualSpeed < 100)
+        speedHTML.style.color = "red";
+        else
+        speedHTML.style.color = "white";
         /* #endregion */
     } else {
         this.isStunned--;
@@ -106,6 +116,18 @@ Player.prototype.update = function () {
     let t;
     for (t in this.abilityCD) {
         this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
+        //ignoring index 0 of cd array
+        if (t > 0) {
+            var spellHTML = document.getElementById("spell" + t);
+            //display if spell is ready to use or not
+            if (this.abilityCD[t] > 0) {
+                spellHTML.innerHTML = this.abilityCD[t] / 10;
+                spellHTML.style.color = "red";
+            } else {
+                spellHTML.innerHTML = "Ready";
+                spellHTML.style.color = "lightgreen";
+            }
+        }
     }
     for (t in GAME_ENGINE.digit) {
         if (GAME_ENGINE.digit[t]) {
@@ -126,7 +148,7 @@ Player.prototype.update = function () {
 
 
     if (this.health <= 0) {
-        this.game.reset();
+        GAME_ENGINE.reset();
     }
 
     /* #region Damage system updates */
@@ -178,7 +200,7 @@ Player.prototype.rangerAbilities = function (number) {
             case 1://Create BoostPad
                 //Ability at keyboard number 1
                 let castDistance = 125;
-                let tempTrap = new RangerBoostPad(GAME_ENGINE, AM.getAsset("./img/floor_boostpad_on.png"),
+                let tempTrap = new RangerBoostPad(AM.getAsset("./img/floor_boostpad_on.png"),
                     AM.getAsset("./img/floor_boostpad_off.png"));
                 let xDif, yDif, mag;
                 xDif = this.x - GAME_ENGINE.mouseX + 10;
@@ -219,10 +241,10 @@ Player.prototype.mageAbilities = function (number) {
                 blinkDistance = Math.min(blinkDistance, mag);
                 let ss1Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
                 let ss2Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
-                let ss1 = new stillStand(this.game, ss1Ani, 10, this.x, this.y);
+                let ss1 = new stillStand(ss1Ani, 10, this.x, this.y);
                 this.x -= (xDif / mag) * blinkDistance + 12;
                 this.y -= (yDif / mag) * blinkDistance + 30;
-                let ss2 = new stillStand(this.game, ss2Ani, 10, this.x, this.y);
+                let ss2 = new stillStand(ss2Ani, 10, this.x, this.y);
                 this.dontdraw = 10;
                 this.isStunned = 10;
                 GAME_ENGINE.addEntity(ss1);
@@ -249,7 +271,7 @@ Player.prototype.knightAbilities = function (number) {
                 break;
             case 1://Sword Boomerang
                 //Ability at keyboard number 1
-                let tempPro = new swordBoomerang(GAME_ENGINE, AM.getAsset("./img/swordBoomerang.png"),
+                let tempPro = new swordBoomerang(AM.getAsset("./img/swordBoomerang.png"),
                     this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
                 tempPro.thrower = this;
                 GAME_ENGINE.addEntity(tempPro);
@@ -280,6 +302,14 @@ Player.prototype.ChangeHealth = function (amount) {
         //to actually have it display
     }
     this.health += amount;//Damage will come in as a negative value;
+    var healthHTML = document.getElementById("health");
+    if (this.health >= 66)
+    healthHTML.style.color = "lightgreen";
+    else if (this.health >= 33)
+    healthHTML.style.color = "yellow";
+    else
+    healthHTML.style.color = "red";
+    healthHTML.innerHTML = this.health;
 }
 /* #endregion */
 
@@ -303,7 +333,7 @@ function Monster(game, spritesheet) {
     this.height = 56;
     this.animation = new Animation(spritesheet, this.width, this.height, 1, 0.15, 15, true, this.scale);
     this.speed = 100;
-    this.ctx = game.ctx;
+    this.ctx = GAME_ENGINE.ctx;
     this.health = 100;
     this.damageObjArr = [];
     this.damageObj = DS.CreateDamageObject(20, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.HasteWeak));
@@ -317,14 +347,17 @@ function Monster(game, spritesheet) {
 }
 
 Monster.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-    GAME_ENGINE.ctx.strokeStyle = "red";
-    GAME_ENGINE.ctx.strokeRect(this.x, this.y, this.width * this.scale, this.height * this.scale);
+    this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
+    if (GAME_ENGINE.debug) {
+        GAME_ENGINE.ctx.strokeStyle = "red";
+        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+            this.boundingbox.width, this.boundingbox.height);
+    }
 
     // Displaying Monster health
     this.ctx.font = "15px Arial";
     this.ctx.fillStyle = "white";
-    this.ctx.fillText("Health: " + this.health, this.x - 5, this.y - 5);
+    this.ctx.fillText("Health: " + this.health, this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
 }
 
 function distance(monster) {
@@ -335,7 +368,6 @@ function distance(monster) {
 
 Monster.prototype.update = function () {
     if (this.health <= 0) this.removeFromWorld = true;
-
 
     // based on the number of ticks since the player was last hit, we pause the monster
     if (this.pause == false) {
@@ -366,7 +398,7 @@ Monster.prototype.update = function () {
         this.visionWidth * this.scale * 5, this.visionHeight * this.scale * 5);
     
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        this.counter += this.game.clockTick;
+        this.counter += GAME_ENGINE.clockTick;
         this.damageObj.ApplyEffects(myPlayer);
         this.pause = true;
         if (this.counter > .018 && myPlayer.health > 0) {
@@ -460,8 +492,8 @@ Monster.prototype.ChangeHealth = function (amount) {
 Devil.prototype = Monster.prototype;
 Acolyte.prototype = Monster.prototype;
 
-function Devil(game, spritesheet) {
-    Monster.call(this, game, spritesheet);
+function Devil(spritesheet) {
+    Monster.call(this, GAME_ENGINE, spritesheet);
     this.scale = 3;
     this.width = 16;
     this.height = 23;
@@ -475,8 +507,8 @@ function Devil(game, spritesheet) {
     this.animation = new Animation(spritesheet, this.width, this.height, 128, 0.15, 8, true, this.scale);
 }
 
-function Acolyte(game, spritesheet) {
-    Monster.call(this, game, spritesheet);
+function Acolyte(spritesheet) {
+    Monster.call(this, GAME_ENGINE, spritesheet);
     this.scale = 2;
     this.width = 16;
     this.height = 19;
@@ -496,27 +528,26 @@ function Acolyte(game, spritesheet) {
 
 /* #region Projectile */
 /* #region Base Projectile */
-function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
+function Projectile(spriteSheet, originX, originY, xTarget, yTarget) {
     this.width = 100;
     this.height = 100;
     this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
 
-    this.originX = originX;
-    this.originY = originY;
+    this.x = originX - CAMERA.x;
+    this.y = originY - CAMERA.y;
 
     this.xTar = xTarget - 20;
     this.yTar = yTarget - 35;
-
     // Determining where the projectile should go angle wise.
-    this.angle = Math.atan2(this.yTar - this.originY, this.xTar - this.originX);
+    this.angle = Math.atan2(this.yTar - this.y, this.xTar - this.x);
     this.counter = 0; // Counter to make damage consistent
     this.childUpdate;//function
     this.speed = 200;
     this.projectileSpeed = 7.5;
     this.damageObj = DS.CreateDamageObject(15, 0, DTypes.Normal, null);
     this.penetrative = false;
-    this.ctx = game.ctx;
-    Entity.call(this, game, originX, originY);
+    this.ctx = GAME_ENGINE.ctx;
+    Entity.call(this, GAME_ENGINE, originX, originY);
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
         this.width - 75, this.height - 75); // Hardcoded a lot of offset values
@@ -524,9 +555,12 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
 }
 
 Projectile.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x - 18, this.y - 4); // Hardcoded a lot of offset values
-    GAME_ENGINE.ctx.strokeStyle = "yellow";
-    GAME_ENGINE.ctx.strokeRect(this.x + 8, this.y + 25, this.width - 75, this.height - 75); // Hardcoded a lot of offset values
+    this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x - 18, this.y - 4); // Hardcoded a lot of offset values
+    if (GAME_ENGINE.debug) {
+        GAME_ENGINE.ctx.strokeStyle = "yellow";
+        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+            this.boundingbox.width, this.boundingbox.height);
+    }
 }
 
 Projectile.prototype.update = function () {
@@ -541,7 +575,8 @@ Projectile.prototype.update = function () {
     this.x += velX;
     this.y += velY;
 
-    if (this.x < 16 || this.x > 460 || this.y < 0 || this.y > 430) this.removeFromWorld = true;
+    if (this.x - CAMERA.x < 16 || this.x - CAMERA.x > 460
+        || this.y - CAMERA.y < 0 || this.y - CAMERA.y > 430) this.removeFromWorld = true;
     Entity.prototype.update.call(this);
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
@@ -566,8 +601,8 @@ Projectile.prototype.update = function () {
 /* #region Projetile Types */
 swordBoomerang.prototype = Projectile.prototype;
 
-function swordBoomerang(game, spriteSheet, originX, originY, xTarget, yTarget) {
-    Projectile.call(this, game, spriteSheet, originX, originY, xTarget, yTarget);
+function swordBoomerang(spriteSheet, originX, originY, xTarget, yTarget) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget);
     this.projectileSpeed = 7;
     this.timeLeft = 60;
     this.thrower = null;
@@ -591,7 +626,7 @@ function swordBoomerang(game, spriteSheet, originX, originY, xTarget, yTarget) {
 
 /* #region Trap */
 /* #region Base Trap */
-function Trap(game, spriteSheetUp, spriteSheetDown) {
+function Trap(spriteSheetUp, spriteSheetDown) {
     this.animationUp = new Animation(spriteSheetUp, 16, 16, 1, 0.13, 4, true, 1.25);
     this.animationDown = new Animation(spriteSheetDown, 16, 16, 1, 0.13, 4, true, 1.25);
     this.animationIdle = this.animationUp;
@@ -601,8 +636,7 @@ function Trap(game, spriteSheetUp, spriteSheetDown) {
     this.counter = 0; // Counter to calculate when trap related events should occur
     this.doAnimation = false; // Flag to determine if the spikes should animate or stay still
     this.damageObj = DS.CreateDamageObject(10, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.SlowStrong));
-    this.game = game;
-    this.ctx = game.ctx;
+    this.ctx = GAME_ENGINE.ctx;
 
     this.boundingbox = new BoundingBox(this.x, this.y, 20, 20); // **Temporary** hardcode of width and height
 }
@@ -612,13 +646,15 @@ Trap.prototype.draw = function () {
         this.animationIdle.drawFrameIdle(this.ctx, this.x, this.y);
     } else {
         if (this.doAnimation) {
-            this.animationUp.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+            this.animationUp.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
         } else {
             this.animationDown.drawFrameIdle(this.ctx, this.x, this.y);
         }
     }
-    GAME_ENGINE.ctx.strokeStyle = "red";
-    GAME_ENGINE.ctx.strokeRect(this.x, this.y, 20, 20); // **Temporary** Hard coded offset values
+    if (GAME_ENGINE.debug) {
+        GAME_ENGINE.ctx.strokeStyle = "red";
+        GAME_ENGINE.ctx.strokeRect(this.x, this.y, 20, 20); // **Temporary** Hard coded offset values
+    }
 }
 
 Trap.prototype.update = function () {
@@ -631,7 +667,7 @@ Trap.prototype.update = function () {
     }
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         // Remember what tick the collision happened
-        this.counter += this.game.clockTick;
+        this.counter += GAME_ENGINE.clockTick;
         // Check to make sure the animation happens first
         if (this.counter < .1) {
             this.doAnimation = true;
@@ -642,7 +678,6 @@ Trap.prototype.update = function () {
             if (myPlayer.health > 0 && this.counter > 0.18) {
                 //myPlayer.health -= 2;
                 this.damageObj.ApplyEffects(myPlayer);
-                //console.log(myPlayer);
                 this.counter = .1;
             }
         }
@@ -658,8 +693,8 @@ Trap.prototype.update = function () {
 /* #region Trap Types */
 RangerBoostPad.prototype = Trap.prototype;
 
-function RangerBoostPad(game, spriteSheetUp, spriteSheetDown) {
-    Trap.call(this, game, spriteSheetUp, spriteSheetDown);
+function RangerBoostPad(spriteSheetUp, spriteSheetDown) {
+    Trap.call(this, spriteSheetUp, spriteSheetDown);
     this.damageObj = DS.CreateDamageObject(0, 0, DTypes.None
         , DS.CreateBuffObject("ranger boost", [
             DS.CreateEffectObject(ETypes.MoveSpeedR, Math.pow(1.1, 10), 1, 1, 0),
@@ -671,14 +706,13 @@ function RangerBoostPad(game, spriteSheetUp, spriteSheetDown) {
 /* #endregion */
 
 /* #region Still Stand */
-function stillStand(game, animation, duration, theX, theY) {
+function stillStand(animation, duration, theX, theY) {
     this.timeLeft = duration;
     this.ani = animation;
-    this.game = game;
-    this.ctx = game.ctx;
+    this.ctx = GAME_ENGINE.ctx;
     this.x = theX;
     this.y = theY;
-    Entity.call(this, game, theX, theY);
+    Entity.call(this, GAME_ENGINE, theX, theY);
 }
 
 stillStand.prototype.update = function () {
@@ -688,15 +722,15 @@ stillStand.prototype.update = function () {
     }
 }
 stillStand.prototype.draw = function () {
-    this.ani.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    this.ani.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
 }
 /* #endregion */
 
 /* #region BoundingBox */
 // BoundingBox for entities to detect collision.
 function BoundingBox(x, y, width, height) {
-    this.x = x;
-    this.y = y;
+    this.x = x - CAMERA.x;
+    this.y = y - CAMERA.y;
     this.width = width;
     this.height = height;
 
@@ -712,19 +746,13 @@ BoundingBox.prototype.collide = function (oth) {
 }
 /* #endregion */
 
-function Terrain(game) {
-
-}
-
 /* #region Camera */
-function Camera(game) {
+function Camera() {
     this.x = 0;
     this.y = 0;
 }
 
-Camera.prototype.update = function () {
-
-}
+Camera.prototype.update = function () { }
 
 Camera.prototype.draw = function () { }
 
@@ -733,44 +761,69 @@ Camera.prototype.move = function (direction) {
     if (direction === "right") {
         this.x += canvasWidth;
         myPlayer.x = 60 + CAMERA.x;
+        myRoomNum += 1;
+        BACKGROUND.x -= 320;
+        
     } else if (direction === "left") {
         this.x -= canvasWidth;
         myPlayer.x = canvasWidth - TILE_SIZE * 2 - 60 + CAMERA.x;
+        myRoomNum -= 1;
+        BACKGROUND.x += 320;
     } else if (direction === "up") {
         this.y -= canvasHeight;
         myPlayer.y = canvasHeight + TILE_SIZE * 2 + 60 + CAMERA.y;
+        myFloorNum -= 1;
+        BACKGROUND.y -= 320;
     } else if (direction === "down") {
         this.y += canvasHeight;
         myPlayer.y = 60 + CAMERA.y;
+        myFloorNum += 1;
+        BACKGROUND.y += 320;
     }
+    document.getElementById("location").innerHTML = "Location: " + myFloorNum + "-" + myRoomNum;
 }
 /* #endregion */
 
-// function Door (theGame, theX, theY) {} {
-//     this.x = theX;
-//     this.y = theY;
-//     this.ctx = theGame.ctx;
-// }
+function Door(theX, theY, theDirection) {
+    this.x = theX;
+    this.y = theY;
+    this.ctx = GAME_ENGINE.ctx;
+    this.direction = theDirection;
+    this.image = new Image();
+    this.image.src = "./img/wall_hole_2.png";
+    this.boundingbox = new BoundingBox(this.x, this.y, 16, 16);
+}
 
-// Door.prototype.update = function () {
+Door.prototype.update = function () {
+    if (this.boundingbox.collide(myPlayer.boundingbox)) {
+        CAMERA.move(this.direction);
+    }
+}
 
-// }
-
-// Door.prototype.draw = function () {
-
-// }
+Door.prototype.draw = function () {
+    this.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 16, 16);
+}
 
 /* #region Menu */
 
-function Menu(game) {
-    this.ctx = game.ctx;
-    this.classButtonW = 100;
+function Menu() {
+    this.ctx = GAME_ENGINE.ctx;
     this.classButtonH = 35;
-    this.classButtonY = 400;
-    this.classButtonBottom = this.classButtonY + this.classButtonH;
-    this.mageButtonX = (canvasWidth - (this.classButtonW * 3)) / 4;
-    this.rangerButtonX = 2 * this.mageButtonX + this.classButtonW;
-    this.knightButtonX = this.rangerButtonX + this.classButtonW + this.mageButtonX;
+    this.classButtonY = canvasHeight / 2;
+
+    this.ctx.font = "35px Arial";
+    this.mageWidth = this.ctx.measureText("Mage").width;
+    this.rangerWidth = this.ctx.measureText("Ranger").width;
+    this.knightWidth = this.ctx.measureText("Knight").width;
+
+    this.mageButtonX = canvasWidth / 2 - (this.mageWidth / 2);
+    this.rangerButtonX = canvasWidth / 2 - (this.rangerWidth / 2);
+    this.knightButtonX = canvasWidth / 2 - (this.knightWidth / 2);
+
+    this.mageButtonY = (canvasHeight - (this.classButtonH * 3)) / 4;
+    this.rangerButtonY = 2 * this.mageButtonY + this.classButtonH;
+    this.knightButtonY = this.rangerButtonY + this.classButtonH + this.mageButtonY;
+
     this.background = new Image();
     this.background.src = "./img/menu_background.png";
 }
@@ -781,67 +834,124 @@ Menu.prototype.draw = function () {
     this.ctx.drawImage(this.background, 253, 0,
         canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
 
-    this.createClassButton("Mage", this.mageButtonX);
-    this.createClassButton("Ranger", this.rangerButtonX);
-    this.createClassButton("Knight", this.knightButtonX);
+    this.createClassButton("Mage", this.mageButtonX, this.mageButtonY);
+    this.createClassButton("Ranger", this.rangerButtonX, this.rangerButtonY);
+    this.createClassButton("Knight", this.knightButtonX, this.knightButtonY);
 }
 
-Menu.prototype.createClassButton = function (text, xPosition) {
+Menu.prototype.createClassButton = function (text, xPosition, YPosition) {
     this.ctx.strokeStyle = "black";
     this.ctx.lineWidth = "1";
     this.ctx.font = "35px Arial";
-    this.ctx.strokeText(text, xPosition, this.classButtonY + this.classButtonH);
+    this.ctx.strokeText(text, xPosition, YPosition + this.classButtonH);
     this.ctx.fillStyle = "white";
-    this.ctx.fillText(text, xPosition, this.classButtonY + this.classButtonH);
+    this.ctx.fillText(text, xPosition, YPosition + this.classButtonH);
 }
 /* #endregion */
 
 /* #region Background */
-function Background(game) {
-    this.x = 0;
-    this.y = 0;
-    this.ctx = game.ctx;
+function Background() {
+    this.x = -640;
+    this.y = -640;
+    this.ctx = GAME_ENGINE.ctx;
+    // Keeping track of the last direction the generator has moved.
+    // 0 = North
+    // 1 = East
+    // 2 = South
+    // 3 = West
+    this.face = [];
+    this.directions = [[-1, 0], [0, 1], [1, 0], [0, -1]];
     this.map = [
-
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-
-    ]
-    this.mapLength = Math.sqrt(this.map.length);
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+    ];
+    this.row = 2;
+    this.col = 2;
+    this.roomCount = 0;
+    this.map[this.row][this.col] = 2;
     this.zero = new Image();
-    this.zero.src = "./img/floor_1.png";
+    this.zero.src = "./img/floor1.png";
     this.one = new Image();
-    this.one.src = "./img/tile_0117.png";
+    this.one.src = "./img/floor2.png";
+    this.two = new Image();
+    this.two.src = "./img/blacktile.png";
     this.tile = null;
-};
+    this.drawFaceCount = 0;
+}
 
 Background.prototype.draw = function () {
-    for (let i = 0; i < this.mapLength; i++) {
-        for (let j = 0; j < this.mapLength; j++) {
-            this.tile = (this.map[i * this.mapLength + j] == 1) ? this.one : this.zero;
-            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2);
-            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2);
-            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2 + TILE_SIZE);
-            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2 + TILE_SIZE);
+    for (let i = 0; i < this.map.length; i++) {
+        for (let j = 0; j < this.map[i].length; j++) {
+            for (let r = 0; r < 20; r++) {
+                for (let s = 0; s < 20; s++) {
+                    // Determining tiles to choose
+                    let tempTile = ROOMS[this.map[i][j]][r * 20 + s];
+                    if (tempTile === 0) {
+                        this.tile = this.one;
+                    } else if (tempTile === 1) {
+                        this.tile = this.zero;
+                    } else {
+                        this.tile = this.two;
+                    }
+                    // Drawing Tiles
+                    this.ctx.drawImage(this.tile, this.x + j * 320 + s * TILE_SIZE, this.y + i * 320 + r * TILE_SIZE);
+                }
+            }
+            
+            // Drawing doors
+            if (this.drawFaceCount < 6) {
+                if (this.face[this.drawFaceCount] === 0) {
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320 + 0, "up"));
+                    console.log("Door Up");
+                } else if (this.face[this.drawFaceCount] === 1) {
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 304, j * 320 + 144, "right"));
+                    console.log("Door Right");
+                } else if (this.face[this.drawFaceCount] === 2) {
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320 + 304, "down"));
+                    console.log("Door Down");
+                } else if (this.face[this.drawFaceCount] === 3) {
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 0, j * 320 + 144, "left"));
+                    console.log("Door Left");
+                }
+                this.drawFaceCount++;
+            }
         }
     }
+}
+
+Background.prototype.update = function () {
 };
 
-Background.prototype.update = function () { };
+Background.prototype.validDirection = function () {
+    while (this.roomCount < 6) {
+        let randomDirection = Math.floor(Math.random() * Math.floor(4));
+        let tempRow = this.row + this.directions[randomDirection][0];
+        let tempCol = this.col + this.directions[randomDirection][1];
+        if (randomDirection === 0 && this.face[this.face.length - 1] === 2
+            || randomDirection === 2 && this.face[this.face.length - 1] === 0
+            || randomDirection === 1 && this.face[this.face.length - 1] === 3
+            || randomDirection === 3 && this.face[this.face.length - 1] === 1) {
+            randomDirection = Math.floor(Math.random() * Math.floor(4));
+        } else {
+            if (tempRow < this.map.length && tempRow > 0  && tempCol < this.map.length && tempCol > 0
+                && this.map[tempRow][tempCol] === 0) {
+                this.face.push(randomDirection);
+                this.row += this.directions[randomDirection][0];
+                this.col += this.directions[randomDirection][1];
+                this.map[this.row][this.col] = 1;
+                if (this.roomCount + 1 === 6) {
+                    this.map[this.row][this.col] = 3;
+                }
+                this.roomCount++;
+            }
+        }
+    }
+    console.log(this.face);
+}
 /* #endregion */
 
 /* #region Animation */
@@ -870,19 +980,33 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     xindex = frame % this.sheetWidth;
     yindex = Math.floor(frame / this.sheetWidth);
 
+    var xPosition;
+    if (x >= 0) {
+        xPosition = x - CAMERA.x;
+    } else {
+        xPosition = x + CAMERA.x;
+    }
+
     ctx.drawImage(this.spriteSheet,
         xindex * this.frameWidth, yindex * this.frameHeight,
         this.frameWidth, this.frameHeight,
-        x - CAMERA.x, y - CAMERA.y,
+        xPosition, y - CAMERA.y,
         this.frameWidth * this.scale,
         this.frameHeight * this.scale);
 }
 
+
 Animation.prototype.drawFrameIdle = function (ctx, x, y) {
+    var xPosition;
+    if (x >= 0) {
+        xPosition = x - CAMERA.x;
+    } else {
+        xPosition = x + CAMERA.x;
+    }
     ctx.drawImage(this.spriteSheet,
         0, 0,
         this.frameWidth, this.frameHeight,
-        x - CAMERA.x, y - CAMERA.y,
+        xPosition, y - CAMERA.y,
         this.frameWidth * this.scale,
         this.frameHeight * this.scale);
 }
@@ -918,6 +1042,10 @@ AM.queueDownload("./img/devil.png");
 AM.queueDownload("./img/acolyte.png");
 // Harrison's Fireball
 AM.queueDownload("./img/fireball.png");
+// Floor Gen Tiles
+AM.queueDownload("./img/floor1.png");
+AM.queueDownload("./img/floor2.png");
+AM.queueDownload("./img/blacktile.png");
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
@@ -929,7 +1057,8 @@ AM.downloadAll(function () {
     GAME_ENGINE.init(ctx);
     GAME_ENGINE.start();
 
-    GAME_ENGINE.addEntity(new Menu(GAME_ENGINE));
+    GAME_ENGINE.addEntity(new Menu());
+    BACKGROUND = new Background();
     SCENE_MANAGER = new SceneManager();
 });
 /* #endregion */
