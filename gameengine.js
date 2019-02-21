@@ -6,6 +6,14 @@ var characterSprites = [{ spritesheet: "./img/mage_run.png", xOffset: 0, yOffset
 { spritesheet: "./img/ranger_run.png", xOffset: 0, yOffset: 8 },
 { spritesheet: "./img/knight_run.png", xOffset: 0, yOffset: 6 }];
 var myPlayer;
+const EntityTypes = {
+    menu:0,
+    non_interactables:1,
+    traps:2,
+    projectiles:3,
+    enemies:4,
+    player:5
+}
 
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
