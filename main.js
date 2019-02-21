@@ -32,6 +32,7 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.cooldownRate = 1;
     this.cooldownAdj = 0;
     this.castTime = 0;
+    this.isStunned = false;
     this.game = game;
     this.ctx = game.ctx;
     this.baseMaxMovespeed = 2;
@@ -77,7 +78,7 @@ Player.prototype.update = function () {
 
     // Player movement controls
 
-    if (this.castTime <= 0) {
+    if (this.castTime <= 0 && !this.isStunned) {
         /* #region Player movement controls */
 
         if (GAME_ENGINE.keyW === true) {
@@ -104,7 +105,7 @@ Player.prototype.update = function () {
         this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
     }
     for (t in GAME_ENGINE.digit) {
-        if (GAME_ENGINE.digit[t]) {
+        if (GAME_ENGINE.digit[t] && !this.isStunned) {
             switch (GAME_ENGINE.playerPick) {
                 case 0:
                     this.mageAbilities(t);
@@ -163,8 +164,9 @@ Player.prototype.update = function () {
 
 
 /* #region Player Ability functions */
+let castDistance, xDif, yDif, mag, xPos, yPos
+    , dmg, aoe, ss1, ss2, ss1Ani, ss2Ani;
 Player.prototype.rangerAbilities = function (number) {
-    let castDistance = 150, xDif, yDif, mag, xPos, yPos, dmg, aoe;
     if (this.abilityCD[number] <= 0) {
         switch (parseInt(number)) {
             case 0:
@@ -201,10 +203,10 @@ Player.prototype.rangerAbilities = function (number) {
                 xPos = this.x - (xDif / mag) * castDistance;
                 yPos = this.y - (yDif / mag) * castDistance;
                 let ss1 = new StillStand(GAME_ENGINE, new Animation(AM.getAsset("./img/fireball.png")
-                                                    , 100, 100, 1, .085, 8, true, .75),7*7,xPos - 30,yPos - 30);
-                
-                ss1.boundingbox = new BoundingBox(ss1.x - aoe/2, ss1.y - aoe/2, aoe, aoe);
-                dmg = DS.CreateDamageObject(4,0,DTypes.Piercing,DS.CloneBuffObject(PremadeBuffs.Slow));
+                    , 100, 100, 1, .085, 8, true, .75), 7 * 7, xPos - 30, yPos - 30);
+
+                ss1.boundingbox = new BoundingBox(ss1.x - aoe / 2, ss1.y - aoe / 2, aoe, aoe);
+                dmg = DS.CreateDamageObject(4, 0, DTypes.Piercing, DS.CloneBuffObject(PremadeBuffs.Slow));
                 dmg.timeLeft = 7;
                 ss1.entityHitType = EntityTypes.enemies;
                 ss1.damageObj = dmg;
@@ -231,17 +233,17 @@ Player.prototype.mageAbilities = function (number) {
             case 1:
                 /* #region Blink */
                 //Ability at keyboard number 1
-                let blinkDistance = 100;
-                let xDif = this.x - GAME_ENGINE.mouseX;
-                let yDif = this.y - GAME_ENGINE.mouseY;
-                let mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
-                blinkDistance = Math.min(blinkDistance, mag);
-                let ss1Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
-                let ss2Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
-                let ss1 = new StillStand(this.game, ss1Ani, 10, this.x, this.y);
-                this.x -= (xDif / mag) * blinkDistance + 12;
-                this.y -= (yDif / mag) * blinkDistance + 30;
-                let ss2 = new StillStand(this.game, ss2Ani, 10, this.x, this.y);
+                castDistance = 100;
+                xDif = this.x - GAME_ENGINE.mouseX;
+                yDif = this.y - GAME_ENGINE.mouseY;
+                mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
+                castDistance = Math.min(castDistance, mag);
+                ss1Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
+                ss2Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
+                ss1 = new StillStand(this.game, ss1Ani, 10, this.x, this.y);
+                this.x -= (xDif / mag) * castDistance + 12;
+                this.y -= (yDif / mag) * castDistance + 30;
+                ss2 = new StillStand(this.game, ss2Ani, 10, this.x, this.y);
                 this.dontdraw = 10;
                 this.castTime = 10;
                 GAME_ENGINE.addEntity(ss1);
@@ -264,6 +266,14 @@ Player.prototype.mageAbilities = function (number) {
                 break;
             case 3:
                 //Ability at keyboard number 3
+                /* #region Flame Breath */
+                //15 projectiles that do 10 damage in a randomized cone based on where the user points.
+                //cd 75, projectile range 75, spread of hopefully 120, projectile speed 3-7
+                //Randomize speed and spread on the firebreath function obj.
+
+
+                
+                /* #endregion */
                 break;
             case 4:
                 //Ability at keyboard number 4
@@ -277,16 +287,43 @@ Player.prototype.knightAbilities = function (number) {
             case 0:
                 //Ability at keyboard number 0
                 break;
-            case 1://Sword Boomerang
+            case 1:
+                /* #region Sword Boomerang */
                 //Ability at keyboard number 1
                 let tempPro = new SwordBoomerang(GAME_ENGINE, AM.getAsset("./img/SwordBoomerang.png"),
                     this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
                 tempPro.thrower = this;
                 GAME_ENGINE.addEntity(tempPro);
                 this.abilityCD[number] = 60;
+                /* #endregion */
                 break;
             case 2:
                 //Ability at keyboard number 2
+                /* #region Shield Bash */
+                castDistance = 20;
+                aoe = 40;
+                xDif = this.x - GAME_ENGINE.mouseX + 10;
+                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
+                castDistance = Math.min(mag, castDistance);
+                xPos = this.x - (xDif / mag) * castDistance;
+                yPos = this.y - (yDif / mag) * castDistance;
+
+                ssAni1 = new Animation(AM.getAsset("./img/Shield Flash.png"), 32, 32, 1, 0.07, 6, true, 1.5);
+                ss1 = new StillStand(GAME_ENGINE, ssAni1, 12, xPos, yPos);
+                ss1.boundingbox = new BoundingBox(xPos + 5, yPos + 2, aoe, aoe);
+                ss1.entityHitType = EntityTypes.enemies;
+                ss1.onDraw = function () {
+                    //console.log(xPos - aoe/2, yPos - aoe/2, aoe, aoe);
+                    this.game.ctx.strokeStyle = "yellow";
+                    this.game.ctx.strokeRect(xPos + 5, yPos + 2, aoe, aoe);
+                }
+                ss1.damageObj = DS.CreateDamageObject(21, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.Stun));
+                ss1.penetrative = true;
+                this.abilityCD[number] = 75;
+                this.castTime = 6;
+                GAME_ENGINE.addEntity(ss1);
+                /* #endregion */
                 break;
             case 3:
                 //Ability at keyboard number 3
@@ -328,6 +365,7 @@ function Monster(game, spritesheet) {
     this.damageObjArr = [];
     this.damageObj = DS.CreateDamageObject(20, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.HasteWeak));
     this.buffObj = [];
+    this.isStunned = false;
     this.counter = 0;
 
     this.boundingbox = new BoundingBox(this.x, this.y,
@@ -347,19 +385,16 @@ Monster.prototype.draw = function () {
 
 Monster.prototype.update = function () {
     if (this.currentHealth <= 0) this.removeFromWorld = true;
-    this.x += this.game.clockTick * this.speed;
-    if (this.x <= TILE_SIZE * 2) this.x = 450;
+    if (!this.isStunned) {
+        this.x += this.game.clockTick * this.speed;
+        if (this.x <= TILE_SIZE * 2) this.x = 450;
+    }
     Entity.prototype.update.call(this);
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        this.counter += this.game.clockTick;
         this.damageObj.ApplyEffects(myPlayer);
-        if (this.counter > .018 && myPlayer.currentHealth > 0) {
-            //myPlayer.currentHealth -= 5;
-        }
-        this.counter = 0;
     }
 
     /* #region Damage system updates */
@@ -421,7 +456,7 @@ function Devil(game, spritesheet) {
     this.speed = 45;
     this.currentHealth = 200;
 
-    this.x = 250;
+    this.x = 150;
     this.y = 250;
 
     this.counter = 0;
@@ -909,6 +944,7 @@ AM.queueDownload("./img/ranger_run.png");
 // Knight
 AM.queueDownload("./img/knight_run.png");
 AM.queueDownload("./img/SwordBoomerang.png");
+AM.queueDownload("./img/Shield Flash.png");
 // Mage
 AM.queueDownload("./img/mage_run.png");
 AM.queueDownload("./img/flash.png");

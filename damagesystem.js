@@ -155,6 +155,9 @@ const PremadeBuffs = {
     Haste: new BuffObj("haste", [new EffectObj(ETypes.MoveSpeedR,1.25, 1/1.25, 60, 0)]),
     HasteWeak: new BuffObj("weak haste", [new EffectObj(ETypes.MoveSpeedR,1.1, 1/1.1, 60, 0)]),
     HasteStrong: new BuffObj("strong haste", [new EffectObj(ETypes.MoveSpeedR,1.5, 1/1.5, 60, 0)]),
+    Stun: new BuffObj("stun",[new EffectObj(ETypes.Stun,true,false,40,0)]),
+    StunShort: new BuffObj("stun",[new EffectObj(ETypes.Stun,true,false,20,0)]),
+    StunLong: new BuffObj("stun",[new EffectObj(ETypes.Stun,true,false,60,0)]),
     Heal: new BuffObj("heal", [new EffectObj(ETypes.CurrentHealthF, 20, 0, 2, 0)]),
     HealStrong: new BuffObj("strong heal", [new EffectObj(ETypes.CurrentHealthF, 30, 0, 2, 0)]),
     HealWeak: new BuffObj("weak heal", [new EffectObj(ETypes.CurrentHealthF, 10, 0, 2, 0)]),
@@ -162,6 +165,9 @@ const PremadeBuffs = {
     DamageOvertime: new BuffObj("damage overtime", [new EffectObj(ETypes.CurrentHealthF, -3.5, 0, 60, 10)]),
     PurifyingFlames: new BuffObj("purifying flames", [new EffectObj(ETypes.CurrentHealthF, -25, 0, 2, 0)
         , new EffectObj(ETypes.CurrentHealthF, 3.2 / (180 / 5), 0, 180, 5)]),
+    Malefice: new BuffObj("malefice", [new EffectObj(ETypes.isStunned,true,false,240,120,function (unit) {
+        (this.timeLeft % 40 === 0) ? unit.isStunned = false : null;})
+        , new EffectObj(ETypes.CurrentHealthF,15,0,240,120)])
 }
 /* #endregion */
 /* #region Damage System */
