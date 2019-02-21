@@ -34,6 +34,7 @@ function GameEngine() {
     this.keyShift = false;
     this.movement = false;
     this.playerPick;
+    this.debug = true;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -76,8 +77,9 @@ GameEngine.prototype.startInput = function () {
         } else {
             if (that.playerPick == 0) {
                 // Projectile
-                var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
-                    myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
+                var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
+                    myPlayer.x - (myPlayer.width / 2),
+                     myPlayer.y - (myPlayer.height / 2), x, y);
                 GAME_ENGINE.addEntity(projectile);
             }
         }
@@ -93,9 +95,6 @@ GameEngine.prototype.startInput = function () {
         if (e.code === "ShiftLeft") {
             that.keyShift = true;
         }
-        
-
-
         if (e.code === "KeyW") {
             that.keyW = true;
             that.movement = true;
@@ -108,6 +107,14 @@ GameEngine.prototype.startInput = function () {
         } else if (e.code === "KeyD") {
             that.keyD = true;
             that.movement = true;
+        }
+
+        if (e.code === "KeyU") {
+           if (that.debug === false) {
+            that.debug = true;
+           } else {
+            that.debug = false;
+           }
         }
         //Abilities
         if (e.code.includes("Digit")){
@@ -131,6 +138,7 @@ GameEngine.prototype.startInput = function () {
         } else if (e.code === "KeyD") {
             that.keyD = false;
         }
+
         //Abilities
         if (e.code.includes("Digit")){
             that.digit[parseInt(e.code.charAt(5))] = false;
@@ -157,6 +165,18 @@ GameEngine.prototype.reset = function () {
     SCENE_MANAGER.menu = this.entities[0][0];
     SCENE_MANAGER.insideMenu = true;
     this.playerPick = -1;
+
+    //reset html text
+    var healthHTML = document.getElementById("health");
+    healthHTML.innerHTML = "";
+    healthHTML.style.color = "lightgreen";
+    document.getElementById("speed").innerHTML = "" 
+    document.getElementById("location").innerHTML = "Location: " 
+    for (let x = 1; x < 4; x++) {
+        var spellHTML = document.getElementById("spell" + x);
+        spellHTML.innerHTML = "Ready";
+        spellHTML.style.color = "lightgreen";
+    }
 }
 
 GameEngine.prototype.addEntity = function (entity) {
