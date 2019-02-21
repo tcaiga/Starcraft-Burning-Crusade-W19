@@ -4,6 +4,7 @@ const GAME_ENGINE = new GameEngine();
 const CAMERA = new Camera();
 const DS = new DamageSystem();
 
+var BACKGROUND;
 var SCENE_MANAGER;
 var canvasWidth;
 var canvasHeight;
@@ -678,18 +679,23 @@ Camera.prototype.move = function (direction) {
         this.x += canvasWidth;
         myPlayer.x = 60 + CAMERA.x;
         myRoomNum += 1;
+        BACKGROUND.x -= 320;
+        
     } else if (direction === "left") {
         this.x -= canvasWidth;
         myPlayer.x = canvasWidth - TILE_SIZE * 2 - 60 + CAMERA.x;
         myRoomNum -= 1;
+        BACKGROUND.x += 320;
     } else if (direction === "up") {
         this.y -= canvasHeight;
         myPlayer.y = canvasHeight + TILE_SIZE * 2 + 60 + CAMERA.y;
         myFloorNum -= 1;
+        BACKGROUND.y -= 320;
     } else if (direction === "down") {
         this.y += canvasHeight;
         myPlayer.y = 60 + CAMERA.y;
         myFloorNum += 1;
+        BACKGROUND.y += 320;
     }
     document.getElementById("location").innerHTML = "Location: " + myFloorNum + "-" + myRoomNum;
 }
@@ -753,50 +759,107 @@ Menu.prototype.createClassButton = function (text, xPosition) {
 
 /* #region Background */
 function Background() {
-    this.x = 0;
-    this.y = 0;
+    this.x = -640;
+    this.y = -640;
     this.ctx = GAME_ENGINE.ctx;
+    // Keeping track of the last direction the generator has moved.
+    // 0 = North
+    // 1 = East
+    // 2 = South
+    // 3 = West
+    this.face = [];
+    this.directions = [[-1, 0], [0, 1], [1, 0], [0, -1]];
     this.map = [
-
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-
-    ]
-    this.mapLength = Math.sqrt(this.map.length);
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+    ];
+    this.row = 2;
+    this.col = 2;
+    this.roomCount = 0;
+    this.map[this.row][this.col] = 2;
     this.zero = new Image();
-    this.zero.src = "./img/floor_1.png";
+    this.zero.src = "./img/floor1.png";
     this.one = new Image();
-    this.one.src = "./img/tile_0117.png";
+    this.one.src = "./img/floor2.png";
+    this.two = new Image();
+    this.two.src = "./img/blacktile.png";
     this.tile = null;
-};
+    this.drawFaceCount = 0;
+}
 
 Background.prototype.draw = function () {
-    for (let i = 0; i < this.mapLength; i++) {
-        for (let j = 0; j < this.mapLength; j++) {
-            this.tile = (this.map[i * this.mapLength + j] == 1) ? this.one : this.zero;
-            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2);
-            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2);
-            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2 + TILE_SIZE);
-            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2 + TILE_SIZE);
+    for (let i = 0; i < this.map.length; i++) {
+        for (let j = 0; j < this.map[i].length; j++) {
+            for (let r = 0; r < 20; r++) {
+                for (let s = 0; s < 20; s++) {
+                    // Determining tiles to choose
+                    let tempTile = ROOMS[this.map[i][j]][r * 20 + s];
+                    if (tempTile === 0) {
+                        this.tile = this.one;
+                    } else if (tempTile === 1) {
+                        this.tile = this.zero;
+                    } else {
+                        this.tile = this.two;
+                    }
+                    // Drawing Tiles
+                    this.ctx.drawImage(this.tile, this.x + j * 320 + s * TILE_SIZE, this.y + i * 320 + r * TILE_SIZE);
+                }
+            }
+            
+            // Drawing doors
+            if (this.drawFaceCount < 6) {
+                if (this.face[this.drawFaceCount] === 0) {
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320 + 0, "up"));
+                    console.log("Door Up");
+                } else if (this.face[this.drawFaceCount] === 1) {
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 304, j * 320 + 144, "right"));
+                    console.log("Door Right");
+                } else if (this.face[this.drawFaceCount] === 2) {
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320 + 304, "down"));
+                    console.log("Door Down");
+                } else if (this.face[this.drawFaceCount] === 3) {
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 0, j * 320 + 144, "left"));
+                    console.log("Door Left");
+                }
+                this.drawFaceCount++;
+            }
         }
     }
+}
+
+Background.prototype.update = function () {
 };
 
-Background.prototype.update = function () { };
+Background.prototype.validDirection = function () {
+    while (this.roomCount < 6) {
+        let randomDirection = Math.floor(Math.random() * Math.floor(4));
+        let tempRow = this.row + this.directions[randomDirection][0];
+        let tempCol = this.col + this.directions[randomDirection][1];
+        if (randomDirection === 0 && this.face[this.face.length - 1] === 2
+            || randomDirection === 2 && this.face[this.face.length - 1] === 0
+            || randomDirection === 1 && this.face[this.face.length - 1] === 3
+            || randomDirection === 3 && this.face[this.face.length - 1] === 1) {
+            randomDirection = Math.floor(Math.random() * Math.floor(4));
+        } else {
+            if (tempRow < this.map.length && tempRow > 0  && tempCol < this.map.length && tempCol > 0
+                && this.map[tempRow][tempCol] === 0) {
+                this.face.push(randomDirection);
+                this.row += this.directions[randomDirection][0];
+                this.col += this.directions[randomDirection][1];
+                this.map[this.row][this.col] = 1;
+                if (this.roomCount + 1 === 6) {
+                    this.map[this.row][this.col] = 3;
+                }
+                this.roomCount++;
+            }
+        }
+    }
+    console.log(this.face);
+}
 /* #endregion */
 
 /* #region Animation */
@@ -887,6 +950,10 @@ AM.queueDownload("./img/devil.png");
 AM.queueDownload("./img/acolyte.png");
 // Harrison's Fireball
 AM.queueDownload("./img/fireball.png");
+// Floor Gen Tiles
+AM.queueDownload("./img/floor1.png");
+AM.queueDownload("./img/floor2.png");
+AM.queueDownload("./img/blacktile.png");
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
@@ -899,6 +966,7 @@ AM.downloadAll(function () {
     GAME_ENGINE.start();
 
     GAME_ENGINE.addEntity(new Menu());
+    BACKGROUND = new Background();
     SCENE_MANAGER = new SceneManager();
 });
 /* #endregion */
