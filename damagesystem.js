@@ -58,7 +58,7 @@ Make a set of premade buffs i.e. 'weak slow, slow, strong slow'
 const DTypes = {
     Normal: "n",
     Slashing: "s",
-    Riercing: "p",
+    Piercing: "p",
     Bludgeoning: "b",
     Magic: "m",
     Chaos: "c",//100% damage all time
@@ -68,9 +68,9 @@ const DTypes = {
 /* #region Armor type descriptions */
 /**
  * Armor types
- * @Unarmored takes bonus 33% damage from Riercing and Slashing.
- * @Light takes bonus 33% damage from Riercing and Magic.
- * @Medium takes bonus 33% damage from Normal, but 33% less damage from Riercing, Magic, and Slashing.
+ * @Unarmored takes bonus 33% damage from Piercing and Slashing.
+ * @Light takes bonus 33% damage from Piercing and Magic.
+ * @Medium takes bonus 33% damage from Normal, but 33% less damage from Piercing, Magic, and Slashing.
  * @Heavy takes bonus 33% damage from Magic.
  * @Ethereal takes bonus 66% damage from Magic, but 90% less damage from all other attack types.
  * @None Only use if entity should not have armor types considered. This is not a 'universal 1.0 damage mode'.
@@ -190,6 +190,7 @@ DamageSystem.prototype.CreateDamageObject = function (theDamage = 0, theHitstun 
 DamageSystem.prototype.CloneDamageObject = function (obj) {
     let newBuffObj = this.CloneBuffObject(obj.buff);
     let newObj  = this.CreateDamageObject(obj.damage, obj.hitstun, obj.damageType, newBuffObj);
+    newObj.timeLeft = obj.timeLeft;
     return newObj;
 }
 /* #region Create buff object description */

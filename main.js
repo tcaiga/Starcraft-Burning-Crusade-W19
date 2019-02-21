@@ -164,17 +164,19 @@ Player.prototype.update = function () {
 
 /* #region Player Ability functions */
 Player.prototype.rangerAbilities = function (number) {
+    let castDistance = 150, xDif, yDif, mag, xPos, yPos, dmg, aoe;
     if (this.abilityCD[number] <= 0) {
         switch (parseInt(number)) {
             case 0:
                 //Ability at keyboard number 0
                 break;
-            case 1://Create BoostPad
+            case 1:
+                /* #region Boostpad */
                 //Ability at keyboard number 1
-                let castDistance = 125;
+                castDistance = 125;
                 let tempTrap = new RangerBoostPad(GAME_ENGINE, AM.getAsset("./img/floor_boostpad_on.png"),
                     AM.getAsset("./img/floor_boostpad_off.png"));
-                let xDif, yDif, mag;
+                xDif, yDif, mag;
                 xDif = this.x - GAME_ENGINE.mouseX + 10;
                 yDif = this.y - GAME_ENGINE.mouseY + 10;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
@@ -185,9 +187,31 @@ Player.prototype.rangerAbilities = function (number) {
                 tempTrap.boundingbox = new BoundingBox(tempTrap.x, tempTrap.y, 20, 20);
                 GAME_ENGINE.addEntity(tempTrap);
                 this.abilityCD[number] = 60;
+                /* #endregion */
                 break;
             case 2:
                 //Ability at keyboard number 2
+                /* #region Rain of arrows */
+                castDistance = 150;
+                aoe = 70;
+                xDif = this.x - GAME_ENGINE.mouseX + 10;
+                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
+                castDistance = Math.min(mag, castDistance);
+                xPos = this.x - (xDif / mag) * castDistance;
+                yPos = this.y - (yDif / mag) * castDistance;
+                let ss1 = new StillStand(GAME_ENGINE, new Animation(AM.getAsset("./img/fireball.png")
+                                                    , 100, 100, 1, .085, 8, true, .75),7*7,xPos - 30,yPos - 30);
+                
+                ss1.boundingbox = new BoundingBox(ss1.x - aoe/2, ss1.y - aoe/2, aoe, aoe);
+                dmg = DS.CreateDamageObject(4,0,DTypes.Piercing,DS.CloneBuffObject(PremadeBuffs.Slow));
+                dmg.timeLeft = 7;
+                ss1.entityHitType = EntityTypes.enemies;
+                ss1.damageObj = dmg;
+                ss1.penetrative = true;
+                GAME_ENGINE.addEntity(ss1);
+                this.abilityCD[number] = 12;
+                /* #endregion */
                 break;
             case 3:
                 //Ability at keyboard number 3
@@ -228,13 +252,14 @@ Player.prototype.mageAbilities = function (number) {
             case 2:
                 /* #region Greater Fireball */
                 //Ability at keyboard number 2
-                let tempPro = new GreaterFireball(GAME_ENGINE, AM.getAsset("./img/fireball.png"),AM.getAsset("./img/fireball.png")
-                            ,this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX,GAME_ENGINE.mouseY);
+                let tempPro = new GreaterFireball(GAME_ENGINE, AM.getAsset("./img/fireball.png"), AM.getAsset("./img/fireball.png")
+                    , this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
                 tempPro.targetType = EntityTypes.enemies;
                 tempPro.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
                     this.width - 25, this.height - 25); // Hardcoded a lot of offset values
                 GAME_ENGINE.addEntity(tempPro);
-                this.abilityCD[number] = 12;
+                this.abilityCD[number] = 120;
+                this.castTime + 12;
                 /* #endregion */
                 break;
             case 3:
@@ -457,7 +482,7 @@ Projectile.prototype.draw = function () {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x - 18, this.y - 4); // Hardcoded a lot of offset values
     GAME_ENGINE.ctx.strokeStyle = "yellow";
     GAME_ENGINE.ctx.strokeRect(this.x + 8, this.y + 25, this.width - 75, this.height - 75); // Hardcoded a lot of offset values
-    
+
 }
 
 Projectile.prototype.update = function () {
@@ -518,7 +543,7 @@ function SwordBoomerang(game, spriteSheet, originX, originY, xTarget, yTarget) {
     }
 }
 
-function GreaterFireball(game, spriteSheet,spriteSheetAoe, originX, originY, xTarget, yTarget, targetType){
+function GreaterFireball(game, spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget, targetType) {
     Projectile.call(this, game, spriteSheet, originX, originY, xTarget, yTarget);
     this.projectileSpeed = 5;
     this.penetrative = false;
@@ -526,25 +551,25 @@ function GreaterFireball(game, spriteSheet,spriteSheetAoe, originX, originY, xTa
     this.targetType = targetType;
     this.animation = new Animation(spriteSheet, 100, 100, 1, .085, 8, true, 1);
     this.animationAoe = new Animation(spriteSheetAoe, 100, 100, 1, .085, 8, true, 1);
-    this.damageObj = DS.CreateDamageObject(10,4,DTypes.Magic
+    this.damageObj = DS.CreateDamageObject(10, 4, DTypes.Magic
         , DS.CreateBuffObject("lesser burning"
-        ,[DS.CreateEffectObject(ETypes.CurrentHealthF,-1,0,20,4)]));
+            , [DS.CreateEffectObject(ETypes.CurrentHealthF, -1, 0, 20, 4)]));
     this.childCollide = function (unit) {
-        let xPos,yPos,width = height = this.aoe;
+        let xPos, yPos, width = height = this.aoe;
         xPos = this.x - 25;
         yPos = this.y - 25;
-        let aBox = new BoundingBox(xPos,yPos,width,height);
-        let aCrow = new StillStand(this.game,this.animationAoe,6,this.x,this.y);
-        let aHit = DS.CreateDamageObject(15,2,DTypes.Magic
-                ,  DS.CreateBuffObject("burning"
-                ,[ DS.CreateEffectObject(ETypes.CurrentHealthF,-2,0,30,5)]));
+        let aBox = new BoundingBox(xPos, yPos, width, height);
+        let aCrow = new StillStand(this.game, this.animationAoe, 6, this.x, this.y);
+        let aHit = DS.CreateDamageObject(15, 2, DTypes.Magic
+            , DS.CreateBuffObject("burning"
+                , [DS.CreateEffectObject(ETypes.CurrentHealthF, -2, 0, 30, 5)]));
         aCrow.boundingbox = aBox;
         aCrow.penetrative = true;
         aCrow.entityHitType = EntityTypes.enemies;
         aCrow.damageObj = aHit;
         GAME_ENGINE.addEntity(aCrow);
     }
-    
+
 }
 /* #endregion */
 /* #endregion */
@@ -654,12 +679,12 @@ StillStand.prototype.update = function () {
     if (this.timeLeft <= 0) {
         this.removeFromWorld = true;
     }
-    if (typeof this.boundingbox !== 'undefined') {
+    if (typeof this.boundingbox !== 'undefined' && typeof this.entityHitType !== 'undefined') {
         for (var i = 0; i < GAME_ENGINE.entities[this.entityHitType].length; i++) {
             var entityCollide = GAME_ENGINE.entities[this.entityHitType][i];
             if (this.boundingbox.collide(entityCollide.boundingbox)) {
                 if (GAME_ENGINE.entities[this.entityHitType][i].currentHealth > 0) {
-                    (typeof this.onCollide === 'function') ? this.onCollide() : null;
+                    (typeof this.onCollide === 'function') ? this.onCollide(unit) : null;
                     this.damageObj.ApplyEffects(GAME_ENGINE.entities[this.entityHitType][i]);
                     this.removeFromWorld = (this.penetrative && !this.removeFromWorld) ? false : true;
                 }
