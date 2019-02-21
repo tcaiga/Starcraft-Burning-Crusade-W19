@@ -26,13 +26,20 @@ canvas {
     display: inline;
 }
 
+
 .spell {
     display: inline;
+    color: lightgreen;
 }
 
-.spellText {
+#health {
     display: inline;
-    color: green;
+    color: lightgreen;
+}
+
+#speed {
+    display: inline;
+    color: lightgreen;
 }
 
 body {

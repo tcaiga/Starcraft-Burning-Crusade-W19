@@ -1,7 +1,7 @@
 /* #region Constants */
 const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
-const CAMERA = new Camera(GAME_ENGINE);
+const CAMERA = new Camera();
 const DS = new DamageSystem();
 
 var SCENE_MANAGER;
@@ -9,6 +9,7 @@ var canvasWidth;
 var canvasHeight;
 var myFloorNum = 1;
 var myRoomNum = 1;
+
 // Constant variable for tile size
 const TILE_SIZE = 16;
 /* #endregion */
@@ -61,11 +62,11 @@ Player.prototype.draw = function () {
         }
 
         this.ctx.restore();
-       if (GAME_ENGINE.debug) {
-        GAME_ENGINE.ctx.strokeStyle = "blue";
-        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-            this.boundingbox.width, this.boundingbox.height);
-       }
+        if (GAME_ENGINE.debug) {
+            GAME_ENGINE.ctx.strokeStyle = "blue";
+            GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+                this.boundingbox.width, this.boundingbox.height);
+        }
     } else {
         this.dontdraw--;
     }
@@ -92,9 +93,16 @@ Player.prototype.update = function () {
         if (GAME_ENGINE.keyD === true) {
             this.x += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
             this.right = true;
-        }   
-        document.getElementById("speed").innerHTML = "Speed: " 
-        + Math.floor((this.maxMovespeedRatio  + this.maxMovespeedAdj) * sprint * 100) + "%";
+        }
+        var actualSpeed = Math.floor((this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint * 100);
+        var speedHTML = document.getElementById("speed");
+        speedHTML.innerHTML = + actualSpeed + "%";
+        if (actualSpeed === 100)
+        speedHTML.style.color = "lightgreen";
+        else if (actualSpeed < 100)
+        speedHTML.style.color = "red";
+        else
+        speedHTML.style.color = "white";
         /* #endregion */
     } else {
         this.isStunned--;
@@ -105,14 +113,14 @@ Player.prototype.update = function () {
         this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
         //ignoring index 0 of cd array
         if (t > 0) {
-            var spellTextHTML = document.getElementById("spellText" + t);
+            var spellHTML = document.getElementById("spell" + t);
             //display if spell is ready to use or not
             if (this.abilityCD[t] > 0) {
-                spellTextHTML.innerHTML = "- " + this.abilityCD[t] / 10;
-                spellTextHTML.style.color = "red";
+                spellHTML.innerHTML = this.abilityCD[t] / 10;
+                spellHTML.style.color = "red";
             } else {
-                spellTextHTML.innerHTML = "- Ready";
-                spellTextHTML.style.color = "green";
+                spellHTML.innerHTML = "Ready";
+                spellHTML.style.color = "lightgreen";
             }
         }
     }
@@ -287,7 +295,14 @@ Player.prototype.ChangeHealth = function (amount) {
         //to actually have it display
     }
     this.health += amount;//Damage will come in as a negative value;
-    document.getElementById("health").innerHTML = "Health: " + this.health;
+    var healthHTML = document.getElementById("health");
+    if (this.health >= 66)
+    healthHTML.style.color = "lightgreen";
+    else if (this.health >= 33)
+    healthHTML.style.color = "yellow";
+    else
+    healthHTML.style.color = "red";
+    healthHTML.innerHTML = this.health;
 }
 /* #endregion */
 
@@ -316,8 +331,8 @@ Monster.prototype.draw = function () {
     this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = "red";
-    GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-         this.boundingbox.width, this.boundingbox.height);
+        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+            this.boundingbox.width, this.boundingbox.height);
     }
 
     // Displaying Monster health
@@ -433,7 +448,7 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget) {
     this.width = 100;
     this.height = 100;
     this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
-    
+
     this.x = originX - CAMERA.x;
     this.y = originY - CAMERA.y;
 
@@ -460,7 +475,7 @@ Projectile.prototype.draw = function () {
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = "yellow";
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-             this.boundingbox.width, this.boundingbox.height); 
+            this.boundingbox.width, this.boundingbox.height);
     }
 }
 
@@ -476,7 +491,7 @@ Projectile.prototype.update = function () {
     this.x += velX;
     this.y += velY;
 
-    if (this.x - CAMERA.x < 16  || this.x - CAMERA.x > 460
+    if (this.x - CAMERA.x < 16 || this.x - CAMERA.x > 460
         || this.y - CAMERA.y < 0 || this.y - CAMERA.y > 430) this.removeFromWorld = true;
     Entity.prototype.update.call(this);
 
@@ -653,9 +668,9 @@ function Camera() {
     this.y = 0;
 }
 
-Camera.prototype.update = function () {}
+Camera.prototype.update = function () { }
 
-Camera.prototype.draw = function () {}
+Camera.prototype.draw = function () { }
 
 
 Camera.prototype.move = function (direction) {
@@ -680,7 +695,7 @@ Camera.prototype.move = function (direction) {
 }
 /* #endregion */
 
-function Door (theX, theY, theDirection) {
+function Door(theX, theY, theDirection) {
     this.x = theX;
     this.y = theY;
     this.ctx = GAME_ENGINE.ctx;
