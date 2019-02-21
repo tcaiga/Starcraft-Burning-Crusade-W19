@@ -1,3 +1,9 @@
+//color constants
+const color_green = "lightgreen";
+const color_red = "red";
+const color_yellow = "yellow";
+const color_white = "white";
+
 /* #region Constants */
 const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
@@ -34,7 +40,7 @@ function Player(spritesheet, xOffset, yOffset) {
     this.xScale = 1;
     this.damageObjArr = [];
     this.buffObj = [];
-    this.abilityCD = [0, 0, 0, 0, 0];
+    this.abilityCD = [0, 0, 0, 0];
     this.cooldownRate = 1;
     this.cooldownAdj = 0;
     this.castTime = 0;
@@ -47,7 +53,7 @@ function Player(spritesheet, xOffset, yOffset) {
     this.maxMovespeedRatio = 1;
     this.maxMovespeedAdj = 0;
     this.right = true;
-    this.currentHealth = 100;
+    this.health = 100;
     this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
         this.width, this.height); // **Temporary** Hard coded offset values.
@@ -107,11 +113,11 @@ Player.prototype.update = function () {
         var speedHTML = document.getElementById("speed");
         speedHTML.innerHTML = + actualSpeed + "%";
         if (actualSpeed === 100)
-        speedHTML.style.color = "lightgreen";
+            speedHTML.style.color = color_green;
         else if (actualSpeed < 100)
-        speedHTML.style.color = "red";
+            speedHTML.style.color = color_red;
         else
-        speedHTML.style.color = "white";
+            speedHTML.style.color = color_white;
         /* #endregion */
     } else {
         this.castTime--;
@@ -126,10 +132,10 @@ Player.prototype.update = function () {
             //display if spell is ready to use or not
             if (this.abilityCD[t] > 0) {
                 spellHTML.innerHTML = this.abilityCD[t] / 10;
-                spellHTML.style.color = "red";
+                spellHTML.style.color = color_red;
             } else {
                 spellHTML.innerHTML = "Ready";
-                spellHTML.style.color = "lightgreen";
+                spellHTML.style.color = color_green;
             }
         }
     }
@@ -208,9 +214,8 @@ Player.prototype.rangerAbilities = function (number) {
                 /* #region Boostpad */
                 //Ability at keyboard number 1
 
-                let castDistance = 125;
+                castDistance = 125;
                 let tempTrap = new RangerBoostPad(AM.getAsset("./img/floor_boostpad_on.png"),
-
                     AM.getAsset("./img/floor_boostpad_off.png"));
                 xDif, yDif, mag;
                 xDif = this.x - GAME_ENGINE.mouseX + 10;
@@ -236,7 +241,7 @@ Player.prototype.rangerAbilities = function (number) {
                 castDistance = Math.min(mag, castDistance);
                 xPos = this.x - (xDif / mag) * castDistance;
                 yPos = this.y - (yDif / mag) * castDistance;
-                let ss1 = new StillStand(GAME_ENGINE, new Animation(AM.getAsset("./img/fireball.png")
+                let ss1 = new StillStand(new Animation(AM.getAsset("./img/fireball.png")
                     , 100, 100, 1, .085, 8, true, .75), 7 * 7, xPos - 30, yPos - 30);
 
                 ss1.boundingbox = new BoundingBox(ss1.x - aoe / 2, ss1.y - aoe / 2, aoe, aoe);
@@ -275,10 +280,10 @@ Player.prototype.mageAbilities = function (number) {
                 castDistance = Math.min(castDistance, mag);
                 ss1Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
                 ss2Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
-                ss1 = new StillStand(this.game, ss1Ani, 10, this.x, this.y);
+                ss1 = new StillStand(ss1Ani, 10, this.x, this.y);
                 this.x -= (xDif / mag) * castDistance + 12;
                 this.y -= (yDif / mag) * castDistance + 30;
-                ss2 = new StillStand(this.game, ss2Ani, 10, this.x, this.y);
+                ss2 = new StillStand(ss2Ani, 10, this.x, this.y);
 
                 this.dontdraw = 10;
                 this.castTime = 10;
@@ -290,7 +295,7 @@ Player.prototype.mageAbilities = function (number) {
             case 2:
                 /* #region Greater Fireball */
                 //Ability at keyboard number 2
-                let tempPro = new GreaterFireball(GAME_ENGINE, AM.getAsset("./img/fireball.png"), AM.getAsset("./img/fireball.png")
+                let tempPro = new GreaterFireball(AM.getAsset("./img/fireball.png"), AM.getAsset("./img/fireball.png")
                     , this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
                 tempPro.targetType = EntityTypes.enemies;
                 tempPro.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
@@ -304,9 +309,9 @@ Player.prototype.mageAbilities = function (number) {
                 /* #region Flame Breath */
                 //Ability at keyboard number 3
                 let tempPro2;
-                for (let i = 0; i < 30; i++){
-                    tempPro2 = new FlameBreathBolt(GAME_ENGINE, AM.getAsset("./img/flame_breath_bolt.png")
-                    ,this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
+                for (let i = 0; i < 30; i++) {
+                    tempPro2 = new FlameBreathBolt(AM.getAsset("./img/flame_breath_bolt.png")
+                        , this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
                     GAME_ENGINE.addEntity(tempPro2);
                 }
                 this.castTime = 8;
@@ -330,8 +335,8 @@ Player.prototype.knightAbilities = function (number) {
                 //Ability at keyboard number 1
 
                 let tempPro = new SwordBoomerang(AM.getAsset("./img/swordBoomerang.png"),
-
-                    this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
+                    this.x - (this.width / 2), this.y - (this.height / 2),
+                    GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
                 tempPro.thrower = this;
                 GAME_ENGINE.addEntity(tempPro);
                 this.abilityCD[number] = 60;
@@ -350,12 +355,12 @@ Player.prototype.knightAbilities = function (number) {
                 yPos = this.y - (yDif / mag) * castDistance;
 
                 ssAni1 = new Animation(AM.getAsset("./img/Shield Flash.png"), 32, 32, 1, 0.07, 6, true, 1.5);
-                ss1 = new StillStand(GAME_ENGINE, ssAni1, 12, xPos, yPos);
+                ss1 = new StillStand(ssAni1, 12, xPos, yPos);
                 ss1.boundingbox = new BoundingBox(xPos + 5, yPos + 2, aoe, aoe);
                 ss1.entityHitType = EntityTypes.enemies;
                 ss1.onDraw = function () {
                     //console.log(xPos - aoe/2, yPos - aoe/2, aoe, aoe);
-                    this.game.ctx.strokeStyle = "yellow";
+                    GAME_ENGINE.ctx.strokeStyle = color_yellow;
                     //this.game.ctx.strokeRect(xPos + 5, yPos + 2, aoe, aoe);
                 }
                 ss1.damageObj = DS.CreateDamageObject(21, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.Stun));
@@ -390,11 +395,11 @@ Player.prototype.changeHealth = function (amount) {
     this.health += amount;//Damage will come in as a negative value;
     var healthHTML = document.getElementById("health");
     if (this.health >= 66)
-    healthHTML.style.color = "lightgreen";
+        healthHTML.style.color = color_green;
     else if (this.health >= 33)
-    healthHTML.style.color = "yellow";
+        healthHTML.style.color = color_yellow;
     else
-    healthHTML.style.color = "red";
+        healthHTML.style.color = color_red;
     healthHTML.innerHTML = this.health;
 
 }
@@ -438,14 +443,14 @@ function Monster(game, spritesheet) {
 Monster.prototype.draw = function () {
     this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
     if (GAME_ENGINE.debug) {
-        GAME_ENGINE.ctx.strokeStyle = "red";
+        GAME_ENGINE.ctx.strokeStyle = color_red;
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
             this.boundingbox.width, this.boundingbox.height);
     }
 
     // Displaying Monster currentHealth
     this.ctx.font = "15px Arial";
-    this.ctx.fillStyle = "white";
+    this.ctx.fillStyle = color_white;
     this.ctx.fillText("Health: " + this.health, this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
 }
 
@@ -457,12 +462,12 @@ function distance(monster) {
 
 Monster.prototype.update = function () {
     if (this.health <= 0) this.removeFromWorld = true;
-  
+
     if (!this.isStunned) {
-        this.x += this.game.clockTick * this.speed;
+        this.x += GAME_ENGINE.clockTick * this.speed;
         if (this.x <= TILE_SIZE * 2) this.x = 450;
     }
-  
+
     // based on the number of ticks since the player was last hit, we pause the monster
     if (this.pause == false) {
         // get the direction vector pointing towards player
@@ -490,7 +495,7 @@ Monster.prototype.update = function () {
 
     this.visionBox = new BoundingBox(this.x, this.y,
         this.visionWidth * this.scale * 5, this.visionHeight * this.scale * 5);
-    
+
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
 
         this.counter += GAME_ENGINE.clockTick;
@@ -521,7 +526,6 @@ Monster.prototype.update = function () {
             this.castCooldown += 1
             // reset after 45 ticks and then cast again
             if (this.castCooldown > 45) {
-                console.log(this.castCoooldown);
                 this.castCooldown = 0;
                 var projectile = new Projectile(AM.getAsset("./img/fireball.png", 4),
                     this.x - (this.width / 2), this.y - (this.height / 2), tarX, tarY);
@@ -609,7 +613,7 @@ function Acolyte(spritesheet) {
     this.isRanged = true;
 
     this.animation = new Animation(spritesheet, this.width, this.height, 64, 0.15, 4, true, this.scale);
-    
+
     this.x = 200;
     this.y = 200;
 
@@ -656,7 +660,7 @@ Projectile.prototype.draw = function () {
     (typeof this.childDraw === 'function') ? this.childDraw() : null;
     this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x - 18, this.y - 4); // Hardcoded a lot of offset values
     if (GAME_ENGINE.debug) {
-        GAME_ENGINE.ctx.strokeStyle = "yellow";
+        GAME_ENGINE.ctx.strokeStyle = color_yellow;
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
             this.boundingbox.width, this.boundingbox.height);
     }
@@ -712,7 +716,7 @@ GreaterFireball.prototype = Projectile.prototype;
 FlameBreathBolt.prototype = Projectile.prototype;
 
 
-function swordBoomerang(spriteSheet, originX, originY, xTarget, yTarget) {
+function SwordBoomerang(spriteSheet, originX, originY, xTarget, yTarget) {
     Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, 5/* same number assignment as the ent array*/);
     this.projectileSpeed = 7;
     this.timeLeft = 60;
@@ -733,8 +737,8 @@ function swordBoomerang(spriteSheet, originX, originY, xTarget, yTarget) {
     }
 }
 
-function GreaterFireball(game, spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget, targetType) {
-    Projectile.call(this, game, spriteSheet, originX, originY, xTarget, yTarget);
+function GreaterFireball(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget, targetType) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, 5);
     this.projectileSpeed = 5;
     this.penetrative = false;
     this.aoe = 100;//square
@@ -749,7 +753,7 @@ function GreaterFireball(game, spriteSheet, spriteSheetAoe, originX, originY, xT
         xPos = this.x - 25;
         yPos = this.y - 25;
         let aBox = new BoundingBox(xPos, yPos, width, height);
-        let aCrow = new StillStand(this.game, this.animationAoe, 6, this.x, this.y);
+        let aCrow = new StillStand(this.animationAoe, 6, this.x, this.y);
         let aHit = DS.CreateDamageObject(15, 2, DTypes.Magic
             , DS.CreateBuffObject("burning"
                 , [DS.CreateEffectObject(ETypes.CurrentHealthF, -2, 0, 30, 5)]));
@@ -762,8 +766,8 @@ function GreaterFireball(game, spriteSheet, spriteSheetAoe, originX, originY, xT
 
 }
 
-function FlameBreathBolt(game, spriteSheet, originX, originY, xTarget, yTarget) {
-    Projectile.call(this, game, spriteSheet, originX, originY, xTarget, yTarget);
+function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, 5);
     this.xTar = xTarget - 20;
     this.yTar = yTarget - 35;
     this.range = 90;
@@ -773,15 +777,15 @@ function FlameBreathBolt(game, spriteSheet, originX, originY, xTarget, yTarget) 
     this.aniY += 38;
     // Determining where the projectile should go angle wise.
     //radians
-    let converter = Math.PI/360;
+    let converter = Math.PI / 360;
     let spread = 90;
     this.angle = Math.atan2(this.yTar - this.originY, this.xTar - this.originX);
-    this.angle += spread*converter*Math.random()*((Math.random() - 0.5 >= 0) ? 1 : -1);
-    this.projectileSpeed = Math.random()*5 + 2;
-    this.timeLeft = this.range/this.projectileSpeed;
+    this.angle += spread * converter * Math.random() * ((Math.random() - 0.5 >= 0) ? 1 : -1);
+    this.projectileSpeed = Math.random() * 5 + 2;
+    this.timeLeft = this.range / this.projectileSpeed;
     this.childUpdate = function () {
         this.timeLeft--;
-        if (this.timeLeft <= 0){
+        if (this.timeLeft <= 0) {
             this.removeFromWorld = true;
         }
     }
@@ -817,7 +821,7 @@ Trap.prototype.draw = function () {
         }
     }
     if (GAME_ENGINE.debug) {
-        GAME_ENGINE.ctx.strokeStyle = "red";
+        GAME_ENGINE.ctx.strokeStyle = color_red;
         GAME_ENGINE.ctx.strokeRect(this.x, this.y, 20, 20); // **Temporary** Hard coded offset values
     }
 }
@@ -840,7 +844,7 @@ Trap.prototype.update = function () {
             this.doAnimation = false;
             // Nuke the player, but start the damage .13 ticks after they stand on the trap
             // This allows players to sprint accross taking 10 damage
-            if (myPlayer.currentHealth > 0 && this.counter > 0.18) {
+            if (myPlayer.health > 0 && this.counter > 0.18) {
                 //myPlayer.currentHealth -= 2;
                 this.damageObj.ApplyEffects(myPlayer);
                 this.counter = .1;
@@ -899,7 +903,7 @@ StillStand.prototype.update = function () {
         for (var i = 0; i < GAME_ENGINE.entities[this.entityHitType].length; i++) {
             var entityCollide = GAME_ENGINE.entities[this.entityHitType][i];
             if (this.boundingbox.collide(entityCollide.boundingbox)) {
-                if (GAME_ENGINE.entities[this.entityHitType][i].currentHealth > 0) {
+                if (GAME_ENGINE.entities[this.entityHitType][i].health > 0) {
                     (typeof this.onCollide === 'function') ? this.onCollide(unit) : null;
                     this.damageObj.ApplyEffects(GAME_ENGINE.entities[this.entityHitType][i]);
                     this.removeFromWorld = (this.penetrative && !this.removeFromWorld) ? false : true;
@@ -951,7 +955,7 @@ Camera.prototype.move = function (direction) {
         myPlayer.x = 60 + CAMERA.x;
         myRoomNum += 1;
         BACKGROUND.x -= 320;
-        
+
     } else if (direction === "left") {
         this.x -= canvasWidth;
         myPlayer.x = canvasWidth - TILE_SIZE * 2 - 60 + CAMERA.x;
@@ -1032,7 +1036,7 @@ Menu.prototype.createClassButton = function (text, xPosition, YPosition) {
     this.ctx.lineWidth = "1";
     this.ctx.font = "35px Arial";
     this.ctx.strokeText(text, xPosition, YPosition + this.classButtonH);
-    this.ctx.fillStyle = "white";
+    this.ctx.fillStyle = color_white;
     this.ctx.fillText(text, xPosition, YPosition + this.classButtonH);
 }
 /* #endregion */
@@ -1089,7 +1093,7 @@ Background.prototype.draw = function () {
                     this.ctx.drawImage(this.tile, this.x + j * 320 + s * TILE_SIZE, this.y + i * 320 + r * TILE_SIZE);
                 }
             }
-            
+
             // Drawing doors
             if (this.drawFaceCount < 6) {
                 if (this.face[this.drawFaceCount] === 0) {
@@ -1125,7 +1129,7 @@ Background.prototype.validDirection = function () {
             || randomDirection === 3 && this.face[this.face.length - 1] === 1) {
             randomDirection = Math.floor(Math.random() * Math.floor(4));
         } else {
-            if (tempRow < this.map.length && tempRow > 0  && tempCol < this.map.length && tempCol > 0
+            if (tempRow < this.map.length && tempRow > 0 && tempCol < this.map.length && tempCol > 0
                 && this.map[tempRow][tempCol] === 0) {
                 this.face.push(randomDirection);
                 this.row += this.directions[randomDirection][0];
@@ -1174,7 +1178,6 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     } else {
         xPosition = x + CAMERA.x;
     }
-
     ctx.drawImage(this.spriteSheet,
         xindex * this.frameWidth, yindex * this.frameHeight,
         this.frameWidth, this.frameHeight,
@@ -1214,7 +1217,7 @@ Animation.prototype.isDone = function () {
 AM.queueDownload("./img/ranger_run.png");
 // Knight
 AM.queueDownload("./img/knight_run.png");
-AM.queueDownload("./img/SwordBoomerang.png");
+AM.queueDownload("./img/swordBoomerang.png");
 AM.queueDownload("./img/Shield Flash.png");
 // Mage
 AM.queueDownload("./img/mage_run.png");
