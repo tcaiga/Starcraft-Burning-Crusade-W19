@@ -725,13 +725,22 @@ Door.prototype.draw = function () {
 
 function Menu() {
     this.ctx = GAME_ENGINE.ctx;
-    this.classButtonW = 100;
     this.classButtonH = 35;
     this.classButtonY = canvasHeight / 2;
-    this.classButtonBottom = this.classButtonY + this.classButtonH;
-    this.mageButtonX = (canvasWidth - (this.classButtonW * 3)) / 4;
-    this.rangerButtonX = 2 * this.mageButtonX + this.classButtonW;
-    this.knightButtonX = this.rangerButtonX + this.classButtonW + this.mageButtonX;
+
+    this.ctx.font = "35px Arial";
+    this.mageWidth = this.ctx.measureText("Mage").width;
+    this.rangerWidth = this.ctx.measureText("Ranger").width;
+    this.knightWidth = this.ctx.measureText("Knight").width;
+
+    this.mageButtonX = canvasWidth / 2 - (this.mageWidth / 2);
+    this.rangerButtonX = canvasWidth / 2 - (this.rangerWidth / 2);
+    this.knightButtonX = canvasWidth / 2 - (this.knightWidth / 2);
+
+    this.mageButtonY = (canvasHeight - (this.classButtonH * 3)) / 4;
+    this.rangerButtonY = 2 * this.mageButtonY + this.classButtonH;
+    this.knightButtonY = this.rangerButtonY + this.classButtonH + this.mageButtonY;
+
     this.background = new Image();
     this.background.src = "./img/menu_background.png";
 }
@@ -742,18 +751,18 @@ Menu.prototype.draw = function () {
     this.ctx.drawImage(this.background, 253, 0,
         canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
 
-    this.createClassButton("Mage", this.mageButtonX);
-    this.createClassButton("Ranger", this.rangerButtonX);
-    this.createClassButton("Knight", this.knightButtonX);
+    this.createClassButton("Mage", this.mageButtonX, this.mageButtonY);
+    this.createClassButton("Ranger", this.rangerButtonX, this.rangerButtonY);
+    this.createClassButton("Knight", this.knightButtonX, this.knightButtonY);
 }
 
-Menu.prototype.createClassButton = function (text, xPosition) {
+Menu.prototype.createClassButton = function (text, xPosition, YPosition) {
     this.ctx.strokeStyle = "black";
     this.ctx.lineWidth = "1";
     this.ctx.font = "35px Arial";
-    this.ctx.strokeText(text, xPosition, this.classButtonY + this.classButtonH);
+    this.ctx.strokeText(text, xPosition, YPosition + this.classButtonH);
     this.ctx.fillStyle = "white";
-    this.ctx.fillText(text, xPosition, this.classButtonY + this.classButtonH);
+    this.ctx.fillText(text, xPosition, YPosition + this.classButtonH);
 }
 /* #endregion */
 
