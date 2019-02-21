@@ -1043,8 +1043,11 @@ Menu.prototype.createClassButton = function (text, xPosition, YPosition) {
 
 /* #region Background */
 function Background() {
-    this.x = -640;
-    this.y = -640;
+    // this.x = -640;
+    // this.y = -640;
+    this.x = 0;
+    this.y = 0;
+
     this.ctx = GAME_ENGINE.ctx;
     // Keeping track of the last direction the generator has moved.
     // 0 = North
@@ -1061,8 +1064,8 @@ function Background() {
         [0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
     ];
-    this.row = 2;
-    this.col = 2;
+    this.row = 0;
+    this.col = 0;
     this.roomCount = 0;
     this.map[this.row][this.col] = 2;
     this.zero = new Image();
@@ -1119,29 +1122,42 @@ Background.prototype.update = function () {
 };
 
 Background.prototype.validDirection = function () {
-    while (this.roomCount < 6) {
-        let randomDirection = Math.floor(Math.random() * Math.floor(4));
-        let tempRow = this.row + this.directions[randomDirection][0];
-        let tempCol = this.col + this.directions[randomDirection][1];
-        if (randomDirection === 0 && this.face[this.face.length - 1] === 2
-            || randomDirection === 2 && this.face[this.face.length - 1] === 0
-            || randomDirection === 1 && this.face[this.face.length - 1] === 3
-            || randomDirection === 3 && this.face[this.face.length - 1] === 1) {
-            randomDirection = Math.floor(Math.random() * Math.floor(4));
-        } else {
-            if (tempRow < this.map.length && tempRow > 0 && tempCol < this.map.length && tempCol > 0
-                && this.map[tempRow][tempCol] === 0) {
-                this.face.push(randomDirection);
-                this.row += this.directions[randomDirection][0];
-                this.col += this.directions[randomDirection][1];
-                this.map[this.row][this.col] = 1;
-                if (this.roomCount + 1 === 6) {
-                    this.map[this.row][this.col] = 3;
-                }
-                this.roomCount++;
-            }
-        }
-    }
+
+    // while (this.roomCount < 6) {
+    //     let randomDirection = Math.floor(Math.random() * Math.floor(4));
+    //     let tempRow = this.row + this.directions[randomDirection][0];
+    //     let tempCol = this.col + this.directions[randomDirection][1];
+    //     if (randomDirection === 0 && this.face[this.face.length - 1] === 2
+    //         || randomDirection === 2 && this.face[this.face.length - 1] === 0
+    //         || randomDirection === 1 && this.face[this.face.length - 1] === 3
+    //         || randomDirection === 3 && this.face[this.face.length - 1] === 1) {
+    //         randomDirection = Math.floor(Math.random() * Math.floor(4));
+    //     } else {
+    //         if (tempRow < this.map.length && tempRow > 0  && tempCol < this.map.length && tempCol > 0
+    //             && this.map[tempRow][tempCol] === 0) {
+    //             this.face.push(randomDirection);
+    //             this.row += this.directions[randomDirection][0];
+    //             this.col += this.directions[randomDirection][1];
+    //             this.map[this.row][this.col] = 1;
+    //             if (this.roomCount + 1 === 6) {
+    //                 this.map[this.row][this.col] = 3;
+    //             }
+    //             this.roomCount++;
+    //         }
+    //     }
+    // }
+
+    this.map[1][0] = 1;
+    this.map[2][0] = 1;
+    this.map[3][0] = 1;
+    this.map[4][0] = 1;
+    this.map[4][1] = 3;
+    this.face.push(2);
+    this.face.push(2);
+    this.face.push(2);
+    this.face.push(2);
+    this.face.push(1);
+
     console.log(this.face);
 }
 /* #endregion */
