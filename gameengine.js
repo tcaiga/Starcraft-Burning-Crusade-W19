@@ -167,13 +167,15 @@ GameEngine.prototype.reset = function () {
     this.playerPick = -1;
 
     //reset html text
-    document.getElementById("health").innerHTML = "Health: ";
-    document.getElementById("speed").innerHTML = "Speed: " 
+    var healthHTML = document.getElementById("health");
+    healthHTML.innerHTML = "";
+    healthHTML.style.color = "lightgreen";
+    document.getElementById("speed").innerHTML = "" 
     document.getElementById("location").innerHTML = "Location: " 
     for (let x = 1; x < 4; x++) {
-        var spellTextHTML = document.getElementById("spellText" + x);
-        spellTextHTML.innerHTML = "- Ready";
-        spellTextHTML.style.color = "green";
+        var spellHTML = document.getElementById("spell" + x);
+        spellHTML.innerHTML = "Ready";
+        spellHTML.style.color = "lightgreen";
     }
 }
 

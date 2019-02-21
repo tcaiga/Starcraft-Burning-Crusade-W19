@@ -44,7 +44,7 @@ SceneManager.prototype.gameInit = function () {
     myPlayer = new Player(AM.getAsset(characterSprites[GAME_ENGINE.playerPick]["spritesheet"]), 
     characterSprites[GAME_ENGINE.playerPick]["xOffset"], characterSprites[GAME_ENGINE.playerPick]["yOffset"]);
     GAME_ENGINE.addEntity(myPlayer);
-    document.getElementById("health").innerHTML = "Health: 100";
+    document.getElementById("health").innerHTML = "100";
     document.getElementById("location").innerHTML = "Location: 1-1";
     GAME_ENGINE.addEntity(CAMERA);
 }
