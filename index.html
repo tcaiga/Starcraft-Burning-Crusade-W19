@@ -4,13 +4,43 @@
 <head>
     <meta charset="utf-8">
     <title>Last Labyrinth</title>
+    <link href="style/index.css" rel="stylesheet" type="text/css">
     <script type="text/javascript" src="./gameengine.js"></script>
     <script type="text/javascript" src="./assetmanager.js"></script>
     <script type="text/javascript" src="./scenemanager.js"></script>
+    <script type="text/javascript" src="./damagesystem.js"></script>
     <script type="text/javascript" src="./main.js"></script>
 </head>
 <body>
-    <canvas id="canvas" tabindex="1" width="762" height="612" 
-    style="position: absolute; left: 50%; margin-left:-381px; top:50%; margin-top:-306px"></canvas>
+    <div id="wrapper">
+        <canvas id="canvas" tabindex="1" width="320" height="320"></canvas>
+        <div id="sidebar">
+            <h1>Last Labyrinth</h1>
+            <h2 id="location">Location:</h2>
+            <h2 style="display:inline">Health:
+                <h2 id ="health"></h2>
+            </h2><br /><br />
+            <h2 style="display:inline">Speed:
+                <h2 id ="speed"></h2>
+            </h2><br /><br />
+            <h3 class="abilities">Abilities:</h3>
+            <br />
+            <h3 style="display: inline">1 -
+                <h3 id="spell1" class="spell">Ready</h3>
+            </h3><br />
+            <h3 style="display: inline">2 -
+                <h3 id="spell2" class="spell">Ready</h3>
+            </h3><br />
+            <h3 style="display: inline">3 -
+                <h3 id="spell3" class="spell">Ready</h3>
+            </h3><br />
+            <h3 style="display: inline">4 -
+                <h3 id="spell4" class="spell">Ready</h3>
+            </h3>
+            <h4>Movement: W, A, S, D</h4>
+            <h4>Sprint: Shift</h4>
+            <h4>Projectile: Left Click</h4>
+          </div>
+    </div>
 </body>
 </html>

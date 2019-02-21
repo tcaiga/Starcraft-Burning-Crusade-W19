@@ -19,7 +19,7 @@ window.requestAnimFrame = (function () {
 })();
 
 function GameEngine() {
-    //menu, non-interactable (terrain, hud),traps, projectiles, enemies, player
+    //menu, non-interactable (terrain),traps, projectiles, enemies, player
     this.entities = [[], [], [], [], [], []];
     this.ctx = null;
     this.surfaceWidth = null;
@@ -28,9 +28,13 @@ function GameEngine() {
     this.keyS = false;
     this.keyD = false;
     this.keyW = false;
+    this.digit = [false,false,false,false,false,false,false,false,false,false];
+    this.mouseX = 0;
+    this.mouseY = 0;
     this.keyShift = false;
     this.movement = false;
     this.playerPick;
+    this.debug = true;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -64,7 +68,7 @@ GameEngine.prototype.startInput = function () {
 
     var that = this;
     // event listeners are added here
-    var playerPick = null;
+
     this.ctx.canvas.addEventListener("click", function (e) {
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
@@ -73,11 +77,17 @@ GameEngine.prototype.startInput = function () {
         } else {
             if (that.playerPick == 0) {
                 // Projectile
-                var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
-                    myPlayer.x - (myPlayer.width / 2), myPlayer.y - (myPlayer.height / 2), x, y);
+                var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
+                    myPlayer.x - (myPlayer.width / 2),
+                     myPlayer.y - (myPlayer.height / 2), x, y);
                 GAME_ENGINE.addEntity(projectile);
             }
         }
+    }, false);
+
+    this.ctx.canvas.addEventListener("mousemove", function (e) {
+        that.mouseX = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
+        that.mouseY = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
@@ -85,7 +95,6 @@ GameEngine.prototype.startInput = function () {
         if (e.code === "ShiftLeft") {
             that.keyShift = true;
         }
-
         if (e.code === "KeyW") {
             that.keyW = true;
             that.movement = true;
@@ -99,6 +108,19 @@ GameEngine.prototype.startInput = function () {
             that.keyD = true;
             that.movement = true;
         }
+
+        if (e.code === "KeyU") {
+           if (that.debug === false) {
+            that.debug = true;
+           } else {
+            that.debug = false;
+           }
+        }
+        //Abilities
+        if (e.code.includes("Digit")){
+            that.digit[parseInt(e.code.charAt(5))] = true;
+        }
+
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
@@ -115,6 +137,11 @@ GameEngine.prototype.startInput = function () {
             that.keyS = false;
         } else if (e.code === "KeyD") {
             that.keyD = false;
+        }
+
+        //Abilities
+        if (e.code.includes("Digit")){
+            that.digit[parseInt(e.code.charAt(5))] = false;
         }
         /*if key is still being pressed down when another key is pressed up
           then movement is still happening. */
@@ -138,6 +165,18 @@ GameEngine.prototype.reset = function () {
     SCENE_MANAGER.menu = this.entities[0][0];
     SCENE_MANAGER.insideMenu = true;
     this.playerPick = -1;
+
+    //reset html text
+    var healthHTML = document.getElementById("health");
+    healthHTML.innerHTML = "";
+    healthHTML.style.color = "lightgreen";
+    document.getElementById("speed").innerHTML = "" 
+    document.getElementById("location").innerHTML = "Location: " 
+    for (let x = 1; x < 4; x++) {
+        var spellHTML = document.getElementById("spell" + x);
+        spellHTML.innerHTML = "Ready";
+        spellHTML.style.color = "lightgreen";
+    }
 }
 
 GameEngine.prototype.addEntity = function (entity) {
@@ -163,7 +202,8 @@ GameEngine.prototype.draw = function () {
         var entitySubArr = this.entities[i];
         for (let j = 0; j < entitySubArr.length; j++) {
             var entity = this.entities[i][j];
-            if (!entity.removeFromWorld) {
+            if (!entity.removeFromWorld && (i <= 1 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
+                entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.draw(this.ctx);
             }
         }
@@ -212,7 +252,7 @@ function Entity(game, x, y) {
     this.removeFromWorld = false;
 }
 
-Entity.prototype.update = function () {}
+Entity.prototype.update = function () { }
 
 Entity.prototype.draw = function (ctx) {
     if (this.game.showOutlines && this.radius) {

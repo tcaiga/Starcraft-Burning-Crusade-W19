@@ -1,19 +1,22 @@
+/* #region Constants */
 const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
+const CAMERA = new Camera();
+const DS = new DamageSystem();
 
+var BACKGROUND;
 var SCENE_MANAGER;
 var canvasWidth;
 var canvasHeight;
-var gameWorldHeight;
-var gameWorldWidth;
-var hudHeight;
-var sidebarWidth;
 var myFloorNum = 1;
 var myRoomNum = 1;
+
 // Constant variable for tile size
 const TILE_SIZE = 16;
+/* #endregion */
 
-function Player(game, spritesheet, xOffset, yOffset) {
+/* #region Player */
+function Player(spritesheet, xOffset, yOffset) {
     // Relevant for Player box
     this.width = 16;
     this.height = 28;
@@ -25,10 +28,19 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.x = 60;
     this.y = 60;
     this.xScale = 1;
-    this.game = game;
-    this.ctx = game.ctx;
+    this.damageObjArr = [];
+    this.buffObj = [];
+    this.abilityCD = [0, 0, 0, 0, 0];
+    this.cooldownRate = 1;
+    this.cooldownAdj = 0;
+    this.isStunned = 0;
+    this.ctx = GAME_ENGINE.ctx;
+    this.baseMaxMovespeed = 2;
+    this.maxMovespeedRatio = 1;
+    this.maxMovespeedAdj = 0;
     this.right = true;
     this.health = 100;
+    this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
         this.width, this.height); // **Temporary** Hard coded offset values.
 }
@@ -43,120 +55,369 @@ Player.prototype.draw = function () {
         xValue = -this.x - this.width;
     }
     //draw player character with no animation if player is not currently moving
-    if (!GAME_ENGINE.movement) {
-        this.animationIdle.drawFrameIdle(this.ctx, xValue, this.y);
+    if (this.dontdraw <= 0) {
+        if (!GAME_ENGINE.movement) {
+            this.animationIdle.drawFrameIdle(this.ctx, xValue, this.y);
+        } else {
+            this.animationRun.drawFrame(GAME_ENGINE.clockTick, this.ctx, xValue, this.y);
+        }
+
+        this.ctx.restore();
+        if (GAME_ENGINE.debug) {
+            GAME_ENGINE.ctx.strokeStyle = "blue";
+            GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+                this.boundingbox.width, this.boundingbox.height);
+        }
     } else {
-        this.animationRun.drawFrame(this.game.clockTick, this.ctx, xValue, this.y);
+        this.dontdraw--;
     }
-    this.ctx.restore();
-    GAME_ENGINE.ctx.strokeStyle = "blue";
-    GAME_ENGINE.ctx.strokeRect(this.x + (this.xScale * 4), this.y + 13,
-        this.boundingbox.width, this.boundingbox.height);
 }
 
 Player.prototype.update = function () {
     // Conditional check to see if player wants to sprint or not
     var sprint = GAME_ENGINE.keyShift ? 1.75 : 1;
-
-    this.collide(sprint);
-
     // Player movement controls
-    if (GAME_ENGINE.keyW === true) {
-        this.y -= 2 * sprint;
+
+    if (this.isStunned <= 0) {
+        /* #region Player movement controls */
+
+        if (GAME_ENGINE.keyW === true) {
+            this.y -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+        }
+        if (GAME_ENGINE.keyA === true) {
+            this.x -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+            this.right = false;
+        }
+        if (GAME_ENGINE.keyS === true) {
+            this.y += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+        }
+        if (GAME_ENGINE.keyD === true) {
+            this.x += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+            this.right = true;
+        }
+        var actualSpeed = Math.floor((this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint * 100);
+        var speedHTML = document.getElementById("speed");
+        speedHTML.innerHTML = + actualSpeed + "%";
+        if (actualSpeed === 100)
+        speedHTML.style.color = "lightgreen";
+        else if (actualSpeed < 100)
+        speedHTML.style.color = "red";
+        else
+        speedHTML.style.color = "white";
+        /* #endregion */
+    } else {
+        this.isStunned--;
     }
-    if (GAME_ENGINE.keyA === true) {
-        this.x -= 2 * sprint;
-        this.right = false;
+    /* #region Abilities */
+    let t;
+    for (t in this.abilityCD) {
+        this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
+        //ignoring index 0 of cd array
+        if (t > 0) {
+            var spellHTML = document.getElementById("spell" + t);
+            //display if spell is ready to use or not
+            if (this.abilityCD[t] > 0) {
+                spellHTML.innerHTML = this.abilityCD[t] / 10;
+                spellHTML.style.color = "red";
+            } else {
+                spellHTML.innerHTML = "Ready";
+                spellHTML.style.color = "lightgreen";
+            }
+        }
     }
-    if (GAME_ENGINE.keyS === true) {
-        this.y += 2 * sprint;
+    for (t in GAME_ENGINE.digit) {
+        if (GAME_ENGINE.digit[t]) {
+            switch (GAME_ENGINE.playerPick) {
+                case 0:
+                    this.mageAbilities(t);
+                    break;
+                case 1:
+                    this.rangerAbilities(t);
+                    break;
+                case 2:
+                    this.knightAbilities(t);
+                    break;
+            }
+        }
     }
-    if (GAME_ENGINE.keyD === true) {
-        this.x += 2 * sprint;
-        this.right = true;
-    }
+    /* #endregion */
+
 
     if (this.health <= 0) {
-        this.game.reset();
+        GAME_ENGINE.reset();
     }
+
+    /* #region Damage system updates */
+    let dmgObj;
+    let dmgRemove = [];
+    let dmgFlag;
+    let buff;
+    let buffRemove = [];
+    let buffFlag;
+    /* #region Updates */
+    for (dmgObj in this.damageObjArr) {//Updates damage objects
+        this.damageObjArr[dmgObj].update();
+        if (this.damageObjArr[dmgObj].timeLeft <= 0) {
+            dmgRemove.push(dmgObj);//Adds to trash system
+        }
+    }
+    for (buff in this.buffObj) {//Updates buff objects
+        this.buffObj[buff].update(this);
+        if (this.buffObj[buff].timeLeft <= 0) {
+            buffRemove.push(buff);//Adds to trash system
+        }
+    }
+    /* #endregion */
+    /* #region Removal */
+    for (dmgFlag in dmgRemove) {//Removes flagged damage objects
+        this.damageObjArr.splice(dmgRemove[dmgFlag], 1);
+    }
+    for (buffFlag in buffRemove) {//Removes flagged buff objects
+        this.buffObj.splice(buffRemove[buffFlag], 1);
+    }
+    /* #endregion */
+    /* #endregion */
+
 
     this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
         this.width, this.height);
 }
 
-Player.prototype.collide = function (sprint) {
-    //* 2 is the offset for a 2x2 of tiles.
-    if (this.x + this.width + this.xOffset >= gameWorldWidth - TILE_SIZE * 2) {
-        this.x += -2 * sprint;
-    }
-    if (this.x + this.xOffset <= TILE_SIZE * 2) {
-        this.x += 2 * sprint;
-    }
-    if (this.y + this.yOffset + myPlayer.height >= canvasHeight - hudHeight - TILE_SIZE * 2) {
-        this.y -= 2 * sprint;
-    }
-    if (this.y + this.yOffset <= TILE_SIZE * 2) {
-        this.y += 2 * sprint;
+
+/* #region Player Ability functions */
+Player.prototype.rangerAbilities = function (number) {
+    if (this.abilityCD[number] <= 0) {
+        switch (parseInt(number)) {
+            case 0:
+                //Ability at keyboard number 0
+                break;
+            case 1://Create BoostPad
+                //Ability at keyboard number 1
+                let castDistance = 125;
+                let tempTrap = new RangerBoostPad(AM.getAsset("./img/floor_boostpad_on.png"),
+                    AM.getAsset("./img/floor_boostpad_off.png"));
+                let xDif, yDif, mag;
+                xDif = this.x - GAME_ENGINE.mouseX + 10;
+                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
+                castDistance = Math.min(mag, castDistance);
+
+                tempTrap.x = this.x - (xDif / mag) * castDistance;
+                tempTrap.y = this.y - (yDif / mag) * castDistance;
+                tempTrap.boundingbox = new BoundingBox(tempTrap.x, tempTrap.y, 20, 20);
+                GAME_ENGINE.addEntity(tempTrap);
+                this.abilityCD[number] = 60;
+                break;
+            case 2:
+                //Ability at keyboard number 2
+                break;
+            case 3:
+                //Ability at keyboard number 3
+                break;
+            case 4:
+                //Ability at keyboard number 4
+                break;
+        }
     }
 }
+Player.prototype.mageAbilities = function (number) {
+    if (this.abilityCD[number] <= 0) {
+        switch (parseInt(number)) {
+            case 0:
+                //Ability at keyboard number 0
+                break;
+            case 1://Blink!
+                //Ability at keyboard number 1
+                let blinkDistance = 100;
+                let xDif = this.x - GAME_ENGINE.mouseX;
+                let yDif = this.y - GAME_ENGINE.mouseY;
+                let mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
+                blinkDistance = Math.min(blinkDistance, mag);
+                let ss1Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
+                let ss2Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
+                let ss1 = new stillStand(ss1Ani, 10, this.x, this.y);
+                this.x -= (xDif / mag) * blinkDistance + 12;
+                this.y -= (yDif / mag) * blinkDistance + 30;
+                let ss2 = new stillStand(ss2Ani, 10, this.x, this.y);
+                this.dontdraw = 10;
+                this.isStunned = 10;
+                GAME_ENGINE.addEntity(ss1);
+                GAME_ENGINE.addEntity(ss2);
+                this.abilityCD[number] = 120;
+                break;
+            case 2:
+                //Ability at keyboard number 2
+                break;
+            case 3:
+                //Ability at keyboard number 3
+                break;
+            case 4:
+                //Ability at keyboard number 4
+                break;
+        }
+    }
+}
+Player.prototype.knightAbilities = function (number) {
+    if (this.abilityCD[number] <= 0) {
+        switch (parseInt(number)) {
+            case 0:
+                //Ability at keyboard number 0
+                break;
+            case 1://Sword Boomerang
+                //Ability at keyboard number 1
+                let tempPro = new swordBoomerang(AM.getAsset("./img/swordBoomerang.png"),
+                    this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
+                tempPro.thrower = this;
+                GAME_ENGINE.addEntity(tempPro);
+                this.abilityCD[number] = 60;
+                break;
+            case 2:
+                //Ability at keyboard number 2
+                break;
+            case 3:
+                //Ability at keyboard number 3
+                break;
+            case 4:
+                //Ability at keyboard number 4
+                break;
+        }
+    }
+}
+/* #endregion */
 
-function Monster(game, spritesheet) {
-    Entity.call(this, game, 0, 350);
+Player.prototype.ChangeHealth = function (amount) {
+    if (amount > 0) {
+        //display healing animation
+        //maybe have a health change threshold 
+        //to actually have it display
+    } else if (amount < 0) {
+        //display damage animation
+        //maybe have a health change threshold 
+        //to actually have it display
+    }
+    this.health += amount;//Damage will come in as a negative value;
+    var healthHTML = document.getElementById("health");
+    if (this.health >= 66)
+    healthHTML.style.color = "lightgreen";
+    else if (this.health >= 33)
+    healthHTML.style.color = "yellow";
+    else
+    healthHTML.style.color = "red";
+    healthHTML.innerHTML = this.health;
+}
+/* #endregion */
+
+/* #region Monster */
+/* #region Base Monster */
+
+function Monster(spritesheet) {
+    Entity.call(this, GAME_ENGINE, 0, 350);
     this.scale = 1;
     this.width = 40;
     this.height = 56;
     this.animation = new Animation(spritesheet, this.width, this.height, 1, 0.15, 15, true, this.scale);
     this.speed = 100;
-    this.ctx = game.ctx;
+    this.ctx = GAME_ENGINE.ctx;
     this.health = 100;
-
+    this.damageObjArr = [];
+    this.damageObj = DS.CreateDamageObject(20, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.HasteWeak));
+    this.buffObj = [];
     this.counter = 0;
 
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 }
 
-
 Monster.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-    GAME_ENGINE.ctx.strokeStyle = "red";
-    GAME_ENGINE.ctx.strokeRect(this.x, this.y, this.width * this.scale, this.height * this.scale);
+    this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
+    if (GAME_ENGINE.debug) {
+        GAME_ENGINE.ctx.strokeStyle = "red";
+        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+            this.boundingbox.width, this.boundingbox.height);
+    }
 
     // Displaying Monster health
     this.ctx.font = "15px Arial";
     this.ctx.fillStyle = "white";
-    this.ctx.fillText("Health: " + this.health, this.x - 5, this.y - 5);
+    this.ctx.fillText("Health: " + this.health, this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
 }
 
 Monster.prototype.update = function () {
     if (this.health <= 0) this.removeFromWorld = true;
-    this.x -= this.game.clockTick * this.speed;
+    this.x += GAME_ENGINE.clockTick * this.speed;
     if (this.x <= TILE_SIZE * 2) this.x = 450;
     Entity.prototype.update.call(this);
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        this.counter += this.game.clockTick;
+        this.counter += GAME_ENGINE.clockTick;
+        this.damageObj.ApplyEffects(myPlayer);
         if (this.counter > .018 && myPlayer.health > 0) {
-            myPlayer.health -= 5;
+            //myPlayer.health -= 5;
         }
         this.counter = 0;
     }
-    
+
+    /* #region Damage system updates */
+    let dmgObj;
+    let dmgRemove = [];
+    let dmgFlag;
+    let buff;
+    let buffRemove = [];
+    let buffFlag;
+    /* #region Updates */
+    for (dmgObj in this.damageObjArr) {//Updates damage objects
+        this.damageObjArr[dmgObj].update();
+        if (this.damageObjArr[dmgObj].timeLeft <= 0) {
+            dmgRemove.push(dmgObj);//Adds to trash system
+        }
+    }
+    for (buff in this.buffObj) {//Updates buff objects
+        this.buffObj[buff].update(this);
+        if (this.buffObj[buff].timeLeft <= 0) {
+            buffRemove.push(buff);//Adds to trash system
+        }
+    }
+    /* #endregion */
+    /* #region Removal */
+    for (dmgFlag in dmgRemove) {//Removes flagged damage objects
+        this.damageObjArr.splice(dmgRemove[dmgFlag], 1);
+    }
+    for (buffFlag in buffRemove) {//Removes flagged buff objects
+        this.buffObj.splice(buffRemove[buffFlag], 1);
+    }
+    /* #endregion */
+    /* #endregion */
+
 }
 
+Monster.prototype.ChangeHealth = function (amount) {
+    if (amount > 0) {
+        //display healing animation
+        //maybe have a health change threshold 
+        //to actually have it display
+    } else if (amount < 0) {
+        //display damage animation
+        //maybe have a health change threshold 
+        //to actually have it display
+    }
+    this.health += amount;//Healing will come in as a positive number
+}
+/* #endregion */
+
+/* #region Monster Types */
 Devil.prototype = Monster.prototype;
 Acolyte.prototype = Monster.prototype;
 
-function Devil(game, spritesheet) {
-    Monster.call(this, game, spritesheet);
+function Devil(spritesheet) {
+    Monster.call(this, GAME_ENGINE, spritesheet);
     this.scale = 3;
     this.width = 16;
     this.height = 23;
     this.speed = 45;
     this.health = 200;
-    
+
     this.x = 250;
     this.y = 250;
 
@@ -164,9 +425,8 @@ function Devil(game, spritesheet) {
     this.animation = new Animation(spritesheet, this.width, this.height, 128, 0.15, 8, true, this.scale);
 }
 
-function Acolyte(game, spritesheet) {
-    Monster.call(this, game, spritesheet);
-    Acolyte.prototype = Monster.prototype;
+function Acolyte(spritesheet) {
+    Monster.call(this, GAME_ENGINE, spritesheet);
     this.scale = 2;
     this.width = 16;
     this.height = 19;
@@ -180,25 +440,31 @@ function Acolyte(game, spritesheet) {
 
     this.counter = 0;
 }
+/* #endregion */
+/* #endregion */
 
-function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
+/* #region Projectile */
+/* #region Base Projectile */
+function Projectile(spriteSheet, originX, originY, xTarget, yTarget) {
     this.width = 100;
     this.height = 100;
     this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
 
-    this.originX = originX;
-    this.originY = originY;
+    this.x = originX - CAMERA.x;
+    this.y = originY - CAMERA.y;
 
     this.xTar = xTarget - 20;
     this.yTar = yTarget - 35;
-
     // Determining where the projectile should go angle wise.
-    this.angle = Math.atan2(this.yTar - this.originY, this.xTar - this.originX);
+    this.angle = Math.atan2(this.yTar - this.y, this.xTar - this.x);
     this.counter = 0; // Counter to make damage consistent
-
+    this.childUpdate;//function
     this.speed = 200;
-    this.ctx = game.ctx;
-    Entity.call(this, game, originX, originY);
+    this.projectileSpeed = 7.5;
+    this.damageObj = DS.CreateDamageObject(15, 0, DTypes.Normal, null);
+    this.penetrative = false;
+    this.ctx = GAME_ENGINE.ctx;
+    Entity.call(this, GAME_ENGINE, originX, originY);
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
         this.width - 75, this.height - 75); // Hardcoded a lot of offset values
@@ -206,22 +472,28 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
 }
 
 Projectile.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x - 18, this.y - 4); // Hardcoded a lot of offset values
-    GAME_ENGINE.ctx.strokeStyle = "yellow";
-    GAME_ENGINE.ctx.strokeRect(this.x + 8, this.y + 25, this.width - 75, this.height - 75); // Hardcoded a lot of offset values
+    this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x - 18, this.y - 4); // Hardcoded a lot of offset values
+    if (GAME_ENGINE.debug) {
+        GAME_ENGINE.ctx.strokeStyle = "yellow";
+        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+            this.boundingbox.width, this.boundingbox.height);
+    }
 }
 
 Projectile.prototype.update = function () {
-    var projectileSpeed = 7.5;
-
+    //var projectileSpeed = 7.5;
+    if (typeof this.childUpdate === 'function') {
+        this.childUpdate();
+    }
     // Generating the speed to move at target direction
-    var velY = Math.sin(this.angle) * projectileSpeed;
-    var velX = Math.cos(this.angle) * projectileSpeed;
+    var velY = Math.sin(this.angle) * this.projectileSpeed;
+    var velX = Math.cos(this.angle) * this.projectileSpeed;
     // Moving the actual projectile.
     this.x += velX;
     this.y += velY;
 
-    if (this.x < 16 || this.x > 460 || this.y < 0 || this.y > 430) this.removeFromWorld = true;
+    if (this.x - CAMERA.x < 16 || this.x - CAMERA.x > 460
+        || this.y - CAMERA.y < 0 || this.y - CAMERA.y > 430) this.removeFromWorld = true;
     Entity.prototype.update.call(this);
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
@@ -231,8 +503,8 @@ Projectile.prototype.update = function () {
         var entityCollide = GAME_ENGINE.entities[4][i];
         if (this.boundingbox.collide(entityCollide.boundingbox)) {
             if (GAME_ENGINE.entities[4][i].health > 0) {
-                GAME_ENGINE.entities[4][i].health -= 15;
-                this.removeFromWorld = true;
+                this.damageObj.ApplyEffects(GAME_ENGINE.entities[4][i]);
+                this.removeFromWorld = (this.penetrative) ? false : true;
             }
         }
     }
@@ -241,8 +513,37 @@ Projectile.prototype.update = function () {
         this.width - 75, this.height - 75); // Hardcoded a lot of offset values
 
 }
+/* #endregion */
 
-function Trap(game, spriteSheetUp, spriteSheetDown) {
+/* #region Projetile Types */
+swordBoomerang.prototype = Projectile.prototype;
+
+function swordBoomerang(spriteSheet, originX, originY, xTarget, yTarget) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget);
+    this.projectileSpeed = 7;
+    this.timeLeft = 60;
+    this.thrower = null;
+    this.speedChange = -7 / 30;
+    this.penetrative = true;
+    this.damageObj = DS.CreateDamageObject(45, 0, DTypes.Slashing
+        , DS.CloneBuffObject(PremadeBuffs.DamageOvertime));
+    this.childUpdate = function () {
+        this.projectileSpeed += this.speedChange;
+        this.timeLeft--;
+        if (this.thrower !== null && this.timeLeft < 30) {
+            if (Math.abs(this.thrower.x - this.x) < 5 && Math.abs(this.thrower.y - this.y) < 5) {
+                this.removeFromWorld = true;
+            }
+            this.angle = Math.atan2(this.y - this.thrower.y, this.x - this.thrower.x);
+        }
+    }
+}
+/* #endregion */
+/* #endregion */
+
+/* #region Trap */
+/* #region Base Trap */
+function Trap(spriteSheetUp, spriteSheetDown) {
     this.animationUp = new Animation(spriteSheetUp, 16, 16, 1, 0.13, 4, true, 1.25);
     this.animationDown = new Animation(spriteSheetDown, 16, 16, 1, 0.13, 4, true, 1.25);
     this.animationIdle = this.animationUp;
@@ -251,9 +552,8 @@ function Trap(game, spriteSheetUp, spriteSheetDown) {
     this.activated = false; // Determining if trap has been activated
     this.counter = 0; // Counter to calculate when trap related events should occur
     this.doAnimation = false; // Flag to determine if the spikes should animate or stay still
-
-    this.game = game;
-    this.ctx = game.ctx;
+    this.damageObj = DS.CreateDamageObject(10, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.SlowStrong));
+    this.ctx = GAME_ENGINE.ctx;
 
     this.boundingbox = new BoundingBox(this.x, this.y, 20, 20); // **Temporary** hardcode of width and height
 }
@@ -263,19 +563,28 @@ Trap.prototype.draw = function () {
         this.animationIdle.drawFrameIdle(this.ctx, this.x, this.y);
     } else {
         if (this.doAnimation) {
-            this.animationUp.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+            this.animationUp.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
         } else {
             this.animationDown.drawFrameIdle(this.ctx, this.x, this.y);
         }
     }
-    GAME_ENGINE.ctx.strokeStyle = "red";
-    GAME_ENGINE.ctx.strokeRect(this.x, this.y, 20, 20); // **Temporary** Hard coded offset values
+    if (GAME_ENGINE.debug) {
+        GAME_ENGINE.ctx.strokeStyle = "red";
+        GAME_ENGINE.ctx.strokeRect(this.x, this.y, 20, 20); // **Temporary** Hard coded offset values
+    }
 }
 
 Trap.prototype.update = function () {
+    if (typeof this.lifeTime !== 'undefined') {
+        if (this.lifeTime <= 0) {
+            this.removeFromWorld = true;
+        } else {
+            this.lifeTime--;
+        }
+    }
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         // Remember what tick the collision happened
-        this.counter += this.game.clockTick;
+        this.counter += GAME_ENGINE.clockTick;
         // Check to make sure the animation happens first
         if (this.counter < .1) {
             this.doAnimation = true;
@@ -284,7 +593,8 @@ Trap.prototype.update = function () {
             // Nuke the player, but start the damage .13 ticks after they stand on the trap
             // This allows players to sprint accross taking 10 damage
             if (myPlayer.health > 0 && this.counter > 0.18) {
-                myPlayer.health -= 2;
+                //myPlayer.health -= 2;
+                this.damageObj.ApplyEffects(myPlayer);
                 this.counter = .1;
             }
         }
@@ -295,11 +605,49 @@ Trap.prototype.update = function () {
         this.counter = 0;
     }
 }
+/* #endregion */
 
+/* #region Trap Types */
+RangerBoostPad.prototype = Trap.prototype;
+
+function RangerBoostPad(spriteSheetUp, spriteSheetDown) {
+    Trap.call(this, spriteSheetUp, spriteSheetDown);
+    this.damageObj = DS.CreateDamageObject(0, 0, DTypes.None
+        , DS.CreateBuffObject("ranger boost", [
+            DS.CreateEffectObject(ETypes.MoveSpeedR, Math.pow(1.1, 10), 1, 1, 0),
+            DS.CreateEffectObject(ETypes.MoveSpeedR, 1 / 1.1, 1, 100, 10)
+        ]));
+    this.lifeTime = 120;
+}
+/* #endregion */
+/* #endregion */
+
+/* #region Still Stand */
+function stillStand(animation, duration, theX, theY) {
+    this.timeLeft = duration;
+    this.ani = animation;
+    this.ctx = GAME_ENGINE.ctx;
+    this.x = theX;
+    this.y = theY;
+    Entity.call(this, GAME_ENGINE, theX, theY);
+}
+
+stillStand.prototype.update = function () {
+    this.timeLeft--;
+    if (this.timeLeft <= 0) {
+        this.removeFromWorld = true;
+    }
+}
+stillStand.prototype.draw = function () {
+    this.ani.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
+}
+/* #endregion */
+
+/* #region BoundingBox */
 // BoundingBox for entities to detect collision.
 function BoundingBox(x, y, width, height) {
-    this.x = x;
-    this.y = y;
+    this.x = x - CAMERA.x;
+    this.y = y - CAMERA.y;
     this.width = width;
     this.height = height;
 
@@ -313,16 +661,86 @@ BoundingBox.prototype.collide = function (oth) {
     if (this.right > oth.left && this.left < oth.right && this.top < oth.bottom && this.bottom > oth.top) return true;
     return false;
 }
+/* #endregion */
 
-function Menu(game) {
-    this.ctx = game.ctx;
-    this.classButtonW = 100;
+/* #region Camera */
+function Camera() {
+    this.x = 0;
+    this.y = 0;
+}
+
+Camera.prototype.update = function () { }
+
+Camera.prototype.draw = function () { }
+
+
+Camera.prototype.move = function (direction) {
+    if (direction === "right") {
+        this.x += canvasWidth;
+        myPlayer.x = 60 + CAMERA.x;
+        myRoomNum += 1;
+        BACKGROUND.x -= 320;
+        
+    } else if (direction === "left") {
+        this.x -= canvasWidth;
+        myPlayer.x = canvasWidth - TILE_SIZE * 2 - 60 + CAMERA.x;
+        myRoomNum -= 1;
+        BACKGROUND.x += 320;
+    } else if (direction === "up") {
+        this.y -= canvasHeight;
+        myPlayer.y = canvasHeight + TILE_SIZE * 2 + 60 + CAMERA.y;
+        myFloorNum -= 1;
+        BACKGROUND.y -= 320;
+    } else if (direction === "down") {
+        this.y += canvasHeight;
+        myPlayer.y = 60 + CAMERA.y;
+        myFloorNum += 1;
+        BACKGROUND.y += 320;
+    }
+    document.getElementById("location").innerHTML = "Location: " + myFloorNum + "-" + myRoomNum;
+}
+/* #endregion */
+
+function Door(theX, theY, theDirection) {
+    this.x = theX;
+    this.y = theY;
+    this.ctx = GAME_ENGINE.ctx;
+    this.direction = theDirection;
+    this.image = new Image();
+    this.image.src = "./img/wall_hole_2.png";
+    this.boundingbox = new BoundingBox(this.x, this.y, 16, 16);
+}
+
+Door.prototype.update = function () {
+    if (this.boundingbox.collide(myPlayer.boundingbox)) {
+        CAMERA.move(this.direction);
+    }
+}
+
+Door.prototype.draw = function () {
+    this.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 16, 16);
+}
+
+/* #region Menu */
+
+function Menu() {
+    this.ctx = GAME_ENGINE.ctx;
     this.classButtonH = 35;
-    this.classButtonY = 400;
-    this.classButtonBottom = this.classButtonY + this.classButtonH;
-    this.mageButtonX = (canvasWidth - (this.classButtonW * 3)) / 4;
-    this.rangerButtonX = 2 * this.mageButtonX + this.classButtonW;
-    this.knightButtonX = this.rangerButtonX + this.classButtonW + this.mageButtonX;
+    this.classButtonY = canvasHeight / 2;
+
+    this.ctx.font = "35px Arial";
+    this.mageWidth = this.ctx.measureText("Mage").width;
+    this.rangerWidth = this.ctx.measureText("Ranger").width;
+    this.knightWidth = this.ctx.measureText("Knight").width;
+
+    this.mageButtonX = canvasWidth / 2 - (this.mageWidth / 2);
+    this.rangerButtonX = canvasWidth / 2 - (this.rangerWidth / 2);
+    this.knightButtonX = canvasWidth / 2 - (this.knightWidth / 2);
+
+    this.mageButtonY = (canvasHeight - (this.classButtonH * 3)) / 4;
+    this.rangerButtonY = 2 * this.mageButtonY + this.classButtonH;
+    this.knightButtonY = this.rangerButtonY + this.classButtonH + this.mageButtonY;
+
     this.background = new Image();
     this.background.src = "./img/menu_background.png";
 }
@@ -333,175 +751,127 @@ Menu.prototype.draw = function () {
     this.ctx.drawImage(this.background, 253, 0,
         canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
 
-    var title = "Last Labyrinth"
-    this.ctx.font = "bold 80px Arial";
-    this.ctx.fillStyle = "black";
-    var titleLength = Math.floor(this.ctx.measureText(title).width);
-    var titleXStart = (canvasWidth - titleLength) / 2;
-    this.ctx.fillText(title, titleXStart, 238);
-    this.ctx.strokeStyle = "grey";
-    this.ctx.lineWidth = "1";
-    this.ctx.strokeText(title, titleXStart, 238);
-
-    this.createClassButton("Mage", this.mageButtonX);
-    this.createClassButton("Ranger", this.rangerButtonX);
-    this.createClassButton("Knight", this.knightButtonX);
+    this.createClassButton("Mage", this.mageButtonX, this.mageButtonY);
+    this.createClassButton("Ranger", this.rangerButtonX, this.rangerButtonY);
+    this.createClassButton("Knight", this.knightButtonX, this.knightButtonY);
 }
 
-Menu.prototype.createClassButton = function (text, xPosition) {
+Menu.prototype.createClassButton = function (text, xPosition, YPosition) {
     this.ctx.strokeStyle = "black";
     this.ctx.lineWidth = "1";
     this.ctx.font = "35px Arial";
-    this.ctx.strokeText(text, xPosition, this.classButtonY + this.classButtonH);
+    this.ctx.strokeText(text, xPosition, YPosition + this.classButtonH);
     this.ctx.fillStyle = "white";
-    this.ctx.fillText(text, xPosition, this.classButtonY + this.classButtonH);
+    this.ctx.fillText(text, xPosition, YPosition + this.classButtonH);
 }
+/* #endregion */
 
-function HUD(game) {
-    this.ctx = game.ctx;
-    this.game = game;
-    this.height = 100;
-}
-
-HUD.prototype.draw = function () {
-    //ALL VALUES ARE HARCODED FOR NOW
-    //health
-    this.ctx.fillStyle = "red";
-    this.ctx.beginPath();
-    this.ctx.arc(40, canvasHeight - this.height / 2, 40, 0, 2 * Math.PI);
-    this.ctx.fill();
-
-    //mana?
-    this.ctx.fillStyle = "blue";
-    this.ctx.beginPath();
-    this.ctx.arc(120, canvasHeight - this.height / 2, 40, 0, 2 * Math.PI);
-    this.ctx.fill();
-    this.ctx.font = "30px Arial";
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("Mana", 82, canvasHeight - (this.height / 2) + 15);
-    this.ctx.fillText(myPlayer.health, 15, canvasHeight - (this.height / 2) + 15);
-
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(160, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.fillRect(223, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.fillRect(286, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.fillRect(349, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.fillRect(160, canvasHeight - this.height / 2,
-        252, this.height / 2);
-    this.ctx.fillRect(412, canvasHeight - this.height,
-        100, this.height);
-
-    this.ctx.strokeStyle = "black";
-    this.ctx.strokeRect(160, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.strokeRect(223, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.strokeRect(286, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.strokeRect(349, canvasHeight - this.height,
-        63, this.height / 2);
-    this.ctx.strokeRect(160, canvasHeight - this.height / 2,
-        252, this.height / 2);
-    this.ctx.strokeRect(412, canvasHeight - this.height,
-        100, this.height);
-
-    this.ctx.fillStyle = "white";
-    //ability 1
-    this.ctx.fillText("1", 160, canvasHeight - this.height + 15);
-    //ability 2
-    this.ctx.fillText("2", 223, canvasHeight - this.height + 15);
-    //ability 3
-    this.ctx.fillText("3", 286, canvasHeight - this.height + 15);
-    //ability 4
-    this.ctx.fillText("4", 349, canvasHeight - this.height + 15);
-    //stats
-    var speed = (this.game.keyShift) ? 1.5 : 1
-    this.ctx.fillText("Speed: " + speed, 160, canvasHeight - this.height / 2 + 15);
-    //map
-    this.ctx.fillText("Map", 412, canvasHeight - this.height + 15);
-}
-
-HUD.prototype.update = function () { }
-
-function Sidebar(game) {
-    this.ctx = game.ctx;
-    this.game = game;
-    this.width = 250;
-}
-
-Sidebar.prototype.draw = function () {
-    this.ctx.font = "35px Arial";
-    this.ctx.fillStyle = "gray";
-    this.ctx.fillRect(gameWorldWidth, 0, this.width, canvasHeight);
-    this.ctx.strokeStyle = "black";
-    this.ctx.strokeRect(gameWorldWidth, 0, this.width, canvasHeight);
-    this.ctx.fillStyle = "black";
-    this.ctx.fillText("Last Labyrinth", gameWorldWidth, 30);
-
-    this.ctx.font = "20px Arial";
-    this.ctx.fillText("Floor # = " + myFloorNum, gameWorldWidth, 80);
-    this.ctx.fillText("Room # = " + myRoomNum, gameWorldWidth, 110);
-
-    this.ctx.fillText("Controls:", gameWorldWidth, 160);
-    this.ctx.fillText("Movement: W, A, S, D", gameWorldWidth, 190);
-    this.ctx.fillText("Sprint: Shift", gameWorldWidth, 220);
-    this.ctx.fillText("Projectile: Left Click", gameWorldWidth, 250);
-    this.ctx.fillText("Abilities: 1, 2, 3, 4", gameWorldWidth, 280);
-}
-
-Sidebar.prototype.update = function () { }
-
-function Background(game) {
-    this.x = 0;
-    this.y = 0;
-    this.ctx = game.ctx;
+/* #region Background */
+function Background() {
+    this.x = -640;
+    this.y = -640;
+    this.ctx = GAME_ENGINE.ctx;
+    // Keeping track of the last direction the generator has moved.
+    // 0 = North
+    // 1 = East
+    // 2 = South
+    // 3 = West
+    this.face = [];
+    this.directions = [[-1, 0], [0, 1], [1, 0], [0, -1]];
     this.map = [
-
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-
-    ]
-    this.mapLength = Math.sqrt(this.map.length);
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+    ];
+    this.row = 2;
+    this.col = 2;
+    this.roomCount = 0;
+    this.map[this.row][this.col] = 2;
     this.zero = new Image();
-    this.zero.src = "./img/floor_1.png";
+    this.zero.src = "./img/floor1.png";
     this.one = new Image();
-    this.one.src = "./img/floor_spikes_anim_f3.png";
+    this.one.src = "./img/floor2.png";
+    this.two = new Image();
+    this.two.src = "./img/blacktile.png";
     this.tile = null;
-};
+    this.drawFaceCount = 0;
+}
 
 Background.prototype.draw = function () {
-    for (let i = 0; i < this.mapLength; i++) {
-        for (let j = 0; j < this.mapLength; j++) {
-            this.tile = (this.map[i * this.mapLength + j] == 1) ? this.one : this.zero;
-            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2);
-            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2);
-            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2, i * TILE_SIZE * 2 + TILE_SIZE);
-            this.ctx.drawImage(this.tile, j * TILE_SIZE * 2 + TILE_SIZE, i * TILE_SIZE * 2 + TILE_SIZE);
+    for (let i = 0; i < this.map.length; i++) {
+        for (let j = 0; j < this.map[i].length; j++) {
+            for (let r = 0; r < 20; r++) {
+                for (let s = 0; s < 20; s++) {
+                    // Determining tiles to choose
+                    let tempTile = ROOMS[this.map[i][j]][r * 20 + s];
+                    if (tempTile === 0) {
+                        this.tile = this.one;
+                    } else if (tempTile === 1) {
+                        this.tile = this.zero;
+                    } else {
+                        this.tile = this.two;
+                    }
+                    // Drawing Tiles
+                    this.ctx.drawImage(this.tile, this.x + j * 320 + s * TILE_SIZE, this.y + i * 320 + r * TILE_SIZE);
+                }
+            }
+            
+            // Drawing doors
+            if (this.drawFaceCount < 6) {
+                if (this.face[this.drawFaceCount] === 0) {
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320 + 0, "up"));
+                    console.log("Door Up");
+                } else if (this.face[this.drawFaceCount] === 1) {
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 304, j * 320 + 144, "right"));
+                    console.log("Door Right");
+                } else if (this.face[this.drawFaceCount] === 2) {
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320 + 304, "down"));
+                    console.log("Door Down");
+                } else if (this.face[this.drawFaceCount] === 3) {
+                    GAME_ENGINE.addEntity(new Door(i * 320 + 0, j * 320 + 144, "left"));
+                    console.log("Door Left");
+                }
+                this.drawFaceCount++;
+            }
         }
     }
+}
+
+Background.prototype.update = function () {
 };
 
-Background.prototype.update = function () { };
+Background.prototype.validDirection = function () {
+    while (this.roomCount < 6) {
+        let randomDirection = Math.floor(Math.random() * Math.floor(4));
+        let tempRow = this.row + this.directions[randomDirection][0];
+        let tempCol = this.col + this.directions[randomDirection][1];
+        if (randomDirection === 0 && this.face[this.face.length - 1] === 2
+            || randomDirection === 2 && this.face[this.face.length - 1] === 0
+            || randomDirection === 1 && this.face[this.face.length - 1] === 3
+            || randomDirection === 3 && this.face[this.face.length - 1] === 1) {
+            randomDirection = Math.floor(Math.random() * Math.floor(4));
+        } else {
+            if (tempRow < this.map.length && tempRow > 0  && tempCol < this.map.length && tempCol > 0
+                && this.map[tempRow][tempCol] === 0) {
+                this.face.push(randomDirection);
+                this.row += this.directions[randomDirection][0];
+                this.col += this.directions[randomDirection][1];
+                this.map[this.row][this.col] = 1;
+                if (this.roomCount + 1 === 6) {
+                    this.map[this.row][this.col] = 3;
+                }
+                this.roomCount++;
+            }
+        }
+    }
+    console.log(this.face);
+}
+/* #endregion */
 
+/* #region Animation */
 function Animation(spriteSheet, frameWidth, frameHeight,
     sheetWidth, frameDuration, frames, loop, scale) {
     this.spriteSheet = spriteSheet;
@@ -527,19 +897,33 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     xindex = frame % this.sheetWidth;
     yindex = Math.floor(frame / this.sheetWidth);
 
+    var xPosition;
+    if (x >= 0) {
+        xPosition = x - CAMERA.x;
+    } else {
+        xPosition = x + CAMERA.x;
+    }
+
     ctx.drawImage(this.spriteSheet,
         xindex * this.frameWidth, yindex * this.frameHeight,
         this.frameWidth, this.frameHeight,
-        x, y,
+        xPosition, y - CAMERA.y,
         this.frameWidth * this.scale,
         this.frameHeight * this.scale);
 }
 
+
 Animation.prototype.drawFrameIdle = function (ctx, x, y) {
+    var xPosition;
+    if (x >= 0) {
+        xPosition = x - CAMERA.x;
+    } else {
+        xPosition = x + CAMERA.x;
+    }
     ctx.drawImage(this.spriteSheet,
         0, 0,
         this.frameWidth, this.frameHeight,
-        x, y,
+        xPosition, y - CAMERA.y,
         this.frameWidth * this.scale,
         this.frameHeight * this.scale);
 }
@@ -551,22 +935,34 @@ Animation.prototype.currentFrame = function () {
 Animation.prototype.isDone = function () {
     return (this.elapsedTime >= this.totalTime);
 }
+/* #endregion */
+
+/* #region Download queue and download */
 
 // Ranger
 AM.queueDownload("./img/ranger_run.png");
 // Knight
 AM.queueDownload("./img/knight_run.png");
+AM.queueDownload("./img/swordBoomerang.png");
 // Mage
 AM.queueDownload("./img/mage_run.png");
+AM.queueDownload("./img/flash.png");
 // Floor Trap
 AM.queueDownload("./img/floor_trap_up.png");
 AM.queueDownload("./img/floor_trap_down.png");
+// Boostpad
+AM.queueDownload("./img/floor_boostpad_on.png");
+AM.queueDownload("./img/floor_boostpad_off.png");
 // Devil
 AM.queueDownload("./img/devil.png");
 // Acolyte
 AM.queueDownload("./img/acolyte.png");
 // Harrison's Fireball
 AM.queueDownload("./img/fireball.png");
+// Floor Gen Tiles
+AM.queueDownload("./img/floor1.png");
+AM.queueDownload("./img/floor2.png");
+AM.queueDownload("./img/blacktile.png");
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
@@ -574,12 +970,12 @@ AM.downloadAll(function () {
     document.body.style.backgroundColor = "black";
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
-    gameWorldWidth = canvasWidth - 250;
-    gameWorldHeight = canvasWidth - 100;
 
     GAME_ENGINE.init(ctx);
     GAME_ENGINE.start();
 
-    GAME_ENGINE.addEntity(new Menu(GAME_ENGINE));
+    GAME_ENGINE.addEntity(new Menu());
+    BACKGROUND = new Background();
     SCENE_MANAGER = new SceneManager();
 });
+/* #endregion */
