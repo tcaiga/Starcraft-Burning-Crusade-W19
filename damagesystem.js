@@ -601,7 +601,7 @@ DamageObj.prototype.ApplyDamage = function (unit) {
         healthChange = this.damage;
     }
     //unit.health -= healthChange;
-    unit.ChangeHealth(-healthChange);//Negative b/c damage
+    unit.changeHealth(-healthChange);//Negative b/c damage
     return -healthChange;
 }
 /**
@@ -613,7 +613,6 @@ DamageObj.prototype.ApplyBuff = function (unit) {
         for (b in unit.buffObj) {
             if (unit.buffObj[b].name === this.buff.name) { return; }
         }
-
         unit.buffObj.push(this.buff);
     }
 }

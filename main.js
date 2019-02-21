@@ -38,7 +38,7 @@ function Player(game, spritesheet, xOffset, yOffset) {
     this.maxMovespeedRatio = 1;
     this.maxMovespeedAdj = 0;
     this.right = true;
-    this.health = 100;
+    this.currentHealth = 100;
     this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
         this.width, this.height); // **Temporary** Hard coded offset values.
@@ -121,7 +121,7 @@ Player.prototype.update = function () {
     /* #endregion */
 
 
-    if (this.health <= 0) {
+    if (this.currentHealth <= 0) {
         this.game.reset();
     }
 
@@ -274,17 +274,17 @@ Player.prototype.knightAbilities = function (number) {
 }
 /* #endregion */
 
-Player.prototype.ChangeHealth = function (amount) {
+Player.prototype.changeHealth = function (amount) {
     if (amount > 0) {
         //display healing animation
-        //maybe have a health change threshold 
+        //maybe have a currentHealth change threshold 
         //to actually have it display
     } else if (amount < 0) {
         //display damage animation
-        //maybe have a health change threshold 
+        //maybe have a currentHealth change threshold 
         //to actually have it display
     }
-    this.health += amount;//Damage will come in as a negative value;
+    this.currentHealth += amount;//Damage will come in as a negative value;
 }
 /* #endregion */
 
@@ -299,7 +299,7 @@ function Monster(game, spritesheet) {
     this.animation = new Animation(spritesheet, this.width, this.height, 1, 0.15, 15, true, this.scale);
     this.speed = 100;
     this.ctx = game.ctx;
-    this.health = 100;
+    this.currentHealth = 100;
     this.damageObjArr = [];
     this.damageObj = DS.CreateDamageObject(20, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.HasteWeak));
     this.buffObj = [];
@@ -314,14 +314,14 @@ Monster.prototype.draw = function () {
     GAME_ENGINE.ctx.strokeStyle = "red";
     GAME_ENGINE.ctx.strokeRect(this.x, this.y, this.width * this.scale, this.height * this.scale);
 
-    // Displaying Monster health
+    // Displaying Monster currentHealth
     this.ctx.font = "15px Arial";
     this.ctx.fillStyle = "white";
-    this.ctx.fillText("Health: " + this.health, this.x - 5, this.y - 5);
+    this.ctx.fillText("currentHealth: " + this.currentHealth, this.x - 5, this.y - 5);
 }
 
 Monster.prototype.update = function () {
-    if (this.health <= 0) this.removeFromWorld = true;
+    if (this.currentHealth <= 0) this.removeFromWorld = true;
     this.x += this.game.clockTick * this.speed;
     if (this.x <= TILE_SIZE * 2) this.x = 450;
     Entity.prototype.update.call(this);
@@ -331,8 +331,8 @@ Monster.prototype.update = function () {
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         this.counter += this.game.clockTick;
         this.damageObj.ApplyEffects(myPlayer);
-        if (this.counter > .018 && myPlayer.health > 0) {
-            //myPlayer.health -= 5;
+        if (this.counter > .018 && myPlayer.currentHealth > 0) {
+            //myPlayer.currentHealth -= 5;
         }
         this.counter = 0;
     }
@@ -370,17 +370,17 @@ Monster.prototype.update = function () {
 
 }
 
-Monster.prototype.ChangeHealth = function (amount) {
+Monster.prototype.changeHealth = function (amount) {
     if (amount > 0) {
         //display healing animation
-        //maybe have a health change threshold 
+        //maybe have a currentHealth change threshold 
         //to actually have it display
     } else if (amount < 0) {
         //display damage animation
-        //maybe have a health change threshold 
+        //maybe have a currentHealth change threshold 
         //to actually have it display
     }
-    this.health += amount;//Healing will come in as a positive number
+    this.currentHealth += amount;//Healing will come in as a positive number
 }
 /* #endregion */
 
@@ -394,7 +394,7 @@ function Devil(game, spritesheet) {
     this.width = 16;
     this.height = 23;
     this.speed = 45;
-    this.health = 200;
+    this.currentHealth = 200;
 
     this.x = 250;
     this.y = 250;
@@ -409,7 +409,7 @@ function Acolyte(game, spritesheet) {
     this.width = 16;
     this.height = 19;
     this.speed = 25;
-    this.health = 150;
+    this.currentHealth = 150;
 
     this.animation = new Animation(spritesheet, this.width, this.height, 64, 0.15, 4, true, this.scale);
 
@@ -427,7 +427,7 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     this.width = 100;
     this.height = 100;
     this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
-
+    this.targetType = 4;
     this.originX = originX;
     this.originY = originY;
 
@@ -439,6 +439,7 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
     this.counter = 0; // Counter to make damage consistent
     this.childUpdate;//function
     this.childDraw;//function
+    this.childCollide;//function
     this.speed = 200;
     this.projectileSpeed = 7.5;
     this.damageObj = DS.CreateDamageObject(15, 0, DTypes.Normal, null);
@@ -452,7 +453,7 @@ function Projectile(game, spriteSheet, originX, originY, xTarget, yTarget) {
 }
 
 Projectile.prototype.draw = function () {
-    this.childDraw();
+    (typeof this.childDraw === 'function') ? this.childDraw() : null;
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x - 18, this.y - 4); // Hardcoded a lot of offset values
     GAME_ENGINE.ctx.strokeStyle = "yellow";
     GAME_ENGINE.ctx.strokeRect(this.x + 8, this.y + 25, this.width - 75, this.height - 75); // Hardcoded a lot of offset values
@@ -461,9 +462,7 @@ Projectile.prototype.draw = function () {
 
 Projectile.prototype.update = function () {
     //var projectileSpeed = 7.5;
-    if (typeof this.childUpdate === 'function') {
-        this.childUpdate();
-    }
+    (typeof this.childUpdate === 'function') ? this.childUpdate() : null;
     // Generating the speed to move at target direction
     var velY = Math.sin(this.angle) * this.projectileSpeed;
     var velX = Math.cos(this.angle) * this.projectileSpeed;
@@ -477,10 +476,11 @@ Projectile.prototype.update = function () {
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
         this.width - 75, this.height - 75); // **Temporary** Hard coded offset values.
 
-    for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
-        var entityCollide = GAME_ENGINE.entities[4][i];
+    for (var i = 0; i < GAME_ENGINE.entities[this.targetType].length; i++) {
+        var entityCollide = GAME_ENGINE.entities[this.targetType][i];
         if (this.boundingbox.collide(entityCollide.boundingbox)) {
-            if (GAME_ENGINE.entities[4][i].health > 0) {
+            if (GAME_ENGINE.entities[this.targetType][i].currentHealth > 0) {
+                (typeof this.childCollide === 'function') ? this.childCollide(entityCollide) : null;
                 this.damageObj.ApplyEffects(GAME_ENGINE.entities[4][i]);
                 this.removeFromWorld = (this.penetrative) ? false : true;
             }
@@ -525,48 +525,26 @@ function GreaterFireball(game, spriteSheet,spriteSheetAoe, originX, originY, xTa
     this.aoe = 100;//square
     this.targetType = targetType;
     this.animation = new Animation(spriteSheet, 100, 100, 1, .085, 8, true, 1);
-    this.animationAoe = new Animation(spriteSheetAoe, 100, 100, 1, .085, 8, true, 3.75);
+    this.animationAoe = new Animation(spriteSheetAoe, 100, 100, 1, .085, 8, true, 1);
     this.damageObj = DS.CreateDamageObject(10,4,DTypes.Magic
         , DS.CreateBuffObject("lesser burning"
-        ,[DS.CreateEffectObject(ETypes.CurrentHealthF,-2,0,40,2)]));
-    this.childDraw = function () {
-        GAME_ENGINE.ctx.strokeStyle = "blue";
+        ,[DS.CreateEffectObject(ETypes.CurrentHealthF,-1,0,20,4)]));
+    this.childCollide = function (unit) {
         let xPos,yPos,width = height = this.aoe;
         xPos = this.x - 25;
         yPos = this.y - 25;
-        GAME_ENGINE.ctx.strokeRect(xPos, yPos, this.aoe, this.aoe); // Hardcoded a lot of offset values
+        let aBox = new BoundingBox(xPos,yPos,width,height);
+        let aCrow = new StillStand(this.game,this.animationAoe,6,this.x,this.y);
+        let aHit = DS.CreateDamageObject(15,2,DTypes.Magic
+                ,  DS.CreateBuffObject("burning"
+                ,[ DS.CreateEffectObject(ETypes.CurrentHealthF,-2,0,30,5)]));
+        aCrow.boundingbox = aBox;
+        aCrow.penetrative = true;
+        aCrow.entityHitType = EntityTypes.enemies;
+        aCrow.damageObj = aHit;
+        GAME_ENGINE.addEntity(aCrow);
     }
-    this.childUpdate = function () {
-        //GAME_ENGINE.ctx.strokeStyle = "blue";
-        let xPos,yPos,width = height = this.aoe;
-        xPos = this.x - 25;
-        yPos = this.y - 25;
-        //GAME_ENGINE.ctx.strokeRect(xPos, yPos, this.aoe, this.aoe); // Hardcoded a lot of offset values
-        console.log(GAME_ENGINE.entities);
-        console.log(this);
-        for (var i = 0; i < GAME_ENGINE.entities[this.targetType].length; i++) {
-            var entityCollide = GAME_ENGINE.entities[this.targetType][i];
-            console.log(entityCollide);
-            if (this.boundingbox.collide(entityCollide.boundingbox)) {
-                console.log("hit!");
-                if (GAME_ENGINE.entities[this.targetType][i].health > 0) {
-                    //Dont do damage here
-                    //Make still stand for fire blast aoe
-                    //** */temp
-                    console.log("hit");
-                    let aBox = new BoundingBox(xPos,yPos,width,height);
-                    let aCrow = new StillStand(this.game,this.animationAoe,6,this.x,this.y);
-                    let aHit = DS.CreateDamageObject(35,2,DTypes.Magic
-                            ,  DS.CreateBuffObject("burning"
-                            ,[ DS.CreateEffectObject(ETypes.CurrentHealthF,-3,0,40,2)]));
-                    aCrow.boundingbox = aBox;
-                    aCrow.penetrative = true;
-                    aCrow.entityHitType = EntityTypes.enemies;
-                    aCrow.damageObj = aHit;
-                }
-            }
-        }
-    }
+    
 }
 /* #endregion */
 /* #endregion */
@@ -621,8 +599,8 @@ Trap.prototype.update = function () {
             this.doAnimation = false;
             // Nuke the player, but start the damage .13 ticks after they stand on the trap
             // This allows players to sprint accross taking 10 damage
-            if (myPlayer.health > 0 && this.counter > 0.18) {
-                //myPlayer.health -= 2;
+            if (myPlayer.currentHealth > 0 && this.counter > 0.18) {
+                //myPlayer.currentHealth -= 2;
                 this.damageObj.ApplyEffects(myPlayer);
                 //console.log(myPlayer);
                 this.counter = .1;
@@ -662,12 +640,16 @@ function StillStand(game, animation, duration, theX, theY) {
     this.penetrative;
     this.game = game;
     this.ctx = game.ctx;
+    this.onDraw;
+    this.onUpdate;
+    this.onCollide;
     this.x = theX;
     this.y = theY;
     Entity.call(this, game, theX, theY);
 }
 
 StillStand.prototype.update = function () {
+    (typeof this.onUpdate === 'function') ? this.onUpdate() : null;
     this.timeLeft--;
     if (this.timeLeft <= 0) {
         this.removeFromWorld = true;
@@ -676,15 +658,17 @@ StillStand.prototype.update = function () {
         for (var i = 0; i < GAME_ENGINE.entities[this.entityHitType].length; i++) {
             var entityCollide = GAME_ENGINE.entities[this.entityHitType][i];
             if (this.boundingbox.collide(entityCollide.boundingbox)) {
-                if (GAME_ENGINE.entities[this.entityHitType][i].health > 0) {
+                if (GAME_ENGINE.entities[this.entityHitType][i].currentHealth > 0) {
+                    (typeof this.onCollide === 'function') ? this.onCollide() : null;
                     this.damageObj.ApplyEffects(GAME_ENGINE.entities[this.entityHitType][i]);
-                    this.removeFromWorld = (this.penetrative) ? false : true;
+                    this.removeFromWorld = (this.penetrative && !this.removeFromWorld) ? false : true;
                 }
             }
         }
     }
 }
 StillStand.prototype.draw = function () {
+    (typeof this.onDraw === 'function') ? this.onDraw() : null;
     this.ani.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
 }
 /* #endregion */
