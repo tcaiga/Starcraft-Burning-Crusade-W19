@@ -58,7 +58,7 @@ Make a set of premade buffs i.e. 'weak slow, slow, strong slow'
 const DTypes = {
     Normal: "n",
     Slashing: "s",
-    Riercing: "p",
+    Piercing: "p",
     Bludgeoning: "b",
     Magic: "m",
     Chaos: "c",//100% damage all time
@@ -68,9 +68,9 @@ const DTypes = {
 /* #region Armor type descriptions */
 /**
  * Armor types
- * @Unarmored takes bonus 33% damage from Riercing and Slashing.
- * @Light takes bonus 33% damage from Riercing and Magic.
- * @Medium takes bonus 33% damage from Normal, but 33% less damage from Riercing, Magic, and Slashing.
+ * @Unarmored takes bonus 33% damage from Piercing and Slashing.
+ * @Light takes bonus 33% damage from Piercing and Magic.
+ * @Medium takes bonus 33% damage from Normal, but 33% less damage from Piercing, Magic, and Slashing.
  * @Heavy takes bonus 33% damage from Magic.
  * @Ethereal takes bonus 66% damage from Magic, but 90% less damage from all other attack types.
  * @None Only use if entity should not have armor types considered. This is not a 'universal 1.0 damage mode'.
@@ -155,6 +155,9 @@ const PremadeBuffs = {
     Haste: new BuffObj("haste", [new EffectObj(ETypes.MoveSpeedR,1.25, 1/1.25, 60, 0)]),
     HasteWeak: new BuffObj("weak haste", [new EffectObj(ETypes.MoveSpeedR,1.1, 1/1.1, 60, 0)]),
     HasteStrong: new BuffObj("strong haste", [new EffectObj(ETypes.MoveSpeedR,1.5, 1/1.5, 60, 0)]),
+    Stun: new BuffObj("stun",[new EffectObj(ETypes.Stun,true,false,40,0)]),
+    StunShort: new BuffObj("stun",[new EffectObj(ETypes.Stun,true,false,20,0)]),
+    StunLong: new BuffObj("stun",[new EffectObj(ETypes.Stun,true,false,60,0)]),
     Heal: new BuffObj("heal", [new EffectObj(ETypes.CurrentHealthF, 20, 0, 2, 0)]),
     HealStrong: new BuffObj("strong heal", [new EffectObj(ETypes.CurrentHealthF, 30, 0, 2, 0)]),
     HealWeak: new BuffObj("weak heal", [new EffectObj(ETypes.CurrentHealthF, 10, 0, 2, 0)]),
@@ -162,6 +165,9 @@ const PremadeBuffs = {
     DamageOvertime: new BuffObj("damage overtime", [new EffectObj(ETypes.CurrentHealthF, -3.5, 0, 60, 10)]),
     PurifyingFlames: new BuffObj("purifying flames", [new EffectObj(ETypes.CurrentHealthF, -25, 0, 2, 0)
         , new EffectObj(ETypes.CurrentHealthF, 3.2 / (180 / 5), 0, 180, 5)]),
+    Malefice: new BuffObj("malefice", [new EffectObj(ETypes.isStunned,true,false,240,120,function (unit) {
+        (this.timeLeft % 40 === 0) ? unit.isStunned = false : null;})
+        , new EffectObj(ETypes.CurrentHealthF,15,0,240,120)])
 }
 /* #endregion */
 /* #region Damage System */
@@ -190,6 +196,7 @@ DamageSystem.prototype.CreateDamageObject = function (theDamage = 0, theHitstun 
 DamageSystem.prototype.CloneDamageObject = function (obj) {
     let newBuffObj = this.CloneBuffObject(obj.buff);
     let newObj  = this.CreateDamageObject(obj.damage, obj.hitstun, obj.damageType, newBuffObj);
+    newObj.timeLeft = obj.timeLeft;
     return newObj;
 }
 /* #region Create buff object description */
@@ -601,7 +608,7 @@ DamageObj.prototype.ApplyDamage = function (unit) {
         healthChange = this.damage;
     }
     //unit.health -= healthChange;
-    unit.ChangeHealth(-healthChange);//Negative b/c damage
+    unit.changeHealth(-healthChange);//Negative b/c damage
     return -healthChange;
 }
 /**
@@ -613,7 +620,6 @@ DamageObj.prototype.ApplyBuff = function (unit) {
         for (b in unit.buffObj) {
             if (unit.buffObj[b].name === this.buff.name) { return; }
         }
-
         unit.buffObj.push(this.buff);
     }
 }
