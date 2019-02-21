@@ -10,6 +10,8 @@ var canvasWidth;
 var canvasHeight;
 var myFloorNum = 1;
 var myRoomNum = 1;
+var playerX;
+var playerY;
 
 // Constant variable for tile size
 const TILE_SIZE = 16;
@@ -27,6 +29,8 @@ function Player(spritesheet, xOffset, yOffset) {
     this.animationIdle = this.animationRun;
     this.x = 60;
     this.y = 60;
+    playerX = this.x;
+    playerY = this.y;
     this.xScale = 1;
     this.damageObjArr = [];
     this.buffObj = [];
@@ -178,6 +182,8 @@ Player.prototype.update = function () {
     /* #endregion */
     /* #endregion */
 
+    playerX = this.x;
+    playerY = this.y;
 
     this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
         this.width, this.height);
@@ -310,8 +316,18 @@ Player.prototype.ChangeHealth = function (amount) {
 /* #region Monster */
 /* #region Base Monster */
 
-function Monster(spritesheet) {
-    Entity.call(this, GAME_ENGINE, 0, 350);
+function Monster(game, spritesheet) {
+    Entity.call(this, game, 0, 350);
+
+    // behavior stuff
+    this.visionWidth = 100
+    this.visionHeight = 100;
+    this.ticksSinceLastHit = 0;
+    this.isRanged = false;
+    this.pause = false;
+    this.inRange = false;
+    this.castCooldown = 0;
+
     this.scale = 1;
     this.width = 40;
     this.height = 56;
@@ -324,6 +340,8 @@ function Monster(spritesheet) {
     this.buffObj = [];
     this.counter = 0;
 
+    this.visionBox = new BoundingBox(this.x, this.y,
+        this.visionWidth * this.scale, this.visionHeight * this.scale);
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 }
@@ -342,22 +360,86 @@ Monster.prototype.draw = function () {
     this.ctx.fillText("Health: " + this.health, this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
 }
 
+function distance(monster) {
+    var dx = playerX - monster.x;
+    var dy = playerX - monster.y;
+    return Math.sqrt(dx * dx, dy * dy);
+}
+
 Monster.prototype.update = function () {
     if (this.health <= 0) this.removeFromWorld = true;
-    this.x += GAME_ENGINE.clockTick * this.speed;
-    if (this.x <= TILE_SIZE * 2) this.x = 450;
+
+    // based on the number of ticks since the player was last hit, we pause the monster
+    if (this.pause == false) {
+        // get the direction vector pointing towards player
+        var dirX = playerX - this.x;
+        var dirY = playerY - this.y;
+        // get the distance from the player
+        var dis = Math.sqrt(dirX * dirX + dirY * dirY);
+        // nomralize the vector
+        dirX = dirX / dis;
+        dirY = dirY / dis;
+        // change x and y based on our vector
+        this.x += dirX * (this.speed / 100);
+        this.y += dirY * (this.speed / 100);
+    } else {
+        this.ticksSinceLastHit += 1;
+        if (this.ticksSinceLastHit >= 60) {
+            this.pause = false;
+            ticksSinceLastHit = 0;
+        }
+    }
+
     Entity.prototype.update.call(this);
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 
+    this.visionBox = new BoundingBox(this.x, this.y,
+        this.visionWidth * this.scale * 5, this.visionHeight * this.scale * 5);
+    
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         this.counter += GAME_ENGINE.clockTick;
         this.damageObj.ApplyEffects(myPlayer);
+        this.pause = true;
         if (this.counter > .018 && myPlayer.health > 0) {
-            //myPlayer.health -= 5;
+            //player.health -= 5;
         }
         this.counter = 0;
     }
+
+    if (this.isRanged) {
+
+        // if we're in range of the player, fire a projectile at them
+        if (this.visionBox.collide(myPlayer.boundingbox)) {
+            // flag that we're in range (or not)
+            this.inRange = !this.inRange;
+            // pause to cast at the player
+            this.pause = true;
+            // get the player's coordiantes
+            var tarX = myPlayer.x;
+            var tarY = myPlayer.y;
+
+            // create a projectile targeted at the player's location
+            var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
+                this.x - (this.width / 2), this.y - (this.height / 2), tarX, tarY);
+            this.game.addEntity(projectile);
+        }
+        // if we're in range of a player, we can continue to cast at them (based on a cooldown)
+        // otherwise we'd just cast when a player's bounding box collides with their vision box.
+        if (this.inRange) {
+            // keep track of time since the last cast
+            this.castCooldown += 1
+            // reset after 45 ticks and then cast again
+            if (this.castCooldown > 45) {
+                this.castCooldown = 0;
+                var projectile = new Projectile(GAME_ENGINE, AM.getAsset("./img/fireball.png"),
+                    this.x - (this.width / 2), this.y - (this.height / 2), tarX, tarY);
+                this.game.addEntity(projectile);
+            }
+        }
+    }
+
+
 
     /* #region Damage system updates */
     let dmgObj;
@@ -432,9 +514,10 @@ function Acolyte(spritesheet) {
     this.height = 19;
     this.speed = 25;
     this.health = 150;
+    this.isRanged = true;
 
     this.animation = new Animation(spritesheet, this.width, this.height, 64, 0.15, 4, true, this.scale);
-
+    
     this.x = 100;
     this.y = 100;
 
