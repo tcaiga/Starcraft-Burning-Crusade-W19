@@ -79,7 +79,7 @@ GameEngine.prototype.startInput = function () {
                 // Projectile
                 var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
                     myPlayer.x - (myPlayer.width / 2),
-                     myPlayer.y - (myPlayer.height / 2), x, y);
+                     myPlayer.y - (myPlayer.height / 2), x, y, 5);
                 GAME_ENGINE.addEntity(projectile);
             }
         }
