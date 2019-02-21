@@ -782,12 +782,12 @@ Camera.prototype.move = function (direction) {
         this.y -= canvasHeight;
         myPlayer.y = canvasHeight + TILE_SIZE * 2 + 60 + CAMERA.y;
         myFloorNum -= 1;
-        BACKGROUND.y -= 320;
+        BACKGROUND.y += 320;
     } else if (direction === "down") {
         this.y += canvasHeight;
         myPlayer.y = 60 + CAMERA.y;
         myFloorNum += 1;
-        BACKGROUND.y += 320;
+        BACKGROUND.y -= 320;
     }
     document.getElementById("location").innerHTML = "Location: " + myFloorNum + "-" + myRoomNum;
 }
