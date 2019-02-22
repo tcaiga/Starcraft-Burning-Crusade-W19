@@ -45,10 +45,11 @@ function Player(spritesheet, xOffset, yOffset) {
     this.cooldownAdj = 0;
     this.castTime = 0;
     this.isStunned = false;
-
+    this.sprint = 1;
     this.baseMaxMovespeed = 2;
     this.maxMovespeedRatio = 1;
     this.maxMovespeedAdj = 0;
+    this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
     this.right = true;
     this.health = 100;
     this.dontdraw = 0;
@@ -86,27 +87,27 @@ Player.prototype.draw = function () {
 
 Player.prototype.update = function () {
     // Conditional check to see if player wants to sprint or not
-    var sprint = GAME_ENGINE.keyShift ? 1.75 : 1;
+    this.sprint = GAME_ENGINE.keyShift ? 1.75 : 1;
     // Player movement controls
 
     if (this.castTime <= 0 && !this.isStunned) {
         /* #region Player movement controls */
-
+        this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
         if (GAME_ENGINE.keyW === true) {
-            this.y -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+            this.y -= this.actualSpeed;
         }
         if (GAME_ENGINE.keyA === true) {
-            this.x -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+            this.x -= this.actualSpeed;
             this.right = false;
         }
         if (GAME_ENGINE.keyS === true) {
-            this.y += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+            this.y += this.actualSpeed;
         }
         if (GAME_ENGINE.keyD === true) {
-            this.x += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+            this.x += this.actualSpeed;
             this.right = true;
         }
-        var actualSpeed = Math.floor((this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint * 100);
+        var actualSpeed = Math.floor((this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint * 100);
         var speedHTML = document.getElementById("speed");
         speedHTML.innerHTML = + actualSpeed + "%";
         if (actualSpeed === 100)
@@ -356,7 +357,6 @@ Player.prototype.knightAbilities = function (number) {
                 ss1.boundingbox = new BoundingBox(xPos + 5, yPos + 2, aoe, aoe);
                 ss1.entityHitType = EntityTypes.enemies;
                 ss1.onDraw = function () {
-                    //console.log(xPos - aoe/2, yPos - aoe/2, aoe, aoe);
                     GAME_ENGINE.ctx.strokeStyle = color_yellow;
                     //this.game.ctx.strokeRect(xPos + 5, yPos + 2, aoe, aoe);
                 }
@@ -445,7 +445,7 @@ Monster.prototype.draw = function () {
     // Displaying Monster health
     GAME_ENGINE.ctx.font = "15px Arial";
     GAME_ENGINE.ctx.fillStyle = "white";
-    GAME_ENGINE.ctx.fillText("Health: " + this.health, this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
+    GAME_ENGINE.ctx.fillText("Health: " + Math.floor(this.health), this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
 }
 
 function distance(monster) {
@@ -514,7 +514,6 @@ Monster.prototype.update = function () {
             this.castCooldown += 1
             // reset after 45 ticks and then cast again
             if (this.castCooldown > 45) {
-                console.log(this.castCoooldown);
                 this.castCooldown = 0;
                 var projectile = new Projectile(AM.getAsset("./img/fireball.png", 4),
                     this.x - (this.width / 2), this.y - (this.height / 2), tarX, tarY);
@@ -941,7 +940,6 @@ Camera.prototype.move = function (direction) {
         myPlayer.x = 60 + CAMERA.x;
         myRoomNum += 1;
         BACKGROUND.x -= 320;
-
     } else if (direction === "left") {
         this.x -= canvasWidth;
         myPlayer.x = canvasWidth - TILE_SIZE * 2 - 60 + CAMERA.x;
@@ -949,10 +947,10 @@ Camera.prototype.move = function (direction) {
         BACKGROUND.x += 320;
     } else if (direction === "up") {
         this.y -= canvasHeight;
-        myPlayer.y = canvasHeight + TILE_SIZE * 2 + 60 + CAMERA.y;
+        myPlayer.y = canvasHeight - TILE_SIZE * 2 - 60 + CAMERA.y;
         myFloorNum -= 1;
         BACKGROUND.y += 320;
-    } else if (direction === "down") {
+    } else {
         this.y += canvasHeight;
         myPlayer.y = 60 + CAMERA.y;
         myFloorNum += 1;
@@ -979,6 +977,50 @@ Door.prototype.update = function () {
 
 Door.prototype.draw = function () {
     GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 32, 32);
+}
+
+function Wall(theX, theY, theDirection) {
+    this.x = theX;
+    this.y = theY;
+    this.direction = theDirection;
+    this.image = new Image();
+    this.image.src = "./img/floor1.png";
+    this.boundingbox = new BoundingBox(this.x, this.y, 16, 16);
+}
+
+Wall.prototype.update = function () {
+    if (this.boundingbox.collide(myPlayer.boundingbox)) {
+        if (this.direction === "up") {
+            myPlayer.y += myPlayer.actualSpeed;
+        } else if (this.direction === "down") {
+            myPlayer.y -= myPlayer.actualSpeed;
+        } else if (this.direction === "left") {
+            myPlayer.x += myPlayer.actualSpeed;
+        } else {
+            myPlayer.x -= myPlayer.actualSpeed;
+        }
+    }
+
+    for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
+        var entity = GAME_ENGINE.entities[4][i];
+        if (this.boundingbox.collide(entity.boundingbox)) {
+            var distance = entity.speed / 100;
+            if (this.direction === "up") {
+                entity.y += distance;
+            } else if (this.direction === "down") {
+                entity.y -= distance;
+            } else if (this.direction === "left") {
+                entity.x += distance;
+            } else {
+                entity.x -= distance;
+            }
+        }
+    }
+
+}
+
+Wall.prototype.draw = function () {
+    GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 16, 16);
 }
 
 /* #region Menu */
@@ -1013,7 +1055,7 @@ Menu.prototype.createClassButton = function (text, xPosition, YPosition, width) 
     var x = GAME_ENGINE.mouseX;
     var y = GAME_ENGINE.mouseY;
     if (x >= xPosition && x <= xPosition + width && y >= YPosition && y <= YPosition + this.classButtonH) {
-            GAME_ENGINE.ctx.font = "bold 35px Arial";
+        GAME_ENGINE.ctx.font = "bold 35px Arial";
     } else {
         GAME_ENGINE.ctx.font = "35px Arial";
     }
@@ -1050,10 +1092,10 @@ function Background() {
     this.maxRoomCount = 6;
     this.map[this.row][this.col] = 2;
     this.facePos.push([this.col, this.row]);
+    this.three = new Image();
+    this.three.src = "./img/floor1.png";
     this.zero = new Image();
-    this.zero.src = "./img/floor1.png";
-    this.one = new Image();
-    this.one.src = "./img/floor2.png";
+    this.zero.src = "./img/floor2.png";
     this.two = new Image();
     this.two.src = "./img/blacktile.png";
     this.tile = null;
@@ -1068,31 +1110,20 @@ Background.prototype.draw = function () {
                     // Determining tiles to choose
                     let tempTile = ROOMS[this.map[i][j]][r * 20 + s];
                     if (tempTile === 0) {
-                        this.tile = this.one;
-                    } else if (tempTile === 1) {
                         this.tile = this.zero;
-                    } else {
-                        this.tile = this.two;
+                    } 
+                    // else if (tempTile === 2) {
+                    //     this.tile = this.two;
+                    // } 
+                    else if (tempTile === 3) {
+                        this.tile = this.three;
                     }
                     // Drawing Tiles
-                    GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * 320 + s * TILE_SIZE, this.y + i * 320 + r * TILE_SIZE);
+                   if (tempTile === 0 || tempTile === 3) {
+                    GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE,
+                        this.y + i * canvasHeight + r * TILE_SIZE);
+                   }
                 }
-            }
-
-            // Drawing doors
-            if (this.drawFaceCount < this.maxRoomCount && this.map[i][j] !== 0) {
-                let testFace = this.face[this.drawFaceCount];
-                let testPos = this.facePos[this.drawFaceCount];
-                if (this.face[this.drawFaceCount] === 0) {
-                    GAME_ENGINE.addEntity(new Door(testPos[0] * 320 + 144 + BACKGROUND.x, testPos[1] * 320 + BACKGROUND.y, "up"));
-                } else if (this.face[this.drawFaceCount] === 1) {
-                    GAME_ENGINE.addEntity(new Door(testPos[0] * 320 + 288 + BACKGROUND.x, testPos[1] * 320 + 144 + BACKGROUND.y, "right"));
-                } else if (this.face[this.drawFaceCount] === 2) {
-                    GAME_ENGINE.addEntity(new Door(testPos[0] * 320 + 144 + BACKGROUND.x, testPos[1] * 320 + 288 + BACKGROUND.y, "down"));
-                } else if (this.face[this.drawFaceCount] === 3) {
-                    GAME_ENGINE.addEntity(new Door(testPos[0] * 320 + BACKGROUND.x, testPos[1] * 320 + 144 + BACKGROUND.y, "left"));
-                }
-                this.drawFaceCount++;
             }
         }
     }
@@ -1100,6 +1131,59 @@ Background.prototype.draw = function () {
 
 Background.prototype.update = function () {
 };
+
+Background.prototype.createWalls = function () {
+    var flag = true;
+    for (let i = 0; i < this.map.length; i++) {
+        for (let j = 0; j < this.map[i].length; j++) {
+            for (let row = 0; row < 20; row++) {
+                for (let col = 0; col < 20; col++) {
+                    let tempTile = ROOMS[this.map[i][j]][row * 20 + col];
+                    if (tempTile === 1) {
+                        if (col === 0 && row != 0 && row != 19) {
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE, "left"));
+                        } else if (col === 19 && row != 0 & row != 19) {
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE, "right"));
+                        } else if (row === 19) {
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE, "down"));
+                        } else if (row === 0) {
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE, "up"));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+Background.prototype.createDoors = function () {
+    for (let i = 0; i < this.map.length; i++) {
+        for (let j = 0; j < this.map[i].length; j++) {
+            // Drawing doors
+            if (this.drawFaceCount < this.maxRoomCount && this.map[i][j] !== 0) {
+                let testPos = this.facePos[this.drawFaceCount];
+                if (this.face[this.drawFaceCount] === 0) {
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 144 + BACKGROUND.x,
+                        testPos[1] * canvasHeight + BACKGROUND.y, "up"));
+                } else if (this.face[this.drawFaceCount] === 1) {
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 288 + BACKGROUND.x,
+                        testPos[1] * canvasHeight + 144 + BACKGROUND.y, "right"));
+                } else if (this.face[this.drawFaceCount] === 2) {
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 144 + BACKGROUND.x,
+                        testPos[1] * canvasHeight + 288 + BACKGROUND.y, "down"));
+                } else if (this.face[this.drawFaceCount] === 3) {
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
+                        testPos[1] * canvasHeight + 144 + BACKGROUND.y, "left"));
+                }
+                this.drawFaceCount++;
+            }
+        }
+    }
+}
 
 Background.prototype.validDirection = function () {
     while (this.roomCount < this.maxRoomCount) {
@@ -1114,7 +1198,7 @@ Background.prototype.validDirection = function () {
             randomDirection = Math.floor(Math.random() * Math.floor(4));
         } else {
 
-            if (tempRow < this.map.length && tempRow > 0  && tempCol < this.map.length && tempCol > 0
+            if (tempRow < this.map.length && tempRow > 0 && tempCol < this.map.length && tempCol > 0
 
                 && this.map[tempRow][tempCol] === 0) {
                 this.face.push(randomDirection);
@@ -1145,9 +1229,6 @@ Background.prototype.validDirection = function () {
     // this.face.push(2);
     // this.face.push(2);
     // this.face.push(1);
-
-    console.log(this.face);
-
 }
 /* #endregion */
 
