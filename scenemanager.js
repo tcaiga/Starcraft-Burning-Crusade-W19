@@ -97,16 +97,16 @@ var ROOMS = [
     ]
 ];
 
-
-
 function SceneManager() {
     this.insideMenu = true;
-    this.ctx = GAME_ENGINE.ctx;
     this.menu = GAME_ENGINE.entities[0][0];
 }
 
 SceneManager.prototype.menuSelection = function(x, y) {
     var classPicked = false;
+
+    console.log(y);
+    console.log(this.menu.mageButtonY);
     if(x >= this.menu.mageButtonX && x <= this.menu.mageButtonX + this.menu.mageWidth
         && y >= this.menu.mageButtonY && y <= this.menu.mageButtonY + this.menu.classButtonH) {
         classPicked = true;
