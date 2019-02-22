@@ -1036,10 +1036,8 @@ Menu.prototype.createClassButton = function (text, xPosition, YPosition) {
 
 /* #region Background */
 function Background() {
-    // this.x = -640;
-    // this.y = -640;
-    this.x = 0;
-    this.y = 0;
+    this.x = -640;
+    this.y = -640;
 
     this.ctx = GAME_ENGINE.ctx;
     // Keeping track of the last direction the generator has moved.
@@ -1057,8 +1055,8 @@ function Background() {
         [0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
     ];
-    this.row = 0;
-    this.col = 0;
+    this.row = 2;
+    this.col = 2;
     this.roomCount = 0;
     this.map[this.row][this.col] = 2;
     this.zero = new Image();
@@ -1096,10 +1094,10 @@ Background.prototype.draw = function () {
                     GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320, "up"));
                     console.log("Door Up");
                 } else if (this.face[this.drawFaceCount] === 1) {
-                    GAME_ENGINE.addEntity(new Door((i - 1 - this.row) * 320 + 288, (j + 1 - this.col) * 320 + 144, "right"));
+                    GAME_ENGINE.addEntity(new Door((j - this.row) * 320 + 288, (i - this.col) * 320 + 144, "right"));
                     console.log("Door Right");
                 } else if (this.face[this.drawFaceCount] === 2) {
-                    GAME_ENGINE.addEntity(new Door((i - this.row) * 320 + 144, (j - this.col) * 320 + 288, "down"));
+                    GAME_ENGINE.addEntity(new Door((j - this.row) * 320 + 144, (i - this.col) * 320 + 288, "down"));
                     console.log("Door Down");
                 } else if (this.face[this.drawFaceCount] === 3) {
                     GAME_ENGINE.addEntity(new Door(i * 320, j * 320 + 144, "left"));
@@ -1140,16 +1138,19 @@ Background.prototype.validDirection = function () {
     //     }
     // }
 
-    this.map[1][0] = 1;
-    this.map[1][1] = 1;
-    this.map[2][1] = 1;
-    this.map[2][2] = 1;
-    this.map[3][2] = 3;
+    this.map = [
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 2, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0],
+        [0, 0, 1, 1, 3, 0],
+    ];
+    this.face.push(2);
+    this.face.push(2);
     this.face.push(2);
     this.face.push(1);
-    this.face.push(2);
     this.face.push(1);
-    this.face.push(2);
 
     console.log(this.face);
 }
@@ -1254,8 +1255,8 @@ AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     document.body.style.backgroundColor = "black";
-    canvasWidth = canvas.width;
-    canvasHeight = canvas.height;
+    canvasWidth = canvas.width - 680;
+    canvasHeight = canvas.height - 680;
 
     GAME_ENGINE.init(ctx);
     GAME_ENGINE.start();
