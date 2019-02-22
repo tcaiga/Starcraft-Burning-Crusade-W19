@@ -40,7 +40,7 @@ function Player(spritesheet, xOffset, yOffset) {
     this.xScale = 1;
     this.damageObjArr = [];
     this.buffObj = [];
-    this.abilityCD = [0, 0, 0, 0];
+    this.abilityCD = [0, 0, 0, 0, 0];
     this.cooldownRate = 1;
     this.cooldownAdj = 0;
     this.castTime = 0;
@@ -317,7 +317,37 @@ Player.prototype.mageAbilities = function (number) {
                 /* #endregion */
                 break;
             case 4:
+                /* #region Flame Strike */
                 //Ability at keyboard number 4
+                castDistance = 115;
+                xDif = this.x - GAME_ENGINE.mouseX;
+                yDif = this.y - GAME_ENGINE.mouseY;
+                mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
+                castDistance = Math.min(castDistance, mag);
+                xPos = -(xDif / mag) * castDistance - 12 + this.x;
+                yPos = -(yDif / mag) * castDistance - 30 + this.y;
+                ss1Ani = new Animation(AM.getAsset("./img/ability/flame_ring_32x160.png"),32,32,1,0.13,5,true,1.5);
+                ss2Ani = new Animation(AM.getAsset("./img/ability/flame_explosion_32x320.png"),32,32,1,0.08,10,false,2);
+                ss1 = new StillStand(ss1Ani, 40, xPos, yPos);
+                ss1.ssAni = ss2Ani;
+                ss1.width = 50;
+                ss1.height = 50;
+                ss1.aniX = -32*1.5/2 + 12;
+                ss1.aniY = -32*1.5/2 + 22;
+                ss1.entityHitType = EntityTypes.enemies;
+                ss1.onDeath = function () {
+                    let ss3 = new StillStand(this.ssAni,9,this.x,this.y);
+                    ss3.entityHitType = this.entityHitType;
+                    ss3.boundingbox = new BoundingBox(this.x - this.width/2, this.y - this.height/2,this.width, this.height);
+                    ss3.damageObj = DS.CreateDamageObject(45, 0, DTypes.Magic);
+                    ss3.penetrative = true;
+                    ss3.aniX = -32*2/2 + 12;
+                    ss3.aniY = -32*2/2 + 22;
+                    GAME_ENGINE.addEntity(ss3);
+                }
+                GAME_ENGINE.addEntity(ss1);
+                this.abilityCD[number] = 18;
+                /* #endregion */
                 break;
         }
     }
@@ -677,6 +707,7 @@ Projectile.prototype.update = function () {
             var entityCollide = GAME_ENGINE.entities[4][i];
             if (this.boundingbox.collide(entityCollide.boundingbox)) {
                 if (GAME_ENGINE.entities[4][i].health > 0) {
+                    (typeof this.childCollide === 'function') ? this.childCollide(entityCollide) : null;
                     this.damageObj.ApplyEffects(GAME_ENGINE.entities[4][i]);
                     this.removeFromWorld = (this.penetrative) ? false : true;
                 }
@@ -686,6 +717,7 @@ Projectile.prototype.update = function () {
     else {
         if (this.boundingbox.collide(myPlayer.boundingbox)) {
             if (myPlayer.health > 0) {
+                (typeof this.childCollide === 'function') ? this.childCollide(myPlayer) : null;
                 this.damageObj.ApplyEffects(myPlayer);
                 this.removeFromWorld = (this.penetrative) ? false : true;
             }
@@ -761,8 +793,8 @@ function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget) {
     this.range = 90;
     this.damageObj = DS.CreateDamageObject(2.25, 0, DTypes.Magic);
     this.animation = new Animation(spriteSheet, 8, 8, 1, .084, 4, true, 1);
-    this.aniX += 17;
-    this.aniY += 32;
+    this.aniX += 34;
+    this.aniY += 38;
     // Determining where the projectile should go angle wise.
     //radians
     let converter = Math.PI / 360;
@@ -872,9 +904,14 @@ function StillStand(animation, duration, theX, theY) {
     this.onDraw;
     this.onUpdate;
     this.onCollide;
+    this.onDeath;
 
     this.x = theX;
     this.y = theY;
+    this.width;
+    this.height;
+    this.aniX = 0;
+    this.aniY = 0;
     Entity.call(this, GAME_ENGINE, theX, theY);
 }
 
@@ -882,6 +919,7 @@ StillStand.prototype.update = function () {
     (typeof this.onUpdate === 'function') ? this.onUpdate() : null;
     this.timeLeft--;
     if (this.timeLeft <= 0) {
+        (typeof this.onDeath === 'function') ? this.onDeath() : null;
         this.removeFromWorld = true;
     }
     if (typeof this.boundingbox !== 'undefined' && typeof this.entityHitType !== 'undefined') {
@@ -899,7 +937,10 @@ StillStand.prototype.update = function () {
 }
 StillStand.prototype.draw = function () {
     (typeof this.onDraw === 'function') ? this.onDraw() : null;
-    this.ani.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
+    (typeof this.boundingbox !== 'undefined' && GAME_ENGINE.debug) ? function () {GAME_ENGINE.ctx.strokeStyle = color_yellow;
+        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+            this.boundingbox.width, this.boundingbox.height);} : null;
+    this.ani.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x + this.aniX, this.y + this.aniY);
 }
 /* #endregion */
 
@@ -1304,16 +1345,33 @@ Animation.prototype.isDone = function () {
 
 // Ranger
 AM.queueDownload("./img/ranger_run.png");
+for (let i = 0; i < 9; i++){
+    AM.queueDownload("./img/ability/multi_arrow_" + i + "_8x8.png");
+}
+AM.queueDownload("./img/ability/arrow_u_8x8.png");
+AM.queueDownload("./img/ability/arrow_d_8x8.png");
+AM.queueDownload("./img/ability/arrow_l_8x8.png");
+AM.queueDownload("./img/ability/arrow_r_8x8.png");
+AM.queueDownload("./img/ability/arrow_ul_8x8.png");
+AM.queueDownload("./img/ability/arrow_ur_8x8.png");
+AM.queueDownload("./img/ability/arrow_dl_8x8.png");
+AM.queueDownload("./img/ability/arrow_dr_8x8.png");
+AM.queueDownload("./img/ability/rain_of_arrows_32x384.png");
+AM.queueDownload("./img/ability/root_trap_down.png");
+AM.queueDownload("./img/ability/root_trap_up.png");
 // Knight
 AM.queueDownload("./img/knight_run.png");
 AM.queueDownload("./img/swordBoomerang.png");
 AM.queueDownload("./img/Shield Flash.png");
 AM.queueDownload("./img/ability/heal_self_32x224.png");
-AM.queueDownload("./img/ability/holy_strike_right_32x352");
+AM.queueDownload("./img/ability/holy_strike_right_32x352.png");
 // Mage
 AM.queueDownload("./img/mage_run.png");
 AM.queueDownload("./img/flash.png");
 AM.queueDownload("./img/flame_breath_bolt.png");
+AM.queueDownload("./img/ability/flame_ring_32x160.png");
+AM.queueDownload("./img/ability/flame_explosion_32x320.png");
+AM.queueDownload("./img/ability/greater_fireball_16x64.png");
 // Floor Trap
 AM.queueDownload("./img/floor_trap_up.png");
 AM.queueDownload("./img/floor_trap_down.png");
