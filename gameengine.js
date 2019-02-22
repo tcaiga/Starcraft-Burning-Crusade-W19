@@ -6,6 +6,14 @@ var characterSprites = [{ spritesheet: "./img/mage_run.png", xOffset: 0, yOffset
 { spritesheet: "./img/ranger_run.png", xOffset: 0, yOffset: 8 },
 { spritesheet: "./img/knight_run.png", xOffset: 0, yOffset: 6 }];
 var myPlayer;
+const EntityTypes = {
+    menu:0,
+    non_interactables:1,
+    traps:2,
+    projectiles:3,
+    enemies:4,
+    player:5
+}
 
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
@@ -153,8 +161,7 @@ GameEngine.prototype.startInput = function () {
 
 GameEngine.prototype.reset = function () {
     for (let i = 1; i < this.entities.length; i++) {
-        var entitySubArr = this.entities[i];
-        for (let j = 0; j < entitySubArr.length; j++) {
+        for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
             entity.removeFromWorld = true;
             this.entities[i].pop();
@@ -169,13 +176,13 @@ GameEngine.prototype.reset = function () {
     //reset html text
     var healthHTML = document.getElementById("health");
     healthHTML.innerHTML = "";
-    healthHTML.style.color = "lightgreen";
+    healthHTML.style.color = color_green;
     document.getElementById("speed").innerHTML = "" 
     document.getElementById("location").innerHTML = "Location: " 
     for (let x = 1; x < 4; x++) {
         var spellHTML = document.getElementById("spell" + x);
         spellHTML.innerHTML = "Ready";
-        spellHTML.style.color = "lightgreen";
+        spellHTML.style.color = color_green;
     }
 }
 
@@ -199,8 +206,7 @@ GameEngine.prototype.draw = function () {
     this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
     this.ctx.save();
     for (let i = 0; i < this.entities.length; i++) {
-        var entitySubArr = this.entities[i];
-        for (let j = 0; j < entitySubArr.length; j++) {
+        for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
             if (!entity.removeFromWorld && (i <= 1 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
                 entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
@@ -212,7 +218,6 @@ GameEngine.prototype.draw = function () {
 }
 
 GameEngine.prototype.update = function () {
-
     for (let i = 0; i < this.entities.length; i++) {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
@@ -257,7 +262,7 @@ Entity.prototype.update = function () { }
 Entity.prototype.draw = function (ctx) {
     if (this.game.showOutlines && this.radius) {
         this.game.ctx.beginPath();
-        this.game.ctx.strokeStyle = "green";
+        this.game.ctx.strokeStyle = color_green;
         this.game.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
         this.game.ctx.stroke();
         this.game.ctx.closePath();

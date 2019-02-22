@@ -1,3 +1,9 @@
+//color constants
+const color_green = "lightgreen";
+const color_red = "red";
+const color_yellow = "yellow";
+const color_white = "white";
+
 /* #region Constants */
 const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
@@ -34,14 +40,16 @@ function Player(spritesheet, xOffset, yOffset) {
     this.xScale = 1;
     this.damageObjArr = [];
     this.buffObj = [];
-    this.abilityCD = [0, 0, 0, 0, 0];
+    this.abilityCD = [0, 0, 0, 0];
     this.cooldownRate = 1;
     this.cooldownAdj = 0;
-    this.isStunned = 0;
-    this.ctx = GAME_ENGINE.ctx;
+    this.castTime = 0;
+    this.isStunned = false;
+    this.sprint = 1;
     this.baseMaxMovespeed = 2;
     this.maxMovespeedRatio = 1;
     this.maxMovespeedAdj = 0;
+    this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
     this.right = true;
     this.health = 100;
     this.dontdraw = 0;
@@ -53,20 +61,20 @@ Player.prototype.draw = function () {
     this.xScale = 1;
     var xValue = this.x;
     if (!this.right) {
-        this.ctx.save();
-        this.ctx.scale(-1, 1);
+        GAME_ENGINE.ctx.save();
+        GAME_ENGINE.ctx.scale(-1, 1);
         this.xScale = -1;
         xValue = -this.x - this.width;
     }
     //draw player character with no animation if player is not currently moving
     if (this.dontdraw <= 0) {
         if (!GAME_ENGINE.movement) {
-            this.animationIdle.drawFrameIdle(this.ctx, xValue, this.y);
+            this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
         } else {
-            this.animationRun.drawFrame(GAME_ENGINE.clockTick, this.ctx, xValue, this.y);
+            this.animationRun.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
         }
 
-        this.ctx.restore();
+        GAME_ENGINE.ctx.restore();
         if (GAME_ENGINE.debug) {
             GAME_ENGINE.ctx.strokeStyle = "blue";
             GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
@@ -79,38 +87,38 @@ Player.prototype.draw = function () {
 
 Player.prototype.update = function () {
     // Conditional check to see if player wants to sprint or not
-    var sprint = GAME_ENGINE.keyShift ? 1.75 : 1;
+    this.sprint = GAME_ENGINE.keyShift ? 1.75 : 1;
     // Player movement controls
 
-    if (this.isStunned <= 0) {
+    if (this.castTime <= 0 && !this.isStunned) {
         /* #region Player movement controls */
-
+        this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
         if (GAME_ENGINE.keyW === true) {
-            this.y -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+            this.y -= this.actualSpeed;
         }
         if (GAME_ENGINE.keyA === true) {
-            this.x -= (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+            this.x -= this.actualSpeed;
             this.right = false;
         }
         if (GAME_ENGINE.keyS === true) {
-            this.y += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+            this.y += this.actualSpeed;
         }
         if (GAME_ENGINE.keyD === true) {
-            this.x += (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint;
+            this.x += this.actualSpeed;
             this.right = true;
         }
-        var actualSpeed = Math.floor((this.maxMovespeedRatio + this.maxMovespeedAdj) * sprint * 100);
+        var actualSpeed = Math.floor((this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint * 100);
         var speedHTML = document.getElementById("speed");
         speedHTML.innerHTML = + actualSpeed + "%";
         if (actualSpeed === 100)
-        speedHTML.style.color = "lightgreen";
+            speedHTML.style.color = color_green;
         else if (actualSpeed < 100)
-        speedHTML.style.color = "red";
+            speedHTML.style.color = color_red;
         else
-        speedHTML.style.color = "white";
+            speedHTML.style.color = color_white;
         /* #endregion */
     } else {
-        this.isStunned--;
+        this.castTime--;
     }
     /* #region Abilities */
     let t;
@@ -122,15 +130,15 @@ Player.prototype.update = function () {
             //display if spell is ready to use or not
             if (this.abilityCD[t] > 0) {
                 spellHTML.innerHTML = this.abilityCD[t] / 10;
-                spellHTML.style.color = "red";
+                spellHTML.style.color = color_red;
             } else {
                 spellHTML.innerHTML = "Ready";
-                spellHTML.style.color = "lightgreen";
+                spellHTML.style.color = color_green;
             }
         }
     }
     for (t in GAME_ENGINE.digit) {
-        if (GAME_ENGINE.digit[t]) {
+        if (GAME_ENGINE.digit[t] && !this.isStunned) {
             switch (GAME_ENGINE.playerPick) {
                 case 0:
                     this.mageAbilities(t);
@@ -149,6 +157,7 @@ Player.prototype.update = function () {
 
     if (this.health <= 0) {
         GAME_ENGINE.reset();
+        BACKGROUND = new Background();
     }
 
     /* #region Damage system updates */
@@ -191,18 +200,22 @@ Player.prototype.update = function () {
 
 
 /* #region Player Ability functions */
+let castDistance, xDif, yDif, mag, xPos, yPos
+    , dmg, aoe, ss1, ss2, ss1Ani, ss2Ani, tempPro = {};
 Player.prototype.rangerAbilities = function (number) {
     if (this.abilityCD[number] <= 0) {
         switch (parseInt(number)) {
             case 0:
                 //Ability at keyboard number 0
                 break;
-            case 1://Create BoostPad
+            case 1:
+                /* #region Boostpad */
                 //Ability at keyboard number 1
-                let castDistance = 125;
+
+                castDistance = 125;
                 let tempTrap = new RangerBoostPad(AM.getAsset("./img/floor_boostpad_on.png"),
                     AM.getAsset("./img/floor_boostpad_off.png"));
-                let xDif, yDif, mag;
+                xDif, yDif, mag;
                 xDif = this.x - GAME_ENGINE.mouseX + 10;
                 yDif = this.y - GAME_ENGINE.mouseY + 10;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
@@ -213,9 +226,31 @@ Player.prototype.rangerAbilities = function (number) {
                 tempTrap.boundingbox = new BoundingBox(tempTrap.x, tempTrap.y, 20, 20);
                 GAME_ENGINE.addEntity(tempTrap);
                 this.abilityCD[number] = 60;
+                /* #endregion */
                 break;
             case 2:
                 //Ability at keyboard number 2
+                /* #region Rain of arrows */
+                castDistance = 150;
+                aoe = 70;
+                xDif = this.x - GAME_ENGINE.mouseX + 10;
+                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
+                castDistance = Math.min(mag, castDistance);
+                xPos = this.x - (xDif / mag) * castDistance;
+                yPos = this.y - (yDif / mag) * castDistance;
+                let ss1 = new StillStand(new Animation(AM.getAsset("./img/fireball.png")
+                    , 100, 100, 1, .085, 8, true, .75), 7 * 7, xPos - 30, yPos - 30);
+
+                ss1.boundingbox = new BoundingBox(ss1.x - aoe / 2, ss1.y - aoe / 2, aoe, aoe);
+                dmg = DS.CreateDamageObject(4, 0, DTypes.Piercing, DS.CloneBuffObject(PremadeBuffs.Slow));
+                dmg.timeLeft = 7;
+                ss1.entityHitType = EntityTypes.enemies;
+                ss1.damageObj = dmg;
+                ss1.penetrative = true;
+                GAME_ENGINE.addEntity(ss1);
+                this.abilityCD[number] = 120;
+                /* #endregion */
                 break;
             case 3:
                 //Ability at keyboard number 3
@@ -232,30 +267,54 @@ Player.prototype.mageAbilities = function (number) {
             case 0:
                 //Ability at keyboard number 0
                 break;
-            case 1://Blink!
+            case 1:
+                /* #region Blink */
                 //Ability at keyboard number 1
-                let blinkDistance = 100;
-                let xDif = this.x - GAME_ENGINE.mouseX;
-                let yDif = this.y - GAME_ENGINE.mouseY;
-                let mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
-                blinkDistance = Math.min(blinkDistance, mag);
-                let ss1Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
-                let ss2Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
-                let ss1 = new stillStand(ss1Ani, 10, this.x, this.y);
-                this.x -= (xDif / mag) * blinkDistance + 12;
-                this.y -= (yDif / mag) * blinkDistance + 30;
-                let ss2 = new stillStand(ss2Ani, 10, this.x, this.y);
+
+                castDistance = 100;
+                xDif = this.x - GAME_ENGINE.mouseX;
+                yDif = this.y - GAME_ENGINE.mouseY;
+                mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
+                castDistance = Math.min(castDistance, mag);
+                ss1Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
+                ss2Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
+                ss1 = new StillStand(ss1Ani, 10, this.x, this.y);
+                this.x -= (xDif / mag) * castDistance + 12;
+                this.y -= (yDif / mag) * castDistance + 30;
+                ss2 = new StillStand(ss2Ani, 10, this.x, this.y);
+
                 this.dontdraw = 10;
-                this.isStunned = 10;
+                this.castTime = 10;
                 GAME_ENGINE.addEntity(ss1);
                 GAME_ENGINE.addEntity(ss2);
                 this.abilityCD[number] = 120;
+                /* #endregion */
                 break;
             case 2:
+                /* #region Greater Fireball */
                 //Ability at keyboard number 2
+                let tempPro = new GreaterFireball(AM.getAsset("./img/fireball.png"), AM.getAsset("./img/fireball.png")
+                    , this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
+                tempPro.targetType = EntityTypes.enemies;
+                tempPro.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
+                    this.width - 25, this.height - 25); // Hardcoded a lot of offset values
+                GAME_ENGINE.addEntity(tempPro);
+                this.abilityCD[number] = 120;
+                this.castTime + 12;
+                /* #endregion */
                 break;
             case 3:
+                /* #region Flame Breath */
                 //Ability at keyboard number 3
+                let tempPro2;
+                for (let i = 0; i < 30; i++) {
+                    tempPro2 = new FlameBreathBolt(AM.getAsset("./img/flame_breath_bolt.png")
+                        , this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
+                    GAME_ENGINE.addEntity(tempPro2);
+                }
+                this.castTime = 8;
+                this.abilityCD[number] = 75;
+                /* #endregion */
                 break;
             case 4:
                 //Ability at keyboard number 4
@@ -269,16 +328,44 @@ Player.prototype.knightAbilities = function (number) {
             case 0:
                 //Ability at keyboard number 0
                 break;
-            case 1://Sword Boomerang
+            case 1:
+                /* #region Sword Boomerang */
                 //Ability at keyboard number 1
-                let tempPro = new swordBoomerang(AM.getAsset("./img/swordBoomerang.png"),
-                    this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
+
+                let tempPro = new SwordBoomerang(AM.getAsset("./img/swordBoomerang.png"),
+                    this.x - (this.width / 2), this.y - (this.height / 2),
+                    GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
                 tempPro.thrower = this;
                 GAME_ENGINE.addEntity(tempPro);
                 this.abilityCD[number] = 60;
+                /* #endregion */
                 break;
             case 2:
                 //Ability at keyboard number 2
+                /* #region Shield Bash */
+                castDistance = 20;
+                aoe = 40;
+                xDif = this.x - GAME_ENGINE.mouseX + 10;
+                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
+                castDistance = Math.min(mag, castDistance);
+                xPos = this.x - (xDif / mag) * castDistance;
+                yPos = this.y - (yDif / mag) * castDistance;
+
+                ssAni1 = new Animation(AM.getAsset("./img/Shield Flash.png"), 32, 32, 1, 0.07, 6, true, 1.5);
+                ss1 = new StillStand(ssAni1, 12, xPos, yPos);
+                ss1.boundingbox = new BoundingBox(xPos + 5, yPos + 2, aoe, aoe);
+                ss1.entityHitType = EntityTypes.enemies;
+                ss1.onDraw = function () {
+                    GAME_ENGINE.ctx.strokeStyle = color_yellow;
+                    //this.game.ctx.strokeRect(xPos + 5, yPos + 2, aoe, aoe);
+                }
+                ss1.damageObj = DS.CreateDamageObject(21, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.Stun));
+                ss1.penetrative = true;
+                this.abilityCD[number] = 75;
+                this.castTime = 6;
+                GAME_ENGINE.addEntity(ss1);
+                /* #endregion */
                 break;
             case 3:
                 //Ability at keyboard number 3
@@ -291,25 +378,27 @@ Player.prototype.knightAbilities = function (number) {
 }
 /* #endregion */
 
-Player.prototype.ChangeHealth = function (amount) {
+Player.prototype.changeHealth = function (amount) {
     if (amount > 0) {
         //display healing animation
-        //maybe have a health change threshold 
+        //maybe have a currentHealth change threshold 
         //to actually have it display
     } else if (amount < 0) {
         //display damage animation
-        //maybe have a health change threshold 
+        //maybe have a currentHealth change threshold 
         //to actually have it display
     }
+
     this.health += amount;//Damage will come in as a negative value;
     var healthHTML = document.getElementById("health");
     if (this.health >= 66)
-    healthHTML.style.color = "lightgreen";
+        healthHTML.style.color = color_green;
     else if (this.health >= 33)
-    healthHTML.style.color = "yellow";
+        healthHTML.style.color = color_yellow;
     else
-    healthHTML.style.color = "red";
+        healthHTML.style.color = color_red;
     healthHTML.innerHTML = this.health;
+
 }
 /* #endregion */
 
@@ -327,13 +416,12 @@ function Monster(game, spritesheet) {
     this.pause = false;
     this.inRange = false;
     this.castCooldown = 0;
-
+    this.isStunned = false;
     this.scale = 1;
     this.width = 40;
     this.height = 56;
     this.animation = new Animation(spritesheet, this.width, this.height, 1, 0.15, 15, true, this.scale);
     this.speed = 100;
-    this.ctx = GAME_ENGINE.ctx;
     this.health = 100;
     this.damageObjArr = [];
     this.damageObj = DS.CreateDamageObject(20, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.HasteWeak));
@@ -347,7 +435,7 @@ function Monster(game, spritesheet) {
 }
 
 Monster.prototype.draw = function () {
-    this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
+    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = "red";
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
@@ -355,9 +443,9 @@ Monster.prototype.draw = function () {
     }
 
     // Displaying Monster health
-    this.ctx.font = "15px Arial";
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("Health: " + this.health, this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
+    GAME_ENGINE.ctx.font = "15px Arial";
+    GAME_ENGINE.ctx.fillStyle = "white";
+    GAME_ENGINE.ctx.fillText("Health: " + Math.floor(this.health), this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
 }
 
 function distance(monster) {
@@ -370,7 +458,7 @@ Monster.prototype.update = function () {
     if (this.health <= 0) this.removeFromWorld = true;
 
     // based on the number of ticks since the player was last hit, we pause the monster
-    if (this.pause == false) {
+    if (this.pause == false || !this.isStunned) {
         // get the direction vector pointing towards player
         var dirX = playerX - this.x;
         var dirY = playerY - this.y;
@@ -396,7 +484,7 @@ Monster.prototype.update = function () {
 
     this.visionBox = new BoundingBox(this.x, this.y,
         this.visionWidth * this.scale * 5, this.visionHeight * this.scale * 5);
-    
+
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         this.counter += GAME_ENGINE.clockTick;
         this.damageObj.ApplyEffects(myPlayer);
@@ -426,7 +514,6 @@ Monster.prototype.update = function () {
             this.castCooldown += 1
             // reset after 45 ticks and then cast again
             if (this.castCooldown > 45) {
-                console.log(this.castCoooldown);
                 this.castCooldown = 0;
                 var projectile = new Projectile(AM.getAsset("./img/fireball.png", 4),
                     this.x - (this.width / 2), this.y - (this.height / 2), tarX, tarY);
@@ -471,7 +558,7 @@ Monster.prototype.update = function () {
 
 }
 
-Monster.prototype.ChangeHealth = function (amount) {
+Monster.prototype.changeHealth = function (amount) {
     if (amount > 0) {
         //display healing animation
         //maybe have a health change threshold 
@@ -514,7 +601,7 @@ function Acolyte(spritesheet) {
     this.isRanged = true;
 
     this.animation = new Animation(spritesheet, this.width, this.height, 64, 0.15, 4, true, this.scale);
-    
+
     this.x = 200;
     this.y = 200;
 
@@ -532,6 +619,7 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) 
     this.height = 100;
     this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
 
+    this.targetType = 4;
     this.x = originX - CAMERA.x;
     this.y = originY - CAMERA.y;
 
@@ -541,11 +629,14 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) 
     this.angle = Math.atan2(this.yTar - this.y, this.xTar - this.x);
     this.counter = 0; // Counter to make damage consistent
     this.childUpdate;//function
+    this.childDraw;//function
+    this.childCollide;//function
     this.speed = 200;
     this.projectileSpeed = 7.5;
     this.damageObj = DS.CreateDamageObject(15, 0, DTypes.Normal, null);
     this.penetrative = false;
-    this.ctx = GAME_ENGINE.ctx;
+    this.aniX = -18;
+    this.aniY = -5;
     Entity.call(this, GAME_ENGINE, originX, originY);
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
@@ -554,9 +645,10 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) 
 }
 
 Projectile.prototype.draw = function () {
-    this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x - 18, this.y - 4); // Hardcoded a lot of offset values
+    (typeof this.childDraw === 'function') ? this.childDraw() : null;
+    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x + this.aniX, this.y + this.aniY); // Hardcoded a lot of offset values
     if (GAME_ENGINE.debug) {
-        GAME_ENGINE.ctx.strokeStyle = "yellow";
+        GAME_ENGINE.ctx.strokeStyle = color_yellow;
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
             this.boundingbox.width, this.boundingbox.height);
     }
@@ -564,9 +656,7 @@ Projectile.prototype.draw = function () {
 
 Projectile.prototype.update = function () {
     //var projectileSpeed = 7.5;
-    if (typeof this.childUpdate === 'function') {
-        this.childUpdate();
-    }
+    (typeof this.childUpdate === 'function') ? this.childUpdate() : null;
     // Generating the speed to move at target direction
     var velY = Math.sin(this.angle) * this.projectileSpeed;
     var velX = Math.cos(this.angle) * this.projectileSpeed;
@@ -580,6 +670,7 @@ Projectile.prototype.update = function () {
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
         this.width - 75, this.height - 75); // **Temporary** Hard coded offset values.
+
 
     if (this.origin == 5) {
         for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
@@ -608,9 +699,12 @@ Projectile.prototype.update = function () {
 /* #endregion */
 
 /* #region Projetile Types */
-swordBoomerang.prototype = Projectile.prototype;
+SwordBoomerang.prototype = Projectile.prototype;
+GreaterFireball.prototype = Projectile.prototype;
+FlameBreathBolt.prototype = Projectile.prototype;
 
-function swordBoomerang(spriteSheet, originX, originY, xTarget, yTarget) {
+
+function SwordBoomerang(spriteSheet, originX, originY, xTarget, yTarget) {
     Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, 5/* same number assignment as the ent array*/);
     this.projectileSpeed = 7;
     this.timeLeft = 60;
@@ -630,6 +724,60 @@ function swordBoomerang(spriteSheet, originX, originY, xTarget, yTarget) {
         }
     }
 }
+
+function GreaterFireball(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget, targetType) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, 5);
+    this.projectileSpeed = 5;
+    this.penetrative = false;
+    this.aoe = 100;//square
+    this.targetType = targetType;
+    this.animation = new Animation(spriteSheet, 100, 100, 1, .085, 8, true, 1);
+    this.animationAoe = new Animation(spriteSheetAoe, 100, 100, 1, .085, 8, true, 1);
+    this.damageObj = DS.CreateDamageObject(10, 4, DTypes.Magic
+        , DS.CreateBuffObject("lesser burning"
+            , [DS.CreateEffectObject(ETypes.CurrentHealthF, -1, 0, 20, 4)]));
+    this.childCollide = function (unit) {
+        let xPos, yPos, width = height = this.aoe;
+        xPos = this.x - 25;
+        yPos = this.y - 25;
+        let aBox = new BoundingBox(xPos, yPos, width, height);
+        let aCrow = new StillStand(this.animationAoe, 6, this.x, this.y);
+        let aHit = DS.CreateDamageObject(15, 2, DTypes.Magic
+            , DS.CreateBuffObject("burning"
+                , [DS.CreateEffectObject(ETypes.CurrentHealthF, -2, 0, 30, 5)]));
+        aCrow.boundingbox = aBox;
+        aCrow.penetrative = true;
+        aCrow.entityHitType = EntityTypes.enemies;
+        aCrow.damageObj = aHit;
+        GAME_ENGINE.addEntity(aCrow);
+    }
+
+}
+
+function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, 5);
+    this.xTar = xTarget - 20;
+    this.yTar = yTarget - 35;
+    this.range = 90;
+    this.damageObj = DS.CreateDamageObject(2.25, 0, DTypes.Magic);
+    this.animation = new Animation(spriteSheet, 8, 8, 1, .084, 4, true, 1);
+    this.aniX += 17;
+    this.aniY += 32;
+    // Determining where the projectile should go angle wise.
+    //radians
+    let converter = Math.PI / 360;
+    let spread = 90;
+    this.angle = Math.atan2(this.yTar - originY, this.xTar - originX);
+    this.angle += spread * converter * Math.random() * ((Math.random() - 0.5 >= 0) ? 1 : -1);
+    this.projectileSpeed = Math.random() * 5 + 2;
+    this.timeLeft = this.range / this.projectileSpeed;
+    this.childUpdate = function () {
+        this.timeLeft--;
+        if (this.timeLeft <= 0) {
+            this.removeFromWorld = true;
+        }
+    }
+}
 /* #endregion */
 /* #endregion */
 
@@ -645,23 +793,22 @@ function Trap(spriteSheetUp, spriteSheetDown) {
     this.counter = 0; // Counter to calculate when trap related events should occur
     this.doAnimation = false; // Flag to determine if the spikes should animate or stay still
     this.damageObj = DS.CreateDamageObject(10, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.SlowStrong));
-    this.ctx = GAME_ENGINE.ctx;
 
     this.boundingbox = new BoundingBox(this.x, this.y, 20, 20); // **Temporary** hardcode of width and height
 }
 
 Trap.prototype.draw = function () {
     if (!this.activated) {
-        this.animationIdle.drawFrameIdle(this.ctx, this.x, this.y);
+        this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, this.x, this.y);
     } else {
         if (this.doAnimation) {
-            this.animationUp.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
+            this.animationUp.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
         } else {
-            this.animationDown.drawFrameIdle(this.ctx, this.x, this.y);
+            this.animationDown.drawFrameIdle(GAME_ENGINE.ctx, this.x, this.y);
         }
     }
     if (GAME_ENGINE.debug) {
-        GAME_ENGINE.ctx.strokeStyle = "red";
+        GAME_ENGINE.ctx.strokeStyle = color_red;
         GAME_ENGINE.ctx.strokeRect(this.x, this.y, 20, 20); // **Temporary** Hard coded offset values
     }
 }
@@ -685,7 +832,7 @@ Trap.prototype.update = function () {
             // Nuke the player, but start the damage .13 ticks after they stand on the trap
             // This allows players to sprint accross taking 10 damage
             if (myPlayer.health > 0 && this.counter > 0.18) {
-                //myPlayer.health -= 2;
+                //myPlayer.currentHealth -= 2;
                 this.damageObj.ApplyEffects(myPlayer);
                 this.counter = .1;
             }
@@ -715,23 +862,44 @@ function RangerBoostPad(spriteSheetUp, spriteSheetDown) {
 /* #endregion */
 
 /* #region Still Stand */
-function stillStand(animation, duration, theX, theY) {
+function StillStand(animation, duration, theX, theY) {
     this.timeLeft = duration;
     this.ani = animation;
-    this.ctx = GAME_ENGINE.ctx;
+    this.boundingbox;
+    this.damageObj;
+    this.entityHitType;
+    this.penetrative;
+    this.onDraw;
+    this.onUpdate;
+    this.onCollide;
+
     this.x = theX;
     this.y = theY;
     Entity.call(this, GAME_ENGINE, theX, theY);
 }
 
-stillStand.prototype.update = function () {
+StillStand.prototype.update = function () {
+    (typeof this.onUpdate === 'function') ? this.onUpdate() : null;
     this.timeLeft--;
     if (this.timeLeft <= 0) {
         this.removeFromWorld = true;
     }
+    if (typeof this.boundingbox !== 'undefined' && typeof this.entityHitType !== 'undefined') {
+        for (var i = 0; i < GAME_ENGINE.entities[this.entityHitType].length; i++) {
+            var entityCollide = GAME_ENGINE.entities[this.entityHitType][i];
+            if (this.boundingbox.collide(entityCollide.boundingbox)) {
+                if (GAME_ENGINE.entities[this.entityHitType][i].health > 0) {
+                    (typeof this.onCollide === 'function') ? this.onCollide(unit) : null;
+                    this.damageObj.ApplyEffects(GAME_ENGINE.entities[this.entityHitType][i]);
+                    this.removeFromWorld = (this.penetrative && !this.removeFromWorld) ? false : true;
+                }
+            }
+        }
+    }
 }
-stillStand.prototype.draw = function () {
-    this.ani.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
+StillStand.prototype.draw = function () {
+    (typeof this.onDraw === 'function') ? this.onDraw() : null;
+    this.ani.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
 }
 /* #endregion */
 
@@ -772,7 +940,6 @@ Camera.prototype.move = function (direction) {
         myPlayer.x = 60 + CAMERA.x;
         myRoomNum += 1;
         BACKGROUND.x -= 320;
-        
     } else if (direction === "left") {
         this.x -= canvasWidth;
         myPlayer.x = canvasWidth - TILE_SIZE * 2 - 60 + CAMERA.x;
@@ -780,14 +947,14 @@ Camera.prototype.move = function (direction) {
         BACKGROUND.x += 320;
     } else if (direction === "up") {
         this.y -= canvasHeight;
-        myPlayer.y = canvasHeight + TILE_SIZE * 2 + 60 + CAMERA.y;
+        myPlayer.y = canvasHeight - TILE_SIZE * 2 - 60 + CAMERA.y;
         myFloorNum -= 1;
-        BACKGROUND.y -= 320;
-    } else if (direction === "down") {
+        BACKGROUND.y += 320;
+    } else {
         this.y += canvasHeight;
         myPlayer.y = 60 + CAMERA.y;
         myFloorNum += 1;
-        BACKGROUND.y += 320;
+        BACKGROUND.y -= 320;
     }
     document.getElementById("location").innerHTML = "Location: " + myFloorNum + "-" + myRoomNum;
 }
@@ -796,11 +963,10 @@ Camera.prototype.move = function (direction) {
 function Door(theX, theY, theDirection) {
     this.x = theX;
     this.y = theY;
-    this.ctx = GAME_ENGINE.ctx;
     this.direction = theDirection;
     this.image = new Image();
-    this.image.src = "./img/wall_hole_2.png";
-    this.boundingbox = new BoundingBox(this.x, this.y, 16, 16);
+    this.image.src = "./img/door_closed.png";
+    this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 }
 
 Door.prototype.update = function () {
@@ -810,29 +976,67 @@ Door.prototype.update = function () {
 }
 
 Door.prototype.draw = function () {
-    this.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 16, 16);
+    GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 32, 32);
+}
+
+function Wall(theX, theY, theDirection) {
+    this.x = theX;
+    this.y = theY;
+    this.direction = theDirection;
+    this.image = new Image();
+    this.image.src = "./img/floor1.png";
+    this.boundingbox = new BoundingBox(this.x, this.y, 16, 16);
+}
+
+Wall.prototype.update = function () {
+    if (this.boundingbox.collide(myPlayer.boundingbox)) {
+        if (this.direction === "up") {
+            myPlayer.y += myPlayer.actualSpeed;
+        } else if (this.direction === "down") {
+            myPlayer.y -= myPlayer.actualSpeed;
+        } else if (this.direction === "left") {
+            myPlayer.x += myPlayer.actualSpeed;
+        } else {
+            myPlayer.x -= myPlayer.actualSpeed;
+        }
+    }
+
+    for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
+        var entity = GAME_ENGINE.entities[4][i];
+        if (this.boundingbox.collide(entity.boundingbox)) {
+            var distance = entity.speed / 100;
+            if (this.direction === "up") {
+                entity.y += distance;
+            } else if (this.direction === "down") {
+                entity.y -= distance;
+            } else if (this.direction === "left") {
+                entity.x += distance;
+            } else {
+                entity.x -= distance;
+            }
+        }
+    }
+
+}
+
+Wall.prototype.draw = function () {
+    GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 16, 16);
 }
 
 /* #region Menu */
 
 function Menu() {
-    this.ctx = GAME_ENGINE.ctx;
+    GAME_ENGINE.ctx.font = "35px Arial";
+    this.mageWidth = GAME_ENGINE.ctx.measureText("Mage").width;
+    this.rangerWidth = GAME_ENGINE.ctx.measureText("Ranger").width;
+    this.knightWidth = GAME_ENGINE.ctx.measureText("Knight").width;
     this.classButtonH = 35;
-    this.classButtonY = canvasHeight / 2;
-
-    this.ctx.font = "35px Arial";
-    this.mageWidth = this.ctx.measureText("Mage").width;
-    this.rangerWidth = this.ctx.measureText("Ranger").width;
-    this.knightWidth = this.ctx.measureText("Knight").width;
-
     this.mageButtonX = canvasWidth / 2 - (this.mageWidth / 2);
     this.rangerButtonX = canvasWidth / 2 - (this.rangerWidth / 2);
     this.knightButtonX = canvasWidth / 2 - (this.knightWidth / 2);
-
     this.mageButtonY = (canvasHeight - (this.classButtonH * 3)) / 4;
     this.rangerButtonY = 2 * this.mageButtonY + this.classButtonH;
     this.knightButtonY = this.rangerButtonY + this.classButtonH + this.mageButtonY;
-
     this.background = new Image();
     this.background.src = "./img/menu_background.png";
 }
@@ -840,21 +1044,25 @@ function Menu() {
 Menu.prototype.update = function () { }
 
 Menu.prototype.draw = function () {
-    this.ctx.drawImage(this.background, 253, 0,
+    GAME_ENGINE.ctx.drawImage(this.background, 253, 0,
         canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
-
-    this.createClassButton("Mage", this.mageButtonX, this.mageButtonY);
-    this.createClassButton("Ranger", this.rangerButtonX, this.rangerButtonY);
-    this.createClassButton("Knight", this.knightButtonX, this.knightButtonY);
+    this.createClassButton("Mage", this.mageButtonX, this.mageButtonY, this.mageWidth);
+    this.createClassButton("Ranger", this.rangerButtonX, this.rangerButtonY, this.rangerWidth);
+    this.createClassButton("Knight", this.knightButtonX, this.knightButtonY, this.knightWidth);
 }
 
-Menu.prototype.createClassButton = function (text, xPosition, YPosition) {
-    this.ctx.strokeStyle = "black";
-    this.ctx.lineWidth = "1";
-    this.ctx.font = "35px Arial";
-    this.ctx.strokeText(text, xPosition, YPosition + this.classButtonH);
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText(text, xPosition, YPosition + this.classButtonH);
+Menu.prototype.createClassButton = function (text, xPosition, YPosition, width) {
+    var x = GAME_ENGINE.mouseX;
+    var y = GAME_ENGINE.mouseY;
+    if (x >= xPosition && x <= xPosition + width && y >= YPosition && y <= YPosition + this.classButtonH) {
+        GAME_ENGINE.ctx.font = "bold 35px Arial";
+    } else {
+        GAME_ENGINE.ctx.font = "35px Arial";
+    }
+    GAME_ENGINE.ctx.strokeStyle = "black bold";
+    GAME_ENGINE.ctx.strokeText(text, xPosition, YPosition + this.classButtonH - 8);
+    GAME_ENGINE.ctx.fillStyle = color_white;
+    GAME_ENGINE.ctx.fillText(text, xPosition, YPosition + this.classButtonH - 8);
 }
 /* #endregion */
 
@@ -862,13 +1070,13 @@ Menu.prototype.createClassButton = function (text, xPosition, YPosition) {
 function Background() {
     this.x = -640;
     this.y = -640;
-    this.ctx = GAME_ENGINE.ctx;
     // Keeping track of the last direction the generator has moved.
     // 0 = North
     // 1 = East
     // 2 = South
     // 3 = West
     this.face = [];
+    this.facePos = [];
     this.directions = [[-1, 0], [0, 1], [1, 0], [0, -1]];
     this.map = [
         [0, 0, 0, 0, 0, 0],
@@ -881,11 +1089,13 @@ function Background() {
     this.row = 2;
     this.col = 2;
     this.roomCount = 0;
+    this.maxRoomCount = 6;
     this.map[this.row][this.col] = 2;
+    this.facePos.push([this.col, this.row]);
+    this.three = new Image();
+    this.three.src = "./img/floor1.png";
     this.zero = new Image();
-    this.zero.src = "./img/floor1.png";
-    this.one = new Image();
-    this.one.src = "./img/floor2.png";
+    this.zero.src = "./img/floor2.png";
     this.two = new Image();
     this.two.src = "./img/blacktile.png";
     this.tile = null;
@@ -900,33 +1110,20 @@ Background.prototype.draw = function () {
                     // Determining tiles to choose
                     let tempTile = ROOMS[this.map[i][j]][r * 20 + s];
                     if (tempTile === 0) {
-                        this.tile = this.one;
-                    } else if (tempTile === 1) {
                         this.tile = this.zero;
-                    } else {
-                        this.tile = this.two;
+                    } 
+                    // else if (tempTile === 2) {
+                    //     this.tile = this.two;
+                    // } 
+                    else if (tempTile === 3) {
+                        this.tile = this.three;
                     }
                     // Drawing Tiles
-                    this.ctx.drawImage(this.tile, this.x + j * 320 + s * TILE_SIZE, this.y + i * 320 + r * TILE_SIZE);
+                   if (tempTile === 0 || tempTile === 3) {
+                    GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE,
+                        this.y + i * canvasHeight + r * TILE_SIZE);
+                   }
                 }
-            }
-            
-            // Drawing doors
-            if (this.drawFaceCount < 6) {
-                if (this.face[this.drawFaceCount] === 0) {
-                    GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320 + 0, "up"));
-                    console.log("Door Up");
-                } else if (this.face[this.drawFaceCount] === 1) {
-                    GAME_ENGINE.addEntity(new Door(i * 320 + 304, j * 320 + 144, "right"));
-                    console.log("Door Right");
-                } else if (this.face[this.drawFaceCount] === 2) {
-                    GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320 + 304, "down"));
-                    console.log("Door Down");
-                } else if (this.face[this.drawFaceCount] === 3) {
-                    GAME_ENGINE.addEntity(new Door(i * 320 + 0, j * 320 + 144, "left"));
-                    console.log("Door Left");
-                }
-                this.drawFaceCount++;
             }
         }
     }
@@ -935,8 +1132,62 @@ Background.prototype.draw = function () {
 Background.prototype.update = function () {
 };
 
+Background.prototype.createWalls = function () {
+    var flag = true;
+    for (let i = 0; i < this.map.length; i++) {
+        for (let j = 0; j < this.map[i].length; j++) {
+            for (let row = 0; row < 20; row++) {
+                for (let col = 0; col < 20; col++) {
+                    let tempTile = ROOMS[this.map[i][j]][row * 20 + col];
+                    if (tempTile === 1) {
+                        if (col === 0 && row != 0 && row != 19) {
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE, "left"));
+                        } else if (col === 19 && row != 0 & row != 19) {
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE, "right"));
+                        } else if (row === 19) {
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE, "down"));
+                        } else if (row === 0) {
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE, "up"));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+Background.prototype.createDoors = function () {
+    for (let i = 0; i < this.map.length; i++) {
+        for (let j = 0; j < this.map[i].length; j++) {
+            // Drawing doors
+            if (this.drawFaceCount < this.maxRoomCount && this.map[i][j] !== 0) {
+                let testPos = this.facePos[this.drawFaceCount];
+                if (this.face[this.drawFaceCount] === 0) {
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 144 + BACKGROUND.x,
+                        testPos[1] * canvasHeight + BACKGROUND.y, "up"));
+                } else if (this.face[this.drawFaceCount] === 1) {
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 288 + BACKGROUND.x,
+                        testPos[1] * canvasHeight + 144 + BACKGROUND.y, "right"));
+                } else if (this.face[this.drawFaceCount] === 2) {
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 144 + BACKGROUND.x,
+                        testPos[1] * canvasHeight + 288 + BACKGROUND.y, "down"));
+                } else if (this.face[this.drawFaceCount] === 3) {
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
+                        testPos[1] * canvasHeight + 144 + BACKGROUND.y, "left"));
+                }
+                this.drawFaceCount++;
+            }
+        }
+    }
+}
+
 Background.prototype.validDirection = function () {
-    while (this.roomCount < 6) {
+    while (this.roomCount < this.maxRoomCount) {
+
         let randomDirection = Math.floor(Math.random() * Math.floor(4));
         let tempRow = this.row + this.directions[randomDirection][0];
         let tempCol = this.col + this.directions[randomDirection][1];
@@ -946,20 +1197,38 @@ Background.prototype.validDirection = function () {
             || randomDirection === 3 && this.face[this.face.length - 1] === 1) {
             randomDirection = Math.floor(Math.random() * Math.floor(4));
         } else {
-            if (tempRow < this.map.length && tempRow > 0  && tempCol < this.map.length && tempCol > 0
+
+            if (tempRow < this.map.length && tempRow > 0 && tempCol < this.map.length && tempCol > 0
+
                 && this.map[tempRow][tempCol] === 0) {
                 this.face.push(randomDirection);
                 this.row += this.directions[randomDirection][0];
                 this.col += this.directions[randomDirection][1];
+
+                this.facePos.push([this.col, this.row]);
                 this.map[this.row][this.col] = 1;
-                if (this.roomCount + 1 === 6) {
+                if (this.roomCount + 1 === this.maxRoomCount) {
+
                     this.map[this.row][this.col] = 3;
                 }
                 this.roomCount++;
             }
         }
     }
-    console.log(this.face);
+    // Popping off the last room because it does not require a door.
+    this.facePos.pop();
+
+
+    // this.map[1][0] = 1;
+    // this.map[2][0] = 1;
+    // this.map[3][0] = 1;
+    // this.map[4][0] = 1;
+    // this.map[4][1] = 3;
+    // this.face.push(2);
+    // this.face.push(2);
+    // this.face.push(2);
+    // this.face.push(2);
+    // this.face.push(1);
 }
 /* #endregion */
 
@@ -990,12 +1259,11 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     yindex = Math.floor(frame / this.sheetWidth);
 
     var xPosition;
-    if (x >= 0) {
+    if ((x >= 0 && CAMERA.x >= 0) || (x < 0 && CAMERA.x < 0)) {
         xPosition = x - CAMERA.x;
     } else {
         xPosition = x + CAMERA.x;
     }
-
     ctx.drawImage(this.spriteSheet,
         xindex * this.frameWidth, yindex * this.frameHeight,
         this.frameWidth, this.frameHeight,
@@ -1007,7 +1275,7 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
 
 Animation.prototype.drawFrameIdle = function (ctx, x, y) {
     var xPosition;
-    if (x >= 0) {
+    if ((x >= 0 && CAMERA.x >= 0) || (x < 0 && CAMERA.x < 0)) {
         xPosition = x - CAMERA.x;
     } else {
         xPosition = x + CAMERA.x;
@@ -1036,9 +1304,11 @@ AM.queueDownload("./img/ranger_run.png");
 // Knight
 AM.queueDownload("./img/knight_run.png");
 AM.queueDownload("./img/swordBoomerang.png");
+AM.queueDownload("./img/Shield Flash.png");
 // Mage
 AM.queueDownload("./img/mage_run.png");
 AM.queueDownload("./img/flash.png");
+AM.queueDownload("./img/flame_breath_bolt.png");
 // Floor Trap
 AM.queueDownload("./img/floor_trap_up.png");
 AM.queueDownload("./img/floor_trap_down.png");
@@ -1055,6 +1325,7 @@ AM.queueDownload("./img/fireball.png");
 AM.queueDownload("./img/floor1.png");
 AM.queueDownload("./img/floor2.png");
 AM.queueDownload("./img/blacktile.png");
+AM.queueDownload("./img/door_closed.png");
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
