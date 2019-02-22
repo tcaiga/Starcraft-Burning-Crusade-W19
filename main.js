@@ -159,7 +159,7 @@ Player.prototype.update = function () {
 
     if (this.health <= 0) {
         GAME_ENGINE.reset();
-
+        BACKGROUND = new Background();
     }
 
     /* #region Damage system updates */
