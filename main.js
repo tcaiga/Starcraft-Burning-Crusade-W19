@@ -45,7 +45,6 @@ function Player(spritesheet, xOffset, yOffset) {
     this.cooldownAdj = 0;
     this.castTime = 0;
     this.isStunned = false;
-    this.ctx = GAME_ENGINE.ctx;
 
     this.baseMaxMovespeed = 2;
     this.maxMovespeedRatio = 1;
@@ -61,20 +60,20 @@ Player.prototype.draw = function () {
     this.xScale = 1;
     var xValue = this.x;
     if (!this.right) {
-        this.ctx.save();
-        this.ctx.scale(-1, 1);
+        GAME_ENGINE.ctx.save();
+        GAME_ENGINE.ctx.scale(-1, 1);
         this.xScale = -1;
         xValue = -this.x - this.width;
     }
     //draw player character with no animation if player is not currently moving
     if (this.dontdraw <= 0) {
         if (!GAME_ENGINE.movement) {
-            this.animationIdle.drawFrameIdle(this.ctx, xValue, this.y);
+            this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
         } else {
-            this.animationRun.drawFrame(GAME_ENGINE.clockTick, this.ctx, xValue, this.y);
+            this.animationRun.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
         }
 
-        this.ctx.restore();
+        GAME_ENGINE.ctx.restore();
         if (GAME_ENGINE.debug) {
             GAME_ENGINE.ctx.strokeStyle = "blue";
             GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
@@ -423,7 +422,6 @@ function Monster(game, spritesheet) {
     this.height = 56;
     this.animation = new Animation(spritesheet, this.width, this.height, 1, 0.15, 15, true, this.scale);
     this.speed = 100;
-    this.ctx = GAME_ENGINE.ctx;
     this.health = 100;
     this.damageObjArr = [];
     this.damageObj = DS.CreateDamageObject(20, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.HasteWeak));
@@ -437,7 +435,7 @@ function Monster(game, spritesheet) {
 }
 
 Monster.prototype.draw = function () {
-    this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
+    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = "red";
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
@@ -445,9 +443,9 @@ Monster.prototype.draw = function () {
     }
 
     // Displaying Monster health
-    this.ctx.font = "15px Arial";
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("Health: " + this.health, this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
+    GAME_ENGINE.ctx.font = "15px Arial";
+    GAME_ENGINE.ctx.fillStyle = "white";
+    GAME_ENGINE.ctx.fillText("Health: " + this.health, this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
 }
 
 function distance(monster) {
@@ -486,7 +484,7 @@ Monster.prototype.update = function () {
 
     this.visionBox = new BoundingBox(this.x, this.y,
         this.visionWidth * this.scale * 5, this.visionHeight * this.scale * 5);
-    
+
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         this.counter += GAME_ENGINE.clockTick;
         this.damageObj.ApplyEffects(myPlayer);
@@ -604,7 +602,7 @@ function Acolyte(spritesheet) {
     this.isRanged = true;
 
     this.animation = new Animation(spritesheet, this.width, this.height, 64, 0.15, 4, true, this.scale);
-    
+
     this.x = 200;
     this.y = 200;
 
@@ -639,9 +637,7 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) 
     this.damageObj = DS.CreateDamageObject(15, 0, DTypes.Normal, null);
     this.penetrative = false;
     this.aniX = -18;
-    this.aniY = -4;
-
-    this.ctx = GAME_ENGINE.ctx;
+    this.aniY = -5;
     Entity.call(this, GAME_ENGINE, originX, originY);
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
@@ -651,7 +647,7 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) 
 
 Projectile.prototype.draw = function () {
     (typeof this.childDraw === 'function') ? this.childDraw() : null;
-    this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x - this.aniX, this.y - this.aniY); // Hardcoded a lot of offset values
+    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x + this.aniX, this.y + this.aniY); // Hardcoded a lot of offset values
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = color_yellow;
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
@@ -766,8 +762,8 @@ function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget) {
     this.range = 90;
     this.damageObj = DS.CreateDamageObject(2.25, 0, DTypes.Magic);
     this.animation = new Animation(spriteSheet, 8, 8, 1, .084, 4, true, 1);
-    this.aniX -= -1;
-    this.aniY -= 32;
+    this.aniX += 17;
+    this.aniY += 32;
     // Determining where the projectile should go angle wise.
     //radians
     let converter = Math.PI / 360;
@@ -798,19 +794,18 @@ function Trap(spriteSheetUp, spriteSheetDown) {
     this.counter = 0; // Counter to calculate when trap related events should occur
     this.doAnimation = false; // Flag to determine if the spikes should animate or stay still
     this.damageObj = DS.CreateDamageObject(10, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.SlowStrong));
-    this.ctx = GAME_ENGINE.ctx;
 
     this.boundingbox = new BoundingBox(this.x, this.y, 20, 20); // **Temporary** hardcode of width and height
 }
 
 Trap.prototype.draw = function () {
     if (!this.activated) {
-        this.animationIdle.drawFrameIdle(this.ctx, this.x, this.y);
+        this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, this.x, this.y);
     } else {
         if (this.doAnimation) {
-            this.animationUp.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
+            this.animationUp.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
         } else {
-            this.animationDown.drawFrameIdle(this.ctx, this.x, this.y);
+            this.animationDown.drawFrameIdle(GAME_ENGINE.ctx, this.x, this.y);
         }
     }
     if (GAME_ENGINE.debug) {
@@ -879,8 +874,6 @@ function StillStand(animation, duration, theX, theY) {
     this.onUpdate;
     this.onCollide;
 
-    this.ctx = GAME_ENGINE.ctx;
-
     this.x = theX;
     this.y = theY;
     Entity.call(this, GAME_ENGINE, theX, theY);
@@ -907,7 +900,7 @@ StillStand.prototype.update = function () {
 }
 StillStand.prototype.draw = function () {
     (typeof this.onDraw === 'function') ? this.onDraw() : null;
-    this.ani.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
+    this.ani.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
 }
 /* #endregion */
 
@@ -972,7 +965,6 @@ Camera.prototype.move = function (direction) {
 function Door(theX, theY, theDirection) {
     this.x = theX;
     this.y = theY;
-    this.ctx = GAME_ENGINE.ctx;
     this.direction = theDirection;
     this.image = new Image();
     this.image.src = "./img/door_closed.png";
@@ -986,29 +978,23 @@ Door.prototype.update = function () {
 }
 
 Door.prototype.draw = function () {
-    this.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 32, 32);
+    GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 32, 32);
 }
 
 /* #region Menu */
 
 function Menu() {
-    this.ctx = GAME_ENGINE.ctx;
+    GAME_ENGINE.ctx.font = "35px Arial";
+    this.mageWidth = GAME_ENGINE.ctx.measureText("Mage").width;
+    this.rangerWidth = GAME_ENGINE.ctx.measureText("Ranger").width;
+    this.knightWidth = GAME_ENGINE.ctx.measureText("Knight").width;
     this.classButtonH = 35;
-    this.classButtonY = canvasHeight / 2;
-
-    this.ctx.font = "35px Arial";
-    this.mageWidth = this.ctx.measureText("Mage").width;
-    this.rangerWidth = this.ctx.measureText("Ranger").width;
-    this.knightWidth = this.ctx.measureText("Knight").width;
-
     this.mageButtonX = canvasWidth / 2 - (this.mageWidth / 2);
     this.rangerButtonX = canvasWidth / 2 - (this.rangerWidth / 2);
     this.knightButtonX = canvasWidth / 2 - (this.knightWidth / 2);
-
     this.mageButtonY = (canvasHeight - (this.classButtonH * 3)) / 4;
     this.rangerButtonY = 2 * this.mageButtonY + this.classButtonH;
     this.knightButtonY = this.rangerButtonY + this.classButtonH + this.mageButtonY;
-
     this.background = new Image();
     this.background.src = "./img/menu_background.png";
 }
@@ -1016,21 +1002,25 @@ function Menu() {
 Menu.prototype.update = function () { }
 
 Menu.prototype.draw = function () {
-    this.ctx.drawImage(this.background, 253, 0,
+    GAME_ENGINE.ctx.drawImage(this.background, 253, 0,
         canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
-
-    this.createClassButton("Mage", this.mageButtonX, this.mageButtonY);
-    this.createClassButton("Ranger", this.rangerButtonX, this.rangerButtonY);
-    this.createClassButton("Knight", this.knightButtonX, this.knightButtonY);
+    this.createClassButton("Mage", this.mageButtonX, this.mageButtonY, this.mageWidth);
+    this.createClassButton("Ranger", this.rangerButtonX, this.rangerButtonY, this.rangerWidth);
+    this.createClassButton("Knight", this.knightButtonX, this.knightButtonY, this.knightWidth);
 }
 
-Menu.prototype.createClassButton = function (text, xPosition, YPosition) {
-    this.ctx.strokeStyle = "black";
-    this.ctx.lineWidth = "1";
-    this.ctx.font = "35px Arial";
-    this.ctx.strokeText(text, xPosition, YPosition + this.classButtonH);
-    this.ctx.fillStyle = color_white;
-    this.ctx.fillText(text, xPosition, YPosition + this.classButtonH);
+Menu.prototype.createClassButton = function (text, xPosition, YPosition, width) {
+    var x = GAME_ENGINE.mouseX;
+    var y = GAME_ENGINE.mouseY;
+    if (x >= xPosition && x <= xPosition + width && y >= YPosition && y <= YPosition + this.classButtonH) {
+            GAME_ENGINE.ctx.font = "bold 35px Arial";
+    } else {
+        GAME_ENGINE.ctx.font = "35px Arial";
+    }
+    GAME_ENGINE.ctx.strokeStyle = "black bold";
+    GAME_ENGINE.ctx.strokeText(text, xPosition, YPosition + this.classButtonH - 8);
+    GAME_ENGINE.ctx.fillStyle = color_white;
+    GAME_ENGINE.ctx.fillText(text, xPosition, YPosition + this.classButtonH - 8);
 }
 /* #endregion */
 
@@ -1038,8 +1028,6 @@ Menu.prototype.createClassButton = function (text, xPosition, YPosition) {
 function Background() {
     this.x = -640;
     this.y = -640;
-
-    this.ctx = GAME_ENGINE.ctx;
     // Keeping track of the last direction the generator has moved.
     // 0 = North
     // 1 = East
@@ -1087,7 +1075,7 @@ Background.prototype.draw = function () {
                         this.tile = this.two;
                     }
                     // Drawing Tiles
-                    this.ctx.drawImage(this.tile, this.x + j * 320 + s * TILE_SIZE, this.y + i * 320 + r * TILE_SIZE);
+                    GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * 320 + s * TILE_SIZE, this.y + i * 320 + r * TILE_SIZE);
                 }
             }
 
@@ -1115,6 +1103,7 @@ Background.prototype.update = function () {
 
 Background.prototype.validDirection = function () {
     while (this.roomCount < this.maxRoomCount) {
+
         let randomDirection = Math.floor(Math.random() * Math.floor(4));
         let tempRow = this.row + this.directions[randomDirection][0];
         let tempCol = this.col + this.directions[randomDirection][1];
@@ -1124,14 +1113,18 @@ Background.prototype.validDirection = function () {
             || randomDirection === 3 && this.face[this.face.length - 1] === 1) {
             randomDirection = Math.floor(Math.random() * Math.floor(4));
         } else {
+
             if (tempRow < this.map.length && tempRow > 0  && tempCol < this.map.length && tempCol > 0
+
                 && this.map[tempRow][tempCol] === 0) {
                 this.face.push(randomDirection);
                 this.row += this.directions[randomDirection][0];
                 this.col += this.directions[randomDirection][1];
+
                 this.facePos.push([this.col, this.row]);
                 this.map[this.row][this.col] = 1;
                 if (this.roomCount + 1 === this.maxRoomCount) {
+
                     this.map[this.row][this.col] = 3;
                 }
                 this.roomCount++;
@@ -1140,6 +1133,21 @@ Background.prototype.validDirection = function () {
     }
     // Popping off the last room because it does not require a door.
     this.facePos.pop();
+
+
+    // this.map[1][0] = 1;
+    // this.map[2][0] = 1;
+    // this.map[3][0] = 1;
+    // this.map[4][0] = 1;
+    // this.map[4][1] = 3;
+    // this.face.push(2);
+    // this.face.push(2);
+    // this.face.push(2);
+    // this.face.push(2);
+    // this.face.push(1);
+
+    console.log(this.face);
+
 }
 /* #endregion */
 
@@ -1170,7 +1178,7 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     yindex = Math.floor(frame / this.sheetWidth);
 
     var xPosition;
-    if (x >= 0) {
+    if ((x >= 0 && CAMERA.x >= 0) || (x < 0 && CAMERA.x < 0)) {
         xPosition = x - CAMERA.x;
     } else {
         xPosition = x + CAMERA.x;
@@ -1186,7 +1194,7 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
 
 Animation.prototype.drawFrameIdle = function (ctx, x, y) {
     var xPosition;
-    if (x >= 0) {
+    if ((x >= 0 && CAMERA.x >= 0) || (x < 0 && CAMERA.x < 0)) {
         xPosition = x - CAMERA.x;
     } else {
         xPosition = x + CAMERA.x;
