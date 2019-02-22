@@ -960,6 +960,7 @@ Camera.prototype.move = function (direction) {
 }
 /* #endregion */
 
+/* #region Door */
 function Door(theX, theY, theDirection) {
     this.x = theX;
     this.y = theY;
@@ -978,7 +979,9 @@ Door.prototype.update = function () {
 Door.prototype.draw = function () {
     GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 32, 32);
 }
+/* #endregion */
 
+/* #region Wall */
 function Wall(theX, theY, theDirection) {
     this.x = theX;
     this.y = theY;
@@ -1022,9 +1025,9 @@ Wall.prototype.update = function () {
 Wall.prototype.draw = function () {
     GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 16, 16);
 }
+/* #endregion */
 
 /* #region Menu */
-
 function Menu() {
     GAME_ENGINE.ctx.font = "35px Arial";
     this.mageWidth = GAME_ENGINE.ctx.measureText("Mage").width;
@@ -1111,7 +1114,7 @@ Background.prototype.draw = function () {
                     let tempTile = ROOMS[this.map[i][j]][r * 20 + s];
                     if (tempTile === 0) {
                         this.tile = this.zero;
-                    } 
+                    }
                     // else if (tempTile === 2) {
                     //     this.tile = this.two;
                     // } 
@@ -1119,10 +1122,10 @@ Background.prototype.draw = function () {
                         this.tile = this.three;
                     }
                     // Drawing Tiles
-                   if (tempTile === 0 || tempTile === 3) {
-                    GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE,
-                        this.y + i * canvasHeight + r * TILE_SIZE);
-                   }
+                    if (tempTile === 0 || tempTile === 3) {
+                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE,
+                            this.y + i * canvasHeight + r * TILE_SIZE);
+                    }
                 }
             }
         }
@@ -1305,6 +1308,8 @@ AM.queueDownload("./img/ranger_run.png");
 AM.queueDownload("./img/knight_run.png");
 AM.queueDownload("./img/swordBoomerang.png");
 AM.queueDownload("./img/Shield Flash.png");
+AM.queueDownload("./img/ability/heal_self_32x224.png");
+AM.queueDownload("./img/ability/holy_strike_right_32x352");
 // Mage
 AM.queueDownload("./img/mage_run.png");
 AM.queueDownload("./img/flash.png");
