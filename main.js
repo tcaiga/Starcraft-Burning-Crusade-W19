@@ -45,8 +45,6 @@ function Player(spritesheet, xOffset, yOffset) {
     this.cooldownAdj = 0;
     this.castTime = 0;
     this.isStunned = false;
-
-    this.isStunned = 0;
     this.ctx = GAME_ENGINE.ctx;
 
     this.baseMaxMovespeed = 2;
@@ -419,19 +417,17 @@ function Monster(game, spritesheet) {
     this.pause = false;
     this.inRange = false;
     this.castCooldown = 0;
-
+    this.isStunned = false;
     this.scale = 1;
     this.width = 40;
     this.height = 56;
     this.animation = new Animation(spritesheet, this.width, this.height, 1, 0.15, 15, true, this.scale);
     this.speed = 100;
-
     this.ctx = GAME_ENGINE.ctx;
     this.health = 100;
     this.damageObjArr = [];
     this.damageObj = DS.CreateDamageObject(20, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.HasteWeak));
     this.buffObj = [];
-    this.isStunned = false;
     this.counter = 0;
 
     this.visionBox = new BoundingBox(this.x, this.y,
@@ -443,14 +439,14 @@ function Monster(game, spritesheet) {
 Monster.prototype.draw = function () {
     this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x, this.y);
     if (GAME_ENGINE.debug) {
-        GAME_ENGINE.ctx.strokeStyle = color_red;
+        GAME_ENGINE.ctx.strokeStyle = "red";
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
             this.boundingbox.width, this.boundingbox.height);
     }
 
-    // Displaying Monster currentHealth
+    // Displaying Monster health
     this.ctx.font = "15px Arial";
-    this.ctx.fillStyle = color_white;
+    this.ctx.fillStyle = "white";
     this.ctx.fillText("Health: " + this.health, this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
 }
 
@@ -463,13 +459,8 @@ function distance(monster) {
 Monster.prototype.update = function () {
     if (this.health <= 0) this.removeFromWorld = true;
 
-    if (!this.isStunned) {
-        this.x += GAME_ENGINE.clockTick * this.speed;
-        if (this.x <= TILE_SIZE * 2) this.x = 450;
-    }
-
     // based on the number of ticks since the player was last hit, we pause the monster
-    if (this.pause == false) {
+    if (this.pause == false || !this.isStunned) {
         // get the direction vector pointing towards player
         var dirX = playerX - this.x;
         var dirY = playerY - this.y;
@@ -495,9 +486,8 @@ Monster.prototype.update = function () {
 
     this.visionBox = new BoundingBox(this.x, this.y,
         this.visionWidth * this.scale * 5, this.visionHeight * this.scale * 5);
-
+    
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
-
         this.counter += GAME_ENGINE.clockTick;
         this.damageObj.ApplyEffects(myPlayer);
         this.pause = true;
@@ -526,6 +516,7 @@ Monster.prototype.update = function () {
             this.castCooldown += 1
             // reset after 45 ticks and then cast again
             if (this.castCooldown > 45) {
+                console.log(this.castCoooldown);
                 this.castCooldown = 0;
                 var projectile = new Projectile(AM.getAsset("./img/fireball.png", 4),
                     this.x - (this.width / 2), this.y - (this.height / 2), tarX, tarY);
@@ -573,11 +564,11 @@ Monster.prototype.update = function () {
 Monster.prototype.changeHealth = function (amount) {
     if (amount > 0) {
         //display healing animation
-        //maybe have a currentHealth change threshold 
+        //maybe have a health change threshold 
         //to actually have it display
     } else if (amount < 0) {
         //display damage animation
-        //maybe have a currentHealth change threshold 
+        //maybe have a health change threshold 
         //to actually have it display
     }
     this.health += amount;//Healing will come in as a positive number
@@ -596,7 +587,7 @@ function Devil(spritesheet) {
     this.speed = 45;
     this.health = 200;
 
-    this.x = 150;
+    this.x = 250;
     this.y = 250;
 
     this.counter = 0;
@@ -613,7 +604,7 @@ function Acolyte(spritesheet) {
     this.isRanged = true;
 
     this.animation = new Animation(spritesheet, this.width, this.height, 64, 0.15, 4, true, this.scale);
-
+    
     this.x = 200;
     this.y = 200;
 
