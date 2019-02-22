@@ -639,7 +639,7 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) 
     this.damageObj = DS.CreateDamageObject(15, 0, DTypes.Normal, null);
     this.penetrative = false;
     this.aniX = -18;
-    this.aniY = -4;
+    this.aniY = -5;
 
     this.ctx = GAME_ENGINE.ctx;
     Entity.call(this, GAME_ENGINE, originX, originY);
@@ -651,7 +651,7 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) 
 
 Projectile.prototype.draw = function () {
     (typeof this.childDraw === 'function') ? this.childDraw() : null;
-    this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x - this.aniX, this.y - this.aniY); // Hardcoded a lot of offset values
+    this.animation.drawFrame(GAME_ENGINE.clockTick, this.ctx, this.x + this.aniX, this.y + this.aniY); // Hardcoded a lot of offset values
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = color_yellow;
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
@@ -766,8 +766,8 @@ function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget) {
     this.range = 90;
     this.damageObj = DS.CreateDamageObject(2.25, 0, DTypes.Magic);
     this.animation = new Animation(spriteSheet, 8, 8, 1, .084, 4, true, 1);
-    this.aniX -= -1;
-    this.aniY -= 32;
+    this.aniX += 17;
+    this.aniY += 32;
     // Determining where the projectile should go angle wise.
     //radians
     let converter = Math.PI / 360;
