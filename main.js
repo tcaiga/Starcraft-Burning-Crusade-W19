@@ -1046,6 +1046,7 @@ function Background() {
     // 2 = South
     // 3 = West
     this.face = [];
+    this.facePos = [];
     this.directions = [[-1, 0], [0, 1], [1, 0], [0, -1]];
     this.map = [
         [0, 0, 0, 0, 0, 0],
@@ -1058,7 +1059,9 @@ function Background() {
     this.row = 2;
     this.col = 2;
     this.roomCount = 0;
+    this.maxRoomCount = 6;
     this.map[this.row][this.col] = 2;
+    this.facePos.push([this.col, this.row]);
     this.zero = new Image();
     this.zero.src = "./img/floor1.png";
     this.one = new Image();
@@ -1089,19 +1092,17 @@ Background.prototype.draw = function () {
             }
 
             // Drawing doors
-            if (this.drawFaceCount < 6 && this.map[i][j] !== 0) {
+            if (this.drawFaceCount < this.maxRoomCount && this.map[i][j] !== 0) {
+                let testFace = this.face[this.drawFaceCount];
+                let testPos = this.facePos[this.drawFaceCount];
                 if (this.face[this.drawFaceCount] === 0) {
-                    GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320, "up"));
-                    console.log("Door Up");
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * 320 + 144 + BACKGROUND.x, testPos[1] * 320 + BACKGROUND.y, "up"));
                 } else if (this.face[this.drawFaceCount] === 1) {
-                    GAME_ENGINE.addEntity(new Door((j - this.row) * 320 + 288, (i - this.col) * 320 + 144, "right"));
-                    console.log("Door Right");
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * 320 + 288 + BACKGROUND.x, testPos[1] * 320 + 144 + BACKGROUND.y, "right"));
                 } else if (this.face[this.drawFaceCount] === 2) {
-                    GAME_ENGINE.addEntity(new Door((j - this.row) * 320 + 144, (i - this.col) * 320 + 288, "down"));
-                    console.log("Door Down");
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * 320 + 144 + BACKGROUND.x, testPos[1] * 320 + 288 + BACKGROUND.y, "down"));
                 } else if (this.face[this.drawFaceCount] === 3) {
-                    GAME_ENGINE.addEntity(new Door(i * 320, j * 320 + 144, "left"));
-                    console.log("Door Left");
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * 320 + BACKGROUND.x, testPos[1] * 320 + 144 + BACKGROUND.y, "left"));
                 }
                 this.drawFaceCount++;
             }
@@ -1113,46 +1114,32 @@ Background.prototype.update = function () {
 };
 
 Background.prototype.validDirection = function () {
-
-    // while (this.roomCount < 6) {
-    //     let randomDirection = Math.floor(Math.random() * Math.floor(4));
-    //     let tempRow = this.row + this.directions[randomDirection][0];
-    //     let tempCol = this.col + this.directions[randomDirection][1];
-    //     if (randomDirection === 0 && this.face[this.face.length - 1] === 2
-    //         || randomDirection === 2 && this.face[this.face.length - 1] === 0
-    //         || randomDirection === 1 && this.face[this.face.length - 1] === 3
-    //         || randomDirection === 3 && this.face[this.face.length - 1] === 1) {
-    //         randomDirection = Math.floor(Math.random() * Math.floor(4));
-    //     } else {
-    //         if (tempRow < this.map.length && tempRow > 0  && tempCol < this.map.length && tempCol > 0
-    //             && this.map[tempRow][tempCol] === 0) {
-    //             this.face.push(randomDirection);
-    //             this.row += this.directions[randomDirection][0];
-    //             this.col += this.directions[randomDirection][1];
-    //             this.map[this.row][this.col] = 1;
-    //             if (this.roomCount + 1 === 6) {
-    //                 this.map[this.row][this.col] = 3;
-    //             }
-    //             this.roomCount++;
-    //         }
-    //     }
-    // }
-
-    this.map = [
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 2, 0, 0, 0],
-        [0, 0, 1, 0, 0, 0],
-        [0, 0, 1, 0, 0, 0],
-        [0, 0, 1, 1, 3, 0],
-    ];
-    this.face.push(2);
-    this.face.push(2);
-    this.face.push(2);
-    this.face.push(1);
-    this.face.push(1);
-
-    console.log(this.face);
+    while (this.roomCount < this.maxRoomCount) {
+        let randomDirection = Math.floor(Math.random() * Math.floor(4));
+        let tempRow = this.row + this.directions[randomDirection][0];
+        let tempCol = this.col + this.directions[randomDirection][1];
+        if (randomDirection === 0 && this.face[this.face.length - 1] === 2
+            || randomDirection === 2 && this.face[this.face.length - 1] === 0
+            || randomDirection === 1 && this.face[this.face.length - 1] === 3
+            || randomDirection === 3 && this.face[this.face.length - 1] === 1) {
+            randomDirection = Math.floor(Math.random() * Math.floor(4));
+        } else {
+            if (tempRow < this.map.length && tempRow > 0  && tempCol < this.map.length && tempCol > 0
+                && this.map[tempRow][tempCol] === 0) {
+                this.face.push(randomDirection);
+                this.row += this.directions[randomDirection][0];
+                this.col += this.directions[randomDirection][1];
+                this.facePos.push([this.col, this.row]);
+                this.map[this.row][this.col] = 1;
+                if (this.roomCount + 1 === this.maxRoomCount) {
+                    this.map[this.row][this.col] = 3;
+                }
+                this.roomCount++;
+            }
+        }
+    }
+    // Popping off the last room because it does not require a door.
+    this.facePos.pop();
 }
 /* #endregion */
 
@@ -1255,8 +1242,8 @@ AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     document.body.style.backgroundColor = "black";
-    canvasWidth = canvas.width - 680;
-    canvasHeight = canvas.height - 680;
+    canvasWidth = canvas.width;
+    canvasHeight = canvas.height;
 
     GAME_ENGINE.init(ctx);
     GAME_ENGINE.start();
