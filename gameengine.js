@@ -161,8 +161,7 @@ GameEngine.prototype.startInput = function () {
 
 GameEngine.prototype.reset = function () {
     for (let i = 1; i < this.entities.length; i++) {
-        var entitySubArr = this.entities[i];
-        for (let j = 0; j < entitySubArr.length; j++) {
+        for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
             entity.removeFromWorld = true;
             this.entities[i].pop();
@@ -207,8 +206,7 @@ GameEngine.prototype.draw = function () {
     this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
     this.ctx.save();
     for (let i = 0; i < this.entities.length; i++) {
-        var entitySubArr = this.entities[i];
-        for (let j = 0; j < entitySubArr.length; j++) {
+        for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
             if (!entity.removeFromWorld && (i <= 1 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
                 entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
@@ -220,7 +218,6 @@ GameEngine.prototype.draw = function () {
 }
 
 GameEngine.prototype.update = function () {
-
     for (let i = 0; i < this.entities.length; i++) {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
