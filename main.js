@@ -293,7 +293,8 @@ Player.prototype.mageAbilities = function (number) {
             case 2:
                 /* #region Greater Fireball */
                 //Ability at keyboard number 2
-                let tempPro = new GreaterFireball(AM.getAsset("./img/fireball.png"), AM.getAsset("./img/fireball.png")
+                let tempPro = new GreaterFireball(AM.getAsset("./img/ability/greater_fireball_16x64.png")
+                    , AM.getAsset("./img/ability/flame_explosion_32x320.png")
                     , this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
                 tempPro.targetType = EntityTypes.enemies;
                 tempPro.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
@@ -319,7 +320,7 @@ Player.prototype.mageAbilities = function (number) {
             case 4:
                 /* #region Flame Strike */
                 //Ability at keyboard number 4
-                castDistance = 115;
+                castDistance = 145;
                 xDif = this.x - GAME_ENGINE.mouseX;
                 yDif = this.y - GAME_ENGINE.mouseY;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
@@ -764,8 +765,11 @@ function GreaterFireball(spriteSheet, spriteSheetAoe, originX, originY, xTarget,
     this.penetrative = false;
     this.aoe = 100;//square
     this.targetType = targetType;
-    this.animation = new Animation(spriteSheet, 100, 100, 1, .085, 8, true, 1);
-    this.animationAoe = new Animation(spriteSheetAoe, 100, 100, 1, .085, 8, true, 1);
+    this.animation = new Animation(spriteSheet, 16, 16, 1, .085, 4, true, 2);
+    this.aniX += 23;
+    this.aniY += 23;
+    this.origin = 5;
+    this.animationAoe = new Animation(spriteSheetAoe, 32, 32, 1, .025, 10, false, 3);
     this.damageObj = DS.CreateDamageObject(10, 4, DTypes.Magic
         , DS.CreateBuffObject("lesser burning"
             , [DS.CreateEffectObject(ETypes.CurrentHealthF, -1, 0, 20, 4)]));
@@ -774,7 +778,9 @@ function GreaterFireball(spriteSheet, spriteSheetAoe, originX, originY, xTarget,
         xPos = this.x - 25;
         yPos = this.y - 25;
         let aBox = new BoundingBox(xPos, yPos, width, height);
-        let aCrow = new StillStand(this.animationAoe, 6, this.x, this.y);
+        let aCrow = new StillStand(this.animationAoe, 10, this.x, this.y);
+        aCrow.aniX = -30;
+        aCrow.aniY = -20;
         let aHit = DS.CreateDamageObject(15, 2, DTypes.Magic
             , DS.CreateBuffObject("burning"
                 , [DS.CreateEffectObject(ETypes.CurrentHealthF, -2, 0, 30, 5)]));
