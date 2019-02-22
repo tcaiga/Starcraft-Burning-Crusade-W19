@@ -1091,15 +1091,15 @@ Background.prototype.draw = function () {
             }
 
             // Drawing doors
-            if (this.drawFaceCount < 6) {
+            if (this.drawFaceCount < 6 && this.map[i][j] !== 0) {
                 if (this.face[this.drawFaceCount] === 0) {
                     GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320, "up"));
                     console.log("Door Up");
                 } else if (this.face[this.drawFaceCount] === 1) {
-                    GAME_ENGINE.addEntity(new Door(i * 320 + 288, j * 320 + 144, "right"));
+                    GAME_ENGINE.addEntity(new Door((i - 1 - this.row) * 320 + 288, (j + 1 - this.col) * 320 + 144, "right"));
                     console.log("Door Right");
                 } else if (this.face[this.drawFaceCount] === 2) {
-                    GAME_ENGINE.addEntity(new Door(i * 320 + 144, j * 320 + 288, "down"));
+                    GAME_ENGINE.addEntity(new Door((i - this.row) * 320 + 144, (j - this.col) * 320 + 288, "down"));
                     console.log("Door Down");
                 } else if (this.face[this.drawFaceCount] === 3) {
                     GAME_ENGINE.addEntity(new Door(i * 320, j * 320 + 144, "left"));
@@ -1141,15 +1141,15 @@ Background.prototype.validDirection = function () {
     // }
 
     this.map[1][0] = 1;
-    this.map[2][0] = 1;
-    this.map[3][0] = 1;
-    this.map[4][0] = 1;
-    this.map[4][1] = 3;
-    this.face.push(2);
-    this.face.push(2);
-    this.face.push(2);
+    this.map[1][1] = 1;
+    this.map[2][1] = 1;
+    this.map[2][2] = 1;
+    this.map[3][2] = 3;
     this.face.push(2);
     this.face.push(1);
+    this.face.push(2);
+    this.face.push(1);
+    this.face.push(2);
 
     console.log(this.face);
 }
