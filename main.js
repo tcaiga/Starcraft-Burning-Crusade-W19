@@ -745,6 +745,7 @@ function SwordBoomerang(spriteSheet, originX, originY, xTarget, yTarget) {
     this.penetrative = true;
     this.damageObj = DS.CreateDamageObject(45, 0, DTypes.Slashing
         , DS.CloneBuffObject(PremadeBuffs.DamageOvertime));
+    this.damageObj.timeLeft = 55;
     this.childUpdate = function () {
         this.projectileSpeed += this.speedChange;
         this.timeLeft--;

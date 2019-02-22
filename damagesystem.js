@@ -279,8 +279,8 @@ EffectObj.prototype.Do = function (unit) {
                 }
                 break;
             case ETypes.CurrentHealthF:
-                if (typeof unit.currentHealth !== 'undefined') {
-                    unit.currentHealth += this.do;
+                if (typeof unit.health !== 'undefined') {
+                    unit.health += this.do;
                 }
                 break;
             case ETypes.CurrentHealthR:
@@ -429,8 +429,8 @@ EffectObj.prototype.Undo = function (unit) {
                 }
                 break;
             case ETypes.CurrentHealthF:
-                if (typeof unit.currentHealth !== 'undefined') {
-                    unit.currentHealth += this.undo;
+                if (typeof unit.health !== 'undefined') {
+                    unit.health += this.undo;
                 }
                 break;
             case ETypes.CurrentHealthR:
