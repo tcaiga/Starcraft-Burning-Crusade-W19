@@ -127,10 +127,14 @@ GameEngine.prototype.startInput = function () {
                 sprite = "./img/ability/arrow_ur_8x8.png";
                 (GAME_ENGINE.debug) ? console.log("ur") : null;
             }
+            let ani = new Animation(AM.getAsset(sprite), 8,8,1,0.13,1,true,2);
             let projectile = new Projectile(AM.getAsset(sprite),
                     myPlayer.x - (myPlayer.width / 2),
                      myPlayer.y - (myPlayer.height / 2), x, y, 5);
-                GAME_ENGINE.addEntity(projectile);
+            projectile.animation = ani;
+            projectile.aniX = 15;
+            projectile.aniY = 30;
+            GAME_ENGINE.addEntity(projectile);
             } else if (that.playerPick == 2){
                 
             }
