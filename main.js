@@ -271,7 +271,7 @@ Player.prototype.rangerAbilities = function (number) {
                 castDistance = Math.min(mag, castDistance);
                 xPos = this.x - (xDif / mag) * castDistance;
                 yPos = this.y - (yDif / mag) * castDistance;
-                tempTrap = new RootTrap(AM.getAsset("./img/ability/root_trap_up.png"),AM.getAsset("./img/ability/root_trap_down.png"));
+                tempTrap = new RootTrap(AM.getAsset("./img/ability/root_trap_up.png"), AM.getAsset("./img/ability/root_trap_down.png"));
                 tempTrap.x = xPos;
                 tempTrap.y = yPos;
                 tempTrap.boundingbox = new BoundingBox(tempTrap.x, tempTrap.y, 20, 20);
@@ -284,29 +284,29 @@ Player.prototype.rangerAbilities = function (number) {
                 /* #region Multi Shot */
                 //Ability at keyboard number 4
                 let angle = Math.atan2(GAME_ENGINE.mouseY - 20 - this.y - (this.height / 2)
-                                      ,GAME_ENGINE.mouseX - 35 - this.x - (this.width / 2));
-                                      
+                    , GAME_ENGINE.mouseX - 35 - this.x - (this.width / 2));
+
                 let sprite = "./img/ability/multi_arrow_";
-                if (angle > -Math.PI/4 && angle < Math.PI/4){
+                if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
                     //Right
                     sprite = "./img/ability/multi_arrow_";
                     (GAME_ENGINE.debug) ? console.log("Right") : null;
-                } else if (angle > -3*Math.PI/4 && angle < -Math.PI/4) {
+                } else if (angle > -3 * Math.PI / 4 && angle < -Math.PI / 4) {
                     //Up
                     (GAME_ENGINE.debug) ? console.log("Up") : null;
-                } else if (angle > 3*Math.PI/4 && angle < -3*Math.PI/4) {
+                } else if (angle > 3 * Math.PI / 4 && angle < -3 * Math.PI / 4) {
                     //Left
                     (GAME_ENGINE.debug) ? console.log("Left") : null;
                 } else {
                     //Down
                     (GAME_ENGINE.debug) ? console.log("Down") : null;
                 }
-                for (let i = 0; i < 9; i++){
+                for (let i = 0; i < 9; i++) {
                     tempPro = new MultiArrow(AM.getAsset(sprite + i + "_8x8.png"), this.x - (this.width / 2), this.y - (this.height / 2)
-                                            , GAME_ENGINE.mouseX, GAME_ENGINE.mouseY, 5);
+                        , GAME_ENGINE.mouseX, GAME_ENGINE.mouseY, 5);
                     tempPro.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
                         this.width - 25, this.height - 25); // Hardcoded a lot of offset values
-                    tempPro.angle += (Math.PI/360)*(20*i-90);
+                    tempPro.angle += (Math.PI / 360) * (20 * i - 90);
                     GAME_ENGINE.addEntity(tempPro);
                 }
                 this.abilityCD[number] = 120;
@@ -448,7 +448,7 @@ Player.prototype.knightAbilities = function (number) {
                     GAME_ENGINE.ctx.strokeStyle = color_yellow;
                     (GAME_ENGINE.debug) ? this.game.ctx.strokeRect(xPos - aoe / 4, yPos - aoe / 4, aoe, aoe) : null;
                 }
-                ss1.damageObj = DS.CreateDamageObject(21, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.Stun));
+                ss1.damageObj = DS.CreateDamageObject(21, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.StunLong));
                 ss1.penetrative = true;
                 this.abilityCD[number] = 75;
                 this.castTime = 6;
@@ -482,7 +482,52 @@ Player.prototype.knightAbilities = function (number) {
                 /* #endregion */
                 break;
             case 4:
+                /* #region Holy Strike */
                 //Ability at keyboard number 4
+                let angle = Math.atan2(GAME_ENGINE.mouseY - 20 - this.y - (this.height / 2)
+                    , GAME_ENGINE.mouseX - 35 - this.x - (this.width / 2));
+
+                let sprite = "./img/ability/holy_strike_right";
+                if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
+                    //Right
+                    sprite = "./img/ability/holy_strike_right";
+                    (GAME_ENGINE.debug) ? console.log("Right") : null;
+                } else if (angle > -3 * Math.PI / 4 && angle < -Math.PI / 4) {
+                    //Up
+                    (GAME_ENGINE.debug) ? console.log("Up") : null;
+                } else if (angle > 3 * Math.PI / 4 && angle < -3 * Math.PI / 4) {
+                    //Left
+                    (GAME_ENGINE.debug) ? console.log("Left") : null;
+                } else {
+                    //Down
+                    (GAME_ENGINE.debug) ? console.log("Down") : null;
+                }
+
+                castDistance = 20;
+                aoe = 75;
+                xDif = this.x - GAME_ENGINE.mouseX + 10;
+                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
+                xPos = this.x - (xDif / mag) * castDistance;
+                yPos = this.y - (yDif / mag) * castDistance;
+
+                ssAni1 = new Animation(AM.getAsset(sprite + "_32x352.png"), 32, 32, 1, 0.035, 11, false, 3.5);
+                ss1 = new StillStand(ssAni1, 16, xPos, yPos);
+                ss1.aniX = -49;
+                ss1.aniY = -25;
+                ss1.boundingbox = new BoundingBox(xPos - aoe / 4 + 30, yPos - aoe / 4 + 30, aoe - 10, aoe - 30);
+                ss1.entityHitType = EntityTypes.enemies;
+                ss1.onDraw = function () {
+                    GAME_ENGINE.ctx.strokeStyle = color_yellow;
+                    (GAME_ENGINE.debug) ? this.game.ctx.strokeRect(xPos - aoe / 4 + 30, yPos - aoe / 4 + 30, aoe - 10, aoe - 30) : null;
+                }
+                ss1.damageObj = DS.CreateDamageObject(41, 0, DTypes.True);
+                ss1.penetrative = true;
+                this.abilityCD[number] = 175;
+                this.castTime = 13;
+                GAME_ENGINE.addEntity(ss1);
+
+                /* #endregion */
                 break;
         }
     }
