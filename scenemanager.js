@@ -145,4 +145,5 @@ SceneManager.prototype.gameInit = function () {
     BACKGROUND.createWalls();
     BACKGROUND.createDoors();
     console.table(BACKGROUND.map);
+    console.log(GAME_ENGINE.entities);
 }
