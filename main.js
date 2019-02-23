@@ -376,7 +376,7 @@ Player.prototype.knightAbilities = function (number) {
             case 2:
                 /* #region Shield Bash */
                 //Ability at keyboard number 2
-                castDistance = 20;
+                castDistance = 40;
                 aoe = 40;
                 xDif = this.x - GAME_ENGINE.mouseX + 10;
                 yDif = this.y - GAME_ENGINE.mouseY + 10;
@@ -387,11 +387,13 @@ Player.prototype.knightAbilities = function (number) {
 
                 ssAni1 = new Animation(AM.getAsset("./img/Shield Flash.png"), 32, 32, 1, 0.07, 6, true, 1.5);
                 ss1 = new StillStand(ssAni1, 12, xPos, yPos);
-                ss1.boundingbox = new BoundingBox(xPos + 5, yPos + 2, aoe, aoe);
+                ss1.aniX = -13;
+                ss1.aniY = -14;
+                ss1.boundingbox = new BoundingBox(xPos - aoe/4, yPos - aoe/4, aoe, aoe);
                 ss1.entityHitType = EntityTypes.enemies;
                 ss1.onDraw = function () {
                     GAME_ENGINE.ctx.strokeStyle = color_yellow;
-                    //this.game.ctx.strokeRect(xPos + 5, yPos + 2, aoe, aoe);
+                    (GAME_ENGINE.debug) ? this.game.ctx.strokeRect(xPos - aoe/4, yPos - aoe/4, aoe, aoe) : null;
                 }
                 ss1.damageObj = DS.CreateDamageObject(21, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.Stun));
                 ss1.penetrative = true;
@@ -517,7 +519,7 @@ Monster.prototype.update = function () {
     if (this.health <= 0) this.removeFromWorld = true;
 
     // based on the number of ticks since the player was last hit, we pause the monster
-    if (this.pause == false || !this.isStunned) {
+    if (this.pause == false && !this.isStunned) {
         // get the direction vector pointing towards player
         var dirX = playerX - this.x;
         var dirY = playerY - this.y;
@@ -772,7 +774,7 @@ function SwordBoomerang(spriteSheet, originX, originY, xTarget, yTarget) {
     this.thrower = null;
     this.speedChange = -7 / 30;
     this.penetrative = true;
-    this.damageObj = DS.CreateDamageObject(45, 0, DTypes.Slashing
+    this.damageObj = DS.CreateDamageObject(25, 0, DTypes.Slashing
         , DS.CloneBuffObject(PremadeBuffs.DamageOvertime));
     this.damageObj.timeLeft = 55;
     this.childUpdate = function () {
@@ -962,7 +964,7 @@ StillStand.prototype.update = function () {
             var entityCollide = GAME_ENGINE.entities[this.entityHitType][i];
             if (this.boundingbox.collide(entityCollide.boundingbox)) {
                 if (GAME_ENGINE.entities[this.entityHitType][i].health > 0) {
-                    (typeof this.onCollide === 'function') ? this.onCollide(unit) : null;
+                    (typeof this.onCollide === 'function') ? this.onCollide(entityCollide) : null;
                     this.damageObj.ApplyEffects(GAME_ENGINE.entities[this.entityHitType][i]);
                     this.removeFromWorld = (this.penetrative && !this.removeFromWorld) ? false : true;
                 }
