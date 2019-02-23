@@ -489,26 +489,8 @@ Player.prototype.knightAbilities = function (number) {
                 //Ability at keyboard number 4
                 let angle = Math.atan2(GAME_ENGINE.mouseY - 20 - this.y - (this.height / 2)
                     , GAME_ENGINE.mouseX - 35 - this.x - (this.width / 2));
-
+                let box;
                 let sprite = "./img/ability/holy_strike_right";
-                if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
-                    //Right
-                    sprite = "./img/ability/holy_strike_right";
-                    (GAME_ENGINE.debug) ? console.log("Right") : null;
-                } else if (angle > -3 * Math.PI / 4 && angle < -Math.PI / 4) {
-                    //Up
-                    sprite = "./img/ability/holy_strike_up";
-                    (GAME_ENGINE.debug) ? console.log("Up") : null;
-                } else if (angle > 3 * Math.PI / 4 || angle < -3 * Math.PI / 4) {
-                    //Left
-                    sprite = "./img/ability/holy_strike_left";
-                    (GAME_ENGINE.debug) ? console.log("Left") : null;
-                } else {
-                    //Down
-                    sprite = "./img/ability/holy_strike_down";
-                    (GAME_ENGINE.debug) ? console.log("Down") : null;
-                }
-
                 castDistance = 20;
                 aoe = 75;
                 xDif = this.x - GAME_ENGINE.mouseX + 10;
@@ -516,16 +498,39 @@ Player.prototype.knightAbilities = function (number) {
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 xPos = this.x - (xDif / mag) * castDistance;
                 yPos = this.y - (yDif / mag) * castDistance;
+                if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
+                    //Right
+                    sprite = "./img/ability/holy_strike_right";
+                    box = new BoundingBox(xPos - aoe / 4 + 30, yPos - aoe / 4 + 30, aoe - 10, aoe - 30);
+                    (GAME_ENGINE.debug) ? console.log("Right") : null;
+                } else if (angle > -3 * Math.PI / 4 && angle < -Math.PI / 4) {
+                    //Up
+                    sprite = "./img/ability/holy_strike_up";
+                    box = new BoundingBox(xPos - 15, yPos - 25, aoe - 30, aoe - 10);
+                    (GAME_ENGINE.debug) ? console.log("Up") : null;
+                } else if (angle > 3 * Math.PI / 4 || angle < -3 * Math.PI / 4) {
+                    //Left
+                    sprite = "./img/ability/holy_strike_left";
+                    box = new BoundingBox(xPos - aoe / 4 - 30, yPos - aoe / 4 + 30, aoe - 10, aoe - 30);
+                    (GAME_ENGINE.debug) ? console.log("Left") : null;
+                } else {
+                    //Down
+                    sprite = "./img/ability/holy_strike_down";
+                    box = new BoundingBox(xPos - 15, yPos + 20, aoe - 30, aoe - 10);
+                    (GAME_ENGINE.debug) ? console.log("Down") : null;
+                }
+
+                
 
                 ssAni1 = new Animation(AM.getAsset(sprite + ".png"), 32, 32, 1, 0.035, 11, false, 3.5);
                 ss1 = new StillStand(ssAni1, 16, xPos, yPos);
                 ss1.aniX = -49;
                 ss1.aniY = -25;
-                ss1.boundingbox = new BoundingBox(xPos - aoe / 4 + 30, yPos - aoe / 4 + 30, aoe - 10, aoe - 30);
+                ss1.boundingbox = box;
                 ss1.entityHitType = EntityTypes.enemies;
                 ss1.onDraw = function () {
                     GAME_ENGINE.ctx.strokeStyle = color_yellow;
-                    (GAME_ENGINE.debug) ? this.game.ctx.strokeRect(xPos - aoe / 4 + 30, yPos - aoe / 4 + 30, aoe - 10, aoe - 30) : null;
+                    (GAME_ENGINE.debug) ? this.game.ctx.strokeRect(ss1.boundingbox.x,ss1.boundingbox.y,ss1.boundingbox.width,ss1.boundingbox.height) : null;
                 }
                 ss1.damageObj = DS.CreateDamageObject(41, 0, DTypes.True);
                 ss1.penetrative = true;
