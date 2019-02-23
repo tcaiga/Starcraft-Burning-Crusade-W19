@@ -97,35 +97,27 @@ GameEngine.prototype.startInput = function () {
             if (angle > -Math.PI / 8 && angle < Math.PI / 8) {
                 //R
                 sprite = "./img/ability/arrow_r_8x8.png";
-                (GAME_ENGINE.debug) ? console.log("r") : null;
             } else if (angle > Math.PI/8 && angle < 3*Math.PI/8) {
                 //DR
                 sprite = "./img/ability/arrow_dr_8x8.png";
-                (GAME_ENGINE.debug) ? console.log("dr") : null;
             } else if (angle > 3*Math.PI/8 && angle < 5*Math.PI/8) {
                 //D
                 sprite = "./img/ability/arrow_d_8x8.png";
-                (GAME_ENGINE.debug) ? console.log("d") : null;
             } else if (angle > 5*Math.PI/8 && angle < 7*Math.PI/8) {
                 //DL
                 sprite = "./img/ability/arrow_dl_8x8.png";
-                (GAME_ENGINE.debug) ? console.log("dl") : null;
             } else if (angle < -7*Math.PI/8 || angle > 7*Math.PI/8) {
                 //L
                 sprite = "./img/ability/arrow_l_8x8.png";
-                (GAME_ENGINE.debug) ? console.log("l") : null;
             } else if (angle > -7*Math.PI/8 && angle < -5*Math.PI/8) {
                 //UL
                 sprite = "./img/ability/arrow_ul_8x8.png";
-                (GAME_ENGINE.debug) ? console.log("ul") : null;
             } else if (angle > -5*Math.PI/8 && angle < -3*Math.PI/8) {
                 //U
                 sprite = "./img/ability/arrow_u_8x8.png";
-                (GAME_ENGINE.debug) ? console.log("u") : null;
             } else if (angle > -3*Math.PI/8 && angle < -Math.PI/8) {
                 //UR
                 sprite = "./img/ability/arrow_ur_8x8.png";
-                (GAME_ENGINE.debug) ? console.log("ur") : null;
             }
             let ani = new Animation(AM.getAsset(sprite), 8,8,1,0.13,1,true,2);
             let projectile = new Projectile(AM.getAsset(sprite),
@@ -144,22 +136,18 @@ GameEngine.prototype.startInput = function () {
                 if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
                     //Right
                     sprite = "./img/ability/knight_attack_right";
-                    (GAME_ENGINE.debug) ? console.log("Right") : null;
                     offsetX = 15;
                 } else if (angle > -3 * Math.PI / 4 && angle < -Math.PI / 4) {
                     //Up
                     sprite = "./img/ability/knight_attack_up";
-                    (GAME_ENGINE.debug) ? console.log("Up") : null;
                     offsetY = -20;
                 } else if (angle > 3 * Math.PI / 4 || angle < -3 * Math.PI / 4) {
                     //Left
                     sprite = "./img/ability/knight_attack_left";
-                    (GAME_ENGINE.debug) ? console.log("Left") : null;
                     offsetX = -15;
                 } else {
                     //Down
                     sprite = "./img/ability/knight_attack_down";
-                    (GAME_ENGINE.debug) ? console.log("Down") : null;
                     offsetY = 10;
                 }
                 let ss1Ani = new Animation(AM.getAsset(sprite + ".png"),32,32,1,0.08,6,false,2);
@@ -261,7 +249,7 @@ GameEngine.prototype.startInput = function () {
 
 GameEngine.prototype.reset = function () {
     for (let i = 1; i < this.entities.length; i++) {
-        for (let j = 0; j < this.entities[i].length; j++) {
+        for (let j = this.entities[i].length - 1; j >= 0; j--) {
             var entity = this.entities[i][j];
             entity.removeFromWorld = true;
             this.entities[i].pop();
@@ -284,6 +272,7 @@ GameEngine.prototype.reset = function () {
         spellHTML.innerHTML = "Ready";
         spellHTML.style.color = color_green;
     }
+    CAMERA = new Camera();
 }
 
 GameEngine.prototype.addEntity = function (entity) {
