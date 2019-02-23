@@ -52,6 +52,7 @@ function Player(spritesheet, xOffset, yOffset) {
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
     this.right = true;
     this.health = 100;
+    this.maxHealth = 100;
     this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
         this.width, this.height); // **Temporary** Hard coded offset values.
@@ -287,7 +288,7 @@ Player.prototype.mageAbilities = function (number) {
                 this.castTime = 10;
                 GAME_ENGINE.addEntity(ss1);
                 GAME_ENGINE.addEntity(ss2);
-                this.abilityCD[number] = 120;
+                this.abilityCD[number] = 50;
                 /* #endregion */
                 break;
             case 2:
@@ -314,7 +315,7 @@ Player.prototype.mageAbilities = function (number) {
                     GAME_ENGINE.addEntity(tempPro2);
                 }
                 this.castTime = 8;
-                this.abilityCD[number] = 75;
+                this.abilityCD[number] = 100;
                 /* #endregion */
                 break;
             case 4:
@@ -327,27 +328,28 @@ Player.prototype.mageAbilities = function (number) {
                 castDistance = Math.min(castDistance, mag);
                 xPos = -(xDif / mag) * castDistance - 12 + this.x;
                 yPos = -(yDif / mag) * castDistance - 30 + this.y;
-                ss1Ani = new Animation(AM.getAsset("./img/ability/flame_ring_32x160.png"),32,32,1,0.13,5,true,1.5);
-                ss2Ani = new Animation(AM.getAsset("./img/ability/flame_explosion_32x320.png"),32,32,1,0.08,10,false,2);
+                ss1Ani = new Animation(AM.getAsset("./img/ability/flame_ring_32x160.png"), 32, 32, 1, 0.13, 5, true, 1.5);
+                ss2Ani = new Animation(AM.getAsset("./img/ability/flame_explosion_32x320.png"), 32, 32, 1, 0.08, 10, false, 2);
                 ss1 = new StillStand(ss1Ani, 40, xPos, yPos);
                 ss1.ssAni = ss2Ani;
                 ss1.width = 50;
                 ss1.height = 50;
-                ss1.aniX = -32*1.5/2 + 12;
-                ss1.aniY = -32*1.5/2 + 22;
+                ss1.aniX = -32 * 1.5 / 2 + 12;
+                ss1.aniY = -32 * 1.5 / 2 + 22;
                 ss1.entityHitType = EntityTypes.enemies;
                 ss1.onDeath = function () {
-                    let ss3 = new StillStand(this.ssAni,9,this.x,this.y);
+                    let ss3 = new StillStand(this.ssAni, 9, this.x, this.y);
                     ss3.entityHitType = this.entityHitType;
-                    ss3.boundingbox = new BoundingBox(this.x - this.width/2, this.y - this.height/2,this.width, this.height);
+                    ss3.boundingbox = new BoundingBox(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
                     ss3.damageObj = DS.CreateDamageObject(45, 0, DTypes.Magic);
                     ss3.penetrative = true;
-                    ss3.aniX = -32*2/2 + 12;
-                    ss3.aniY = -32*2/2 + 22;
+                    ss3.aniX = -32 * 2 / 2 + 12;
+                    ss3.aniY = -32 * 2 / 2 + 22;
                     GAME_ENGINE.addEntity(ss3);
                 }
                 GAME_ENGINE.addEntity(ss1);
-                this.abilityCD[number] = 18;
+                this.abilityCD[number] = 180;
+                this.castTime = 10;
                 /* #endregion */
                 break;
         }
@@ -372,8 +374,8 @@ Player.prototype.knightAbilities = function (number) {
                 /* #endregion */
                 break;
             case 2:
-                //Ability at keyboard number 2
                 /* #region Shield Bash */
+                //Ability at keyboard number 2
                 castDistance = 20;
                 aoe = 40;
                 xDif = this.x - GAME_ENGINE.mouseX + 10;
@@ -399,7 +401,30 @@ Player.prototype.knightAbilities = function (number) {
                 /* #endregion */
                 break;
             case 3:
-                //Ability at keyboard number 3
+                /* #region Self Heal */
+                //Ability at keyboard number 3   heal_self_32x224
+                ss1Ani = new Animation(AM.getAsset("./img/ability/heal_self_32x224.png"), 32, 32, 1, 0.07, 6, false, 1.75);
+                ss1 = new StillStand(ss1Ani, 15, this.x, this.y);
+                ss1.target = this;
+                ss1.aniX = -12;
+                ss1.aniY = 0;
+                dmg = DS.CreateDamageObject(-40, 0, DTypes.None, DS.CloneBuffObject(PremadeBuffs.Haste));
+                dmg.ApplyEffects(this);
+                ss1.onUpdate = function () {
+                    if (!this.target.right) { 
+                        ss1.aniX = -22;
+                        ss1.aniY = 0;
+                     } else {
+                        ss1.aniX = -12;
+                        ss1.aniY = 0;
+                     }
+                    this.x = this.target.x;
+                    this.y = this.target.y;
+                }
+                GAME_ENGINE.addEntity(ss1);
+                this.abilityCD[number] = 180;
+
+                /* #endregion */
                 break;
             case 4:
                 //Ability at keyboard number 4
@@ -414,6 +439,9 @@ Player.prototype.changeHealth = function (amount) {
         //display healing animation
         //maybe have a currentHealth change threshold 
         //to actually have it display
+        if (this.health + amount > this.maxHealth){
+            amount = this.maxHealth - this.health;
+        }
     } else if (amount < 0) {
         //display damage animation
         //maybe have a currentHealth change threshold 
@@ -944,9 +972,11 @@ StillStand.prototype.update = function () {
 }
 StillStand.prototype.draw = function () {
     (typeof this.onDraw === 'function') ? this.onDraw() : null;
-    (typeof this.boundingbox !== 'undefined' && GAME_ENGINE.debug) ? function () {GAME_ENGINE.ctx.strokeStyle = color_yellow;
+    (typeof this.boundingbox !== 'undefined' && GAME_ENGINE.debug) ? function () {
+        GAME_ENGINE.ctx.strokeStyle = color_yellow;
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-            this.boundingbox.width, this.boundingbox.height);} : null;
+            this.boundingbox.width, this.boundingbox.height);
+    } : null;
     this.ani.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x + this.aniX, this.y + this.aniY);
 }
 /* #endregion */
@@ -1352,7 +1382,7 @@ Animation.prototype.isDone = function () {
 
 // Ranger
 AM.queueDownload("./img/ranger_run.png");
-for (let i = 0; i < 9; i++){
+for (let i = 0; i < 9; i++) {
     AM.queueDownload("./img/ability/multi_arrow_" + i + "_8x8.png");
 }
 AM.queueDownload("./img/ability/arrow_u_8x8.png");
