@@ -1,5 +1,4 @@
 //color constants
-const color_green = "lightgreen";
 const color_red = "red";
 const color_yellow = "yellow";
 const color_white = "white";
@@ -13,6 +12,7 @@ const DS = new DamageSystem();
 var BACKGROUND;
 var SCENE_MANAGER;
 var canvasWidth;
+const color_green = "lightgreen";
 var canvasHeight;
 var myFloorNum = 1;
 var myRoomNum = 1;
@@ -213,25 +213,28 @@ Player.prototype.rangerAbilities = function (number) {
                 /* #region Boostpad */
                 //Ability at keyboard number 1
 
-                castDistance = 125;
+                castDistance = 5;
                 let tempTrap = new RangerBoostPad(AM.getAsset("./img/floor_boostpad_on.png"),
                     AM.getAsset("./img/floor_boostpad_off.png"));
                 xDif, yDif, mag;
-                xDif = this.x - GAME_ENGINE.mouseX + 10;
-                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                let realX = this.x, realY = this.y;
+                xDif = realX - GAME_ENGINE.mouseX + 10;
+                yDif = realY - GAME_ENGINE.mouseY + 10;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 castDistance = Math.min(mag, castDistance);
 
-                tempTrap.x = this.x - (xDif / mag) * castDistance;
-                tempTrap.y = this.y - (yDif / mag) * castDistance;
+                tempTrap.x = realX - (xDif / mag) * castDistance;
+                tempTrap.y = realY - (yDif / mag) * castDistance;
+                tempTrap.x += 0;
+                tempTrap.y += 30;
                 tempTrap.boundingbox = new BoundingBox(tempTrap.x, tempTrap.y, 20, 20);
                 GAME_ENGINE.addEntity(tempTrap);
-                this.abilityCD[number] = 60;
+                this.abilityCD[number] = 195;
                 /* #endregion */
                 break;
             case 2:
-                //Ability at keyboard number 2
                 /* #region Rain of arrows */
+                //Ability at keyboard number 2
                 castDistance = 150;
                 aoe = 70;
                 xDif = this.x - GAME_ENGINE.mouseX + 10;
@@ -240,24 +243,34 @@ Player.prototype.rangerAbilities = function (number) {
                 castDistance = Math.min(mag, castDistance);
                 xPos = this.x - (xDif / mag) * castDistance;
                 yPos = this.y - (yDif / mag) * castDistance;
-                let ss1 = new StillStand(new Animation(AM.getAsset("./img/fireball.png")
-                    , 100, 100, 1, .085, 8, true, .75), 7 * 7, xPos - 30, yPos - 30);
+                let ss1 = new StillStand(new Animation(AM.getAsset("./img/ability/rain_of_arrows_32x384.png")
+                    , 32, 32, 1, .060, 12, true, 2), 57, xPos - 30, yPos - 30);
 
-                ss1.boundingbox = new BoundingBox(ss1.x - aoe / 2, ss1.y - aoe / 2, aoe, aoe);
-                dmg = DS.CreateDamageObject(4, 0, DTypes.Piercing, DS.CloneBuffObject(PremadeBuffs.Slow));
-                dmg.timeLeft = 7;
+                ss1.boundingbox = new BoundingBox(ss1.x, ss1.y, aoe, aoe);
+                ss1.onDraw = function () {
+                    GAME_ENGINE.strokeStyle = color_green;
+                    GAME_ENGINE.ctx.strokeRect(this.x, this.y + aoe / 2, aoe, aoe / 2);
+                }
+                dmg = DS.CreateDamageObject(7, 0, DTypes.Piercing, DS.CloneBuffObject(PremadeBuffs.Slow));
+                dmg.timeLeft = 13;
                 ss1.entityHitType = EntityTypes.enemies;
                 ss1.damageObj = dmg;
                 ss1.penetrative = true;
                 GAME_ENGINE.addEntity(ss1);
-                this.abilityCD[number] = 120;
+                this.abilityCD[number] = 189;
                 /* #endregion */
                 break;
             case 3:
+                /* #region Root trap */
                 //Ability at keyboard number 3
+                
+                /* #endregion */
                 break;
             case 4:
+                /* #region Multi Shot */
                 //Ability at keyboard number 4
+
+                /* #endregion */
                 break;
         }
     }
@@ -389,11 +402,11 @@ Player.prototype.knightAbilities = function (number) {
                 ss1 = new StillStand(ssAni1, 12, xPos, yPos);
                 ss1.aniX = -13;
                 ss1.aniY = -14;
-                ss1.boundingbox = new BoundingBox(xPos - aoe/4, yPos - aoe/4, aoe, aoe);
+                ss1.boundingbox = new BoundingBox(xPos - aoe / 4, yPos - aoe / 4, aoe, aoe);
                 ss1.entityHitType = EntityTypes.enemies;
                 ss1.onDraw = function () {
                     GAME_ENGINE.ctx.strokeStyle = color_yellow;
-                    (GAME_ENGINE.debug) ? this.game.ctx.strokeRect(xPos - aoe/4, yPos - aoe/4, aoe, aoe) : null;
+                    (GAME_ENGINE.debug) ? this.game.ctx.strokeRect(xPos - aoe / 4, yPos - aoe / 4, aoe, aoe) : null;
                 }
                 ss1.damageObj = DS.CreateDamageObject(21, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.Stun));
                 ss1.penetrative = true;
@@ -413,13 +426,13 @@ Player.prototype.knightAbilities = function (number) {
                 dmg = DS.CreateDamageObject(-40, 0, DTypes.None, DS.CloneBuffObject(PremadeBuffs.Haste));
                 dmg.ApplyEffects(this);
                 ss1.onUpdate = function () {
-                    if (!this.target.right) { 
+                    if (!this.target.right) {
                         ss1.aniX = -22;
                         ss1.aniY = 0;
-                     } else {
+                    } else {
                         ss1.aniX = -12;
                         ss1.aniY = 0;
-                     }
+                    }
                     this.x = this.target.x;
                     this.y = this.target.y;
                 }
@@ -441,7 +454,7 @@ Player.prototype.changeHealth = function (amount) {
         //display healing animation
         //maybe have a currentHealth change threshold 
         //to actually have it display
-        if (this.health + amount > this.maxHealth){
+        if (this.health + amount > this.maxHealth) {
             amount = this.maxHealth - this.health;
         }
     } else if (amount < 0) {
