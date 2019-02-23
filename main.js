@@ -575,8 +575,8 @@ Player.prototype.changeHealth = function (amount) {
 /* #region Monster */
 /* #region Base Monster */
 
-function Monster(game, spritesheetArr, x, y) {
-    Entity.call(this, game, 0, 350);
+function Monster(spritesheetArr, x, y) {
+    Entity.call(this, GAME_ENGINE, 0, 350);
 
     // behavior stuff
     this.visionWidth = 200;
@@ -587,8 +587,6 @@ function Monster(game, spritesheetArr, x, y) {
     this.inRange = false;
     this.castCooldown = 0;
     this.isStunned = false;
-
-    
 
     // animation stuff
     this.flaggedLeft = false;
@@ -785,7 +783,9 @@ MaskedOrc.prototype = Monster.prototype;
 Ogre.prototype = Monster.prototype;
 
 function BigDemon(spritesheetArr, x, y) {
-    Monster.call(this, GAME_ENGINE, spritesheetArr, x, y);
+
+    Monster.call(this, spritesheetArr, x, y);
+
 
     // animation
     this.scale = 2;
@@ -807,9 +807,11 @@ function BigDemon(spritesheetArr, x, y) {
 }
 
 function Swampy(spritesheetArr, x, y) {
-    Monster.call(this, GAME_ENGINE, spritesheetArr, x, y);
 
     // animation
+
+    Monster.call(this, spritesheetArr, x, y);
+
     this.scale = 2;
     this.width = 16;
     this.height = 16;
@@ -829,9 +831,11 @@ function Swampy(spritesheetArr, x, y) {
 }
 
 function TinyZombie(spritesheetArr, x, y) {
-    Monster.call(this, GAME_ENGINE, spritesheetArr, x, y);
 
     // animation
+
+    Monster.call(this, spritesheetArr, x, y);
+
     this.scale = 1;
     this.width = 16;
     this.height = 16;
@@ -850,9 +854,11 @@ function TinyZombie(spritesheetArr, x, y) {
 }
 
 function MaskedOrc(spritesheetArr, x, y) {
-    Monster.call(this, GAME_ENGINE, spritesheetArr, x, y);
 
     // animation
+
+    Monster.call(this, spritesheetArr, x, y);
+
     this.scale = 1;
     this.width = 16;
     this.height = 20;
@@ -871,9 +877,11 @@ function MaskedOrc(spritesheetArr, x, y) {
 }
 
 function Ogre(spritesheetArr, x, y) {
-    Monster.call(this, GAME_ENGINE, spritesheetArr, x, y);
 
     // animation
+
+    Monster.call(this, spritesheetArr, x, y);
+
     this.scale = 1;
     this.width = 32;
     this.height = 32;
@@ -892,7 +900,9 @@ function Ogre(spritesheetArr, x, y) {
 }
 
 function Devil(spritesheetArr, x, y) {
-    Monster.call(this, GAME_ENGINE, spritesheetArr, x, y);
+
+    Monster.call(this, spritesheetArr, x, y);
+
 
     // animation
     this.scale = 3;
@@ -914,7 +924,9 @@ function Devil(spritesheetArr, x, y) {
 }
 
 function Acolyte(spritesheetArr, x, y) {
-    Monster.call(this, GAME_ENGINE, spritesheetArr, x, y);
+
+    Monster.call(this, spritesheetArr, x, y);
+
 
     // animation
     this.scale = 2;
@@ -1172,6 +1184,7 @@ Trap.prototype.update = function () {
             this.lifeTime--;
         }
     }
+   if (typeof this.onUpdate != 'function') {
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         // Remember what tick the collision happened
         this.counter += GAME_ENGINE.clockTick;
@@ -1194,6 +1207,7 @@ Trap.prototype.update = function () {
         this.doAnimation = false;
         this.counter = 0;
     }
+   }
 }
 /* #endregion */
 
