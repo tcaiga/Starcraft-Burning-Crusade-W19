@@ -202,7 +202,8 @@ Player.prototype.update = function () {
 
 /* #region Player Ability functions */
 let castDistance, xDif, yDif, mag, xPos, yPos
-    , dmg, aoe, ss1, ss2, ss1Ani, ss2Ani, tempPro = {};
+    , dmg, aoe, ss1, ss2, ss1Ani, ss2Ani, tempPro = {}
+    , tempTrap = {};
 Player.prototype.rangerAbilities = function (number) {
     if (this.abilityCD[number] <= 0) {
         switch (parseInt(number)) {
@@ -214,7 +215,7 @@ Player.prototype.rangerAbilities = function (number) {
                 //Ability at keyboard number 1
 
                 castDistance = 5;
-                let tempTrap = new RangerBoostPad(AM.getAsset("./img/floor_boostpad_on.png"),
+                tempTrap = new RangerBoostPad(AM.getAsset("./img/floor_boostpad_on.png"),
                     AM.getAsset("./img/floor_boostpad_off.png"));
                 xDif, yDif, mag;
                 let realX = this.x, realY = this.y;
@@ -249,7 +250,7 @@ Player.prototype.rangerAbilities = function (number) {
                 ss1.boundingbox = new BoundingBox(ss1.x, ss1.y, aoe, aoe);
                 ss1.onDraw = function () {
                     GAME_ENGINE.strokeStyle = color_green;
-                    GAME_ENGINE.ctx.strokeRect(this.x, this.y + aoe / 2, aoe, aoe / 2);
+                    (GAME_ENGINE.debug) ? GAME_ENGINE.ctx.strokeRect(this.x, this.y + aoe / 2, aoe, aoe / 2) : null;
                 }
                 dmg = DS.CreateDamageObject(7, 0, DTypes.Piercing, DS.CloneBuffObject(PremadeBuffs.Slow));
                 dmg.timeLeft = 13;
@@ -263,7 +264,20 @@ Player.prototype.rangerAbilities = function (number) {
             case 3:
                 /* #region Root trap */
                 //Ability at keyboard number 3
-                
+                castDistance = 80;
+                xDif = this.x - GAME_ENGINE.mouseX + 10;
+                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
+                castDistance = Math.min(mag, castDistance);
+                xPos = this.x - (xDif / mag) * castDistance;
+                yPos = this.y - (yDif / mag) * castDistance;
+                tempTrap = new RootTrap(AM.getAsset("./img/ability/root_trap_up.png"),AM.getAsset("./img/ability/root_trap_down.png"));
+                tempTrap.x = xPos;
+                tempTrap.y = yPos;
+                tempTrap.boundingbox = new BoundingBox(tempTrap.x, tempTrap.y, 20, 20);
+                tempTrap.penetrative = true;
+                GAME_ENGINE.addEntity(tempTrap);
+                this.abilityCD[number] = 150;
                 /* #endregion */
                 break;
             case 4:
@@ -875,7 +889,8 @@ function Trap(spriteSheetUp, spriteSheetDown) {
     this.counter = 0; // Counter to calculate when trap related events should occur
     this.doAnimation = false; // Flag to determine if the spikes should animate or stay still
     this.damageObj = DS.CreateDamageObject(10, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.SlowStrong));
-
+    this.onUpdate;
+    this.onDraw;
     this.boundingbox = new BoundingBox(this.x, this.y, 20, 20); // **Temporary** hardcode of width and height
 }
 
@@ -889,6 +904,7 @@ Trap.prototype.draw = function () {
             this.animationDown.drawFrameIdle(GAME_ENGINE.ctx, this.x, this.y);
         }
     }
+    (typeof this.onDraw === 'function') ? this.onDraw() : null;
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = color_red;
         GAME_ENGINE.ctx.strokeRect(this.x, this.y, 20, 20); // **Temporary** Hard coded offset values
@@ -896,6 +912,7 @@ Trap.prototype.draw = function () {
 }
 
 Trap.prototype.update = function () {
+    (typeof this.onUpdate === 'function') ? this.onUpdate() : null;
     if (typeof this.lifeTime !== 'undefined') {
         if (this.lifeTime <= 0) {
             this.removeFromWorld = true;
@@ -930,6 +947,7 @@ Trap.prototype.update = function () {
 
 /* #region Trap Types */
 RangerBoostPad.prototype = Trap.prototype;
+RootTrap.prototype = Trap.prototype;
 
 function RangerBoostPad(spriteSheetUp, spriteSheetDown) {
     Trap.call(this, spriteSheetUp, spriteSheetDown);
@@ -939,6 +957,41 @@ function RangerBoostPad(spriteSheetUp, spriteSheetDown) {
             DS.CreateEffectObject(ETypes.MoveSpeedR, 1 / 1.1, 1, 100, 10)
         ]));
     this.lifeTime = 120;
+}
+
+function RootTrap(spriteSheetUp, spriteSheetDown) {
+    Trap.call(this, spriteSheetUp, spriteSheetDown);
+    this.damageObj = DS.CreateDamageObject(0, 0, DTypes.None
+        , DS.CreateBuffObject("ranger root", [
+            DS.CreateEffectObject(ETypes.Stun, true, false, 45, 0),
+            DS.CreateEffectObject(ETypes.CurrentHealthF, -1, 0, 45, 3)
+        ]));
+    this.damageObj.timeLeft = 51;
+    this.lifeTime = 300;
+    this.hitOnce = false;
+    this.removeFromWorld = false;
+    this.animationUp = new Animation(spriteSheetUp, 16, 16, 1, 0.13, 4, true, 1.25);
+    this.animationDown = new Animation(spriteSheetDown, 16, 16, 1, 0.13, 4, true, 1.25);
+    this.animationIdle = this.animationUp;
+    this.onUpdate = function () {
+        this.doAnimation = false;
+        this.activated = false;
+        for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
+            var entityCollide = GAME_ENGINE.entities[4][i];
+            if (this.boundingbox.collide(entityCollide.boundingbox)) {
+                if (GAME_ENGINE.entities[4][i].health > 0) {
+                    this.doAnimation = true;
+                    this.activated = true;
+                    (this.hitOnce) ? null : this.lifeTime = 40;
+                    this.hitOnce = true;
+                    (typeof this.childCollide === 'function') ? this.childCollide(entityCollide) : null;
+                    this.damageObj.ApplyEffects(GAME_ENGINE.entities[4][i]);
+                    this.removeFromWorld = (this.penetrative) ? false : true;
+                }
+            }
+        }
+    }
+
 }
 /* #endregion */
 /* #endregion */
