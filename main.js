@@ -1398,13 +1398,13 @@ function Wall(theX, theY, theDirection) {
 Wall.prototype.update = function () {
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         if (this.direction === "up") {
-            myPlayer.y += myPlayer.actualSpeed;
+            myPlayer.y += myPlayer.actualSpeed / 2;
         } else if (this.direction === "down") {
-            myPlayer.y -= myPlayer.actualSpeed;
+            myPlayer.y -= myPlayer.actualSpeed / 2;
         } else if (this.direction === "left") {
-            myPlayer.x += myPlayer.actualSpeed;
+            myPlayer.x += myPlayer.actualSpeed / 2;
         } else {
-            myPlayer.x -= myPlayer.actualSpeed;
+            myPlayer.x -= myPlayer.actualSpeed / 2;
         }
     }
 
