@@ -131,16 +131,16 @@ SceneManager.prototype.gameInit = function () {
     var devil = new Devil({
         'r': AM.getAsset("./img/devil.png"),
         'l': AM.getAsset("./img/devil_left.png")
-    });
+    }, 150, 150);
     var acolyte = new Acolyte({
         'r': AM.getAsset("./img/acolyte.png"),
         'l': AM.getAsset("./img/acolyte_left.png")
-    });
+    }, 300, 400);
 
     var bigdemon = new BigDemon({
         'r': AM.getAsset("./img/monsters/big_demon_run.png"),
         'l': AM.getAsset("./img/monsters/big_demon_run_left.png")
-    })
+    }, 200, 200)
 
     
     GAME_ENGINE.addEntity(devil);

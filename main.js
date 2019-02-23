@@ -405,7 +405,7 @@ Player.prototype.changeHealth = function (amount) {
 /* #region Monster */
 /* #region Base Monster */
 
-function Monster(game, spritesheetArr) {
+function Monster(game, spritesheetArr, x, y) {
     Entity.call(this, game, 0, 350);
 
     // behavior stuff
@@ -432,7 +432,8 @@ function Monster(game, spritesheetArr) {
     this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 
         this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 
-
+    this.y = y;
+    this.x = x;
     this.speed = 100;
     this.health = 100;
     this.damageObjArr = [];
@@ -613,7 +614,7 @@ TinyZombie.prototype = Monster.prototype;
 MaskedOrc.prototype = Monster.prototype;
 Ogre.prototype = Monster.prototype;
 
-function BigDemon(spritesheetArr) {
+function BigDemon(spritesheetArr, x, y) {
     Monster.call(this, GAME_ENGINE, spritesheetArr);
 
     // animation
@@ -628,14 +629,14 @@ function BigDemon(spritesheetArr) {
     this.speed = 45;
     this.health = 200;
 
-    this.x = 250;
-    this.y = 250;
+    this.x = x;
+    this.y = y;
 
     this.counter = 0;
     this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 128, 0.15, 4, true, this.scale);
 }
 
-function Swampy(spritesheetArr) {
+function Swampy(spritesheetArr, x, y) {
     Monster.call(this, GAME_ENGINE, spritesheetArr);
     this.scale = 2;
     this.width = 16;
@@ -643,14 +644,14 @@ function Swampy(spritesheetArr) {
     this.speed = 45;
     this.health = 200;
 
-    this.x = 250;
-    this.y = 250;
+    this.x = x;
+    this.y = y;
 
     this.counter = 0;
     this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 64, 0.15, 4, true, this.scale);
 }
 
-function TinyZombie(spritesheetArr) {
+function TinyZombie(spritesheetArr, x, y) {
     Monster.call(this, GAME_ENGINE, spritesheetArr);
     this.scale = 1;
     this.width = 16;
@@ -658,13 +659,13 @@ function TinyZombie(spritesheetArr) {
     this.speed = 45;
     this.health = 200;
 
-    this.x = 0;
-    this.y = 400;
+    this.x = x;
+    this.y = y;
 
     this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 64, 0.15, 4, true, this.scale);
 }
 
-function MaskedOrc(spritesheetArr) {
+function MaskedOrc(spritesheetArr, x, y) {
     Monster.call(this, GAME_ENGINE, spritesheetArr);
     this.scale = 1;
     this.width = 16;
@@ -672,13 +673,13 @@ function MaskedOrc(spritesheetArr) {
     this.speed = 45;
     this.health = 200;
 
-    this.x = 400;
-    this.y = 400;
+    this.x = x;
+    this.y = y;
 
     this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 64, 0.15, 4, true, this.scale);
 }
 
-function Ogre(spritesheetArr) {
+function Ogre(spritesheetArr, x, y) {
     Monster.call(this, GAME_ENGINE, spritesheetArr);
     this.scale = 1;
     this.width = 32;
@@ -686,13 +687,13 @@ function Ogre(spritesheetArr) {
     this.speed = 45;
     this.health = 200;
 
-    this.x = 400;
-    this.y = 400;
+    this.x = x;
+    this.y = y;
 
     this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 128, 0.15, 4, true, this.scale);
 }
 
-function Devil(spritesheetArr) {
+function Devil(spritesheetArr, x, y) {
     Monster.call(this, GAME_ENGINE, spritesheetArr);
 
     // animation
@@ -707,14 +708,14 @@ function Devil(spritesheetArr) {
     this.speed = 45;
     this.health = 200;
 
-    this.x = 250;
-    this.y = 250;
+    this.x = x;
+    this.y = y;
 
     this.counter = 0;
     this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 128, 0.15, 8, true, this.scale);
 }
 
-function Acolyte(spritesheetArr) {
+function Acolyte(spritesheetArr, x, y) {
     Monster.call(this, GAME_ENGINE, spritesheetArr);
 
     // animation
@@ -734,8 +735,8 @@ function Acolyte(spritesheetArr) {
     this.animation = new Animation(spritesheetArr['r'], this.width, this.height, this.sheetWidth,
         this.frameLength, this.numOfFrames, true, this.scale);
 
-    this.x = 200;
-    this.y = 200;
+    this.x = x;
+    this.y = y;
 
     this.counter = 0;
 }
