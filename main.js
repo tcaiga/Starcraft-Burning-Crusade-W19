@@ -289,16 +289,19 @@ Player.prototype.rangerAbilities = function (number) {
                 let sprite = "./img/ability/multi_arrow_";
                 if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
                     //Right
-                    sprite = "./img/ability/multi_arrow_";
+                    sprite = "./img/ability/multi_arrow_r_";
                     (GAME_ENGINE.debug) ? console.log("Right") : null;
                 } else if (angle > -3 * Math.PI / 4 && angle < -Math.PI / 4) {
                     //Up
+                    sprite = "./img/ability/multi_arrow_u_";
                     (GAME_ENGINE.debug) ? console.log("Up") : null;
-                } else if (angle > 3 * Math.PI / 4 && angle < -3 * Math.PI / 4) {
+                } else if (angle > 3 * Math.PI / 4 || angle < -3 * Math.PI / 4) {
                     //Left
+                    sprite = "./img/ability/multi_arrow_l_";
                     (GAME_ENGINE.debug) ? console.log("Left") : null;
                 } else {
                     //Down
+                    sprite = "./img/ability/multi_arrow_d_";
                     (GAME_ENGINE.debug) ? console.log("Down") : null;
                 }
                 for (let i = 0; i < 9; i++) {
@@ -494,12 +497,15 @@ Player.prototype.knightAbilities = function (number) {
                     (GAME_ENGINE.debug) ? console.log("Right") : null;
                 } else if (angle > -3 * Math.PI / 4 && angle < -Math.PI / 4) {
                     //Up
+                    sprite = "./img/ability/holy_strike_up";
                     (GAME_ENGINE.debug) ? console.log("Up") : null;
-                } else if (angle > 3 * Math.PI / 4 && angle < -3 * Math.PI / 4) {
+                } else if (angle > 3 * Math.PI / 4 || angle < -3 * Math.PI / 4) {
                     //Left
+                    sprite = "./img/ability/holy_strike_left";
                     (GAME_ENGINE.debug) ? console.log("Left") : null;
                 } else {
                     //Down
+                    sprite = "./img/ability/holy_strike_down";
                     (GAME_ENGINE.debug) ? console.log("Down") : null;
                 }
 
@@ -511,7 +517,7 @@ Player.prototype.knightAbilities = function (number) {
                 xPos = this.x - (xDif / mag) * castDistance;
                 yPos = this.y - (yDif / mag) * castDistance;
 
-                ssAni1 = new Animation(AM.getAsset(sprite + "_32x352.png"), 32, 32, 1, 0.035, 11, false, 3.5);
+                ssAni1 = new Animation(AM.getAsset(sprite + ".png"), 32, 32, 1, 0.035, 11, false, 3.5);
                 ss1 = new StillStand(ssAni1, 16, xPos, yPos);
                 ss1.aniX = -49;
                 ss1.aniY = -25;
@@ -1531,7 +1537,10 @@ Animation.prototype.isDone = function () {
 // Ranger
 AM.queueDownload("./img/ranger_run.png");
 for (let i = 0; i < 9; i++) {
-    AM.queueDownload("./img/ability/multi_arrow_" + i + "_8x8.png");
+    AM.queueDownload("./img/ability/multi_arrow_r_" + i + "_8x8.png");
+    AM.queueDownload("./img/ability/multi_arrow_l_" + i + "_8x8.png");
+    AM.queueDownload("./img/ability/multi_arrow_u_" + i + "_8x8.png");
+    AM.queueDownload("./img/ability/multi_arrow_d_" + i + "_8x8.png");
 }
 AM.queueDownload("./img/ability/arrow_u_8x8.png");
 AM.queueDownload("./img/ability/arrow_d_8x8.png");
@@ -1549,7 +1558,15 @@ AM.queueDownload("./img/knight_run.png");
 AM.queueDownload("./img/swordBoomerang.png");
 AM.queueDownload("./img/Shield Flash.png");
 AM.queueDownload("./img/ability/heal_self_32x224.png");
-AM.queueDownload("./img/ability/holy_strike_right_32x352.png");
+AM.queueDownload("./img/ability/holy_strike_right.png");
+AM.queueDownload("./img/ability/holy_strike_left.png");
+AM.queueDownload("./img/ability/holy_strike_up.png");
+AM.queueDownload("./img/ability/holy_strike_down.png");
+AM.queueDownload("./img/ability/knight_attack_up.png");
+AM.queueDownload("./img/ability/knight_attack_down.png");
+AM.queueDownload("./img/ability/knight_attack_left.png");
+AM.queueDownload("./img/ability/knight_attack_right.png");
+
 // Mage
 AM.queueDownload("./img/mage_run.png");
 AM.queueDownload("./img/flash.png");
