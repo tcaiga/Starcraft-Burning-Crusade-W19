@@ -89,6 +89,106 @@ GameEngine.prototype.startInput = function () {
                     myPlayer.x - (myPlayer.width / 2),
                      myPlayer.y - (myPlayer.height / 2), x, y, 5);
                 GAME_ENGINE.addEntity(projectile);
+            } else if (that.playerPick == 1) {
+            let angle = Math.atan2(y - 20 - myPlayer.y - (myPlayer.height / 2)
+            , x - 35 - myPlayer.x - (myPlayer.width / 2));
+
+            let sprite;
+            if (angle > -Math.PI / 8 && angle < Math.PI / 8) {
+                //R
+                sprite = "./img/ability/arrow_r_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("r") : null;
+            } else if (angle > Math.PI/8 && angle < 3*Math.PI/8) {
+                //DR
+                sprite = "./img/ability/arrow_dr_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("dr") : null;
+            } else if (angle > 3*Math.PI/8 && angle < 5*Math.PI/8) {
+                //D
+                sprite = "./img/ability/arrow_d_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("d") : null;
+            } else if (angle > 5*Math.PI/8 && angle < 7*Math.PI/8) {
+                //DL
+                sprite = "./img/ability/arrow_dl_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("dl") : null;
+            } else if (angle < -7*Math.PI/8 || angle > 7*Math.PI/8) {
+                //L
+                sprite = "./img/ability/arrow_l_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("l") : null;
+            } else if (angle > -7*Math.PI/8 && angle < -5*Math.PI/8) {
+                //UL
+                sprite = "./img/ability/arrow_ul_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("ul") : null;
+            } else if (angle > -5*Math.PI/8 && angle < -3*Math.PI/8) {
+                //U
+                sprite = "./img/ability/arrow_u_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("u") : null;
+            } else if (angle > -3*Math.PI/8 && angle < -Math.PI/8) {
+                //UR
+                sprite = "./img/ability/arrow_ur_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("ur") : null;
+            }
+            let ani = new Animation(AM.getAsset(sprite), 8,8,1,0.13,1,true,2);
+            let projectile = new Projectile(AM.getAsset(sprite),
+                    myPlayer.x - (myPlayer.width / 2),
+                     myPlayer.y - (myPlayer.height / 2), x, y, 5);
+            projectile.animation = ani;
+            projectile.aniX = 15;
+            projectile.aniY = 30;
+            GAME_ENGINE.addEntity(projectile);
+            } else if (that.playerPick == 2){
+                let angle = Math.atan2(y- 20 - myPlayer.y - (myPlayer.height / 2)
+                    , x - 35 - myPlayer.x - (myPlayer.width / 2));
+                let offsetX = 0;
+                let offsetY = 0;
+                let sprite = "./img/ability/knight_attack_right";
+                if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
+                    //Right
+                    sprite = "./img/ability/knight_attack_right";
+                    (GAME_ENGINE.debug) ? console.log("Right") : null;
+                    offsetX = 15;
+                } else if (angle > -3 * Math.PI / 4 && angle < -Math.PI / 4) {
+                    //Up
+                    sprite = "./img/ability/knight_attack_up";
+                    (GAME_ENGINE.debug) ? console.log("Up") : null;
+                    offsetY = -20;
+                } else if (angle > 3 * Math.PI / 4 || angle < -3 * Math.PI / 4) {
+                    //Left
+                    sprite = "./img/ability/knight_attack_left";
+                    (GAME_ENGINE.debug) ? console.log("Left") : null;
+                    offsetX = -15;
+                } else {
+                    //Down
+                    sprite = "./img/ability/knight_attack_down";
+                    (GAME_ENGINE.debug) ? console.log("Down") : null;
+                    offsetY = 10;
+                }
+                let ss1Ani = new Animation(AM.getAsset(sprite + ".png"),32,32,1,0.08,6,false,2);
+                let ss1 = new StillStand(ss1Ani,15
+                    , myPlayer.x + myPlayer.width/2 + offsetX
+                    , myPlayer.y + myPlayer.height/2 + offsetY + 15);
+                ss1.target = myPlayer;
+                ss1.boundingbox = new BoundingBox(myPlayer.x + myPlayer.width/2 + offsetX - myPlayer.width
+                    , myPlayer.y + myPlayer.height/2 + offsetY - myPlayer.height, 40, 40);
+                ss1.aniX = -25;
+                ss1.aniY = -28;
+                ss1.damageObj = DS.CreateDamageObject(15,0,DTypes.Normal);
+                ss1.entityHitType = EntityTypes.enemies;
+                ss1.penetrative = true;
+                ss1.onUpdate = function () {
+                    ss1.x = ss1.target.x + ss1.target.width/2 + offsetX - 7;
+                    ss1.y = ss1.target.y + ss1.target.height/2 + offsetY + 15;
+                    ss1.boundingbox = new BoundingBox(ss1.x + ss1.target.width/2 + offsetX - ss1.target.width
+                        , ss1.y + ss1.target.height/2 + offsetY - ss1.target.height, 40, 40);
+                    
+                }
+                ss1.onDraw = function () {
+                    if (GAME_ENGINE.debug){
+                        GAME_ENGINE.ctx.strokeStyle = color_green; 
+                        GAME_ENGINE.ctx.strokeRect(ss1.boundingbox.x,ss1.boundingbox.y
+                            ,ss1.boundingbox.width,ss1.boundingbox.height);
+                    }
+                }
+                GAME_ENGINE.addEntity(ss1);
             }
         }
     }, false);
