@@ -283,7 +283,33 @@ Player.prototype.rangerAbilities = function (number) {
             case 4:
                 /* #region Multi Shot */
                 //Ability at keyboard number 4
-
+                let angle = Math.atan2(GAME_ENGINE.mouseY - 20 - this.y - (this.height / 2)
+                                      ,GAME_ENGINE.mouseX - 35 - this.x - (this.width / 2));
+                                      
+                let sprite = "./img/ability/multi_arrow_";
+                if (angle > -Math.PI/4 && angle < Math.PI/4){
+                    //Right
+                    sprite = "./img/ability/multi_arrow_";
+                    (GAME_ENGINE.debug) ? console.log("Right") : null;
+                } else if (angle > -3*Math.PI/4 && angle < -Math.PI/4) {
+                    //Up
+                    (GAME_ENGINE.debug) ? console.log("Up") : null;
+                } else if (angle > 3*Math.PI/4 && angle < -3*Math.PI/4) {
+                    //Left
+                    (GAME_ENGINE.debug) ? console.log("Left") : null;
+                } else {
+                    //Down
+                    (GAME_ENGINE.debug) ? console.log("Down") : null;
+                }
+                for (let i = 0; i < 9; i++){
+                    tempPro = new MultiArrow(AM.getAsset(sprite + i + "_8x8.png"), this.x - (this.width / 2), this.y - (this.height / 2)
+                                            , GAME_ENGINE.mouseX, GAME_ENGINE.mouseY, 5);
+                    tempPro.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
+                        this.width - 25, this.height - 25); // Hardcoded a lot of offset values
+                    tempPro.angle += (Math.PI/360)*(20*i-90);
+                    GAME_ENGINE.addEntity(tempPro);
+                }
+                this.abilityCD[number] = 120;
                 /* #endregion */
                 break;
         }
@@ -323,13 +349,13 @@ Player.prototype.mageAbilities = function (number) {
                 //Ability at keyboard number 2
                 let tempPro = new GreaterFireball(AM.getAsset("./img/ability/greater_fireball_16x64.png")
                     , AM.getAsset("./img/ability/flame_explosion_32x320.png")
-                    , this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
+                    , this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY, 5);
                 tempPro.targetType = EntityTypes.enemies;
                 tempPro.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
                     this.width - 25, this.height - 25); // Hardcoded a lot of offset values
                 GAME_ENGINE.addEntity(tempPro);
                 this.abilityCD[number] = 120;
-                this.castTime + 12;
+                this.castTime = 12;
                 /* #endregion */
                 break;
             case 3:
@@ -338,7 +364,7 @@ Player.prototype.mageAbilities = function (number) {
                 let tempPro2;
                 for (let i = 0; i < 30; i++) {
                     tempPro2 = new FlameBreathBolt(AM.getAsset("./img/flame_breath_bolt.png")
-                        , this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
+                        , this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY, 5);
                     GAME_ENGINE.addEntity(tempPro2);
                 }
                 this.castTime = 8;
@@ -394,7 +420,7 @@ Player.prototype.knightAbilities = function (number) {
 
                 let tempPro = new SwordBoomerang(AM.getAsset("./img/swordBoomerang.png"),
                     this.x - (this.width / 2), this.y - (this.height / 2),
-                    GAME_ENGINE.mouseX, GAME_ENGINE.mouseY);
+                    GAME_ENGINE.mouseX, GAME_ENGINE.mouseY, 5);
                 tempPro.thrower = this;
                 GAME_ENGINE.addEntity(tempPro);
                 this.abilityCD[number] = 60;
@@ -792,10 +818,10 @@ Projectile.prototype.update = function () {
 SwordBoomerang.prototype = Projectile.prototype;
 GreaterFireball.prototype = Projectile.prototype;
 FlameBreathBolt.prototype = Projectile.prototype;
+MultiArrow.prototype = Projectile.prototype;
 
-
-function SwordBoomerang(spriteSheet, originX, originY, xTarget, yTarget) {
-    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, 5/* same number assignment as the ent array*/);
+function SwordBoomerang(spriteSheet, originX, originY, xTarget, yTarget, origin) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin/* same number assignment as the ent array*/);
     this.projectileSpeed = 7;
     this.timeLeft = 60;
     this.thrower = null;
@@ -816,12 +842,11 @@ function SwordBoomerang(spriteSheet, originX, originY, xTarget, yTarget) {
     }
 }
 
-function GreaterFireball(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget, targetType) {
-    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, 5);
+function GreaterFireball(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget, origin) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
     this.projectileSpeed = 5;
     this.penetrative = false;
     this.aoe = 100;//square
-    this.targetType = targetType;
     this.animation = new Animation(spriteSheet, 16, 16, 1, .085, 4, true, 2);
     this.aniX += 23;
     this.aniY += 23;
@@ -850,8 +875,8 @@ function GreaterFireball(spriteSheet, spriteSheetAoe, originX, originY, xTarget,
 
 }
 
-function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget) {
-    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, 5);
+function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget, origin) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
     this.xTar = xTarget - 20;
     this.yTar = yTarget - 35;
     this.range = 90;
@@ -873,6 +898,16 @@ function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget) {
             this.removeFromWorld = true;
         }
     }
+}
+
+function MultiArrow(spriteSheet, originX, originY, xTarget, yTarget, origin) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
+    this.xTar = xTarget - 20;
+    this.yTar = yTarget - 35;
+    this.damageObj = DS.CreateDamageObject(10, 0, DTypes.Piercing);
+    this.animation = new Animation(spriteSheet, 8, 8, 1, .084, 1, true, 2);
+    this.aniX += 34;
+    this.aniY += 38;
 }
 /* #endregion */
 /* #endregion */
