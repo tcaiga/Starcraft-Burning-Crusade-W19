@@ -1398,13 +1398,13 @@ function Wall(theX, theY, theDirection) {
 Wall.prototype.update = function () {
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         if (this.direction === "up") {
-            myPlayer.y += myPlayer.actualSpeed;
+            myPlayer.y += myPlayer.actualSpeed / 2;
         } else if (this.direction === "down") {
-            myPlayer.y -= myPlayer.actualSpeed;
+            myPlayer.y -= myPlayer.actualSpeed / 2;
         } else if (this.direction === "left") {
-            myPlayer.x += myPlayer.actualSpeed;
+            myPlayer.x += myPlayer.actualSpeed / 2;
         } else {
-            myPlayer.x -= myPlayer.actualSpeed;
+            myPlayer.x -= myPlayer.actualSpeed / 2;
         }
     }
 
@@ -1573,6 +1573,7 @@ Background.prototype.createDoors = function () {
             if (this.drawFaceCount < this.maxRoomCount && this.map[i][j] !== 0) {
                 let testPos = this.facePos[this.drawFaceCount];
 
+                // Adding a door to go forward for all rooms except the ending room.
                 if (this.face[this.drawFaceCount] === 0) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 144 + BACKGROUND.x,
                         testPos[1] * canvasHeight + BACKGROUND.y, "up"));
@@ -1587,6 +1588,41 @@ Background.prototype.createDoors = function () {
                         testPos[1] * canvasHeight + 144 + BACKGROUND.y, "left"));
                 }
 
+                // Adding a door to go back for all rooms except starting and ending rooms.
+                if (this.drawFaceCount < this.facePos.length - 1) {
+                    let testPosReverse = this.facePos[this.drawFaceCount + 1];
+                    if (this.face[this.drawFaceCount] === 0) {
+                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 144 + BACKGROUND.x,
+                            testPosReverse[1] * canvasHeight + 288 + BACKGROUND.y, "down"));
+                    } else if (this.face[this.drawFaceCount] === 1) {
+                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + BACKGROUND.x,
+                            testPos[1] * canvasHeight + 144 + BACKGROUND.y, "left"));
+                    } else if (this.face[this.drawFaceCount] === 2) {
+                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 144 + BACKGROUND.x,
+                            testPosReverse[1] * canvasHeight + BACKGROUND.y, "up"));
+                    } else if (this.face[this.drawFaceCount] === 3) {
+                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 288 + BACKGROUND.x,
+                            testPosReverse[1] * canvasHeight + 144 + BACKGROUND.y, "right"));
+                    }
+                }
+                
+                // Adding a door to go back for the ending room.
+                if (this.drawFaceCount + 1 === this.facePos.length) {
+                    if (this.face[this.drawFaceCount] === 0) {
+                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 144 + BACKGROUND.x,
+                            testPos[1] * canvasHeight + 288 + BACKGROUND.y, "down"));
+                    } else if (this.face[this.drawFaceCount] === 1) {
+                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
+                            testPos[1] * canvasHeight + 144 + BACKGROUND.y, "left"));
+                    } else if (this.face[this.drawFaceCount] === 2) {
+                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 144 + BACKGROUND.x,
+                            testPos[1] * canvasHeight + BACKGROUND.y, "up"));
+                    } else if (this.face[this.drawFaceCount] === 3) {
+                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 288 + BACKGROUND.x,
+                            testPos[1] * canvasHeight + 144 + BACKGROUND.y, "right"));
+                    }
+                }
+                
                 if (this.drawFaceCount % 4 === 0) {
                     var tinyzombie = new TinyZombie({
                         'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
@@ -1689,10 +1725,8 @@ Background.prototype.validDirection = function () {
             }
         }
     }
-    // Popping off the last room because it does not require a door.
-    this.facePos.pop();
 
-
+    console.table(this.face);
     // this.map[1][0] = 1;
     // this.map[2][0] = 1;
     // this.map[3][0] = 1;
