@@ -89,6 +89,50 @@ GameEngine.prototype.startInput = function () {
                     myPlayer.x - (myPlayer.width / 2),
                      myPlayer.y - (myPlayer.height / 2), x, y, 5);
                 GAME_ENGINE.addEntity(projectile);
+            } else if (that.playerPick == 1) {
+            let angle = Math.atan2(y - 20 - myPlayer.y - (myPlayer.height / 2)
+            , x - 35 - myPlayer.x - (myPlayer.width / 2));
+
+            let sprite;
+            if (angle > -Math.PI / 8 && angle < Math.PI / 8) {
+                //R
+                sprite = "./img/ability/arrow_r_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("r") : null;
+            } else if (angle > Math.PI/8 && angle < 3*Math.PI/8) {
+                //DR
+                sprite = "./img/ability/arrow_dr_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("dr") : null;
+            } else if (angle > 3*Math.PI/8 && angle < 5*Math.PI/8) {
+                //D
+                sprite = "./img/ability/arrow_d_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("d") : null;
+            } else if (angle > 5*Math.PI/8 && angle < 7*Math.PI/8) {
+                //DL
+                sprite = "./img/ability/arrow_dl_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("dl") : null;
+            } else if (angle < -7*Math.PI/8 || angle > 7*Math.PI/8) {
+                //L
+                sprite = "./img/ability/arrow_l_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("l") : null;
+            } else if (angle > -7*Math.PI/8 && angle < -5*Math.PI/8) {
+                //UL
+                sprite = "./img/ability/arrow_ul_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("ul") : null;
+            } else if (angle > -5*Math.PI/8 && angle < -3*Math.PI/8) {
+                //U
+                sprite = "./img/ability/arrow_u_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("u") : null;
+            } else if (angle > -3*Math.PI/8 && angle < -Math.PI/8) {
+                //UR
+                sprite = "./img/ability/arrow_ur_8x8.png";
+                (GAME_ENGINE.debug) ? console.log("ur") : null;
+            }
+            let projectile = new Projectile(AM.getAsset(sprite),
+                    myPlayer.x - (myPlayer.width / 2),
+                     myPlayer.y - (myPlayer.height / 2), x, y, 5);
+                GAME_ENGINE.addEntity(projectile);
+            } else if (that.playerPick == 2){
+                
             }
         }
     }, false);
