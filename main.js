@@ -51,8 +51,8 @@ function Player(spritesheet, xOffset, yOffset) {
     this.maxMovespeedAdj = 0;
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
     this.right = true;
-    this.health = 100;
-    this.maxHealth = 100;
+    this.health = 1000;
+    this.maxHealth = 1000;
     this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
         this.width, this.height); // **Temporary** Hard coded offset values.
@@ -325,8 +325,8 @@ Player.prototype.mageAbilities = function (number) {
                 //Ability at keyboard number 1
 
                 castDistance = 100;
-                xDif = this.x - GAME_ENGINE.mouseX;
-                yDif = this.y - GAME_ENGINE.mouseY;
+                xDif = this.x - GAME_ENGINE.mouseX - CAMERA.x;
+                yDif = this.y - GAME_ENGINE.mouseY - CAMERA.y;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 castDistance = Math.min(castDistance, mag);
                 ss1Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
@@ -1339,24 +1339,27 @@ Camera.prototype.draw = function () { }
 
 
 Camera.prototype.move = function (direction) {
+    var positionChange = TILE_SIZE * 2 + 60;
     if (direction === "right") {
         this.x += canvasWidth;
-        myPlayer.x = 60 + CAMERA.x;
+        myPlayer.x += positionChange;
         myRoomNum += 1;
         BACKGROUND.x -= 320;
     } else if (direction === "left") {
         this.x -= canvasWidth;
-        myPlayer.x = canvasWidth - TILE_SIZE * 2 - 60 + CAMERA.x;
+        myPlayer.x -= positionChange;
         myRoomNum -= 1;
         BACKGROUND.x += 320;
     } else if (direction === "up") {
+        console.log("Test1 " +  myPlayer.y);
         this.y -= canvasHeight;
-        myPlayer.y = canvasHeight - TILE_SIZE * 2 - 60 + CAMERA.y;
+        myPlayer.y -= positionChange;
         myFloorNum -= 1;
         BACKGROUND.y += 320;
+        console.log("Test 2" + myPlayer.y);
     } else {
         this.y += canvasHeight;
-        myPlayer.y = 60 + CAMERA.y;
+        myPlayer.y += positionChange;
         myFloorNum += 1;
         BACKGROUND.y -= 320;
     }
