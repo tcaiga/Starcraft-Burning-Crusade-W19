@@ -405,22 +405,35 @@ Player.prototype.changeHealth = function (amount) {
 /* #region Monster */
 /* #region Base Monster */
 
-function Monster(game, spritesheet) {
+function Monster(game, spritesheetArr, x, y) {
     Entity.call(this, game, 0, 350);
 
     // behavior stuff
-    this.visionWidth = 100
-    this.visionHeight = 100;
+    this.visionWidth = 200;
+    this.visionHeight = 200;
     this.ticksSinceLastHit = 0;
     this.isRanged = false;
     this.pause = false;
     this.inRange = false;
     this.castCooldown = 0;
     this.isStunned = false;
+
+    
+
+    // animation stuff
+    this.flaggedLeft = false;
+    this.numOfFrames = 15;
+    this.frameLength = .15;
+    this.sheetWidth = 1;
     this.scale = 1;
     this.width = 40;
     this.height = 56;
-    this.animation = new Animation(spritesheet, this.width, this.height, 1, 0.15, 15, true, this.scale);
+    this.spritesheetArr = spritesheetArr;
+    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 
+        this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+
+    this.y = y;
+    this.x = x;
     this.speed = 100;
     this.health = 100;
     this.damageObjArr = [];
@@ -428,10 +441,12 @@ function Monster(game, spritesheet) {
     this.buffObj = [];
     this.counter = 0;
 
-    this.visionBox = new BoundingBox(this.x, this.y,
-        this.visionWidth * this.scale, this.visionHeight * this.scale);
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
+
+    this.visionBox = new BoundingBox(this.boundingbox.x - .5 * (this.width * this.scale - this.visionWidth),
+        this.boundingbox.y - .5 * (this.height * this.scale - this.visionWidth),
+        this.visionWidth, this.visionHeight);
 }
 
 Monster.prototype.draw = function () {
@@ -440,6 +455,9 @@ Monster.prototype.draw = function () {
         GAME_ENGINE.ctx.strokeStyle = "red";
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
             this.boundingbox.width, this.boundingbox.height);
+        GAME_ENGINE.ctx.strokeStyle = "purple";
+        GAME_ENGINE.ctx.strokeRect(this.visionBox.x, this.visionBox.y,
+            this.visionBox.width, this.visionBox.height);
     }
 
     // Displaying Monster health
@@ -457,16 +475,29 @@ function distance(monster) {
 Monster.prototype.update = function () {
     if (this.health <= 0) this.removeFromWorld = true;
 
+
     // based on the number of ticks since the player was last hit, we pause the monster
     if (this.pause == false || !this.isStunned) {
         // get the direction vector pointing towards player
         var dirX = playerX - this.x;
         var dirY = playerY - this.y;
+
+        // change spritesheet based on direction enemy is moving
+        if (dirX < 0 && this.flaggedLeft == false) {
+            this.flaggedLeft = true;
+            this.animation = new Animation(this.spritesheetArr['l'], this.width, this.height,
+                this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+        } else if (dirX > 0 && this.flaggedLeft == true) {
+            this.flaggedLeft = false;
+            this.animation = new Animation(this.spritesheetArr['r'], this.width, this.height,
+                this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+        }
         // get the distance from the player
         var dis = Math.sqrt(dirX * dirX + dirY * dirY);
         // nomralize the vector
         dirX = dirX / dis;
         dirY = dirY / dis;
+
         // change x and y based on our vector
         this.x += dirX * (this.speed / 100);
         this.y += dirY * (this.speed / 100);
@@ -482,8 +513,10 @@ Monster.prototype.update = function () {
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 
-    this.visionBox = new BoundingBox(this.x, this.y,
-        this.visionWidth * this.scale * 5, this.visionHeight * this.scale * 5);
+
+    this.visionBox = new BoundingBox(this.boundingbox.x + .5 * (this.width * this.scale - this.visionWidth),
+        this.boundingbox.y + .5 * (this.height * this.scale - this.visionWidth),
+        this.visionWidth, this.visionHeight);
 
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         this.counter += GAME_ENGINE.clockTick;
@@ -575,35 +608,135 @@ Monster.prototype.changeHealth = function (amount) {
 /* #region Monster Types */
 Devil.prototype = Monster.prototype;
 Acolyte.prototype = Monster.prototype;
+BigDemon.prototype = Monster.prototype;
+Swampy.prototype = Monster.prototype;
+TinyZombie.prototype = Monster.prototype;
+MaskedOrc.prototype = Monster.prototype;
+Ogre.prototype = Monster.prototype;
 
-function Devil(spritesheet) {
-    Monster.call(this, GAME_ENGINE, spritesheet);
-    this.scale = 3;
-    this.width = 16;
-    this.height = 23;
+function BigDemon(spritesheetArr, x, y) {
+    Monster.call(this, GAME_ENGINE, spritesheetArr);
+
+    // animation
+    this.scale = 2;
+    this.width = 32;
+    this.height = 36;
+    this.numOfFrames = 4;
+    this.frameLength = .15;
+    this.sheetWidth = 128;
+
+    // gameplay
     this.speed = 45;
     this.health = 200;
 
-    this.x = 250;
-    this.y = 250;
+    this.x = x;
+    this.y = y;
 
     this.counter = 0;
-    this.animation = new Animation(spritesheet, this.width, this.height, 128, 0.15, 8, true, this.scale);
+    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 128, 0.15, 4, true, this.scale);
 }
 
-function Acolyte(spritesheet) {
-    Monster.call(this, GAME_ENGINE, spritesheet);
+function Swampy(spritesheetArr, x, y) {
+    Monster.call(this, GAME_ENGINE, spritesheetArr);
+    this.scale = 2;
+    this.width = 16;
+    this.height = 16;
+    this.speed = 45;
+    this.health = 200;
+
+    this.x = x;
+    this.y = y;
+
+    this.counter = 0;
+    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 64, 0.15, 4, true, this.scale);
+}
+
+function TinyZombie(spritesheetArr, x, y) {
+    Monster.call(this, GAME_ENGINE, spritesheetArr);
+    this.scale = 1;
+    this.width = 16;
+    this.height = 16;
+    this.speed = 45;
+    this.health = 200;
+
+    this.x = x;
+    this.y = y;
+
+    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 64, 0.15, 4, true, this.scale);
+}
+
+function MaskedOrc(spritesheetArr, x, y) {
+    Monster.call(this, GAME_ENGINE, spritesheetArr);
+    this.scale = 1;
+    this.width = 16;
+    this.height = 20;
+    this.speed = 45;
+    this.health = 200;
+
+    this.x = x;
+    this.y = y;
+
+    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 64, 0.15, 4, true, this.scale);
+}
+
+function Ogre(spritesheetArr, x, y) {
+    Monster.call(this, GAME_ENGINE, spritesheetArr);
+    this.scale = 1;
+    this.width = 32;
+    this.height = 32;
+    this.speed = 45;
+    this.health = 200;
+
+    this.x = x;
+    this.y = y;
+
+    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 128, 0.15, 4, true, this.scale);
+}
+
+function Devil(spritesheetArr, x, y) {
+    Monster.call(this, GAME_ENGINE, spritesheetArr);
+
+    // animation
+    this.scale = 3;
+    this.width = 16;
+    this.height = 23;
+    this.numOfFrames = 8;
+    this.frameLength = .15;
+    this.sheetWidth = 128;
+
+    // gameplay
+    this.speed = 45;
+    this.health = 200;
+
+    this.x = x;
+    this.y = y;
+
+    this.counter = 0;
+    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 128, 0.15, 8, true, this.scale);
+}
+
+function Acolyte(spritesheetArr, x, y) {
+    Monster.call(this, GAME_ENGINE, spritesheetArr);
+
+    // animation
     this.scale = 2;
     this.width = 16;
     this.height = 19;
+    this.numOfFrames = 4;
+    this.frameLength = .15;
+    this.sheetWidth = 64;
+
+    // gameplay
     this.speed = 25;
     this.health = 150;
     this.isRanged = true;
 
-    this.animation = new Animation(spritesheet, this.width, this.height, 64, 0.15, 4, true, this.scale);
 
-    this.x = 200;
-    this.y = 200;
+    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, this.sheetWidth,
+        this.frameLength, this.numOfFrames, true, this.scale);
+
+    this.x = x;
+    this.y = y;
 
     this.counter = 0;
 }
@@ -1317,8 +1450,37 @@ AM.queueDownload("./img/floor_boostpad_on.png");
 AM.queueDownload("./img/floor_boostpad_off.png");
 // Devil
 AM.queueDownload("./img/devil.png");
+AM.queueDownload("./img/devil_left.png");
+
 // Acolyte
 AM.queueDownload("./img/acolyte.png");
+AM.queueDownload("./img/acolyte_left.png");
+
+// Big Demon
+AM.queueDownload("./img/monsters/big_demon_run.png");
+AM.queueDownload("./img/monsters/big_demon_run_left.png");
+AM.queueDownload("./img/monsters/big_demon_idle.png");
+
+// Masked Orc
+AM.queueDownload("./img/monsters/masked_orc_run.png");
+AM.queueDownload("./img/monsters/masked_orc_run_left.png");
+AM.queueDownload("./img/monsters/masked_orc_idle.png");
+
+// Ogre
+AM.queueDownload("./img/monsters/ogre_run.png");
+AM.queueDownload("./img/monsters/ogre_run_left.png");
+AM.queueDownload("./img/monsters/ogre_idle.png");
+
+// Swampy
+AM.queueDownload("./img/monsters/swampy_run.png");
+AM.queueDownload("./img/monsters/swampy_run_left.png");
+AM.queueDownload("./img/monsters/swampy_idle.png");
+
+// Tiny Zombie
+AM.queueDownload("./img/monsters/tiny_zombie_run.png");
+AM.queueDownload("./img/monsters/tiny_zombie_run_left.png");
+AM.queueDownload("./img/monsters/tiny_zombie_idle.png");
+
 // Harrison's Fireball
 AM.queueDownload("./img/fireball.png");
 // Floor Gen Tiles

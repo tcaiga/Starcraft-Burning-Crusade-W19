@@ -128,11 +128,24 @@ SceneManager.prototype.menuSelection = function(x, y) {
 SceneManager.prototype.gameInit = function () {
     GAME_ENGINE.addEntity(BACKGROUND);
     // Monster
-    var devil = new Devil(AM.getAsset("./img/devil.png"));
-    var acolyte = new Acolyte(AM.getAsset("./img/acolyte.png"));
+    var devil = new Devil({
+        'r': AM.getAsset("./img/devil.png"),
+        'l': AM.getAsset("./img/devil_left.png")
+    }, 150, 150);
+    var acolyte = new Acolyte({
+        'r': AM.getAsset("./img/acolyte.png"),
+        'l': AM.getAsset("./img/acolyte_left.png")
+    }, 300, 400);
+
+    var bigdemon = new BigDemon({
+        'r': AM.getAsset("./img/monsters/big_demon_run.png"),
+        'l': AM.getAsset("./img/monsters/big_demon_run_left.png")
+    }, 200, 200)
+
     
     GAME_ENGINE.addEntity(devil);
     GAME_ENGINE.addEntity(acolyte);
+    GAME_ENGINE.addEntity(bigdemon);
     
     // Trap
     var trap = new Trap(AM.getAsset("./img/floor_trap_up.png"),
