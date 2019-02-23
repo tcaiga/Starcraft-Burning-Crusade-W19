@@ -796,8 +796,8 @@ function BigDemon(spritesheetArr, x, y) {
     this.sheetWidth = 128;
 
     // gameplay
-    this.speed = 65;
-    this.health = 200;
+    this.speed = 90;
+    this.health = 300;
 
     this.x = x;
     this.y = y;
@@ -818,8 +818,8 @@ function Swampy(spritesheetArr, x, y) {
     this.sheetWidth = 64;
 
     // gameplay
-    this.speed = 45;
-    this.health = 200;
+    this.speed = 60;
+    this.health = 100;
 
     this.x = x;
     this.y = y;
@@ -840,8 +840,8 @@ function TinyZombie(spritesheetArr, x, y) {
     this.sheetWidth = 64;
 
     // gameplay
-    this.speed = 45;
-    this.health = 200;
+    this.speed = 85;
+    this.health = 60;
 
     this.x = x;
     this.y = y;
@@ -861,8 +861,8 @@ function MaskedOrc(spritesheetArr, x, y) {
     this.sheetWidth = 64;
 
     // gameplay
-    this.speed = 45;
-    this.health = 200;
+    this.speed = 90;
+    this.health = 80;
 
     this.x = x;
     this.y = y;
@@ -882,8 +882,8 @@ function Ogre(spritesheetArr, x, y) {
     this.sheetWidth = 128;
 
     // gameplay
-    this.speed = 45;
-    this.health = 200;
+    this.speed = 60;
+    this.health = 100;
 
     this.x = x;
     this.y = y;
@@ -903,8 +903,8 @@ function Devil(spritesheetArr, x, y) {
     this.sheetWidth = 128;
 
     // gameplay
-    this.speed = 45;
-    this.health = 200;
+    this.speed = 60;
+    this.health = 150;
 
     this.x = x;
     this.y = y;
@@ -925,8 +925,8 @@ function Acolyte(spritesheetArr, x, y) {
     this.sheetWidth = 64;
 
     // gameplay
-    this.speed = 25;
-    this.health = 150;
+    this.speed = 40;
+    this.health = 80;
     this.isRanged = true;
 
 
