@@ -6,7 +6,7 @@ const color_white = "white";
 /* #region Constants */
 const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
-const CAMERA = new Camera();
+var CAMERA = new Camera();
 const DS = new DamageSystem();
 
 var BACKGROUND;
@@ -290,19 +290,15 @@ Player.prototype.rangerAbilities = function (number) {
                 if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
                     //Right
                     sprite = "./img/ability/multi_arrow_r_";
-                    (GAME_ENGINE.debug) ? console.log("Right") : null;
                 } else if (angle > -3 * Math.PI / 4 && angle < -Math.PI / 4) {
                     //Up
                     sprite = "./img/ability/multi_arrow_u_";
-                    (GAME_ENGINE.debug) ? console.log("Up") : null;
                 } else if (angle > 3 * Math.PI / 4 || angle < -3 * Math.PI / 4) {
                     //Left
                     sprite = "./img/ability/multi_arrow_l_";
-                    (GAME_ENGINE.debug) ? console.log("Left") : null;
                 } else {
                     //Down
                     sprite = "./img/ability/multi_arrow_d_";
-                    (GAME_ENGINE.debug) ? console.log("Down") : null;
                 }
                 for (let i = 0; i < 9; i++) {
                     tempPro = new MultiArrow(AM.getAsset(sprite + i + "_8x8.png"), this.x - (this.width / 2), this.y - (this.height / 2)
@@ -502,22 +498,18 @@ Player.prototype.knightAbilities = function (number) {
                     //Right
                     sprite = "./img/ability/holy_strike_right";
                     box = new BoundingBox(xPos - aoe / 4 + 30, yPos - aoe / 4 + 30, aoe - 10, aoe - 30);
-                    (GAME_ENGINE.debug) ? console.log("Right") : null;
                 } else if (angle > -3 * Math.PI / 4 && angle < -Math.PI / 4) {
                     //Up
                     sprite = "./img/ability/holy_strike_up";
                     box = new BoundingBox(xPos - 15, yPos - 25, aoe - 30, aoe - 10);
-                    (GAME_ENGINE.debug) ? console.log("Up") : null;
                 } else if (angle > 3 * Math.PI / 4 || angle < -3 * Math.PI / 4) {
                     //Left
                     sprite = "./img/ability/holy_strike_left";
                     box = new BoundingBox(xPos - aoe / 4 - 30, yPos - aoe / 4 + 30, aoe - 10, aoe - 30);
-                    (GAME_ENGINE.debug) ? console.log("Left") : null;
                 } else {
                     //Down
                     sprite = "./img/ability/holy_strike_down";
                     box = new BoundingBox(xPos - 15, yPos + 20, aoe - 30, aoe - 10);
-                    (GAME_ENGINE.debug) ? console.log("Down") : null;
                 }
 
                 
@@ -796,8 +788,8 @@ function BigDemon(spritesheetArr, x, y) {
     this.sheetWidth = 128;
 
     // gameplay
-    this.speed = 65;
-    this.health = 200;
+    this.speed = 90;
+    this.health = 300;
 
     this.x = x;
     this.y = y;
@@ -820,8 +812,8 @@ function Swampy(spritesheetArr, x, y) {
     this.sheetWidth = 64;
 
     // gameplay
-    this.speed = 45;
-    this.health = 200;
+    this.speed = 60;
+    this.health = 100;
 
     this.x = x;
     this.y = y;
@@ -844,8 +836,8 @@ function TinyZombie(spritesheetArr, x, y) {
     this.sheetWidth = 64;
 
     // gameplay
-    this.speed = 45;
-    this.health = 200;
+    this.speed = 85;
+    this.health = 60;
 
     this.x = x;
     this.y = y;
@@ -867,8 +859,8 @@ function MaskedOrc(spritesheetArr, x, y) {
     this.sheetWidth = 64;
 
     // gameplay
-    this.speed = 45;
-    this.health = 200;
+    this.speed = 90;
+    this.health = 80;
 
     this.x = x;
     this.y = y;
@@ -890,8 +882,8 @@ function Ogre(spritesheetArr, x, y) {
     this.sheetWidth = 128;
 
     // gameplay
-    this.speed = 45;
-    this.health = 200;
+    this.speed = 60;
+    this.health = 100;
 
     this.x = x;
     this.y = y;
@@ -913,8 +905,8 @@ function Devil(spritesheetArr, x, y) {
     this.sheetWidth = 128;
 
     // gameplay
-    this.speed = 45;
-    this.health = 200;
+    this.speed = 60;
+    this.health = 150;
 
     this.x = x;
     this.y = y;
@@ -937,8 +929,8 @@ function Acolyte(spritesheetArr, x, y) {
     this.sheetWidth = 64;
 
     // gameplay
-    this.speed = 25;
-    this.health = 150;
+    this.speed = 40;
+    this.health = 80;
     this.isRanged = true;
 
 
@@ -1548,7 +1540,6 @@ Background.prototype.update = function () {
 };
 
 Background.prototype.createWalls = function () {
-    var flag = true;
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
             for (let row = 0; row < 20; row++) {
