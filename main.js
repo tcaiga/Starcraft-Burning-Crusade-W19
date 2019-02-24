@@ -2,6 +2,7 @@
 const color_red = "red";
 const color_yellow = "yellow";
 const color_white = "white";
+const color_green = "lightgreen";
 
 /* #region Constants */
 const AM = new AssetManager();
@@ -12,7 +13,6 @@ const DS = new DamageSystem();
 var BACKGROUND;
 var SCENE_MANAGER;
 var canvasWidth;
-const color_green = "lightgreen";
 var canvasHeight;
 var myFloorNum = 1;
 var myRoomNum = 1;
@@ -1156,7 +1156,8 @@ Trap.prototype.draw = function () {
     (typeof this.onDraw === 'function') ? this.onDraw() : null;
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = color_red;
-        GAME_ENGINE.ctx.strokeRect(this.x, this.y, 20, 20); // **Temporary** Hard coded offset values
+        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+             this.boundingbox.width, this.boundingbox.height); // **Temporary** Hard coded offset values
     }
 }
 
@@ -1337,22 +1338,22 @@ Camera.prototype.move = function (direction) {
         this.x += canvasWidth;
         myPlayer.x += positionChange;
         myRoomNum += 1;
-        BACKGROUND.x -= 320;
+        BACKGROUND.x -= canvasWidth;
     } else if (direction === "left") {
         this.x -= canvasWidth;
         myPlayer.x -= positionChange;
         myRoomNum -= 1;
-        BACKGROUND.x += 320;
+        BACKGROUND.x += canvasWidth;
     } else if (direction === "up") {
         this.y -= canvasHeight;
         myPlayer.y -= positionChange;
         myFloorNum -= 1;
-        BACKGROUND.y += 320;
+        BACKGROUND.y += canvasHeight;
     } else {
         this.y += canvasHeight;
         myPlayer.y += positionChange;
         myFloorNum += 1;
-        BACKGROUND.y -= 320;
+        BACKGROUND.y -= canvasHeight;
     }
     document.getElementById("location").innerHTML = "Location: " + myFloorNum + "-" + myRoomNum;
 }
