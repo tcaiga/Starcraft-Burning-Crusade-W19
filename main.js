@@ -281,9 +281,8 @@ Player.prototype.rangerAbilities = function (number) {
             case 4:
                 /* #region Multi Shot */
                 //Ability at keyboard number 4
-                let angle = Math.atan2(GAME_ENGINE.mouseY - 20 - this.y - (this.height / 2)
-                    , GAME_ENGINE.mouseX - 35 - this.x - (this.width / 2));
-
+                let angle = Math.atan2(GAME_ENGINE.mouseY - 20 - this.y - (this.height / 2) + CAMERA.y
+                    , GAME_ENGINE.mouseX - 35 - this.x - (this.width / 2) + CAMERA.x);
                 let sprite = "./img/ability/multi_arrow_";
                 if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
                     //Right
@@ -429,8 +428,8 @@ Player.prototype.knightAbilities = function (number) {
                 //Ability at keyboard number 2
                 castDistance = 40;
                 aoe = 40;
-                xDif = this.x - GAME_ENGINE.mouseX + 10;
-                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                xDif = this.x - GAME_ENGINE.mouseX + 10 - CAMERA.x;
+                yDif = this.y - GAME_ENGINE.mouseY + 10 - CAMERA.y;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 castDistance = Math.min(mag, castDistance);
                 xPos = this.x - (xDif / mag) * castDistance;
@@ -444,7 +443,8 @@ Player.prototype.knightAbilities = function (number) {
                 ss1.entityHitType = EntityTypes.enemies;
                 ss1.onDraw = function () {
                     GAME_ENGINE.ctx.strokeStyle = color_yellow;
-                    (GAME_ENGINE.debug) ? this.game.ctx.strokeRect(xPos - aoe / 4, yPos - aoe / 4, aoe, aoe) : null;
+                    (GAME_ENGINE.debug) ? this.game.ctx.strokeRect(this.boundingbox.x,
+                         this.boundingbox.y, this.boundingbox.width, this.boundingbox.height) : null;
                 }
                 ss1.damageObj = DS.CreateDamageObject(21, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.StunLong));
                 ss1.penetrative = true;
@@ -482,14 +482,14 @@ Player.prototype.knightAbilities = function (number) {
             case 4:
                 /* #region Holy Strike */
                 //Ability at keyboard number 4
-                let angle = Math.atan2(GAME_ENGINE.mouseY - 20 - this.y - (this.height / 2)
-                    , GAME_ENGINE.mouseX - 35 - this.x - (this.width / 2));
+                let angle = Math.atan2(GAME_ENGINE.mouseY - 20 - this.y - (this.height / 2) + CAMERA.y
+                    , GAME_ENGINE.mouseX - 35 - this.x - (this.width / 2) + CAMERA.x);
                 let box;
                 let sprite = "./img/ability/holy_strike_right";
                 castDistance = 20;
                 aoe = 75;
-                xDif = this.x - GAME_ENGINE.mouseX + 10;
-                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                xDif = this.x - GAME_ENGINE.mouseX + 10 - CAMERA.x;
+                yDif = this.y - GAME_ENGINE.mouseY + 10 - CAMERA.y;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 xPos = this.x - (xDif / mag) * castDistance;
                 yPos = this.y - (yDif / mag) * castDistance;
@@ -510,8 +510,6 @@ Player.prototype.knightAbilities = function (number) {
                     sprite = "./img/ability/holy_strike_down";
                     box = new BoundingBox(xPos - 15, yPos + 20, aoe - 30, aoe - 10);
                 }
-
-                
 
                 ssAni1 = new Animation(AM.getAsset(sprite + ".png"), 32, 32, 1, 0.035, 11, false, 3.5);
                 ss1 = new StillStand(ssAni1, 16, xPos, yPos);
@@ -1346,12 +1344,10 @@ Camera.prototype.move = function (direction) {
         myRoomNum -= 1;
         BACKGROUND.x += 320;
     } else if (direction === "up") {
-        console.log("Test1 " +  myPlayer.y);
         this.y -= canvasHeight;
         myPlayer.y -= positionChange;
         myFloorNum -= 1;
         BACKGROUND.y += 320;
-        console.log("Test 2" + myPlayer.y);
     } else {
         this.y += canvasHeight;
         myPlayer.y += positionChange;
