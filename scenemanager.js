@@ -130,14 +130,14 @@ SceneManager.prototype.gameInit = function () {
 
     // Trap
     var trap = new Trap(AM.getAsset("./img/floor_trap_up.png"),
-    AM.getAsset("./img/floor_trap_down.png"));
+    AM.getAsset("./img/floor_trap_down.png"), 200, 200);
     GAME_ENGINE.addEntity(trap);
     // Using players choice to grab the appropriate character sprite
     // Player
     myPlayer = new Player(AM.getAsset(characterSprites[GAME_ENGINE.playerPick]["spritesheet"]), 
     characterSprites[GAME_ENGINE.playerPick]["xOffset"], characterSprites[GAME_ENGINE.playerPick]["yOffset"]);
     GAME_ENGINE.addEntity(myPlayer);
-    document.getElementById("health").innerHTML = "100";
+    document.getElementById("health").innerHTML = myPlayer.health;
     document.getElementById("location").innerHTML = "Location: 1-1";
     GAME_ENGINE.addEntity(CAMERA);
 

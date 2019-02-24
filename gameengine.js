@@ -128,8 +128,8 @@ GameEngine.prototype.startInput = function () {
             projectile.aniY = 30;
             GAME_ENGINE.addEntity(projectile);
             } else if (that.playerPick == 2){
-                let angle = Math.atan2(y- 20 - myPlayer.y - (myPlayer.height / 2)
-                    , x - 35 - myPlayer.x - (myPlayer.width / 2));
+                let angle = Math.atan2(y - 20 - myPlayer.y - (myPlayer.height / 2) + CAMERA.y
+                    , x - 35 - myPlayer.x - (myPlayer.width / 2) + CAMERA.x);
                 let offsetX = 0;
                 let offsetY = 0;
                 let sprite = "./img/ability/knight_attack_right";
@@ -310,7 +310,8 @@ GameEngine.prototype.update = function () {
     for (let i = 0; i < this.entities.length; i++) {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
-            if (!entity.removeFromWorld) {
+            if (!entity.removeFromWorld && (i <= 1 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
+                entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.update();
             }
         }

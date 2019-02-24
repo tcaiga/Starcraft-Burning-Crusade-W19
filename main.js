@@ -51,8 +51,8 @@ function Player(spritesheet, xOffset, yOffset) {
     this.maxMovespeedAdj = 0;
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
     this.right = true;
-    this.health = 100;
-    this.maxHealth = 100;
+    this.health = 1000;
+    this.maxHealth = 1000;
     this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
         this.width, this.height); // **Temporary** Hard coded offset values.
@@ -214,20 +214,17 @@ Player.prototype.rangerAbilities = function (number) {
                 /* #region Boostpad */
                 //Ability at keyboard number 1
 
-                castDistance = 5;
-                tempTrap = new RangerBoostPad(AM.getAsset("./img/floor_boostpad_on.png"),
-                    AM.getAsset("./img/floor_boostpad_off.png"));
-                xDif, yDif, mag;
-                let realX = this.x, realY = this.y;
-                xDif = realX - GAME_ENGINE.mouseX + 10;
-                yDif = realY - GAME_ENGINE.mouseY + 10;
+                castDistance = 80;
+                xDif = this.x - GAME_ENGINE.mouseX + 10 - CAMERA.x;
+                yDif = this.y - GAME_ENGINE.mouseY + 10 - CAMERA.y;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 castDistance = Math.min(mag, castDistance);
-
-                tempTrap.x = realX - (xDif / mag) * castDistance;
-                tempTrap.y = realY - (yDif / mag) * castDistance;
-                tempTrap.x += 0;
-                tempTrap.y += 30;
+                xPos = this.x - (xDif / mag) * castDistance;
+                yPos = this.y - (yDif / mag) * castDistance;
+                tempTrap = new RangerBoostPad(AM.getAsset("./img/floor_boostpad_on.png"),
+                AM.getAsset("./img/floor_boostpad_off.png"), xPos, yPos);
+                tempTrap.x = xPos;
+                tempTrap.y = yPos;
                 tempTrap.boundingbox = new BoundingBox(tempTrap.x, tempTrap.y, 20, 20);
                 GAME_ENGINE.addEntity(tempTrap);
                 this.abilityCD[number] = 195;
@@ -238,8 +235,8 @@ Player.prototype.rangerAbilities = function (number) {
                 //Ability at keyboard number 2
                 castDistance = 150;
                 aoe = 70;
-                xDif = this.x - GAME_ENGINE.mouseX + 10;
-                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                xDif = this.x - GAME_ENGINE.mouseX + 10 - CAMERA.x;
+                yDif = this.y - GAME_ENGINE.mouseY + 10 - CAMERA.y;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 castDistance = Math.min(mag, castDistance);
                 xPos = this.x - (xDif / mag) * castDistance;
@@ -265,13 +262,14 @@ Player.prototype.rangerAbilities = function (number) {
                 /* #region Root trap */
                 //Ability at keyboard number 3
                 castDistance = 80;
-                xDif = this.x - GAME_ENGINE.mouseX + 10;
-                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                xDif = this.x - GAME_ENGINE.mouseX + 10 - CAMERA.x;
+                yDif = this.y - GAME_ENGINE.mouseY + 10 - CAMERA.y;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 castDistance = Math.min(mag, castDistance);
                 xPos = this.x - (xDif / mag) * castDistance;
                 yPos = this.y - (yDif / mag) * castDistance;
-                tempTrap = new RootTrap(AM.getAsset("./img/ability/root_trap_up.png"), AM.getAsset("./img/ability/root_trap_down.png"));
+                tempTrap = new RootTrap(AM.getAsset("./img/ability/root_trap_up.png"),
+                 AM.getAsset("./img/ability/root_trap_down.png"), xPos, yPos);
                 tempTrap.x = xPos;
                 tempTrap.y = yPos;
                 tempTrap.boundingbox = new BoundingBox(tempTrap.x, tempTrap.y, 20, 20);
@@ -283,9 +281,8 @@ Player.prototype.rangerAbilities = function (number) {
             case 4:
                 /* #region Multi Shot */
                 //Ability at keyboard number 4
-                let angle = Math.atan2(GAME_ENGINE.mouseY - 20 - this.y - (this.height / 2)
-                    , GAME_ENGINE.mouseX - 35 - this.x - (this.width / 2));
-
+                let angle = Math.atan2(GAME_ENGINE.mouseY - 20 - this.y - (this.height / 2) + CAMERA.y
+                    , GAME_ENGINE.mouseX - 35 - this.x - (this.width / 2) + CAMERA.x);
                 let sprite = "./img/ability/multi_arrow_";
                 if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
                     //Right
@@ -325,8 +322,8 @@ Player.prototype.mageAbilities = function (number) {
                 //Ability at keyboard number 1
 
                 castDistance = 100;
-                xDif = this.x - GAME_ENGINE.mouseX;
-                yDif = this.y - GAME_ENGINE.mouseY;
+                xDif = this.x - GAME_ENGINE.mouseX - CAMERA.x;
+                yDif = this.y - GAME_ENGINE.mouseY - CAMERA.y;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 castDistance = Math.min(castDistance, mag);
                 ss1Ani = new Animation(AM.getAsset("./img/flash.png"), 16, 32, 1, 0.13, 4, true, 1.25);
@@ -363,7 +360,8 @@ Player.prototype.mageAbilities = function (number) {
                 let tempPro2;
                 for (let i = 0; i < 30; i++) {
                     tempPro2 = new FlameBreathBolt(AM.getAsset("./img/flame_breath_bolt.png")
-                        , this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY, 5);
+                        , this.x - (this.width / 2), this.y - (this.height / 2),
+                         GAME_ENGINE.mouseX, GAME_ENGINE.mouseY, 5);
                     GAME_ENGINE.addEntity(tempPro2);
                 }
                 this.castTime = 8;
@@ -374,8 +372,8 @@ Player.prototype.mageAbilities = function (number) {
                 /* #region Flame Strike */
                 //Ability at keyboard number 4
                 castDistance = 145;
-                xDif = this.x - GAME_ENGINE.mouseX;
-                yDif = this.y - GAME_ENGINE.mouseY;
+                xDif = this.x - GAME_ENGINE.mouseX - CAMERA.x;
+                yDif = this.y - GAME_ENGINE.mouseY - CAMERA.y;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 castDistance = Math.min(castDistance, mag);
                 xPos = -(xDif / mag) * castDistance - 12 + this.x;
@@ -430,8 +428,8 @@ Player.prototype.knightAbilities = function (number) {
                 //Ability at keyboard number 2
                 castDistance = 40;
                 aoe = 40;
-                xDif = this.x - GAME_ENGINE.mouseX + 10;
-                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                xDif = this.x - GAME_ENGINE.mouseX + 10 - CAMERA.x;
+                yDif = this.y - GAME_ENGINE.mouseY + 10 - CAMERA.y;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 castDistance = Math.min(mag, castDistance);
                 xPos = this.x - (xDif / mag) * castDistance;
@@ -445,7 +443,8 @@ Player.prototype.knightAbilities = function (number) {
                 ss1.entityHitType = EntityTypes.enemies;
                 ss1.onDraw = function () {
                     GAME_ENGINE.ctx.strokeStyle = color_yellow;
-                    (GAME_ENGINE.debug) ? this.game.ctx.strokeRect(xPos - aoe / 4, yPos - aoe / 4, aoe, aoe) : null;
+                    (GAME_ENGINE.debug) ? this.game.ctx.strokeRect(this.boundingbox.x,
+                         this.boundingbox.y, this.boundingbox.width, this.boundingbox.height) : null;
                 }
                 ss1.damageObj = DS.CreateDamageObject(21, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.StunLong));
                 ss1.penetrative = true;
@@ -483,14 +482,14 @@ Player.prototype.knightAbilities = function (number) {
             case 4:
                 /* #region Holy Strike */
                 //Ability at keyboard number 4
-                let angle = Math.atan2(GAME_ENGINE.mouseY - 20 - this.y - (this.height / 2)
-                    , GAME_ENGINE.mouseX - 35 - this.x - (this.width / 2));
+                let angle = Math.atan2(GAME_ENGINE.mouseY - 20 - this.y - (this.height / 2) + CAMERA.y
+                    , GAME_ENGINE.mouseX - 35 - this.x - (this.width / 2) + CAMERA.x);
                 let box;
                 let sprite = "./img/ability/holy_strike_right";
                 castDistance = 20;
                 aoe = 75;
-                xDif = this.x - GAME_ENGINE.mouseX + 10;
-                yDif = this.y - GAME_ENGINE.mouseY + 10;
+                xDif = this.x - GAME_ENGINE.mouseX + 10 - CAMERA.x;
+                yDif = this.y - GAME_ENGINE.mouseY + 10 - CAMERA.y;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 xPos = this.x - (xDif / mag) * castDistance;
                 yPos = this.y - (yDif / mag) * castDistance;
@@ -511,8 +510,6 @@ Player.prototype.knightAbilities = function (number) {
                     sprite = "./img/ability/holy_strike_down";
                     box = new BoundingBox(xPos - 15, yPos + 20, aoe - 30, aoe - 10);
                 }
-
-                
 
                 ssAni1 = new Animation(AM.getAsset(sprite + ".png"), 32, 32, 1, 0.035, 11, false, 3.5);
                 ss1 = new StillStand(ssAni1, 16, xPos, yPos);
@@ -657,7 +654,6 @@ Monster.prototype.update = function () {
         // nomralize the vector
         dirX = dirX / dis;
         dirY = dirY / dis;
-
         // change x and y based on our vector
         this.x += dirX * (this.speed / 100);
         this.y += dirY * (this.speed / 100);
@@ -1098,8 +1094,6 @@ function GreaterFireball(spriteSheet, spriteSheetAoe, originX, originY, xTarget,
 
 function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
-    this.xTar = xTarget - 20;
-    this.yTar = yTarget - 35;
     this.range = 90;
     this.damageObj = DS.CreateDamageObject(2.25, 0, DTypes.Magic);
     this.animation = new Animation(spriteSheet, 8, 8, 1, .084, 4, true, 1);
@@ -1109,7 +1103,6 @@ function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget, origin
     //radians
     let converter = Math.PI / 360;
     let spread = 90;
-    this.angle = Math.atan2(this.yTar - originY, this.xTar - originX);
     this.angle += spread * converter * Math.random() * ((Math.random() - 0.5 >= 0) ? 1 : -1);
     this.projectileSpeed = Math.random() * 5 + 2;
     this.timeLeft = this.range / this.projectileSpeed;
@@ -1135,12 +1128,12 @@ function MultiArrow(spriteSheet, originX, originY, xTarget, yTarget, origin) {
 
 /* #region Trap */
 /* #region Base Trap */
-function Trap(spriteSheetUp, spriteSheetDown) {
+function Trap(spriteSheetUp, spriteSheetDown, theX, theY) {
     this.animationUp = new Animation(spriteSheetUp, 16, 16, 1, 0.13, 4, true, 1.25);
     this.animationDown = new Animation(spriteSheetDown, 16, 16, 1, 0.13, 4, true, 1.25);
     this.animationIdle = this.animationUp;
-    this.x = 200; // Hardcorded temp spawn
-    this.y = 200; // Hardcorded temp spawn
+    this.x = theX; // Hardcorded temp spawn
+    this.y = theY; // Hardcorded temp spawn
     this.activated = false; // Determining if trap has been activated
     this.counter = 0; // Counter to calculate when trap related events should occur
     this.doAnimation = false; // Flag to determine if the spikes should animate or stay still
@@ -1339,24 +1332,25 @@ Camera.prototype.draw = function () { }
 
 
 Camera.prototype.move = function (direction) {
+    var positionChange = TILE_SIZE * 2 + 60;
     if (direction === "right") {
         this.x += canvasWidth;
-        myPlayer.x = 60 + CAMERA.x;
+        myPlayer.x += positionChange;
         myRoomNum += 1;
         BACKGROUND.x -= 320;
     } else if (direction === "left") {
         this.x -= canvasWidth;
-        myPlayer.x = canvasWidth - TILE_SIZE * 2 - 60 + CAMERA.x;
+        myPlayer.x -= positionChange;
         myRoomNum -= 1;
         BACKGROUND.x += 320;
     } else if (direction === "up") {
         this.y -= canvasHeight;
-        myPlayer.y = canvasHeight - TILE_SIZE * 2 - 60 + CAMERA.y;
+        myPlayer.y -= positionChange;
         myFloorNum -= 1;
         BACKGROUND.y += 320;
     } else {
         this.y += canvasHeight;
-        myPlayer.y = 60 + CAMERA.y;
+        myPlayer.y += positionChange;
         myFloorNum += 1;
         BACKGROUND.y -= 320;
     }
