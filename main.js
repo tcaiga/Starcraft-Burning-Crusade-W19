@@ -363,7 +363,8 @@ Player.prototype.mageAbilities = function (number) {
                 let tempPro2;
                 for (let i = 0; i < 30; i++) {
                     tempPro2 = new FlameBreathBolt(AM.getAsset("./img/flame_breath_bolt.png")
-                        , this.x - (this.width / 2), this.y - (this.height / 2), GAME_ENGINE.mouseX, GAME_ENGINE.mouseY, 5);
+                        , this.x - (this.width / 2), this.y - (this.height / 2),
+                         GAME_ENGINE.mouseX, GAME_ENGINE.mouseY, 5);
                     GAME_ENGINE.addEntity(tempPro2);
                 }
                 this.castTime = 8;
@@ -374,8 +375,8 @@ Player.prototype.mageAbilities = function (number) {
                 /* #region Flame Strike */
                 //Ability at keyboard number 4
                 castDistance = 145;
-                xDif = this.x - GAME_ENGINE.mouseX;
-                yDif = this.y - GAME_ENGINE.mouseY;
+                xDif = this.x - GAME_ENGINE.mouseX - CAMERA.x;
+                yDif = this.y - GAME_ENGINE.mouseY - CAMERA.y;
                 mag = Math.pow(Math.pow(xDif, 2) + Math.pow(yDif, 2), 0.5);
                 castDistance = Math.min(castDistance, mag);
                 xPos = -(xDif / mag) * castDistance - 12 + this.x;
@@ -657,7 +658,6 @@ Monster.prototype.update = function () {
         // nomralize the vector
         dirX = dirX / dis;
         dirY = dirY / dis;
-
         // change x and y based on our vector
         this.x += dirX * (this.speed / 100);
         this.y += dirY * (this.speed / 100);
@@ -1098,8 +1098,6 @@ function GreaterFireball(spriteSheet, spriteSheetAoe, originX, originY, xTarget,
 
 function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
-    this.xTar = xTarget - 20;
-    this.yTar = yTarget - 35;
     this.range = 90;
     this.damageObj = DS.CreateDamageObject(2.25, 0, DTypes.Magic);
     this.animation = new Animation(spriteSheet, 8, 8, 1, .084, 4, true, 1);
@@ -1109,7 +1107,6 @@ function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget, origin
     //radians
     let converter = Math.PI / 360;
     let spread = 90;
-    this.angle = Math.atan2(this.yTar - originY, this.xTar - originX);
     this.angle += spread * converter * Math.random() * ((Math.random() - 0.5 >= 0) ? 1 : -1);
     this.projectileSpeed = Math.random() * 5 + 2;
     this.timeLeft = this.range / this.projectileSpeed;
