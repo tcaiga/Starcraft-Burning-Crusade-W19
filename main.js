@@ -1582,7 +1582,26 @@ Background.prototype.createDoors = function () {
                         testPos[1] * canvasHeight + 144 + BACKGROUND.y, "left"));
                 }
 
-                // Adding a door to go back for all rooms except starting and ending rooms.
+                // Adding traps in all rooms except the starting and ending rooms.
+                let choice = Math.floor(Math.random() * 2);
+                // 33% chance a room that is not the start or end will have traps.
+                if (this.drawFaceCount > 1) {
+                    if (choice === 0) {
+                        for (let r = 1; r < 4; r++) {
+                            for (let s = 1; s < 4; s++) {
+                                // 9 traps appear in the shape of a cube spaced out.
+                                var trap = new Trap(AM.getAsset("./img/floor_trap_up.png"),
+                                AM.getAsset("./img/floor_trap_down.png"), testPos[0] * canvasWidth + (r * 80) + BACKGROUND.x - 10,
+                                testPos[1] * canvasHeight + (s * 80) + BACKGROUND.y - 10);
+                                GAME_ENGINE.addEntity(trap);
+                            }
+                        }
+                    } else if (choice === 1) {
+    
+                    }
+                }
+
+                // Adding a door to go back for all rooms except starting room.
                 if (this.drawFaceCount < this.facePos.length - 1) {
                     let testPosReverse = this.facePos[this.drawFaceCount + 1];
                     if (this.face[this.drawFaceCount] === 0) {
