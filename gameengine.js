@@ -42,7 +42,7 @@ function GameEngine() {
     this.keyShift = false;
     this.movement = false;
     this.playerPick;
-    this.debug = true;
+    this.debug = false;
 }
 
 GameEngine.prototype.init = function (ctx) {
