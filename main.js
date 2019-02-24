@@ -1738,18 +1738,6 @@ Background.prototype.validDirection = function () {
             }
         }
     }
-
-    console.table(this.face);
-    // this.map[1][0] = 1;
-    // this.map[2][0] = 1;
-    // this.map[3][0] = 1;
-    // this.map[4][0] = 1;
-    // this.map[4][1] = 3;
-    // this.face.push(2);
-    // this.face.push(2);
-    // this.face.push(2);
-    // this.face.push(2);
-    // this.face.push(1);
 }
 /* #endregion */
 
