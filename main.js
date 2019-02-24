@@ -1583,9 +1583,9 @@ Background.prototype.createDoors = function () {
                 }
 
                 // Adding traps in all rooms except the starting and ending rooms.
-                let choice = Math.floor(Math.random() * 2);
+                let choice = Math.floor(Math.random() * 3);
                 // 33% chance a room that is not the start or end will have traps.
-                if (this.drawFaceCount > 1) {
+                if (this.drawFaceCount > 0) {
                     if (choice === 0) {
                         for (let r = 1; r < 4; r++) {
                             for (let s = 1; s < 4; s++) {
