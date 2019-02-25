@@ -1,12 +1,3 @@
-// Audio Testing
-var music = new Audio("./audio/sleepywood.mp3");
-
-music.volume = .1;
-playSound = function() {
-    music.play();
-}
-
-
 //color constants
 const color_red = "red";
 const color_yellow = "yellow";
@@ -19,6 +10,7 @@ const GAME_ENGINE = new GameEngine();
 var CAMERA = new Camera();
 const DS = new DamageSystem();
 
+var AUDIO;
 var BACKGROUND;
 var SCENE_MANAGER;
 var canvasWidth;
@@ -1574,6 +1566,7 @@ AM.downloadAll(function () {
     GAME_ENGINE.start();
 
     GAME_ENGINE.addEntity(new Menu());
+    AUDIO = new Audio();
     BACKGROUND = new Background();
     SCENE_MANAGER = new SceneManager();
 });
