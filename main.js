@@ -995,8 +995,11 @@ Projectile.prototype.update = function () {
     this.x += velX;
     this.y += velY;
 
-    if (this.x - CAMERA.x < 16 || this.x - CAMERA.x > 460
-        || this.y - CAMERA.y < 0 || this.y - CAMERA.y > 430) this.removeFromWorld = true;
+    if (this.x - CAMERA.x < 0 || this.x - CAMERA.x > 320
+        || this.y - CAMERA.y < 0 || this.y - CAMERA.y > 320) {
+        this.removeFromWorld = true;
+        console.log("test");
+    }
     Entity.prototype.update.call(this);
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
