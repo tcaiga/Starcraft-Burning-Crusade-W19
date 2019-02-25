@@ -248,6 +248,7 @@ GameEngine.prototype.startInput = function () {
 }
 
 GameEngine.prototype.reset = function () {
+    console.table(GAME_ENGINE.entities);
     for (let i = 1; i < this.entities.length; i++) {
         for (let j = this.entities[i].length - 1; j >= 0; j--) {
             var entity = this.entities[i][j];
@@ -255,6 +256,7 @@ GameEngine.prototype.reset = function () {
             this.entities[i].pop();
         }
     }
+    console.table(GAME_ENGINE.entities);
     //menu is no longer removed from world
     this.entities[0][0].removeFromWorld = false;
     SCENE_MANAGER.menu = this.entities[0][0];
@@ -290,6 +292,41 @@ GameEngine.prototype.addEntity = function (entity) {
         this.entities[1].push(entity);
     }
 }
+
+GameEngine.prototype.removeEntity = function (entity) {
+let idx;
+    if (entity instanceof Player) {
+        idx = this.entities[5].indexOf(entity);
+        if (idx > -1) {
+            this.entities[5].splice(idx, 1);
+        }
+    } else if (entity instanceof Monster) {
+        idx = this.entities[4].indexOf(entity);
+        if (idx > -1) {
+            this.entities[4].splice(idx, 1);
+        }
+    } else if (entity instanceof Projectile) {
+        idx = this.entities[3].indexOf(entity);
+        if (idx > -1) {
+            this.entities[3].splice(idx, 1);
+        }
+    } else if (entity instanceof Trap) {
+        idx = his.entities[2].indexOf(entity);
+        if (idx > -1) {
+            this.entities[2].splice(idx, 1);
+        }
+    } else if (entity instanceof Menu) {
+        idx = this.entities[0].indexOf(entity);
+        if (idx > -1) {
+            this.entities[0].splice(idx, 1);
+        }
+    } else {
+        idx = this.entities[1].indexOf(entity);
+        if (idx > -1) {
+            this.entities[1].splice(idx, 1);
+        }
+    }
+};
 
 GameEngine.prototype.draw = function () {
     this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);

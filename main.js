@@ -52,8 +52,8 @@ function Player(spritesheet, xOffset, yOffset) {
     this.maxMovespeedAdj = 0;
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
     this.right = true;
-    this.health = 1000;
-    this.maxHealth = 1000;
+    this.health = 100;
+    this.maxHealth = 100;
     this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
         this.width, this.height); // **Temporary** Hard coded offset values.
@@ -995,16 +995,12 @@ Projectile.prototype.update = function () {
     this.x += velX;
     this.y += velY;
 
-    if (this.x - CAMERA.x < 0 || this.x - CAMERA.x > 320
-        || this.y - CAMERA.y < 0 || this.y - CAMERA.y > 320) {
+    if (this.x - CAMERA.x < 0 || this.x - CAMERA.x > canvasWidth
+        || this.y - CAMERA.y < 0 || this.y - CAMERA.y > canvasHeight) {
         this.removeFromWorld = true;
-        console.log("test");
+        GAME_ENGINE.removeEntity(this);
     }
     Entity.prototype.update.call(this);
-
-    this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
-        this.width - 75, this.height - 75); // **Temporary** Hard coded offset values.
-
 
     if (this.origin == 5) {
         for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
@@ -1014,6 +1010,7 @@ Projectile.prototype.update = function () {
                     (typeof this.childCollide === 'function') ? this.childCollide(entityCollide) : null;
                     this.damageObj.ApplyEffects(GAME_ENGINE.entities[4][i]);
                     this.removeFromWorld = (this.penetrative) ? false : true;
+                    GAME_ENGINE.removeEntity(this);
                 }
             }
         }
@@ -1024,6 +1021,7 @@ Projectile.prototype.update = function () {
                 (typeof this.childCollide === 'function') ? this.childCollide(myPlayer) : null;
                 this.damageObj.ApplyEffects(myPlayer);
                 this.removeFromWorld = (this.penetrative) ? false : true;
+                GAME_ENGINE.removeEntity(this);
             }
         }
     }
