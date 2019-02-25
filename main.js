@@ -1,3 +1,12 @@
+// Audio Testing
+var music = new Audio("./audio/sleepywood.mp3");
+
+music.volume = .25;
+playSound = function() {
+    music.play();
+}
+
+
 //color constants
 const color_red = "red";
 const color_yellow = "yellow";
@@ -797,7 +806,6 @@ function BigDemon(spritesheetArr, x, y) {
 function Swampy(spritesheetArr, x, y) {
 
     // animation
-
     Monster.call(this, spritesheetArr, x, y);
 
     this.scale = 2;
@@ -1710,8 +1718,8 @@ Background.prototype.createDoors = function () {
 }
 
 Background.prototype.validDirection = function () {
+    music.play();
     while (this.roomCount < this.maxRoomCount) {
-
         let randomDirection = Math.floor(Math.random() * Math.floor(4));
         let tempRow = this.row + this.directions[randomDirection][0];
         let tempCol = this.col + this.directions[randomDirection][1];
