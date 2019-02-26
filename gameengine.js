@@ -2,8 +2,8 @@
 // The first index of the array is the mage, second being ranger, and third being knight.
 // Each index contains a JSON object which has the left and right faces for the sprites.
 // and the x and y offset to get bounds for room correct.
-var characterSprites = [{ spritesheet: "./img/mage_run.png", xOffset: 0, yOffset: 9 },
-{ spritesheet: "./img/ranger_run.png", xOffset: 0, yOffset: 8 },
+var characterSprites = [{ spritesheet: "./img/terran/marine/marine_move_right.png", xOffset: 0, yOffset: 9 },
+{ spritesheet: "./img/terran/redsix/redsix_move_right.png", xOffset: 0, yOffset: 8 },
 { spritesheet: "./img/knight_run.png", xOffset: 0, yOffset: 6 }];
 var myPlayer;
 const EntityTypes = {

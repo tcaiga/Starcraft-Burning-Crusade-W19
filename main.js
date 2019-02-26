@@ -27,12 +27,12 @@ const TILE_SIZE = 16;
 /* #region Player */
 function Player(spritesheet, xOffset, yOffset) {
     // Relevant for Player box
-    this.width = 16;
-    this.height = 28;
+    this.width = 32;
+    this.height = 32;
     this.scale = 1.5;
     this.xOffset = xOffset * this.scale;
     this.yOffset = yOffset * this.scale;
-    this.animationRun = new Animation(spritesheet, this.width, this.height, 1, 0.08, 4, true, this.scale);
+    this.animationRun = new Animation(spritesheet, this.width, this.height, 1, 0.02, 9, true, this.scale);
     this.animationIdle = this.animationRun;
     this.x = 60;
     this.y = 60;
@@ -905,6 +905,10 @@ AM.queueDownload("./img/floor1.png");
 AM.queueDownload("./img/floor2.png");
 AM.queueDownload("./img/blacktile.png");
 AM.queueDownload("./img/door_closed.png");
+
+
+AM.queueDownload("./img/terran/marine/marine_move_right.png");
+AM.queueDownload("./img/terran/redsix/redsix_move_right.png");
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
