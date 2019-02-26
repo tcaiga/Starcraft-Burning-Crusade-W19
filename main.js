@@ -562,6 +562,7 @@ Player.prototype.changeHealth = function (amount) {
 }
 /* #endregion */
 
+
 /* #region Monster */
 /* #region Base Monster */
 
@@ -1090,7 +1091,7 @@ function GreaterFireball(spriteSheet, spriteSheetAoe, originX, originY, xTarget,
         aCrow.damageObj = aHit;
         GAME_ENGINE.addEntity(aCrow);
     }
-
+op
 }
 
 function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget, origin) {
@@ -1301,6 +1302,7 @@ StillStand.prototype.draw = function () {
     this.ani.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x + this.aniX, this.y + this.aniY);
 }
 /* #endregion */
+
 
 /* #region BoundingBox */
 // BoundingBox for entities to detect collision.
