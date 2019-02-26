@@ -1,6 +1,6 @@
 function Background() {
-    this.x = -640;
-    this.y = -640;
+    this.x = -1280;
+    this.y = -1280;
     // Keeping track of the last direction the generator has moved.
     // 0 = North
     // 1 = East
@@ -51,8 +51,14 @@ Background.prototype.draw = function () {
                     }
                     // Drawing Tiles
                     if (tempTile === 0 || tempTile === 3) {
-                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE,
-                            this.y + i * canvasHeight + r * TILE_SIZE);
+                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2,
+                            this.y + i * canvasHeight + r * TILE_SIZE * 2);
+                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2 + TILE_SIZE,
+                            this.y + i * canvasHeight + r * TILE_SIZE * 2);
+                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2,
+                            this.y + i * canvasHeight + r * TILE_SIZE * 2 + TILE_SIZE);
+                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2 + TILE_SIZE,
+                            this.y + i * canvasHeight + r * TILE_SIZE * 2 + TILE_SIZE);
                     }
                 }
             }
@@ -71,17 +77,17 @@ Background.prototype.createWalls = function () {
                     let tempTile = ROOMS[this.map[i][j]][row * 20 + col];
                     if (tempTile === 1) {
                         if (col === 0 && row != 0 && row != 19) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
-                                this.y + i * canvasHeight + row * TILE_SIZE, "left"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "left"));
                         } else if (col === 19 && row != 0 & row != 19) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
-                                this.y + i * canvasHeight + row * TILE_SIZE, "right"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "right"));
                         } else if (row === 19) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
-                                this.y + i * canvasHeight + row * TILE_SIZE, "down"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "down"));
                         } else if (row === 0) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
-                                this.y + i * canvasHeight + row * TILE_SIZE, "up"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "up"));
                         }
                     }
                 }
@@ -90,7 +96,7 @@ Background.prototype.createWalls = function () {
     }
 }
 
-Background.prototype.createDoors = function () {
+Background.prototype.decorateRoom = function () {
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
             // Drawing doors
@@ -99,17 +105,17 @@ Background.prototype.createDoors = function () {
 
                 // Adding a door to go forward for all rooms except the ending room.
                 if (this.face[this.drawFaceCount] === 0) {
-                    GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 144 + BACKGROUND.x,
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
                         testPos[1] * canvasHeight + BACKGROUND.y, "up"));
                 } else if (this.face[this.drawFaceCount] === 1) {
-                    GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 288 + BACKGROUND.x,
-                        testPos[1] * canvasHeight + 144 + BACKGROUND.y, "right"));
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 608 + BACKGROUND.x,
+                        testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right"));
                 } else if (this.face[this.drawFaceCount] === 2) {
-                    GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 144 + BACKGROUND.x,
-                        testPos[1] * canvasHeight + 288 + BACKGROUND.y, "down"));
+                    GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
+                        testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down"));
                 } else if (this.face[this.drawFaceCount] === 3) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
-                        testPos[1] * canvasHeight + 144 + BACKGROUND.y, "left"));
+                        testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left"));
                 }
 
                 // Adding traps in all rooms except the starting and ending rooms.
@@ -121,8 +127,8 @@ Background.prototype.createDoors = function () {
                             for (let s = 1; s < 4; s++) {
                                 // 9 traps appear in the shape of a cube spaced out.
                                 var trap = new Trap(AM.getAsset("./img/floor_trap_up.png"),
-                                AM.getAsset("./img/floor_trap_down.png"), testPos[0] * canvasWidth + (r * 80) + BACKGROUND.x - 10,
-                                testPos[1] * canvasHeight + (s * 80) + BACKGROUND.y - 10);
+                                AM.getAsset("./img/floor_trap_down.png"), testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
+                                testPos[1] * canvasHeight + (s * 160) + BACKGROUND.y - 10);
                                 GAME_ENGINE.addEntity(trap);
                             }
                         }
@@ -135,34 +141,34 @@ Background.prototype.createDoors = function () {
                 if (this.drawFaceCount < this.facePos.length - 1) {
                     let testPosReverse = this.facePos[this.drawFaceCount + 1];
                     if (this.face[this.drawFaceCount] === 0) {
-                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 144 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + 288 + BACKGROUND.y, "down"));
+                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 304 + BACKGROUND.x,
+                            testPosReverse[1] * canvasHeight + 608 + BACKGROUND.y, "down"));
                     } else if (this.face[this.drawFaceCount] === 1) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 144 + BACKGROUND.y, "left"));
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left"));
                     } else if (this.face[this.drawFaceCount] === 2) {
-                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 144 + BACKGROUND.x,
+                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 304 + BACKGROUND.x,
                             testPosReverse[1] * canvasHeight + BACKGROUND.y, "up"));
                     } else if (this.face[this.drawFaceCount] === 3) {
-                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 288 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + 144 + BACKGROUND.y, "right"));
+                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 608 + BACKGROUND.x,
+                            testPosReverse[1] * canvasHeight + 304 + BACKGROUND.y, "right"));
                     }
                 }
                 
                 // Adding a door to go back for the ending room.
                 if (this.drawFaceCount + 1 === this.facePos.length) {
                     if (this.face[this.drawFaceCount] === 0) {
-                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 144 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 288 + BACKGROUND.y, "down"));
+                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
+                            testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down"));
                     } else if (this.face[this.drawFaceCount] === 1) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 144 + BACKGROUND.y, "left"));
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left"));
                     } else if (this.face[this.drawFaceCount] === 2) {
-                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 144 + BACKGROUND.x,
+                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
                             testPos[1] * canvasHeight + BACKGROUND.y, "up"));
                     } else if (this.face[this.drawFaceCount] === 3) {
-                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 288 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 144 + BACKGROUND.y, "right"));
+                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 608 + BACKGROUND.x,
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right"));
                     }
                 }
                 
@@ -170,22 +176,22 @@ Background.prototype.createDoors = function () {
                     var tinyzombie = new TinyZombie({
                         'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
                         'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-                    }, testPos[0] * canvasWidth + 144 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 144 + BACKGROUND.y);
+                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
 
                     var tinyzombie1 = new TinyZombie({
                         'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
                         'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-                    }, testPos[0] * canvasWidth + 144 + BACKGROUND.x - 32, testPos[1] * canvasHeight + 144 + BACKGROUND.y);
+                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x - 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
 
                     var tinyzombie2 = new TinyZombie({
                         'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
                         'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-                    }, testPos[0] * canvasWidth + 144 + BACKGROUND.x, testPos[1] * canvasHeight + 144 + BACKGROUND.y + 32);
+                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 32);
 
                     var tinyzombie3 = new TinyZombie({
                         'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
                         'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-                    }, testPos[0] * canvasWidth + 144 + BACKGROUND.x, testPos[1] * canvasHeight + 144 + BACKGROUND.y - 32);
+                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y - 32);
 
                     GAME_ENGINE.addEntity(tinyzombie);
                     GAME_ENGINE.addEntity(tinyzombie1);
@@ -195,17 +201,17 @@ Background.prototype.createDoors = function () {
                     var maskedorc = new MaskedOrc({
                         'r': AM.getAsset("./img/monsters/masked_orc_run.png"),
                         'l': AM.getAsset("./img/monsters/masked_orc_run_left.png")
-                    }, testPos[0] * canvasWidth + 144 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 144 + BACKGROUND.y);
+                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
 
                     var ogre = new Ogre({
                         'r': AM.getAsset("./img/monsters/ogre_run.png"),
                         'l': AM.getAsset("./img/monsters/ogre_run_left.png")
-                    }, testPos[0] * canvasWidth + 144 + BACKGROUND.x - 32, testPos[1] * canvasHeight + 144 + BACKGROUND.y);
+                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x - 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
 
                     var swampy = new Swampy({
                         'r': AM.getAsset("./img/monsters/swampy_run.png"),
                         'l': AM.getAsset("./img/monsters/swampy_run_left.png")
-                    }, testPos[0] * canvasWidth + 144 + BACKGROUND.x, testPos[1] * canvasHeight + 144 + BACKGROUND.y + 32);
+                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 32);
 
                     GAME_ENGINE.addEntity(maskedorc);
                     GAME_ENGINE.addEntity(ogre);
@@ -214,12 +220,12 @@ Background.prototype.createDoors = function () {
                     var devil = new Devil({
                         'r': AM.getAsset("./img/devil.png"),
                         'l': AM.getAsset("./img/devil_left.png")
-                    }, testPos[0] * canvasWidth + 144 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 144 + BACKGROUND.y);
+                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
 
                     var acolyte = new Acolyte({
                         'r': AM.getAsset("./img/acolyte.png"),
                         'l': AM.getAsset("./img/acolyte_left.png")
-                    }, testPos[0] * canvasWidth + 144 + BACKGROUND.x, testPos[1] * canvasHeight + 144 + BACKGROUND.y + 32);
+                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 32);
 
                     GAME_ENGINE.addEntity(devil);
                     GAME_ENGINE.addEntity(acolyte);
@@ -227,7 +233,7 @@ Background.prototype.createDoors = function () {
                     var bigdemon = new BigDemon({
                         'r': AM.getAsset("./img/monsters/big_demon_run.png"),
                         'l': AM.getAsset("./img/monsters/big_demon_run_left.png")
-                    }, testPos[0] * canvasWidth + 144 + BACKGROUND.x, testPos[1] * canvasHeight + 144 + BACKGROUND.y);
+                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
 
                     GAME_ENGINE.addEntity(bigdemon);
                 }
@@ -295,19 +301,19 @@ function Wall(theX, theY, theDirection) {
     this.direction = theDirection;
     this.image = new Image();
     this.image.src = "./img/floor1.png";
-    this.boundingbox = new BoundingBox(this.x, this.y, 16, 16);
+    this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 }
 
 Wall.prototype.update = function () {
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         if (this.direction === "up") {
-            myPlayer.y += myPlayer.actualSpeed / 2;
+            myPlayer.y += myPlayer.actualSpeed;
         } else if (this.direction === "down") {
-            myPlayer.y -= myPlayer.actualSpeed / 2;
+            myPlayer.y -= myPlayer.actualSpeed;
         } else if (this.direction === "left") {
-            myPlayer.x += myPlayer.actualSpeed / 2;
+            myPlayer.x += myPlayer.actualSpeed;
         } else {
-            myPlayer.x -= myPlayer.actualSpeed / 2;
+            myPlayer.x -= myPlayer.actualSpeed;
         }
     }
 
@@ -331,4 +337,13 @@ Wall.prototype.update = function () {
 
 Wall.prototype.draw = function () {
     GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 16, 16);
+    GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x + 16, this.y - CAMERA.y, 16, 16);
+    GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x + 16, this.y - CAMERA.y + 16, 16, 16);
+    GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y + 16, 16, 16);
+
+    if (GAME_ENGINE.debug) {
+        GAME_ENGINE.ctx.strokeStyle = color_red;
+        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+             this.boundingbox.width, this.boundingbox.height);
+    }
 }
