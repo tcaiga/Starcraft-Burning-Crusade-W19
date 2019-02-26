@@ -248,7 +248,6 @@ GameEngine.prototype.startInput = function () {
 }
 
 GameEngine.prototype.reset = function () {
-    console.table(GAME_ENGINE.entities);
     for (let i = 1; i < this.entities.length; i++) {
         for (let j = this.entities[i].length - 1; j >= 0; j--) {
             var entity = this.entities[i][j];
@@ -256,7 +255,6 @@ GameEngine.prototype.reset = function () {
             this.entities[i].pop();
         }
     }
-    console.table(GAME_ENGINE.entities);
     //menu is no longer removed from world
     this.entities[0][0].removeFromWorld = false;
     SCENE_MANAGER.menu = this.entities[0][0];
