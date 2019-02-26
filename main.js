@@ -1560,8 +1560,8 @@ AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     document.body.style.backgroundColor = "black";
-    canvasWidth = canvas.width;
-    canvasHeight = canvas.height;
+    canvasWidth = canvas.width - 160;
+    canvasHeight = canvas.height - 160;
 
     GAME_ENGINE.init(ctx);
     GAME_ENGINE.start();

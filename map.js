@@ -1,6 +1,6 @@
 function Background() {
-    this.x = -640;
-    this.y = -640;
+    this.x = -1280;
+    this.y = -1280;
     // Keeping track of the last direction the generator has moved.
     // 0 = North
     // 1 = East
@@ -51,8 +51,14 @@ Background.prototype.draw = function () {
                     }
                     // Drawing Tiles
                     if (tempTile === 0 || tempTile === 3) {
-                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE,
-                            this.y + i * canvasHeight + r * TILE_SIZE);
+                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2,
+                            this.y + i * canvasHeight + r * TILE_SIZE * 2);
+                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2 + TILE_SIZE,
+                            this.y + i * canvasHeight + r * TILE_SIZE * 2);
+                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2,
+                            this.y + i * canvasHeight + r * TILE_SIZE * 2 + TILE_SIZE);
+                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2 + TILE_SIZE,
+                            this.y + i * canvasHeight + r * TILE_SIZE * 2 + TILE_SIZE);
                     }
                 }
             }
@@ -71,17 +77,41 @@ Background.prototype.createWalls = function () {
                     let tempTile = ROOMS[this.map[i][j]][row * 20 + col];
                     if (tempTile === 1) {
                         if (col === 0 && row != 0 && row != 19) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
-                                this.y + i * canvasHeight + row * TILE_SIZE, "left"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "left"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2 + TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "right"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2 + TILE_SIZE, "down"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2 + TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2 + TILE_SIZE, "up"));
                         } else if (col === 19 && row != 0 & row != 19) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
-                                this.y + i * canvasHeight + row * TILE_SIZE, "right"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "left"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2 + TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "right"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2 + TILE_SIZE, "down"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2 + TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2 + TILE_SIZE, "up"));
                         } else if (row === 19) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
-                                this.y + i * canvasHeight + row * TILE_SIZE, "down"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "left"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2 + TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "right"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2 + TILE_SIZE, "down"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2 + TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2 + TILE_SIZE, "up"));
                         } else if (row === 0) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE,
-                                this.y + i * canvasHeight + row * TILE_SIZE, "up"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "left"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2 + TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "right"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2 + TILE_SIZE, "down"));
+                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2 + TILE_SIZE,
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2 + TILE_SIZE, "up"));
                         }
                     }
                 }
@@ -90,7 +120,7 @@ Background.prototype.createWalls = function () {
     }
 }
 
-Background.prototype.createDoors = function () {
+Background.prototype.decorateRoom = function () {
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
             // Drawing doors
