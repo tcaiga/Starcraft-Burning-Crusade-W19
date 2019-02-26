@@ -269,6 +269,7 @@ function RangerBoostPad(spriteSheetUp, spriteSheetDown) {
     this.lifeTime = 120;
 }
 
+
 function RootTrap(spriteSheetUp, spriteSheetDown) {
     Trap.call(this, spriteSheetUp, spriteSheetDown);
     this.damageObj = DS.CreateDamageObject(0, 0, DTypes.None
@@ -356,5 +357,61 @@ StillStand.prototype.draw = function () {
             this.boundingbox.width, this.boundingbox.height);
     } : null;
     this.ani.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x + this.aniX, this.y + this.aniY);
+}
+/* #endregion */
+
+/* #region Spawn Pool abilities */
+function SpawnZerglings() {
+    ss1Ani = new Animation(AM.getAsset("./img/ability/flame_ring_32x160.png"), 32, 32, 1, 0.13, 5, true, 1.5);
+    ss2Ani = new Animation(AM.getAsset("./img/ability/flame_explosion_32x320.png"), 32, 32, 1, 0.04, 10, false, 2);
+    ss1 = new StillStand(ss1Ani, 60, myPlayer.x, myPlayer.y);
+    ss1.ssAni = ss2Ani;
+    ss1.width = 50;
+    ss1.height = 50;
+    ss1.aniX = -32 * 1.5 / 2 + 12;
+    ss1.aniY = -32 * 1.5 / 2 + 22;
+    let x = myPlayer.x;
+    let y = myPlayer.y;
+
+    GAME_ENGINE.addEntity(ss1);
+
+    ss1.onDeath = function () {
+        // create 5 zerglings at a random area within 50px of the player
+        // after a 2s delay from a graphic being placed.
+        let zergling1 = new TinyZombie({
+            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
+            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
+        }, x + getRandomInt(0, 40), y - getRandomInt(0, 50));
+        let zergling2 = new TinyZombie({
+            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
+            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
+        }, x + getRandomInt(0, 40), y + getRandomInt(0, 40));
+        let zergling3 = new TinyZombie({
+            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
+            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
+        }, x + getRandomInt(0, 40), y + getRandomInt(10, 20));
+        let zergling4 = new TinyZombie({
+            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
+            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
+        }, x + getRandomInt(0, 40), y + getRandomInt(0, 40));
+        let zergling5 = new TinyZombie({
+            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
+            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
+        }, x + getRandomInt(0, 40), y + getRandomInt(0, 40));
+
+        GAME_ENGINE.addEntity(zergling1);
+        GAME_ENGINE.addEntity(zergling2);
+        GAME_ENGINE.addEntity(zergling3);
+        GAME_ENGINE.addEntity(zergling4);
+        GAME_ENGINE.addEntity(zergling5);
+    }
+
+}
+
+// for ability stuff
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min; 
 }
 /* #endregion */
