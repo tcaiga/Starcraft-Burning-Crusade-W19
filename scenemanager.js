@@ -139,6 +139,6 @@ SceneManager.prototype.gameInit = function () {
 
     BACKGROUND.validDirection();
     BACKGROUND.createWalls();
-    BACKGROUND.createDoors();
+    BACKGROUND.decorateRoom();
     console.table(BACKGROUND.map);
 }
