@@ -372,3 +372,18 @@ function Acolyte(spritesheetArr, x, y) {
     this.counter = 0;
 }
 
+function Zerg_Boss(spritesheetArr, x, y) {
+    Monster.call(this.spritesheetArr, x, y);
+
+    //animation
+
+    //gameplay
+
+    //abilities
+    // spawn zerglings
+
+    // spawn ultralisk
+    // spawn ...
+    // aoe burst
+}
+
