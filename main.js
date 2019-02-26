@@ -1158,7 +1158,7 @@ Trap.prototype.draw = function () {
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = color_red;
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-             this.boundingbox.width, this.boundingbox.height); // **Temporary** Hard coded offset values
+             this.boundingbox.width, this.boundingbox.height);
     }
 }
 
@@ -1560,8 +1560,8 @@ AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     document.body.style.backgroundColor = "black";
-    canvasWidth = canvas.width - 160;
-    canvasHeight = canvas.height - 160;
+    canvasWidth = canvas.width;
+    canvasHeight = canvas.height;
 
     GAME_ENGINE.init(ctx);
     GAME_ENGINE.start();
