@@ -1,9 +1,9 @@
 canvas {
     position: absolute;
     left: 50%;
-    margin-left:-320px;
+    margin-left:-160px;
     top:50%;
-    margin-top:-320px;
+    margin-top:-160px;
     border: 1px solid black;
 }
 

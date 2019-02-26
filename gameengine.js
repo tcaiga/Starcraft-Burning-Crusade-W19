@@ -291,41 +291,6 @@ GameEngine.prototype.addEntity = function (entity) {
     }
 }
 
-GameEngine.prototype.removeEntity = function (entity) {
-let idx;
-    if (entity instanceof Player) {
-        idx = this.entities[5].indexOf(entity);
-        if (idx > -1) {
-            this.entities[5].splice(idx, 1);
-        }
-    } else if (entity instanceof Monster) {
-        idx = this.entities[4].indexOf(entity);
-        if (idx > -1) {
-            this.entities[4].splice(idx, 1);
-        }
-    } else if (entity instanceof Projectile) {
-        idx = this.entities[3].indexOf(entity);
-        if (idx > -1) {
-            this.entities[3].splice(idx, 1);
-        }
-    } else if (entity instanceof Trap) {
-        idx = his.entities[2].indexOf(entity);
-        if (idx > -1) {
-            this.entities[2].splice(idx, 1);
-        }
-    } else if (entity instanceof Menu) {
-        idx = this.entities[0].indexOf(entity);
-        if (idx > -1) {
-            this.entities[0].splice(idx, 1);
-        }
-    } else {
-        idx = this.entities[1].indexOf(entity);
-        if (idx > -1) {
-            this.entities[1].splice(idx, 1);
-        }
-    }
-};
-
 GameEngine.prototype.draw = function () {
     this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
     this.ctx.save();
