@@ -995,8 +995,8 @@ Projectile.prototype.update = function () {
     this.x += velX;
     this.y += velY;
 
-    if (this.x - CAMERA.x < 0 || this.x - CAMERA.x > canvasWidth
-        || this.y - CAMERA.y < 0 || this.y - CAMERA.y > canvasHeight) {
+    if (this.x - CAMERA.x < 16 || this.x - CAMERA.x > canvasWidth - 64
+        || this.y - CAMERA.y < 0 || this.y - CAMERA.y > canvasHeight - 80) {
         this.removeFromWorld = true;
         GAME_ENGINE.removeEntity(this);
     }
