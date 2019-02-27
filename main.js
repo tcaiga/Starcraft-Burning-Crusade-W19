@@ -908,7 +908,6 @@ AM.queueDownload("./img/door_closed.png");
 
 
 AM.queueDownload("./img/terran/marine/marine_move_right.png");
-AM.queueDownload("./img/terran/redsix/redsix_move_right.png");
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
