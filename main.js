@@ -32,7 +32,7 @@ function Player(spritesheet, xOffset, yOffset) {
     this.scale = 1.5;
     this.xOffset = xOffset * this.scale;
     this.yOffset = yOffset * this.scale;
-    this.animationRun = new Animation(spritesheet, this.width, this.height, 1, 0.02, 9, true, this.scale);
+    this.animationRun = new Animation(spritesheet, this.width, this.height, 1, 0.04, 9, true, this.scale);
     this.animationIdle = this.animationRun;
     this.x = 60;
     this.y = 60;
