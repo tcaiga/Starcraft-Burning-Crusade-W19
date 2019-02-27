@@ -32,7 +32,7 @@ function Player(spritesheet, xOffset, yOffset) {
     this.scale = 1.5;
     this.xOffset = xOffset * this.scale;
     this.yOffset = yOffset * this.scale;
-    this.animationRun = new Animation(spritesheet, this.width, this.height, 1, 0.02, 9, true, this.scale);
+    this.animationRun = new Animation(spritesheet, this.width, this.height, 1, 0.04, 9, true, this.scale);
     this.animationIdle = this.animationRun;
     this.x = 60;
     this.y = 60;
@@ -908,7 +908,6 @@ AM.queueDownload("./img/door_closed.png");
 
 
 AM.queueDownload("./img/terran/marine/marine_move_right.png");
-AM.queueDownload("./img/terran/redsix/redsix_move_right.png");
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
