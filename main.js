@@ -52,7 +52,7 @@ function Player(spritesheet, xOffset, yOffset) {
     this.maxMovespeedAdj = 0;
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
     this.right = true;
-    this.health = 100;
+    this.health = 999999999;
     this.maxHealth = 100;
     this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,

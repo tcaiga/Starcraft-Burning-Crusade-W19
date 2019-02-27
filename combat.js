@@ -334,7 +334,6 @@ function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin)
 let ctr = 0;
 function Spike(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
-    console.log("Spike #" + ((ctr % 6) + 1) + " angle: " + this.angle);
     this.projectileSpeed = 5;
     this.penetrative = false;
     ctr++;

@@ -440,14 +440,29 @@ Zerg_Boss.prototype.bossBehavior = function () {
         this.lastInfestedPod = 420;
     }
 
+
+
     if (this.lastSpikeExplosion == 0) {
+        let tarX;
+        let tarY;
+        if (myPlayer.x < 0) {
+            tarX = canvasWidth - Math.abs(myPlayer.x) % canvasWidth;
+        } else {
+            tarX = Math.abs(myPlayer.x) % canvasWidth;
+        }
+
+        if (myPlayer.y < 0) {
+            tarY = canvasHeight - Math.abs(myPlayer.y) % canvasHeight;
+        } else {
+            tarY = Math.abs(myPlayer.y) % canvasHeight;
+        }
+
         for (var i = 0; i < 6; i++) {
             new SpikeExplosion(AM.getAsset("./img/fireball.png"), CAMERA.x + getRandomInt(0, canvasWidth), CAMERA.y + getRandomInt(0, canvasHeight),
-                myPlayer.x, myPlayer.y, 4);
+                tarX, tarY, 4);
         }
 
         this.lastSpikeExplosion = 300;
-        console.log(CAMERA.x + " " + CAMERA.y);
     }
     this.lastInfestedPod--;
     this.lastSpikeExplosion--;
