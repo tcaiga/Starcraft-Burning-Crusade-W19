@@ -52,7 +52,7 @@ function Player(spritesheet, xOffset, yOffset) {
     this.maxMovespeedAdj = 0;
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
     this.right = true;
-    this.health = 100;
+    this.health = 999999999;
     this.maxHealth = 100;
     this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
@@ -905,6 +905,9 @@ AM.queueDownload("./img/floor1.png");
 AM.queueDownload("./img/floor2.png");
 AM.queueDownload("./img/blacktile.png");
 AM.queueDownload("./img/door_closed.png");
+
+// spawning pool
+AM.queueDownload("./img/zerg/spawning_pool.png");
 
 
 AM.queueDownload("./img/terran/marine/marine_move_right.png");

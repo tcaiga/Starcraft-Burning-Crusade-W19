@@ -213,9 +213,17 @@ Background.prototype.decorateRoom = function () {
                         'l': AM.getAsset("./img/monsters/swampy_run_left.png")
                     }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 32);
 
+                    var zerg = new Zerg_Boss({
+                        'r': AM.getAsset("./img/zerg/spawning_pool.png"),
+                        'l': AM.getAsset("./img/zerg/spawning_pool.png"),
+                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x - 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+
                     GAME_ENGINE.addEntity(maskedorc);
                     GAME_ENGINE.addEntity(ogre);
                     GAME_ENGINE.addEntity(swampy);
+                    GAME_ENGINE.addEntity(zerg);
+                    console.log("\nSP x = " + zerg.x + "\nSP y = " + zerg.y);
+
                 } else if (this.drawFaceCount % 4 === 2) {
                     var devil = new Devil({
                         'r': AM.getAsset("./img/devil.png"),

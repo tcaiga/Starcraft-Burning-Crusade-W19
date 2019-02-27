@@ -10,6 +10,10 @@ function Monster(spritesheetArr, x, y) {
     this.inRange = false;
     this.castCooldown = 0;
     this.isStunned = false;
+    this.isPathing = false;
+    this.pathX = 0;
+    this.pathY = 0;
+    this.isBoss = false;
 
     // animation stuff
     this.flaggedLeft = false;
@@ -57,6 +61,12 @@ Monster.prototype.draw = function () {
     GAME_ENGINE.ctx.fillText("Health: " + Math.floor(this.health), this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
 }
 
+function pathTo(x, y) {
+    this.isPathing = true;
+    this.pathX = x;
+    this.pathY = y;
+} 
+
 function distance(monster) {
     var dx = playerX - monster.x;
     var dy = playerX - monster.y;
@@ -64,15 +74,39 @@ function distance(monster) {
 }
 
 Monster.prototype.update = function () {
-    if (this.health <= 0) this.removeFromWorld = true;
+    if (this.isBoss) {
+        this.bossBehavior();
+    } else {
 
+    }
+    if (this.health <= 0) this.removeFromWorld = true;
+    var dirX, dirY;
+    if (this.isPathing) {
+        // we've reached our target so stop.
+        if (this.x == this.pathX && this.y == this.pathY) {
+            this.isPathing = false;
+        }
+        dirX = this.pathX - this.x;
+        dirY = this.pathY - this.y;
+    } else {
+        // get the direction vector pointing towards player
+        dirX = playerX - this.x;
+        dirY = playerY - this.y;
+    }
+
+
+    if (this.boundingbox.collide(myPlayer.boundingbox)) {
+        this.counter += GAME_ENGINE.clockTick;
+        this.damageObj.ApplyEffects(myPlayer);
+        this.pause = true;
+        if (this.counter > .018 && myPlayer.health > 0) {
+            //player.health -= 5;
+        }
+        this.counter = 0;
+    }
 
     // based on the number of ticks since the player was last hit, we pause the monster
     if (this.pause == false && !this.isStunned) {
-        // get the direction vector pointing towards player
-        var dirX = playerX - this.x;
-        var dirY = playerY - this.y;
-
         // change spritesheet based on direction enemy is moving
         if (dirX < 0 && this.flaggedLeft == false) {
             this.flaggedLeft = true;
@@ -100,6 +134,7 @@ Monster.prototype.update = function () {
     }
 
     Entity.prototype.update.call(this);
+
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 
@@ -107,16 +142,6 @@ Monster.prototype.update = function () {
     this.visionBox = new BoundingBox(this.boundingbox.x + .5 * (this.width * this.scale - this.visionWidth),
         this.boundingbox.y + .5 * (this.height * this.scale - this.visionWidth),
         this.visionWidth, this.visionHeight);
-
-    if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        this.counter += GAME_ENGINE.clockTick;
-        this.damageObj.ApplyEffects(myPlayer);
-        this.pause = true;
-        if (this.counter > .018 && myPlayer.health > 0) {
-            //player.health -= 5;
-        }
-        this.counter = 0;
-    }
 
     if (this.isRanged) {
 
@@ -203,6 +228,7 @@ Swampy.prototype = Monster.prototype;
 TinyZombie.prototype = Monster.prototype;
 MaskedOrc.prototype = Monster.prototype;
 Ogre.prototype = Monster.prototype;
+Zerg_Boss.prototype = Monster.prototype;
 
 function BigDemon(spritesheetArr, x, y) {
 
@@ -373,17 +399,72 @@ function Acolyte(spritesheetArr, x, y) {
 }
 
 function Zerg_Boss(spritesheetArr, x, y) {
-    Monster.call(this.spritesheetArr, x, y);
+    Monster.call(this, spritesheetArr, x, y);
 
-    //animation
+    // animation
+    this.scale = 1.5;
+    this.width = 128;
+    this.height = 76;
+    this.numOfFrames = 4;
+    this.frameLength = .15;
+    this.sheetWidth = 512;
 
-    //gameplay
+    // gameplay
+    this.speed = 0;
+    this.health = 1000;
+    this.isRanged = true;
 
+    // boss specific stuff
+    this.isBoss = true;
+    this.mobArr = [];
+    this.mobCount = 0;
+    this.lastInfestedPod = 50;
+    this.lastSpikeExplosion = 150;
+
+
+    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, this.sheetWidth,
+        this.frameLength, this.numOfFrames, true, this.scale);
+
+    this.boundingbox = new BoundingBox(this.x + 30, this.y + 50,
+        this.width * this.scale + 60, this.height * this.scale - 30 ); // **Temporary** Hard coded offset values.
     //abilities
     // spawn zerglings
-
     // spawn ultralisk
     // spawn ...
     // aoe burst
+}
+
+Zerg_Boss.prototype.bossBehavior = function () {
+    if (this.lastInfestedPod == 0) {
+        new SpawnZerglings();
+        this.lastInfestedPod = 420;
+    }
+
+
+
+    if (this.lastSpikeExplosion == 0) {
+        let tarX;
+        let tarY;
+        if (myPlayer.x < 0) {
+            tarX = canvasWidth - Math.abs(myPlayer.x) % canvasWidth;
+        } else {
+            tarX = Math.abs(myPlayer.x) % canvasWidth;
+        }
+
+        if (myPlayer.y < 0) {
+            tarY = canvasHeight - Math.abs(myPlayer.y) % canvasHeight;
+        } else {
+            tarY = Math.abs(myPlayer.y) % canvasHeight;
+        }
+
+        for (var i = 0; i < 6; i++) {
+            new SpikeExplosion(AM.getAsset("./img/fireball.png"), CAMERA.x + getRandomInt(0, canvasWidth), CAMERA.y + getRandomInt(0, canvasHeight),
+                tarX, tarY, 4);
+        }
+
+        this.lastSpikeExplosion = 300;
+    }
+    this.lastInfestedPod--;
+    this.lastSpikeExplosion--;
 }
 
