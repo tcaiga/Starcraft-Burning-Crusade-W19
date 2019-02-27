@@ -401,9 +401,6 @@ function Acolyte(spritesheetArr, x, y) {
 function Zerg_Boss(spritesheetArr, x, y) {
     Monster.call(this, spritesheetArr, x, y);
 
-    this.x = x;
-    this.y = y;
-
     // animation
     this.scale = 1.5;
     this.width = 128;
@@ -421,7 +418,8 @@ function Zerg_Boss(spritesheetArr, x, y) {
     this.isBoss = true;
     this.mobArr = [];
     this.mobCount = 0;
-    this.lastInfestedPod = 0;
+    this.lastInfestedPod = 50;
+    this.lastSpikeExplosion = 150;
 
 
     this.animation = new Animation(spritesheetArr['r'], this.width, this.height, this.sheetWidth,
@@ -443,8 +441,15 @@ Zerg_Boss.prototype.bossBehavior = function () {
     }
 
     if (this.lastSpikeExplosion == 0) {
-        new SpikeExplosion(a, CAMERA.x, CAMERA.y, playerX, playerY, 5);
+        for (var i = 0; i < 6; i++) {
+            new SpikeExplosion(AM.getAsset("./img/fireball.png"), CAMERA.x + getRandomInt(0, canvasWidth), CAMERA.y + getRandomInt(0, canvasHeight),
+                myPlayer.x, myPlayer.y, 4);
+        }
+
+        this.lastSpikeExplosion = 300;
+        console.log(CAMERA.x + " " + CAMERA.y);
     }
     this.lastInfestedPod--;
+    this.lastSpikeExplosion--;
 }
 
