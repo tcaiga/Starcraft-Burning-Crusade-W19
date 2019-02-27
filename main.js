@@ -906,6 +906,9 @@ AM.queueDownload("./img/floor2.png");
 AM.queueDownload("./img/blacktile.png");
 AM.queueDownload("./img/door_closed.png");
 
+// spawning pool
+AM.queueDownload("./img/zerg/spawning_pool.png");
+
 
 AM.queueDownload("./img/terran/marine/marine_move_right.png");
 AM.queueDownload("./img/terran/redsix/redsix_move_right.png");

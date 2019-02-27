@@ -318,6 +318,25 @@ function SpawnZerglings() {
 
 }
 
+function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
+    this.projectileSpeed = 5;
+    this.penetrative = false;
+    this.aoe = 100;//square
+    this.animation = new Animation(spriteSheet, 16, 16, 1, .085, 4, true, 2);
+    this.aniX += 23;
+    this.aniY += 23;
+    this.origin = 5;
+    GAME_ENGINE.addEntity(ss1);
+
+    ss1.onDeath = function () {
+
+
+
+    }
+}
+
+
 // for ability stuff
 function getRandomInt(min, max) {
     min = Math.ceil(min);
