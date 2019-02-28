@@ -119,17 +119,19 @@ Background.prototype.decorateRoom = function () {
                 }
 
                 // Adding traps in all rooms except the starting and ending rooms.
-                let choice = Math.floor(Math.random() * 3);
+                let choice = Math.floor(Math.random() * 2);
                 // 33% chance a room that is not the start or end will have traps.
                 if (this.drawFaceCount > 0) {
                     if (choice === 0) {
                         for (let r = 1; r < 4; r++) {
                             for (let s = 1; s < 4; s++) {
-                                // 9 traps appear in the shape of a cube spaced out.
-                                var trap = new Trap(AM.getAsset("./img/floor_trap_up.png"),
-                                AM.getAsset("./img/floor_trap_down.png"), testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
+                                // 9 infested terrans appear in the shape of a cube spaced out.
+                                var infested = new Infested({
+                                    'r': AM.getAsset("./img/zerg/infested/infested_move_right.png"),
+                                    'l': AM.getAsset("./img/zerg/infested/infested_move_left.png")
+                                }, testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
                                 testPos[1] * canvasHeight + (s * 160) + BACKGROUND.y - 10);
-                                GAME_ENGINE.addEntity(trap);
+                                GAME_ENGINE.addEntity(infested);
                             }
                         }
                     } else if (choice === 1) {
