@@ -16,12 +16,6 @@ canvas {
     border: 1px solid black;
 }
 
-#wrapper {
-    margin-left:auto;
-    margin-right:auto;
-    width:762px;
-}
-
 .abilities {
     display: inline;
 }
@@ -37,9 +31,10 @@ canvas {
     color: lightgreen;
 }
 
-#speed {
-    display: inline;
-    color: lightgreen;
+
+#volumeLabel {
+    padding: 0%;
+    margin: 0%;
 }
 
 body {
