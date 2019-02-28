@@ -47,6 +47,7 @@ function Player(spritesheet, xOffset, yOffset) {
     this.castTime = 0;
     this.isStunned = false;
     this.sprint = 1;
+    this.dead = false;
     this.baseMaxMovespeed = 2;
     this.maxMovespeedRatio = 1;
     this.maxMovespeedAdj = 0;
@@ -92,112 +93,109 @@ Player.prototype.update = function () {
     this.sprint = GAME_ENGINE.keyShift ? 1.75 : 1;
     // Player movement controls
 
-    if (this.castTime <= 0 && !this.isStunned) {
-        /* #region Player movement controls */
-        this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
-        if (GAME_ENGINE.keyW === true) {
-            this.y -= this.actualSpeed;
+    if (!this.dead) {
+        if (this.castTime <= 0 && !this.isStunned) {
+            /* #region Player movement controls */
+            this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
+            if (GAME_ENGINE.keyW === true) {
+                this.y -= this.actualSpeed;
+            }
+            if (GAME_ENGINE.keyA === true) {
+                this.x -= this.actualSpeed;
+                this.right = false;
+            }
+            if (GAME_ENGINE.keyS === true) {
+                this.y += this.actualSpeed;
+            }
+            if (GAME_ENGINE.keyD === true) {
+                this.x += this.actualSpeed;
+                this.right = true;
+            }
+            var actualSpeed = Math.floor((this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint * 100);
+           
+            /* #endregion */
+        } else {
+            this.castTime--;
         }
-        if (GAME_ENGINE.keyA === true) {
-            this.x -= this.actualSpeed;
-            this.right = false;
+        /* #region Abilities */
+        let t;
+        for (t in this.abilityCD) {
+            this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
+            //ignoring index 0 of cd array
+            if (t > 0) {
+                var spellHTML = document.getElementById("spell" + t);
+                //display if spell is ready to use or not
+                if (this.abilityCD[t] > 0) {
+                    spellHTML.innerHTML = this.abilityCD[t] / 10;
+                    spellHTML.style.color = color_red;
+                } else {
+                    spellHTML.innerHTML = "Ready";
+                    spellHTML.style.color = color_green;
+                }
+            }
         }
-        if (GAME_ENGINE.keyS === true) {
-            this.y += this.actualSpeed;
+        for (t in GAME_ENGINE.digit) {
+            if (GAME_ENGINE.digit[t] && !this.isStunned) {
+                switch (GAME_ENGINE.playerPick) {
+                    case 0:
+                        this.mageAbilities(t);
+                        break;
+                    case 1:
+                        this.rangerAbilities(t);
+                        break;
+                    case 2:
+                        this.knightAbilities(t);
+                        break;
+                }
+            }
         }
-        if (GAME_ENGINE.keyD === true) {
-            this.x += this.actualSpeed;
-            this.right = true;
-        }
-        var actualSpeed = Math.floor((this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint * 100);
-        var speedHTML = document.getElementById("speed");
-        speedHTML.innerHTML = + actualSpeed + "%";
-        if (actualSpeed === 100)
-            speedHTML.style.color = color_green;
-        else if (actualSpeed < 100)
-            speedHTML.style.color = color_red;
-        else
-            speedHTML.style.color = color_white;
         /* #endregion */
-    } else {
-        this.castTime--;
-    }
-    /* #region Abilities */
-    let t;
-    for (t in this.abilityCD) {
-        this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
-        //ignoring index 0 of cd array
-        if (t > 0) {
-            var spellHTML = document.getElementById("spell" + t);
-            //display if spell is ready to use or not
-            if (this.abilityCD[t] > 0) {
-                spellHTML.innerHTML = this.abilityCD[t] / 10;
-                spellHTML.style.color = color_red;
-            } else {
-                spellHTML.innerHTML = "Ready";
-                spellHTML.style.color = color_green;
+
+
+        if (this.health <= 0) {
+            this.dead = true;
+            GAME_ENGINE.reset();
+            BACKGROUND = new Background();
+        }
+
+        /* #region Damage system updates */
+        let dmgObj;
+        let dmgRemove = [];
+        let dmgFlag;
+        let buff;
+        let buffRemove = [];
+        let buffFlag;
+        /* #region Updates */
+        for (dmgObj in this.damageObjArr) {//Updates damage objects
+            this.damageObjArr[dmgObj].update();
+            if (this.damageObjArr[dmgObj].timeLeft <= 0) {
+                dmgRemove.push(dmgObj);//Adds to trash system
             }
         }
-    }
-    for (t in GAME_ENGINE.digit) {
-        if (GAME_ENGINE.digit[t] && !this.isStunned) {
-            switch (GAME_ENGINE.playerPick) {
-                case 0:
-                    this.mageAbilities(t);
-                    break;
-                case 1:
-                    this.rangerAbilities(t);
-                    break;
-                case 2:
-                    this.knightAbilities(t);
-                    break;
+        for (buff in this.buffObj) {//Updates buff objects
+            this.buffObj[buff].update(this);
+            if (this.buffObj[buff].timeLeft <= 0) {
+                buffRemove.push(buff);//Adds to trash system
             }
         }
-    }
-    /* #endregion */
-
-
-    if (this.health <= 0) {
-        GAME_ENGINE.reset();
-        BACKGROUND = new Background();
-    }
-
-    /* #region Damage system updates */
-    let dmgObj;
-    let dmgRemove = [];
-    let dmgFlag;
-    let buff;
-    let buffRemove = [];
-    let buffFlag;
-    /* #region Updates */
-    for (dmgObj in this.damageObjArr) {//Updates damage objects
-        this.damageObjArr[dmgObj].update();
-        if (this.damageObjArr[dmgObj].timeLeft <= 0) {
-            dmgRemove.push(dmgObj);//Adds to trash system
+        /* #endregion */
+        /* #region Removal */
+        for (dmgFlag in dmgRemove) {//Removes flagged damage objects
+            this.damageObjArr.splice(dmgRemove[dmgFlag], 1);
         }
-    }
-    for (buff in this.buffObj) {//Updates buff objects
-        this.buffObj[buff].update(this);
-        if (this.buffObj[buff].timeLeft <= 0) {
-            buffRemove.push(buff);//Adds to trash system
+        for (buffFlag in buffRemove) {//Removes flagged buff objects
+            this.buffObj.splice(buffRemove[buffFlag], 1);
         }
-    }
-    /* #endregion */
-    /* #region Removal */
-    for (dmgFlag in dmgRemove) {//Removes flagged damage objects
-        this.damageObjArr.splice(dmgRemove[dmgFlag], 1);
-    }
-    for (buffFlag in buffRemove) {//Removes flagged buff objects
-        this.buffObj.splice(buffRemove[buffFlag], 1);
-    }
-    /* #endregion */
-    /* #endregion */
+        /* #endregion */
+        /* #endregion */
 
-    playerX = this.x;
-    playerY = this.y;
+        playerX = this.x;
+        playerY = this.y;
 
-    this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
-        this.width, this.height);
+        this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
+            this.width, this.height);
+    }
+
 }
 
 
@@ -223,7 +221,7 @@ Player.prototype.rangerAbilities = function (number) {
                 xPos = this.x - (xDif / mag) * castDistance;
                 yPos = this.y - (yDif / mag) * castDistance;
                 tempTrap = new RangerBoostPad(AM.getAsset("./img/floor_boostpad_on.png"),
-                AM.getAsset("./img/floor_boostpad_off.png"), xPos, yPos);
+                    AM.getAsset("./img/floor_boostpad_off.png"), xPos, yPos);
                 tempTrap.x = xPos;
                 tempTrap.y = yPos;
                 tempTrap.boundingbox = new BoundingBox(tempTrap.x, tempTrap.y, 20, 20);
@@ -270,7 +268,7 @@ Player.prototype.rangerAbilities = function (number) {
                 xPos = this.x - (xDif / mag) * castDistance;
                 yPos = this.y - (yDif / mag) * castDistance;
                 tempTrap = new RootTrap(AM.getAsset("./img/ability/root_trap_up.png"),
-                 AM.getAsset("./img/ability/root_trap_down.png"), xPos, yPos);
+                    AM.getAsset("./img/ability/root_trap_down.png"), xPos, yPos);
                 tempTrap.x = xPos;
                 tempTrap.y = yPos;
                 tempTrap.boundingbox = new BoundingBox(tempTrap.x, tempTrap.y, 20, 20);
@@ -362,7 +360,7 @@ Player.prototype.mageAbilities = function (number) {
                 for (let i = 0; i < 30; i++) {
                     tempPro2 = new FlameBreathBolt(AM.getAsset("./img/flame_breath_bolt.png")
                         , this.x - (this.width / 2), this.y - (this.height / 2),
-                         GAME_ENGINE.mouseX, GAME_ENGINE.mouseY, 5);
+                        GAME_ENGINE.mouseX, GAME_ENGINE.mouseY, 5);
                     GAME_ENGINE.addEntity(tempPro2);
                 }
                 this.castTime = 8;
@@ -445,7 +443,7 @@ Player.prototype.knightAbilities = function (number) {
                 ss1.onDraw = function () {
                     GAME_ENGINE.ctx.strokeStyle = color_yellow;
                     (GAME_ENGINE.debug) ? this.game.ctx.strokeRect(this.boundingbox.x,
-                         this.boundingbox.y, this.boundingbox.width, this.boundingbox.height) : null;
+                        this.boundingbox.y, this.boundingbox.width, this.boundingbox.height) : null;
                 }
                 ss1.damageObj = DS.CreateDamageObject(21, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.StunLong));
                 ss1.penetrative = true;
@@ -520,7 +518,7 @@ Player.prototype.knightAbilities = function (number) {
                 ss1.entityHitType = EntityTypes.enemies;
                 ss1.onDraw = function () {
                     GAME_ENGINE.ctx.strokeStyle = color_yellow;
-                    (GAME_ENGINE.debug) ? this.game.ctx.strokeRect(ss1.boundingbox.x,ss1.boundingbox.y,ss1.boundingbox.width,ss1.boundingbox.height) : null;
+                    (GAME_ENGINE.debug) ? this.game.ctx.strokeRect(ss1.boundingbox.x, ss1.boundingbox.y, ss1.boundingbox.width, ss1.boundingbox.height) : null;
                 }
                 ss1.damageObj = DS.CreateDamageObject(41, 0, DTypes.True);
                 ss1.penetrative = true;
@@ -706,7 +704,6 @@ Camera.prototype.move = function (direction) {
         myFloorNum += 1;
         BACKGROUND.y -= canvasHeight;
     }
-    document.getElementById("location").innerHTML = "Location: " + myFloorNum + "-" + myRoomNum;
 }
 /* #endregion */
 
@@ -815,12 +812,34 @@ Animation.prototype.currentFrame = function () {
 Animation.prototype.isDone = function () {
     return (this.elapsedTime >= this.totalTime);
 }
+
+function addHTMLListeners() {
+    var volumeSlider = document.getElementById("volumeSlider");
+    volumeSlider.addEventListener("change", function () {
+        music.volume = volumeSlider.value;
+        myCurrentVolume = music.volume;
+    }, false);
+    var muteButton = document.getElementById("muteButton");
+    muteButton.addEventListener("click", function () {
+        if (myIsMute) {
+            music.volume = myCurrentVolume;
+            muteButton.innerHTML = "Mute";
+            volumeSlider.value = myCurrentVolume;
+            myIsMute = false;
+        } else {
+            music.volume = 0.0;
+            muteButton.innerHTML = "Unmute";
+            volumeSlider.value = 0.0;
+            myIsMute = true;
+        }
+    }, false);
+
+}
 /* #endregion */
 
 /* #region Download queue and download */
 
 // Ranger
-AM.queueDownload("./img/ranger_run.png");
 for (let i = 0; i < 9; i++) {
     AM.queueDownload("./img/ability/multi_arrow_r_" + i + "_8x8.png");
     AM.queueDownload("./img/ability/multi_arrow_l_" + i + "_8x8.png");
@@ -839,7 +858,6 @@ AM.queueDownload("./img/ability/rain_of_arrows_32x384.png");
 AM.queueDownload("./img/ability/root_trap_down.png");
 AM.queueDownload("./img/ability/root_trap_up.png");
 // Knight
-AM.queueDownload("./img/knight_run.png");
 AM.queueDownload("./img/swordBoomerang.png");
 AM.queueDownload("./img/Shield Flash.png");
 AM.queueDownload("./img/ability/heal_self_32x224.png");
@@ -853,7 +871,6 @@ AM.queueDownload("./img/ability/knight_attack_left.png");
 AM.queueDownload("./img/ability/knight_attack_right.png");
 
 // Mage
-AM.queueDownload("./img/mage_run.png");
 AM.queueDownload("./img/flash.png");
 AM.queueDownload("./img/flame_breath_bolt.png");
 AM.queueDownload("./img/ability/flame_ring_32x160.png");
@@ -927,6 +944,7 @@ AM.downloadAll(function () {
 
     GAME_ENGINE.addEntity(new Menu());
     AUDIO = new Audio();
+    addHTMLListeners();
     BACKGROUND = new Background();
     SCENE_MANAGER = new SceneManager();
 });

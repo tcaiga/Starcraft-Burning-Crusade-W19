@@ -134,7 +134,6 @@ SceneManager.prototype.gameInit = function () {
     characterSprites[GAME_ENGINE.playerPick]["xOffset"], characterSprites[GAME_ENGINE.playerPick]["yOffset"]);
     GAME_ENGINE.addEntity(myPlayer);
     document.getElementById("health").innerHTML = myPlayer.health;
-    document.getElementById("location").innerHTML = "Location: 1-1";
     GAME_ENGINE.addEntity(CAMERA);
 
     BACKGROUND.validDirection();
