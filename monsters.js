@@ -230,6 +230,31 @@ MaskedOrc.prototype = Monster.prototype;
 Ogre.prototype = Monster.prototype;
 Zerg_Boss.prototype = Monster.prototype;
 
+Infested.prototype = Monster.prototype;
+function Infested(spritesheetArr, x, y) {
+
+    Monster.call(this, spritesheetArr, x, y);
+
+
+    // animation
+    this.scale = 1.5;
+    this.width = 40;
+    this.height = 40;
+    this.numOfFrames = 8;
+    this.frameLength = 0.03;
+    this.sheetWidth = 1;
+
+    // gameplay
+    this.speed = 150;
+    this.health = 15;
+
+    this.x = x;
+    this.y = y;
+
+    this.counter = 0;
+    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, 1, 0.04, 8, true, this.scale);
+}
+
 function BigDemon(spritesheetArr, x, y) {
 
     Monster.call(this, spritesheetArr, x, y);

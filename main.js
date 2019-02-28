@@ -912,6 +912,9 @@ AM.queueDownload("./img/zerg/spawning_pool.png");
 
 AM.queueDownload("./img/terran/marine/marine_move_right.png");
 
+AM.queueDownload("./img/zerg/infested/infested_move_right.png");
+AM.queueDownload("./img/zerg/infested/infested_move_left.png");
+
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
