@@ -947,6 +947,7 @@ AM.downloadAll(function () {
     canvasWidth = canvas.width;
     canvasHeight = canvas.height - hudHeight;
 
+
     GAME_ENGINE.init(ctx);
     GAME_ENGINE.start();
 
