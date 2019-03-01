@@ -83,7 +83,7 @@ GameEngine.prototype.startInput = function () {
         if (SCENE_MANAGER.insideMenu) {
             SCENE_MANAGER.menuSelection(x, y);
         } else {
-            if (!myPlayer.isDead) {
+            if (!myPlayer.dead) {
                 if (that.playerPick == 0) {
                     // Projectile
                     var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
@@ -273,7 +273,7 @@ GameEngine.prototype.reset = function () {
         spellHTML.style.color = color_green;
     }
     CAMERA = new Camera();
-    myPlayer.isDead = false;
+    myPlayer.dead = false;
 }
 
 GameEngine.prototype.addEntity = function (entity) {
@@ -333,8 +333,8 @@ GameEngine.prototype.draw = function () {
     for (let i = 0; i < this.entities.length; i++) {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
-            if (!entity.removeFromWorld && (i < 1 || 
-                (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
+            if (!entity.removeFromWorld && (entity instanceof Menu || 
+                entity instanceof Hud || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
                 entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.draw(this.ctx);
             }
@@ -347,7 +347,8 @@ GameEngine.prototype.update = function () {
     for (let i = 0; i < this.entities.length; i++) {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
-            if (!entity.removeFromWorld && (i < 1 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
+            if (!entity.removeFromWorld && (entity instanceof Menu || 
+                entity instanceof Hud || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
                 entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.update();
             }

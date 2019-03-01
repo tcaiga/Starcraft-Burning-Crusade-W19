@@ -9,6 +9,7 @@ const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
 var CAMERA = new Camera();
 const DS = new DamageSystem();
+const HUD = new Hud();
 
 var AUDIO;
 var BACKGROUND;
@@ -707,52 +708,42 @@ Camera.prototype.move = function (direction) {
 
 /* #region Menu */
 function Menu() {
-    GAME_ENGINE.ctx.font = "35px Arial";
-    this.mageWidth = GAME_ENGINE.ctx.measureText("Mage").width;
-    this.rangerWidth = GAME_ENGINE.ctx.measureText("Ranger").width;
-    this.knightWidth = GAME_ENGINE.ctx.measureText("Knight").width;
-    this.classButtonH = 35;
-    this.mageButtonX = canvasWidth / 2 - (this.mageWidth / 2);
-    this.rangerButtonX = canvasWidth / 2 - (this.rangerWidth / 2);
-    this.knightButtonX = canvasWidth / 2 - (this.knightWidth / 2);
-    this.mageButtonY = (canvasHeight - (this.classButtonH * 3)) / 4;
-    this.rangerButtonY = 2 * this.mageButtonY + this.classButtonH;
-    this.knightButtonY = this.rangerButtonY + this.classButtonH + this.mageButtonY;
+    this.button = {x: 406, width: 221, height: 39};
+    this.storyY = 263;
+    this.controlsY = 409;
+    this.back = {x:62, y:30, width:59,height:16};
+    this.controls = false;
+    this.credits = false;
     this.background = new Image();
-    this.background.src = "./img/menu_background.png";
+    this.background.src = "./img/utilities/menu.png";
 }
 
-Menu.prototype.update = function () { }
+Menu.prototype.update = function () {
+
+}
 
 Menu.prototype.draw = function () {
-    GAME_ENGINE.ctx.drawImage(this.background, 253, 0,
-        canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
-    this.createClassButton("Mage", this.mageButtonX, this.mageButtonY, this.mageWidth);
-    this.createClassButton("Ranger", this.rangerButtonX, this.rangerButtonY, this.rangerWidth);
-    this.createClassButton("Knight", this.knightButtonX, this.knightButtonY, this.knightWidth);
-}
-
-Menu.prototype.createClassButton = function (text, xPosition, YPosition, width) {
-    var x = GAME_ENGINE.mouseX;
-    var y = GAME_ENGINE.mouseY;
-    if (x >= xPosition && x <= xPosition + width && y >= YPosition && y <= YPosition + this.classButtonH) {
-        GAME_ENGINE.ctx.font = "bold 35px Arial";
-    } else {
-        GAME_ENGINE.ctx.font = "35px Arial";
+    GAME_ENGINE.ctx.drawImage(this.background, 0, 0, canvasWidth, canvasHeight + hudHeight);
+    if (this.controls) {
+        
     }
-    GAME_ENGINE.ctx.strokeStyle = "black bold";
-    GAME_ENGINE.ctx.strokeText(text, xPosition, YPosition + this.classButtonH - 8);
-    GAME_ENGINE.ctx.fillStyle = color_white;
-    GAME_ENGINE.ctx.fillText(text, xPosition, YPosition + this.classButtonH - 8);
+    // GAME_ENGINE.ctx.fillRect(406, 263, 221, 39);
+    // GAME_ENGINE.ctx.fillRect(406, 336, 221, 39);
+    // GAME_ENGINE.ctx.fillRect(406, 409, 221, 39);
+    // GAME_ENGINE.ctx.fillRect(406, 482, 221, 39);
 }
 
-function HUD() {
 
+
+function Hud() {
+    this.background = new Image();
+    this.background.src = "./img/utilities/hud.png";
 }
 
-HUD.prototype.update = function () { }
+Hud.prototype.update = function () { }
 
-HUD.prototype.draw = function () {
+Hud.prototype.draw = function () {
+    GAME_ENGINE.ctx.drawImage(this.background, 0, canvasHeight, canvasWidth, hudHeight);
 }
 /* #endregion */
 
@@ -943,7 +934,7 @@ AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     document.body.style.backgroundColor = "black";
-    var hudHeight = 195;
+    hudHeight = 195;
     canvasWidth = canvas.width;
     canvasHeight = canvas.height - hudHeight;
 
