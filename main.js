@@ -53,7 +53,7 @@ function Player(spritesheet, xOffset, yOffset) {
     this.maxMovespeedAdj = 0;
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
     this.right = true;
-    this.health = 999999999;
+    this.health = 9999;
     this.maxHealth = 100;
     this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
@@ -123,18 +123,6 @@ Player.prototype.update = function () {
         let t;
         for (t in this.abilityCD) {
             this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
-            //ignoring index 0 of cd array
-            if (t > 0) {
-                var spellHTML = document.getElementById("spell" + t);
-                //display if spell is ready to use or not
-                if (this.abilityCD[t] > 0) {
-                    spellHTML.innerHTML = this.abilityCD[t] / 10;
-                    spellHTML.style.color = color_red;
-                } else {
-                    spellHTML.innerHTML = "Ready";
-                    spellHTML.style.color = color_green;
-                }
-            }
         }
         for (t in GAME_ENGINE.digit) {
             if (GAME_ENGINE.digit[t] && !this.isStunned) {
@@ -550,15 +538,6 @@ Player.prototype.changeHealth = function (amount) {
     }
 
     this.health += amount;//Damage will come in as a negative value;
-    var healthHTML = document.getElementById("health");
-    if (this.health >= 66)
-        healthHTML.style.color = color_green;
-    else if (this.health >= 33)
-        healthHTML.style.color = color_yellow;
-    else
-        healthHTML.style.color = color_red;
-    healthHTML.innerHTML = this.health;
-
 }
 /* #endregion */
 
@@ -724,13 +703,6 @@ Menu.prototype.update = function () {
 
 Menu.prototype.draw = function () {
     GAME_ENGINE.ctx.drawImage(this.background, 0, 0, canvasWidth, canvasHeight + hudHeight);
-    if (this.controls) {
-        
-    }
-    // GAME_ENGINE.ctx.fillRect(406, 263, 221, 39);
-    // GAME_ENGINE.ctx.fillRect(406, 336, 221, 39);
-    // GAME_ENGINE.ctx.fillRect(406, 409, 221, 39);
-    // GAME_ENGINE.ctx.fillRect(406, 482, 221, 39);
 }
 
 
@@ -743,7 +715,10 @@ function Hud() {
 Hud.prototype.update = function () { }
 
 Hud.prototype.draw = function () {
+    GAME_ENGINE.ctx.font = "20px Arial";
     GAME_ENGINE.ctx.drawImage(this.background, 0, canvasHeight, canvasWidth, hudHeight);
+    GAME_ENGINE.ctx.fillStyle = "white";
+    GAME_ENGINE.ctx.fillText(myPlayer.health, 455, canvasHeight + 150)
 }
 /* #endregion */
 
@@ -811,28 +786,6 @@ Animation.prototype.isDone = function () {
     return (this.elapsedTime >= this.totalTime);
 }
 
-function addHTMLListeners() {
-    var volumeSlider = document.getElementById("volumeSlider");
-    volumeSlider.addEventListener("change", function () {
-        music.volume = volumeSlider.value;
-        myCurrentVolume = music.volume;
-    }, false);
-    var muteButton = document.getElementById("muteButton");
-    muteButton.addEventListener("click", function () {
-        if (myIsMute) {
-            music.volume = myCurrentVolume;
-            muteButton.innerHTML = "Mute";
-            volumeSlider.value = myCurrentVolume;
-            myIsMute = false;
-        } else {
-            music.volume = 0.0;
-            muteButton.innerHTML = "Unmute";
-            volumeSlider.value = 0.0;
-            myIsMute = true;
-        }
-    }, false);
-
-}
 /* #endregion */
 
 /* #region Download queue and download */
@@ -944,7 +897,6 @@ AM.downloadAll(function () {
 
     GAME_ENGINE.addEntity(new Menu());
     AUDIO = new Audio();
-    addHTMLListeners();
     BACKGROUND = new Background();
     SCENE_MANAGER = new SceneManager();
 });

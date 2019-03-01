@@ -142,7 +142,6 @@ SceneManager.prototype.gameInit = function () {
     myPlayer = new Player(AM.getAsset(characterSprites[GAME_ENGINE.playerPick]["spritesheet"]),
         characterSprites[GAME_ENGINE.playerPick]["xOffset"], characterSprites[GAME_ENGINE.playerPick]["yOffset"]);
     GAME_ENGINE.addEntity(myPlayer);
-    document.getElementById("health").innerHTML = myPlayer.health;
     GAME_ENGINE.addEntity(CAMERA);
 
     BACKGROUND.validDirection();

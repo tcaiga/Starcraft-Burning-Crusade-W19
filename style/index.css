@@ -1,40 +1,8 @@
 canvas {
-    position: absolute;
-    left: 50%;
-    margin-left:-320px;
-    top:50%;
-    margin-top:-320px;
+    margin: auto;
+    padding: 0;
+    display: block;
     border: 1px solid black;
-}
-
-#sidebar {
-    position: absolute;
-    right:0;
-    height:100%;
-    background-color: #4C4C4C;
-    float: right;
-    border: 1px solid black;
-}
-
-.abilities {
-    display: inline;
-}
-
-
-.spell {
-    display: inline;
-    color: lightgreen;
-}
-
-#health {
-    display: inline;
-    color: lightgreen;
-}
-
-
-#volumeLabel {
-    padding: 0%;
-    margin: 0%;
 }
 
 body {
