@@ -938,6 +938,7 @@ AM.queueDownload("./img/terran/marine/marine_move_right.png");
 
 AM.queueDownload("./img/zerg/infested/infested_move_right.png");
 AM.queueDownload("./img/zerg/infested/infested_move_left.png");
+AM.queueDownload("./img/utilities/floor.png");
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");

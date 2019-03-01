@@ -1,6 +1,9 @@
 function Background() {
     this.x = -1280;
     this.y = -1280;
+
+    this.floorX = 0;
+    this.floorY = 0;
     // Keeping track of the last direction the generator has moved.
     // 0 = North
     // 1 = East
@@ -34,15 +37,15 @@ function Background() {
 }
 
 Background.prototype.draw = function () {
+    GAME_ENGINE.ctx.drawImage(AM.getAsset("./img/utilities/floor.png"), this.floorX, this.floorY, 608, 608);
+
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
             for (let r = 0; r < 20; r++) {
                 for (let s = 0; s < 20; s++) {
                     // Determining tiles to choose
                     let tempTile = ROOMS[this.map[i][j]][r * 20 + s];
-                    if (tempTile === 0) {
-                        this.tile = this.zero;
-                    } else if (tempTile === 3) {
+                    if (tempTile === 3) {
                         this.tile = this.three;
                     }
                     // Drawing Tiles
