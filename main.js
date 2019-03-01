@@ -15,8 +15,7 @@ var BACKGROUND;
 var SCENE_MANAGER;
 var canvasWidth;
 var canvasHeight;
-var myFloorNum = 1;
-var myRoomNum = 1;
+var hudHeight;
 var playerX;
 var playerY;
 
@@ -61,6 +60,8 @@ function Player(spritesheet, xOffset, yOffset) {
 }
 
 Player.prototype.draw = function () {
+    GAME_ENGINE.clockTick.strokeStyle = "red";
+    GAME_ENGINE.ctx.strokeRect(CAMERA.x, CAMERA.y, canvasWidth - 1, canvasHeight - 1);
     this.xScale = 1;
     var xValue = this.x;
     if (!this.right) {
@@ -678,30 +679,27 @@ function Camera() {
 
 Camera.prototype.update = function () { }
 
-Camera.prototype.draw = function () { }
+Camera.prototype.draw = function () { 
+}
 
 
 Camera.prototype.move = function (direction) {
-    var positionChange = TILE_SIZE * 2 + 60;
+    var positionChange = TILE_SIZE * 4 + 40;
     if (direction === "right") {
         this.x += canvasWidth;
         myPlayer.x += positionChange;
-        myRoomNum += 1;
         BACKGROUND.x -= canvasWidth;
     } else if (direction === "left") {
         this.x -= canvasWidth;
         myPlayer.x -= positionChange;
-        myRoomNum -= 1;
         BACKGROUND.x += canvasWidth;
     } else if (direction === "up") {
         this.y -= canvasHeight;
         myPlayer.y -= positionChange;
-        myFloorNum -= 1;
         BACKGROUND.y += canvasHeight;
     } else {
         this.y += canvasHeight;
         myPlayer.y += positionChange;
-        myFloorNum += 1;
         BACKGROUND.y -= canvasHeight;
     }
 }
@@ -746,6 +744,15 @@ Menu.prototype.createClassButton = function (text, xPosition, YPosition, width) 
     GAME_ENGINE.ctx.strokeText(text, xPosition, YPosition + this.classButtonH - 8);
     GAME_ENGINE.ctx.fillStyle = color_white;
     GAME_ENGINE.ctx.fillText(text, xPosition, YPosition + this.classButtonH - 8);
+}
+
+function HUD() {
+
+}
+
+HUD.prototype.update = function () { }
+
+HUD.prototype.draw = function () {
 }
 /* #endregion */
 
@@ -936,8 +943,10 @@ AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     document.body.style.backgroundColor = "black";
+    var hudHeight = 195;
     canvasWidth = canvas.width;
-    canvasHeight = canvas.height - 195;
+    canvasHeight = canvas.height - hudHeight;
+
 
     GAME_ENGINE.init(ctx);
     GAME_ENGINE.start();

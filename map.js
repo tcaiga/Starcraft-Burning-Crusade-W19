@@ -42,15 +42,12 @@ Background.prototype.draw = function () {
                     let tempTile = ROOMS[this.map[i][j]][r * 20 + s];
                     if (tempTile === 0) {
                         this.tile = this.zero;
-                    }
-                    // else if (tempTile === 2) {
-                    //     this.tile = this.two;
-                    // } 
-                    else if (tempTile === 3) {
+                    } else if (tempTile === 3) {
                         this.tile = this.three;
                     }
                     // Drawing Tiles
-                    if (tempTile === 0 || tempTile === 3) {
+                    if ((tempTile === 0 || tempTile === 3) 
+                    && this.y + i * canvasHeight + r * TILE_SIZE * 2 <= Math.abs(canvasHeight + Camera.y)) {
                         GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2,
                             this.y + i * canvasHeight + r * TILE_SIZE * 2);
                         GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2 + TILE_SIZE,
@@ -87,7 +84,7 @@ Background.prototype.createWalls = function () {
                                 this.y + i * canvasHeight + row * TILE_SIZE * 2, "down"));
                         } else if (row === 0) {
                             GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
-                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "up"));
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2 + 1, "up"));
                         }
                     }
                 }
@@ -106,7 +103,7 @@ Background.prototype.decorateRoom = function () {
                 // Adding a door to go forward for all rooms except the ending room.
                 if (this.face[this.drawFaceCount] === 0) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                        testPos[1] * canvasHeight + BACKGROUND.y, "up"));
+                        testPos[1] * canvasHeight + BACKGROUND.y + 1, "up"));
                 } else if (this.face[this.drawFaceCount] === 1) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 608 + BACKGROUND.x,
                         testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right"));
@@ -150,7 +147,7 @@ Background.prototype.decorateRoom = function () {
                             testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left"));
                     } else if (this.face[this.drawFaceCount] === 2) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + BACKGROUND.y, "up"));
+                            testPosReverse[1] * canvasHeight + BACKGROUND.y + 1, "up"));
                     } else if (this.face[this.drawFaceCount] === 3) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 608 + BACKGROUND.x,
                             testPosReverse[1] * canvasHeight + 304 + BACKGROUND.y, "right"));
@@ -167,7 +164,7 @@ Background.prototype.decorateRoom = function () {
                             testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left"));
                     } else if (this.face[this.drawFaceCount] === 2) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + BACKGROUND.y, "up"));
+                            testPos[1] * canvasHeight + BACKGROUND.y + 1, "up"));
                     } else if (this.face[this.drawFaceCount] === 3) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 608 + BACKGROUND.x,
                             testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right"));
