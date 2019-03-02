@@ -9,6 +9,7 @@ const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
 var CAMERA = new Camera();
 const DS = new DamageSystem();
+const HUD = new Hud();
 
 var AUDIO;
 var BACKGROUND;
@@ -52,7 +53,7 @@ function Player(spritesheet, xOffset, yOffset) {
     this.maxMovespeedAdj = 0;
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
     this.right = true;
-    this.health = 999999999;
+    this.health = 9999;
     this.maxHealth = 100;
     this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
@@ -122,18 +123,6 @@ Player.prototype.update = function () {
         let t;
         for (t in this.abilityCD) {
             this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
-            //ignoring index 0 of cd array
-            if (t > 0) {
-                var spellHTML = document.getElementById("spell" + t);
-                //display if spell is ready to use or not
-                if (this.abilityCD[t] > 0) {
-                    spellHTML.innerHTML = this.abilityCD[t] / 10;
-                    spellHTML.style.color = color_red;
-                } else {
-                    spellHTML.innerHTML = "Ready";
-                    spellHTML.style.color = color_green;
-                }
-            }
         }
         for (t in GAME_ENGINE.digit) {
             if (GAME_ENGINE.digit[t] && !this.isStunned) {
@@ -214,15 +203,6 @@ Player.prototype.changeHealth = function (amount) {
     }
 
     this.health += amount;//Damage will come in as a negative value;
-    var healthHTML = document.getElementById("health");
-    if (this.health >= 66)
-        healthHTML.style.color = color_green;
-    else if (this.health >= 33)
-        healthHTML.style.color = color_yellow;
-    else
-        healthHTML.style.color = color_red;
-    healthHTML.innerHTML = this.health;
-
 }
 /* #endregion */
 
@@ -372,52 +352,39 @@ Camera.prototype.move = function (direction) {
 
 /* #region Menu */
 function Menu() {
-    GAME_ENGINE.ctx.font = "35px Arial";
-    this.mageWidth = GAME_ENGINE.ctx.measureText("Mage").width;
-    this.rangerWidth = GAME_ENGINE.ctx.measureText("Ranger").width;
-    this.knightWidth = GAME_ENGINE.ctx.measureText("Knight").width;
-    this.classButtonH = 35;
-    this.mageButtonX = canvasWidth / 2 - (this.mageWidth / 2);
-    this.rangerButtonX = canvasWidth / 2 - (this.rangerWidth / 2);
-    this.knightButtonX = canvasWidth / 2 - (this.knightWidth / 2);
-    this.mageButtonY = (canvasHeight - (this.classButtonH * 3)) / 4;
-    this.rangerButtonY = 2 * this.mageButtonY + this.classButtonH;
-    this.knightButtonY = this.rangerButtonY + this.classButtonH + this.mageButtonY;
+    this.button = {x: 406, width: 221, height: 39};
+    this.storyY = 263;
+    this.controlsY = 409;
+    this.back = {x:62, y:30, width:59,height:16};
+    this.controls = false;
+    this.credits = false;
     this.background = new Image();
     this.background.src = "./img/utilities/menu.png";
 }
 
-Menu.prototype.update = function () { }
+Menu.prototype.update = function () {
+
+}
 
 Menu.prototype.draw = function () {
-    GAME_ENGINE.ctx.drawImage(this.background, 253, 0,
-        canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
-    this.createClassButton("Mage", this.mageButtonX, this.mageButtonY, this.mageWidth);
-    this.createClassButton("Ranger", this.rangerButtonX, this.rangerButtonY, this.rangerWidth);
-    this.createClassButton("Knight", this.knightButtonX, this.knightButtonY, this.knightWidth);
+    GAME_ENGINE.ctx.drawImage(this.background, 0, 0, canvasWidth, canvasHeight + hudHeight);
 }
 
-Menu.prototype.createClassButton = function (text, xPosition, YPosition, width) {
-    var x = GAME_ENGINE.mouseX;
-    var y = GAME_ENGINE.mouseY;
-    if (x >= xPosition && x <= xPosition + width && y >= YPosition && y <= YPosition + this.classButtonH) {
-        GAME_ENGINE.ctx.font = "bold 35px Arial";
-    } else {
-        GAME_ENGINE.ctx.font = "35px Arial";
-    }
-    GAME_ENGINE.ctx.strokeStyle = "black bold";
-    GAME_ENGINE.ctx.strokeText(text, xPosition, YPosition + this.classButtonH - 8);
-    GAME_ENGINE.ctx.fillStyle = color_white;
-    GAME_ENGINE.ctx.fillText(text, xPosition, YPosition + this.classButtonH - 8);
+
+
+function Hud() {
+    this.background = new Image();
+    this.background.src = "./img/utilities/hud.png";
 }
 
-function HUD() {
+Hud.prototype.update = function () { }
 
-}
-
-HUD.prototype.update = function () { }
-
-HUD.prototype.draw = function () {
+Hud.prototype.draw = function () {
+    GAME_ENGINE.ctx.drawImage(this.background, 0, canvasHeight, canvasWidth, hudHeight);
+    GAME_ENGINE.ctx.fillStyle = "white";
+    GAME_ENGINE.ctx.font = "18px Arial";
+    GAME_ENGINE.ctx.fillText("Health", 455, canvasHeight + 125);
+    GAME_ENGINE.ctx.fillText(myPlayer.health, 455, canvasHeight + 150)
 }
 /* #endregion */
 
@@ -485,28 +452,6 @@ Animation.prototype.isDone = function () {
     return (this.elapsedTime >= this.totalTime);
 }
 
-function addHTMLListeners() {
-    var volumeSlider = document.getElementById("volumeSlider");
-    volumeSlider.addEventListener("change", function () {
-        music.volume = volumeSlider.value;
-        myCurrentVolume = music.volume;
-    }, false);
-    var muteButton = document.getElementById("muteButton");
-    muteButton.addEventListener("click", function () {
-        if (myIsMute) {
-            music.volume = myCurrentVolume;
-            muteButton.innerHTML = "Mute";
-            volumeSlider.value = myCurrentVolume;
-            myIsMute = false;
-        } else {
-            music.volume = 0.0;
-            muteButton.innerHTML = "Unmute";
-            volumeSlider.value = 0.0;
-            myIsMute = true;
-        }
-    }, false);
-
-}
 /* #endregion */
 
 /* #region Download queue and download */
@@ -556,7 +501,7 @@ AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     document.body.style.backgroundColor = "black";
-    var hudHeight = 195;
+    hudHeight = 195;
     canvasWidth = canvas.width;
     canvasHeight = canvas.height - hudHeight;
 
@@ -566,7 +511,6 @@ AM.downloadAll(function () {
 
     GAME_ENGINE.addEntity(new Menu());
     AUDIO = new Audio();
-    addHTMLListeners();
     BACKGROUND = new Background();
     SCENE_MANAGER = new SceneManager();
 });

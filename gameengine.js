@@ -83,7 +83,7 @@ GameEngine.prototype.startInput = function () {
         if (SCENE_MANAGER.insideMenu) {
             SCENE_MANAGER.menuSelection(x, y);
         } else {
-            if (!myPlayer.isDead) {
+            if (!myPlayer.dead) {
                 if (that.playerPick == 0) {
                     // Projectile
                     var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
@@ -262,18 +262,8 @@ GameEngine.prototype.reset = function () {
     SCENE_MANAGER.menu = this.entities[0][0];
     SCENE_MANAGER.insideMenu = true;
     this.playerPick = -1;
-
-    //reset html text
-    var healthHTML = document.getElementById("health");
-    healthHTML.innerHTML = "";
-    healthHTML.style.color = color_green;
-    for (let x = 1; x < 4; x++) {
-        var spellHTML = document.getElementById("spell" + x);
-        spellHTML.innerHTML = "Ready";
-        spellHTML.style.color = color_green;
-    }
     CAMERA = new Camera();
-    myPlayer.isDead = false;
+    myPlayer.dead = false;
 }
 
 GameEngine.prototype.addEntity = function (entity) {
@@ -285,7 +275,9 @@ GameEngine.prototype.addEntity = function (entity) {
         this.entities[3].push(entity);
     } else if (entity instanceof Trap) {
         this.entities[2].push(entity);
-    } else if (entity instanceof Menu || entity instanceof Background) {
+    } else if (entity instanceof Menu ||
+         entity instanceof Background ||
+          entity instanceof Hud) {
         this.entities[0].push(entity);
     } else {
         this.entities[1].push(entity);
@@ -333,8 +325,8 @@ GameEngine.prototype.draw = function () {
     for (let i = 0; i < this.entities.length; i++) {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
-            if (!entity.removeFromWorld && (i < 1 || 
-                (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
+            if (!entity.removeFromWorld && (entity instanceof Menu || 
+                entity instanceof Hud || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
                 entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.draw(this.ctx);
             }
@@ -347,7 +339,8 @@ GameEngine.prototype.update = function () {
     for (let i = 0; i < this.entities.length; i++) {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
-            if (!entity.removeFromWorld && (i < 1 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
+            if (!entity.removeFromWorld && (entity instanceof Menu || 
+                entity instanceof Hud || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
                 entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.update();
             }

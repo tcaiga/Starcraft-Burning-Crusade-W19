@@ -1,40 +1,41 @@
 canvas {
-    position: absolute;
-    left: 50%;
-    margin-left:-320px;
-    top:50%;
-    margin-top:-320px;
     border: 1px solid black;
 }
 
-#sidebar {
+#hud {
+    position: relative;
+    text-align: center;
+}
+
+.wrapper {
+    margin: 0 auto;
+    width: 640px;
+    height: 195px;
+    position: relative;
+}
+
+#volumeSlider {
     position: absolute;
-    right:0;
-    height:100%;
-    background-color: #4C4C4C;
-    float: right;
-    border: 1px solid black;
+    left: 38%;
+    top: 83%;
+    z-index: 1000;
+    float: bottom;
 }
-
-.abilities {
-    display: inline;
-}
-
-
-.spell {
-    display: inline;
-    color: lightgreen;
-}
-
-#health {
-    display: inline;
-    color: lightgreen;
-}
-
 
 #volumeLabel {
-    padding: 0%;
-    margin: 0%;
+    position: absolute;
+    left: 26%;
+    top: 75%;
+    z-index: 1000;
+    float: bottom;
+}
+
+#muteButton {
+    position: absolute;
+    left: 61%;
+    top: 83%;
+    z-index: 1000;
+    float: bottom;
 }
 
 body {
