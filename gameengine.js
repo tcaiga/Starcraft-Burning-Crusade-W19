@@ -265,6 +265,8 @@ GameEngine.prototype.reset = function () {
     CAMERA = new Camera();
     myPlayer.dead = false;
     document.getElementById("hud").style.display = "none";
+    document.getElementById("health").innerHTML = myPlayer.maxHealth;
+    document.getElementById("healthImg").src = "./img/health_wireframe/green_health.png";
 }
 
 GameEngine.prototype.addEntity = function (entity) {
@@ -276,8 +278,7 @@ GameEngine.prototype.addEntity = function (entity) {
         this.entities[3].push(entity);
     } else if (entity instanceof Trap) {
         this.entities[2].push(entity);
-    } else if (entity instanceof Menu ||
-         entity instanceof Background) {
+    } else if (entity instanceof Menu) {
         this.entities[0].push(entity);
     } else {
         this.entities[1].push(entity);

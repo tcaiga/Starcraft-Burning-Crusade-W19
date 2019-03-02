@@ -51,8 +51,9 @@ function Player(spritesheet, xOffset, yOffset) {
     this.maxMovespeedAdj = 0;
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
     this.right = true;
-    this.health = 9999;
     this.maxHealth = 100;
+    this.health = this.maxHealth;
+    this.healthPercent = 100;
     this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x + 4, this.y + 14,
         this.width, this.height); // **Temporary** Hard coded offset values.
@@ -215,6 +216,18 @@ Player.prototype.changeHealth = function (amount) {
     }
 
     this.health += amount;//Damage will come in as a negative value;
+    this.healthPercent = Math.floor(this.health / this.maxHealth * 100);
+    document.getElementById("health").innerHTML = this.health;
+    var healthImg = document.getElementById("healthImg");
+    if (this.healthPercent >= 90) {
+        healthImg.src = "./img/health_wireframe/green_health.png";
+    } else if (this.healthPercent >= 60) {
+        healthImg.src = "./img/health_wireframe/yellow_health.png";
+    } else if (this.healthPercent >= 30) {
+        healthImg.src = "./img/health_wireframe/orange_health.png";
+    } else {
+        healthImg.src = "./img/health_wireframe/red_health.png";
+    }
 }
 /* #endregion */
 
@@ -453,23 +466,7 @@ function addHTMLListeners() {
     var volumeSlider = document.getElementById("volumeSlider");
     volumeSlider.addEventListener("change", function () {
         music.volume = volumeSlider.value;
-        myCurrentVolume = music.volume;
     }, false);
-    var muteButton = document.getElementById("muteButton");
-    muteButton.addEventListener("click", function () {
-        if (myIsMute) {
-            music.volume = myCurrentVolume;
-            muteButton.innerHTML = "Mute";
-            volumeSlider.value = myCurrentVolume;
-            myIsMute = false;
-        } else {
-            music.volume = 0.0;
-            muteButton.innerHTML = "Unmute";
-            volumeSlider.value = 0.0;
-            myIsMute = true;
-        }
-    }, false);
-
 }
 
 /* #endregion */
@@ -481,8 +478,6 @@ AM.queueDownload("./img/fireball.png");
 
 // Buildings and Map
 AM.queueDownload("./img/utilities/floor.png");
-AM.queueDownload("./img/buildings/canal_off.png");
-AM.queueDownload("./img/buildings/canal_on.png");
 AM.queueDownload("./img/buildings/crashed_cruiser.png");
 AM.queueDownload("./img/buildings/gravemind.png");
 AM.queueDownload("./img/buildings/hive.png");

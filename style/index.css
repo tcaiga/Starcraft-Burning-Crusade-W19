@@ -1,3 +1,7 @@
+body {
+    font-family: Starcraft;
+}
+
 canvas {
     border: 1px solid black;
 }
@@ -16,7 +20,6 @@ canvas {
 
 #volumeSlider {
     position: absolute;
-    width: 75px;
     left: 76%;
     top: 83%;
     z-index: 1000;
@@ -27,7 +30,7 @@ canvas {
     position: absolute;
     z-index: 1000;
     float: bottom;
-    left: 76%;
+    left: 76.5%;
     top: 65%;
 }
 
@@ -74,16 +77,24 @@ canvas {
     position: absolute;
     z-index: 1000;
     float: bottom;
-    left: 66.5%;
-    top:44%;
+    left: 67%;
+    top:37%;
 }
 
 #health {
     position: absolute;
     z-index: 1000;
     float: bottom;
-    left: 72%;
-    top:58%;
+    left: 67.5%;
+    top:44%;
+}
+
+#healthImg {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 67%;
+    top:62%;
 }
 
 .hudImg {
