@@ -121,18 +121,19 @@ Player.prototype.update = function () {
         let t;
         for (t in this.abilityCD) {
             this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
-            // if (t > 0) {
-            //     var spellHTML = document.getElementById("spell" + t);
-            //     //display if spell is ready to use or not
-            //     if (this.abilityCD[t] > 0) {
-            //         spellHTML.innerHTML = this.abilityCD[t] / 10;
-            //         spellHTML.style.color = color_red;
-            //     } else {
-            //         spellHTML.innerHTML = "Ready";
-            //         spellHTML.style.color = color_green;
-            //     }
-            // }
+            if (t > 0) {
+                var spellHTML = document.getElementById("spell" + t);
+                //display if spell is ready to use or not
+                if (this.abilityCD[t] > 0) {
+                    spellHTML.innerHTML = this.abilityCD[t] / 10;
+                    spellHTML.style.color = color_red;
+                } else {
+                    spellHTML.innerHTML = "Ready";
+                    spellHTML.style.color = color_green;
+                }
+            }
         }
+
 
         // ****************
         // DISABLED FOR NOW

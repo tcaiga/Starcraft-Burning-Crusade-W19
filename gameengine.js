@@ -267,6 +267,11 @@ GameEngine.prototype.reset = function () {
     document.getElementById("hud").style.display = "none";
     document.getElementById("health").innerHTML = myPlayer.maxHealth;
     document.getElementById("healthImg").src = "./img/health_wireframe/green_health.png";
+    for (let t = 1; t < 4; t++) {
+        var spellHTML = document.getElementById("spell" + t);
+        spellHTML.innerHTML = "Ready";
+        spellHTML.style.color = color_green;
+    }
 }
 
 GameEngine.prototype.addEntity = function (entity) {
