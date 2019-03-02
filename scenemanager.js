@@ -116,7 +116,6 @@ SceneManager.prototype.menuSelection = function (x, y) {
         if (x >= this.menu.button.x && x <= this.menu.button.x + this.menu.button.width
             && y >= this.menu.storyY && y <= this.menu.storyY + this.menu.button.height) {
             startGame = true;
-            GAME_ENGINE.playerPick = 0;
         }
         //controls
         else if (x >= this.menu.button.x && x <= this.menu.button.x + this.menu.button.width
@@ -131,15 +130,22 @@ SceneManager.prototype.menuSelection = function (x, y) {
         this.menu.removeFromWorld = true;
         SCENE_MANAGER.gameInit();
     }
+} 
+
+SceneManager.prototype.playAgain = function (x, y) {
+    //checks if player clicked play again (values are hardcoded)
+    if (x >= 203 && x <=  435 && y >= 253 && y <= 276) {
+        GAME_ENGINE.reset();
+        BACKGROUND = new Background();
+    }
 }
 
 SceneManager.prototype.gameInit = function () {
     GAME_ENGINE.addEntity(BACKGROUND);
     // Using players choice to grab the appropriate character sprite
     // Player
-    console.log("test");
-    myPlayer = new Player(AM.getAsset(characterSprites[GAME_ENGINE.playerPick]["spritesheet"]),
-        characterSprites[GAME_ENGINE.playerPick]["xOffset"], characterSprites[GAME_ENGINE.playerPick]["yOffset"]);
+    myPlayer = new Player(AM.getAsset("./img/terran/marine/marine_move_right.png"),
+     AM.getAsset("./img/terran/marine/marine_death.png"), 0, 9);
     GAME_ENGINE.addEntity(myPlayer);
     GAME_ENGINE.addEntity(CAMERA);
 
