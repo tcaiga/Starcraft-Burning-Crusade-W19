@@ -70,11 +70,11 @@ Player.prototype.draw = function () {
     //draw player character with no animation if player is not currently moving
     if (this.dontdraw <= 0) {
         if (this.dead) {
-            this.animationDeath.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+            this.animationDeath.drawFrameAniThenIdle(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
         } else {
             if (GAME_ENGINE.mouseClick === true) {
-                this.animationShoot.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
-            } else if (!GAME_ENGINE.movement) {
+                this.animationShoot.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y)
+             } else if (!GAME_ENGINE.movement) {
                 this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
             } else {
                 this.animationRun.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
@@ -439,23 +439,29 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     var yindex = 0;
     xindex = frame % this.sheetWidth;
     yindex = Math.floor(frame / this.sheetWidth);
-
-    var xPosition;
-    if ((x >= 0 && CAMERA.x >= 0) || (x < 0 && CAMERA.x < 0)) {
-        xPosition = x - CAMERA.x;
-    } else {
-        xPosition = x + CAMERA.x;
-    }
-    ctx.drawImage(this.spriteSheet,
-        xindex * this.frameWidth, yindex * this.frameHeight,
-        this.frameWidth, this.frameHeight,
-        xPosition, y - CAMERA.y,
-        this.frameWidth * this.scale,
-        this.frameHeight * this.scale);
+    this.drawFrameHelper(ctx, x, y, xindex * this.frameWidth, yindex * this.frameHeight);
 }
 
+Animation.prototype.drawFrameAniThenIdle = function (tick, ctx, x, y) {
+    this.elapsedTime += tick;
+    var xindex = 0;
+    var yindex = 0;
+    if (this.isDone()) {
+        xindex = this.frames % this.sheetWidth;
+        yindex = Math.floor(this.frames / this.sheetWidth) - 1;
+    } else {
+        var frame = this.currentFrame();
+        xindex = frame % this.sheetWidth;
+        yindex = Math.floor(frame / this.sheetWidth);
+    }
+    this.drawFrameHelper(ctx, x, y, xindex * this.frameWidth, yindex * this.frameHeight);
+}
 
 Animation.prototype.drawFrameIdle = function (ctx, x, y) {
+    this.drawFrameHelper(ctx, x, y, 0, 0);
+}
+
+Animation.prototype.drawFrameHelper = function (ctx, x, y, xFrame, yFrame) {
     var xPosition;
     if ((x >= 0 && CAMERA.x >= 0) || (x < 0 && CAMERA.x < 0)) {
         xPosition = x - CAMERA.x;
@@ -463,7 +469,7 @@ Animation.prototype.drawFrameIdle = function (ctx, x, y) {
         xPosition = x + CAMERA.x;
     }
     ctx.drawImage(this.spriteSheet,
-        0, 0,
+        xFrame, yFrame,
         this.frameWidth, this.frameHeight,
         xPosition, y - CAMERA.y,
         this.frameWidth * this.scale,
