@@ -4,3 +4,8 @@ music.volume = .1;
 playSound = function() {
     music.play();
 }
+
+music.addEventListener("ended", function() {
+    music.currentTime = 0;
+    music.play();
+});
