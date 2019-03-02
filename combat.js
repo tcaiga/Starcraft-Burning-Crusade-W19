@@ -12,9 +12,15 @@ function SwordBoomerang(spriteSheet, originX, originY, xTarget, yTarget, origin)
     this.thrower = null;
     this.speedChange = -7 / 30;
     this.penetrative = true;
-    this.damageObj = DS.CreateDamageObject(25, 0, DTypes.Slashing
-        , DS.CloneBuffObject(PremadeBuffs.DamageOvertime));
-    this.damageObj.timeLeft = 55;
+    // Damage stuff
+    this.durationBetweenHits = 50;//Adjustable
+    this.totalDamage = 35;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CreateBuffObject("damage overtime", [DS.CreateEffectObject(ETypes.CurrentHealthF,0.4*this.totalDamage/7,0,60,10)]);
+    this.damageObj = DS.CreateDamageObject(0.6*this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
     this.childUpdate = function () {
         this.projectileSpeed += this.speedChange;
         this.timeLeft--;
@@ -37,9 +43,21 @@ function GreaterFireball(spriteSheet, spriteSheetAoe, originX, originY, xTarget,
     this.aniY += 23;
     this.origin = 5;
     this.animationAoe = new Animation(spriteSheetAoe, 32, 32, 1, .025, 10, false, 3);
-    this.damageObj = DS.CreateDamageObject(10, 4, DTypes.Magic
-        , DS.CreateBuffObject("lesser burning"
-            , [DS.CreateEffectObject(ETypes.CurrentHealthF, -1, 0, 20, 4)]));
+
+
+    // Damage stuff
+    this.durationBetweenHits = 50;//Adjustable
+    this.totalDamage = 30;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CreateBuffObject("lesser burning", [DS.CreateEffectObject(ETypes.CurrentHealthF,0.2*this.totalDamage/6,0,20,4)]);
+    this.damageObj = DS.CreateDamageObject(0.3*this.totalDamage, 0, DTypes.Magic, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+    this.damageBuffonExplosion = DS.CreateBuffObject("lesser burning", [DS.CreateEffectObject(ETypes.CurrentHealthF,0.2*this.totalDamage/7,0,30,5)]);
+    this.damageObjonExplosion = DS.CreateDamageObject(0.3*this.totalDamage, 0, DTypes.Magic, this.damageBuffonExplosion);
+    this.damageObjonExplosion.timeLeft = this.durationBetweenHits;
+
+
     this.childCollide = function (unit) {
         let xPos, yPos, width = height = this.aoe;
         xPos = this.x - 25;
@@ -48,9 +66,7 @@ function GreaterFireball(spriteSheet, spriteSheetAoe, originX, originY, xTarget,
         let aCrow = new StillStand(this.animationAoe, 10, this.x, this.y);
         aCrow.aniX = -30;
         aCrow.aniY = -20;
-        let aHit = DS.CreateDamageObject(15, 2, DTypes.Magic
-            , DS.CreateBuffObject("burning"
-                , [DS.CreateEffectObject(ETypes.CurrentHealthF, -2, 0, 30, 5)]));
+        let aHit = this.damageObjonExplosion;
         aCrow.boundingbox = aBox;
         aCrow.penetrative = true;
         aCrow.entityHitType = EntityTypes.enemies;
@@ -67,6 +83,16 @@ function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget, origin
     this.animation = new Animation(spriteSheet, 8, 8, 1, .084, 4, true, 1);
     this.aniX += 34;
     this.aniY += 38;
+
+    // Damage stuff
+    this.durationBetweenHits = 50;//Adjustable
+    this.totalDamage = 50;//Assuming 30 projectiles 50/30 damage per projectile
+    this.damageObjArr = [];
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(0.033*this.totalDamage, 0, DTypes.Magic, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
     // Determining where the projectile should go angle wise.
     //radians
     let converter = Math.PI / 360;
@@ -87,7 +113,15 @@ function MultiArrow(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
     this.xTar = xTarget - 20;
     this.yTar = yTarget - 35;
-    this.damageObj = DS.CreateDamageObject(10, 0, DTypes.Piercing);
+    // Damage stuff
+    this.durationBetweenHits = 50;//Adjustable
+    this.totalDamage = 9;//Adjustable per projectile 9*count
+    this.damageObjArr = [];
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Piercing, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
     this.animation = new Animation(spriteSheet, 8, 8, 1, .084, 1, true, 2);
     this.aniX += 34;
     this.aniY += 38;
@@ -106,7 +140,16 @@ function Trap(spriteSheetUp, spriteSheetDown, theX, theY) {
     this.activated = false; // Determining if trap has been activated
     this.counter = 0; // Counter to calculate when trap related events should occur
     this.doAnimation = false; // Flag to determine if the spikes should animate or stay still
-    this.damageObj = DS.CreateDamageObject(10, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.SlowStrong));
+
+    // Damage stuff
+    this.durationBetweenHits = 30;//Adjustable
+    this.totalDamage = 10;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.SlowStrong);
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
     this.onUpdate;
     this.onDraw;
     this.boundingbox = new BoundingBox(this.x, this.y, 20, 20); // **Temporary** hardcode of width and height
@@ -172,6 +215,7 @@ RootTrap.prototype = Trap.prototype;
 
 function RangerBoostPad(spriteSheetUp, spriteSheetDown) {
     Trap.call(this, spriteSheetUp, spriteSheetDown);
+    //No damage
     this.damageObj = DS.CreateDamageObject(0, 0, DTypes.None
         , DS.CreateBuffObject("ranger boost", [
             DS.CreateEffectObject(ETypes.MoveSpeedR, Math.pow(1.1, 10), 1, 1, 0),
@@ -183,13 +227,21 @@ function RangerBoostPad(spriteSheetUp, spriteSheetDown) {
 
 function RootTrap(spriteSheetUp, spriteSheetDown) {
     Trap.call(this, spriteSheetUp, spriteSheetDown);
-    this.damageObj = DS.CreateDamageObject(0, 0, DTypes.None
-        , DS.CreateBuffObject("ranger root", [
-            DS.CreateEffectObject(ETypes.Stun, true, false, 45, 0),
-            DS.CreateEffectObject(ETypes.CurrentHealthF, -1, 0, 45, 3)
-        ]));
-    this.damageObj.timeLeft = 51;
-    this.lifeTime = 300;
+
+    // Damage stuff
+    this.durationBetweenHits = 55;//Adjustable
+    this.totalDamage = 24;//Adjustable
+    this.rootDuration = 45;
+    this.onGroundDuration = 300;
+    this.damageObjArr = [];
+    this.damageBuff = DS.CreateBuffObject("ranger root", [
+        DS.CreateEffectObject(ETypes.Stun, true, false, this.rootDuration, 0),
+        DS.CreateEffectObject(ETypes.CurrentHealthF, this.totalDamage/16, 0, 45, 3)]);
+    this.damageObj = DS.CreateDamageObject(0*this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
+    this.lifeTime = this.onGroundDuration;
     this.hitOnce = false;
     this.removeFromWorld = false;
     this.animationUp = new Animation(spriteSheetUp, 16, 16, 1, 0.13, 4, true, 1.25);
@@ -204,7 +256,7 @@ function RootTrap(spriteSheetUp, spriteSheetDown) {
                 if (GAME_ENGINE.entities[4][i].health > 0) {
                     this.doAnimation = true;
                     this.activated = true;
-                    (this.hitOnce) ? null : this.lifeTime = 40;
+                    (this.hitOnce) ? null : this.lifeTime = this.durationBetweenHits-5;
                     this.hitOnce = true;
                     (typeof this.childCollide === 'function') ? this.childCollide(entityCollide) : null;
                     this.damageObj.ApplyEffects(GAME_ENGINE.entities[4][i]);
