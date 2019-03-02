@@ -30,7 +30,7 @@ function Player(runSheet, shootSheet, deathSheet, xOffset, yOffset) {
     this.yOffset = yOffset * this.scale;
     this.animationRun = new Animation(runSheet, this.width, this.height, 1, 0.04, 9, true, this.scale);
     this.animationShoot = new Animation(shootSheet, this.width, this.height, 1, 0.04, 2, true, this.scale);
-    this.animationDeath = new Animation(deathSheet, this.width, this.height, 1, 0.04, 9, true, this.scale);
+    this.animationDeath = new Animation(deathSheet, 65, 40, 1, 0.04, 8, true, this.scale);
     this.animationIdle = this.animationRun;
     this.x = 60;
     this.y = 60;
@@ -69,28 +69,25 @@ Player.prototype.draw = function () {
     }
     //draw player character with no animation if player is not currently moving
     if (this.dontdraw <= 0) {
-        if (GAME_ENGINE.mouseClick === true) {
-            this.animationShoot.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
-        } else if (!GAME_ENGINE.movement) {
-            this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
-            if (this.dead) {
-                this.animationDeath.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
-            } else {
-                if (!GAME_ENGINE.movement) {
-                    this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
-                } else {
-                    this.animationRun.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
-                }
-            }
-            GAME_ENGINE.ctx.restore();
-            if (GAME_ENGINE.debug) {
-                GAME_ENGINE.ctx.strokeStyle = "blue";
-                GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-                    this.boundingbox.width, this.boundingbox.height);
-            }
+        if (this.dead) {
+            this.animationDeath.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
         } else {
-            this.dontdraw--;
+            if (GAME_ENGINE.mouseClick === true) {
+                this.animationShoot.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+            } else if (!GAME_ENGINE.movement) {
+                this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
+            } else {
+                this.animationRun.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+            }
         }
+        GAME_ENGINE.ctx.restore();
+        if (GAME_ENGINE.debug) {
+            GAME_ENGINE.ctx.strokeStyle = "blue";
+            GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+                this.boundingbox.width, this.boundingbox.height);
+        }
+    } else {
+        this.dontdraw--;
     }
 }
 
