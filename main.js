@@ -481,8 +481,6 @@ AM.queueDownload("./img/fireball.png");
 
 // Buildings and Map
 AM.queueDownload("./img/utilities/floor.png");
-AM.queueDownload("./img/buildings/canal_off.png");
-AM.queueDownload("./img/buildings/canal_on.png");
 AM.queueDownload("./img/buildings/crashed_cruiser.png");
 AM.queueDownload("./img/buildings/gravemind.png");
 AM.queueDownload("./img/buildings/hive.png");
