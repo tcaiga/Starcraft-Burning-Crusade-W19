@@ -31,9 +31,17 @@ function Monster(spriteSheet, x, y) {
     this.x = x;
     this.speed = 100;
     this.health = 100;
+
+    // Damage stuff
+    // Changed in each monster
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 20;//Adjustable
     this.damageObjArr = [];
-    this.damageObj = DS.CreateDamageObject(20, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.HasteWeak));
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
     this.buffObj = [];
+
     this.counter = 0;
 
     this.boundingbox = new BoundingBox(this.x, this.y,
@@ -256,9 +264,17 @@ function Hydralisk(spriteSheet, x, y) {
     // gameplay
     this.speed = 150;
     this.health = 15;
-
     this.x = x;
     this.y = y;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 15;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.SlowWeak/*Adjustable*/);//Slow or haste or null w/e
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
 
     this.counter = 0;
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
@@ -284,6 +300,15 @@ function Infested(spriteSheet, x, y) {
     this.x = x;
     this.y = y;
 
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 15;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
     this.counter = 0;
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 }
@@ -308,6 +333,15 @@ function Ultralisk(spriteSheet, x, y) {
     this.x = x;
     this.y = y;
 
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 30;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
     this.counter = 0;
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 }
@@ -331,6 +365,15 @@ function Zergling(spriteSheet, x, y) {
 
     this.x = x;
     this.y = y;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 4;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
 
     this.counter = 0;
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
@@ -358,6 +401,15 @@ function Zerg_Boss(spriteSheet, x, y) {
     this.mobCount = 0;
     this.lastInfestedPod = 50;
     this.lastSpikeExplosion = 150;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 10;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
 
 
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth,
