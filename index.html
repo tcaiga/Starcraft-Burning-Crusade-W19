@@ -14,6 +14,12 @@
     <script type="text/javascript" src="./main.js"></script>
     <script type="text/javascript" src="./monsters.js"></script>
     <script type="text/javascript" src="./combat.js"></script>
+    <style>
+         @font-face { 
+             font-family: Starcraft; 
+             src: url('./font/starcraft_font.ttf'); 
+        } 
+    </style>
 </head>
 
 <body>
@@ -21,33 +27,29 @@
         <canvas id="canvas" tabindex="1" width="640" height="640"></canvas>
         <div id="hud">
             <img id="hudImg" draggable="false" src="./img/utilities/hud.png" />
-            <h4 id="volumeLabel">Volume:</h4>
+            <h5 id="volumeLabel">Volume:</h5>
             <input type="range" min="0.0" max="0.2" value="0.1" step="0.02" class="slider" id="volumeSlider">
-            <button class="button" id="muteButton" type="button">Mute</button>
 
             <img class ="spellImg" draggable="false" src="./img/abilities/grenade_launcher.png" style="top:13%"/>
-            <h3 class="spellLabel" style="top: 5%;">1 -
-                <h3 id="spell1" class="spell" style="top: 5%;">Ready</h3>
-            </h3>
+            <h4 class="spellLabel" style="top: 5%;">1 -
+                <h5 id="spell1" class="spell" style="top: 5%;">Ready</h5>
+            </h4>
             
             <img  class ="spellImg" draggable="false" src="./img/abilities/stimpack.png" style="top:30%"/>
-            <h3 class="spellLabel" style="top: 21%;">2 -
-                <h3 id="spell2" class="spell" style="top: 21%;">Ready</h3>
-            </h3>
+            <h4 class="spellLabel" style="top: 21%;">2 -
+                <h5 id="spell2" class="spell" style="top: 21%;">Ready</h5>
+            </h4>
 
             <img class ="spellImg" draggable="false" src="./img/abilities/heal.png" style="top:47%"/>
-            <h3 class="spellLabel" style="top: 37%;">3 -
-                <h3 id="spell3" class="spell" style="top: 37%;">Ready</h3>
-            </h3>
+            <h4 class="spellLabel" style="top: 37%;">3 -
+                <h5 id="spell3" class="spell" style="top: 37%;">Ready</h5>
+            </h4>
 
             <img class ="spellImg" draggable="false" src="./img/abilities/penetrating_shot.png" style="top:60%"/>
-            <h3 class="spellLabel" style="top: 53%;">4 -
-                <h3 id="spell4" class="spell" style="top: 53%;">Ready</h3>
-            </h3>
-
-            <h4 id="healthLabel">Health
-                <!-- <h3 id ="health">1000</h3> -->
+            <h4 class="spellLabel" style="top: 53%;">4 -
+                <h5 id="spell4" class="spell" style="top: 53%;">Ready</h5>
             </h4>
+
 
             <div id="room0" class="room" style="top:39%; left:5.5%"></div>
             <div id="room1" class="room" style="top:39%; left:9%"></div>
@@ -74,6 +76,13 @@
             <div id="room22" class="room" style="top:83%; left:12.5%"></div>
             <div id="room23" class="room" style="top:83%; left:16%"></div>
             <div id="room24" class="room" style="top:83%; left:19.5%"></div>
+
+            <h6 id="healthLabel">Health
+                <h5 id ="health">100</h5>
+            </h6>
+            <img id="healthImg" draggable="false" src="./img/health_wireframe/green_health.png" />
+
+
         </div>
     </div>
 </body>
