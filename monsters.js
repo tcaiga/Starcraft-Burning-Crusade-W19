@@ -48,14 +48,14 @@ Monster.prototype.draw = function () {
     // **************************************************************
     // BIG ISSUES HERE NEED TO FIX THIS TO FLIP MONSTER SPRITE SHEETS
     // **************************************************************
-    // this.xScale = 1;
-    // var xValue = this.x;
-    // if (!this.right) {
-    //     GAME_ENGINE.ctx.save();
-    //     GAME_ENGINE.ctx.scale(-1, 1);
-    //     this.xScale = -1;
-    //     xValue = -this.x - this.width;
-    // }
+    this.xScale = 1;
+    var xValue = this.x;
+    if (!this.right) {
+        GAME_ENGINE.ctx.save();
+        GAME_ENGINE.ctx.scale(-1, 1);
+        this.xScale = -1;
+        xValue = -this.x - this.width;
+    }
 
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = "red";
@@ -67,7 +67,9 @@ Monster.prototype.draw = function () {
     }
 
 
-    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
+    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+    GAME_ENGINE.ctx.restore();
+
     // Displaying Monster health
     GAME_ENGINE.ctx.font = "15px Arial";
     GAME_ENGINE.ctx.fillStyle = "white";
