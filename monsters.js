@@ -233,9 +233,9 @@ Ultralisk.prototype = Monster.prototype;
 Zergling.prototype = Monster.prototype;
 Zerg_Boss.prototype = Monster.prototype;
 
-function Hydralisk(spritesheetArr, x, y) {
+function Hydralisk(spriteSheet, x, y) {
 
-    Monster.call(this, spritesheetArr, x, y);
+    Monster.call(this, spriteSheet, x, y);
 
 
     // animation
@@ -254,12 +254,12 @@ function Hydralisk(spritesheetArr, x, y) {
     this.y = y;
 
     this.counter = 0;
-    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, sheetWidth, frameLength, numOfFrames, true, this.scale);
+    this.animation = new Animation(spriteSheet, this.width, this.height, sheetWidth, frameLength, numOfFrames, true, this.scale);
 }
 
-function Infested(spritesheetArr, x, y) {
+function Infested(spriteSheet, x, y) {
 
-    Monster.call(this, spritesheetArr, x, y);
+    Monster.call(this, spriteSheet, x, y);
 
 
     // animation
@@ -278,12 +278,12 @@ function Infested(spritesheetArr, x, y) {
     this.y = y;
 
     this.counter = 0;
-    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, sheetWidth, frameLength, numOfFrames, true, this.scale);
+    this.animation = new Animation(spriteSheet, this.width, this.height, sheetWidth, frameLength, numOfFrames, true, this.scale);
 }
 
-function Ultralisk(spritesheetArr, x, y) {
+function Ultralisk(spriteSheet, x, y) {
 
-    Monster.call(this, spritesheetArr, x, y);
+    Monster.call(this, spriteSheet, x, y);
 
 
     // animation
@@ -302,12 +302,12 @@ function Ultralisk(spritesheetArr, x, y) {
     this.y = y;
 
     this.counter = 0;
-    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, sheetWidth, frameLength, numOfFrames, true, this.scale);
+    this.animation = new Animation(spriteSheet, this.width, this.height, sheetWidth, frameLength, numOfFrames, true, this.scale);
 }
 
-function Zergling(spritesheetArr, x, y) {
+function Zergling(spriteSheet, x, y) {
 
-    Monster.call(this, spritesheetArr, x, y);
+    Monster.call(this, spriteSheet, x, y);
 
 
     // animation
@@ -326,11 +326,11 @@ function Zergling(spritesheetArr, x, y) {
     this.y = y;
 
     this.counter = 0;
-    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, sheetWidth, frameLength, numOfFrames, true, this.scale);
+    this.animation = new Animation(spriteSheet, this.width, this.height, sheetWidth, frameLength, numOfFrames, true, this.scale);
 }
 
-function Zerg_Boss(spritesheetArr, x, y) {
-    Monster.call(this, spritesheetArr, x, y);
+function Zerg_Boss(spriteSheet, x, y) {
+    Monster.call(this, spriteSheet, x, y);
 
     // animation
     this.scale = 1.5;
@@ -353,7 +353,7 @@ function Zerg_Boss(spritesheetArr, x, y) {
     this.lastSpikeExplosion = 150;
 
 
-    this.animation = new Animation(spritesheetArr['r'], this.width, this.height, this.sheetWidth,
+    this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth,
         this.frameLength, this.numOfFrames, true, this.scale);
 
     this.boundingbox = new BoundingBox(this.x + 30, this.y + 50,
