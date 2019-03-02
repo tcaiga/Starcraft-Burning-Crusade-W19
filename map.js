@@ -30,7 +30,7 @@ function Background() {
 }
 
 Background.prototype.draw = function () {
-    GAME_ENGINE.ctx.drawImage("./img/utilities/floor.png", this.floorX, this.floorY, 608, 608);
+    GAME_ENGINE.ctx.drawImage(AM.getAsset("./img/utilities/floor.png"), this.floorX, this.floorY, 608, 608);
 }
 
 Background.prototype.update = function () {
@@ -93,10 +93,8 @@ Background.prototype.decorateRoom = function () {
                         for (let r = 1; r < 4; r++) {
                             for (let s = 1; s < 4; s++) {
                                 // 9 infested terrans appear in the shape of a cube spaced out.
-                                var infested = new Infested({
-                                    'r': AM.getAsset("./img/zerg/infested/infested_move_right.png"),
-                                    'l': AM.getAsset("./img/zerg/infested/infested_move_left.png")
-                                }, testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
+                                var infested = new Infested(AM.getAsset("./img/zerg/infested/infested_move_right.png"),
+                                testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
                                 testPos[1] * canvasHeight + (s * 160) + BACKGROUND.y - 10);
                                 GAME_ENGINE.addEntity(infested);
                             }
@@ -201,7 +199,7 @@ function Door(theX, theY, theDirection) {
     this.y = theY;
     this.direction = theDirection;
     this.image = new Image();
-    this.image.src = "./img/door_closed.png";
+    this.image.src = "./img/buildings/canal_off.png";
     this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 }
 
@@ -220,7 +218,7 @@ function Wall(theX, theY, theDirection) {
     this.y = theY;
     this.direction = theDirection;
     this.image = new Image();
-    this.image.src = "./img/floor1.png";
+    this.image.src = "./img/utilities/wall_tile.png";
     this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 }
 

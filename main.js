@@ -122,21 +122,25 @@ Player.prototype.update = function () {
         for (t in this.abilityCD) {
             this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
         }
-        for (t in GAME_ENGINE.digit) {
-            if (GAME_ENGINE.digit[t] && !this.isStunned) {
-                switch (GAME_ENGINE.playerPick) {
-                    case 0:
-                        this.mageAbilities(t);
-                        break;
-                    case 1:
-                        this.rangerAbilities(t);
-                        break;
-                    case 2:
-                        this.knightAbilities(t);
-                        break;
-                }
-            }
-        }
+
+        // ****************
+        // DISABLED FOR NOW
+        // ****************
+        // for (t in GAME_ENGINE.digit) {
+        //     if (GAME_ENGINE.digit[t] && !this.isStunned) {
+        //         switch (GAME_ENGINE.playerPick) {
+        //             case 0:
+        //                 this.mageAbilities(t);
+        //                 break;
+        //             case 1:
+        //                 this.rangerAbilities(t);
+        //                 break;
+        //             case 2:
+        //                 this.knightAbilities(t);
+        //                 break;
+        //         }
+        //     }
+        // }
         /* #endregion */
 
 
@@ -443,6 +447,7 @@ Animation.prototype.isDone = function () {
 AM.queueDownload("./img/fireball.png");
 
 // Buildings and Map
+AM.queueDownload("./img/utilities/floor.png");
 AM.queueDownload("./img/buildings/canal_off.png");
 AM.queueDownload("./img/buildings/canal_on.png");
 AM.queueDownload("./img/buildings/crashed_cruiser.png");
