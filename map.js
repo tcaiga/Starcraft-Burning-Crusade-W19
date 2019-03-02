@@ -199,7 +199,7 @@ function Door(theX, theY, theDirection) {
     this.y = theY;
     this.direction = theDirection;
     this.image = new Image();
-    this.image.src = "./img/buildings/canal_off.png";
+    this.image.src = "./img/buildings/door_open.png";
     this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 }
 
