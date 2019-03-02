@@ -715,9 +715,10 @@ function Hud() {
 Hud.prototype.update = function () { }
 
 Hud.prototype.draw = function () {
-    GAME_ENGINE.ctx.font = "20px Arial";
     GAME_ENGINE.ctx.drawImage(this.background, 0, canvasHeight, canvasWidth, hudHeight);
     GAME_ENGINE.ctx.fillStyle = "white";
+    GAME_ENGINE.ctx.font = "18px Arial";
+    GAME_ENGINE.ctx.fillText("Health", 455, canvasHeight + 125);
     GAME_ENGINE.ctx.fillText(myPlayer.health, 455, canvasHeight + 150)
 }
 /* #endregion */
