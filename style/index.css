@@ -38,6 +38,36 @@ canvas {
     float: bottom;
 }
 
+.spellLabel {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 81%;
+}
+
+.spell {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 86%;
+}
+
+#healthLabel {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 71%;
+    top:44%;
+}
+
+#health {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 72%;
+    top:58%;
+}
+
 body {
     margin:0;
     color:silver;
