@@ -23,14 +23,16 @@ const TILE_SIZE = 16;
 /* #endregion */
 
 /* #region Player */
-function Player(spritesheet, xOffset, yOffset) {
+function Player(runSheet, shootSheet, deathSheet, xOffset, yOffset) {
     // Relevant for Player box
     this.width = 32;
     this.height = 32;
     this.scale = 1.5;
     this.xOffset = xOffset * this.scale;
     this.yOffset = yOffset * this.scale;
-    this.animationRun = new Animation(spritesheet, this.width, this.height, 1, 0.04, 9, true, this.scale);
+    this.animationRun = new Animation(runSheet, this.width, this.height, 1, 0.04, 9, true, this.scale);
+    this.animationShoot = new Animation(shootSheet, this.width, this.height, 1, 0.04, 2, true, this.scale);
+    this.animationDeath = new Animation(deathSheet, this.width, this.height, 1, 0.04, 9, true, this.scale);
     this.animationIdle = this.animationRun;
     this.x = 60;
     this.y = 60;
@@ -72,7 +74,9 @@ Player.prototype.draw = function () {
     }
     //draw player character with no animation if player is not currently moving
     if (this.dontdraw <= 0) {
-        if (!GAME_ENGINE.movement) {
+        if (GAME_ENGINE.mouseClick === true) {
+            this.animationShoot.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+        } else if (!GAME_ENGINE.movement) {
             this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
         } else {
             this.animationRun.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
@@ -497,8 +501,10 @@ function addHTMLListeners() {
 // Harrison's Fireball
 AM.queueDownload("./img/fireball.png");
 
-// Buildings and Map
+// Map
 AM.queueDownload("./img/utilities/floor.png");
+
+// Buildings
 AM.queueDownload("./img/buildings/crashed_cruiser.png");
 AM.queueDownload("./img/buildings/gravemind.png");
 AM.queueDownload("./img/buildings/hive.png");
