@@ -45,6 +45,7 @@ function Monster(spriteSheet, x, y) {
 }
 
 Monster.prototype.draw = function () {
+
     this.xScale = 1;
     var xValue = this.x;
     if (!this.right) {
@@ -66,6 +67,7 @@ Monster.prototype.draw = function () {
 
     this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
     GAME_ENGINE.ctx.restore();
+
     // Displaying Monster health
     GAME_ENGINE.ctx.font = "15px Arial";
     GAME_ENGINE.ctx.fillStyle = "white";

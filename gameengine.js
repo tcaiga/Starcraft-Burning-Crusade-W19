@@ -272,6 +272,9 @@ GameEngine.prototype.reset = function () {
         spellHTML.innerHTML = "Ready";
         spellHTML.style.color = color_green;
     }
+    for (let x = 0; x < 25; x++) {
+        document.getElementById("room" + x).style.backgroundColor = "black";
+    }
 }
 
 GameEngine.prototype.addEntity = function (entity) {
