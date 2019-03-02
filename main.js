@@ -227,7 +227,6 @@ Player.prototype.changeHealth = function (amount) {
 }
 /* #endregion */
 
-/* #region Projectile */
 /* #region Base Projectile */
 function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) {
     this.origin = belongsTo;
@@ -250,7 +249,16 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) 
     this.childCollide;//function
     this.speed = 200;
     this.projectileSpeed = 7.5;
-    this.damageObj = DS.CreateDamageObject(15, 0, DTypes.Normal, null);
+
+    // Damage stuff
+    this.durationBetweenHits = 50;//Adjustable
+    this.totalDamage = 15;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Piercing, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
     this.penetrative = false;
     this.aniX = -18;
     this.aniY = -5;
