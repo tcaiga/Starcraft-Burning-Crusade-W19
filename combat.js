@@ -127,7 +127,6 @@ function MultiArrow(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     this.aniY += 38;
 }
 /* #endregion */
-/* #endregion */
 
 /* #region Trap */
 /* #region Base Trap */
@@ -386,6 +385,14 @@ function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin)
 let ctr = 0;
 function Spike(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
+    // Damage stuff
+    this.durationBetweenHits = 50;//Adjustable
+    this.totalDamage = 15;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Piercing, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
     this.projectileSpeed = 5;
     this.penetrative = false;
     ctr++;
