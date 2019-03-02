@@ -43,7 +43,7 @@ function Player(runSheet, shootSheet, deathSheet, xOffset, yOffset) {
     this.castTime = 0;
     this.isStunned = false;
     this.dead = false;
-    this.baseMaxMovespeed = 2;
+    this.baseMaxMovespeed = 2.5;
     this.maxMovespeedRatio = 1;
     this.maxMovespeedAdj = 0;
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
