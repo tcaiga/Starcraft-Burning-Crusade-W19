@@ -45,17 +45,14 @@ function Monster(spriteSheet, x, y) {
 }
 
 Monster.prototype.draw = function () {
-    // **************************************************************
-    // BIG ISSUES HERE NEED TO FIX THIS TO FLIP MONSTER SPRITE SHEETS
-    // **************************************************************
-    // this.xScale = 1;
-    // var xValue = this.x;
-    // if (!this.right) {
-    //     GAME_ENGINE.ctx.save();
-    //     GAME_ENGINE.ctx.scale(-1, 1);
-    //     this.xScale = -1;
-    //     xValue = -this.x - this.width;
-    // }
+    this.xScale = 1;
+    var xValue = this.x;
+    if (!this.right) {
+        GAME_ENGINE.ctx.save();
+        GAME_ENGINE.ctx.scale(-1, 1);
+        this.xScale = -1;
+        xValue = -this.x - this.width;
+    }
 
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = "red";
@@ -67,7 +64,8 @@ Monster.prototype.draw = function () {
     }
 
 
-    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
+    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+    GAME_ENGINE.ctx.restore();
     // Displaying Monster health
     GAME_ENGINE.ctx.font = "15px Arial";
     GAME_ENGINE.ctx.fillStyle = "white";
@@ -146,8 +144,8 @@ Monster.prototype.update = function () {
 
     Entity.prototype.update.call(this);
 
-    this.boundingbox = new BoundingBox(this.x, this.y,
-        this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
+    this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y,
+        this.width * this.scale, this.height * this.scale);
 
 
     this.visionBox = new BoundingBox(this.boundingbox.x + .5 * (this.width * this.scale - this.visionWidth),
@@ -181,40 +179,6 @@ Monster.prototype.update = function () {
             }
         }
     }
-
-
-
-    /* #region Damage system updates */
-    let dmgObj;
-    let dmgRemove = [];
-    let dmgFlag;
-    let buff;
-    let buffRemove = [];
-    let buffFlag;
-    /* #region Updates */
-    for (dmgObj in this.damageObjArr) {//Updates damage objects
-        this.damageObjArr[dmgObj].update();
-        if (this.damageObjArr[dmgObj].timeLeft <= 0) {
-            dmgRemove.push(dmgObj);//Adds to trash system
-        }
-    }
-    for (buff in this.buffObj) {//Updates buff objects
-        this.buffObj[buff].update(this);
-        if (this.buffObj[buff].timeLeft <= 0) {
-            buffRemove.push(buff);//Adds to trash system
-        }
-    }
-    /* #endregion */
-    /* #region Removal */
-    for (dmgFlag in dmgRemove) {//Removes flagged damage objects
-        this.damageObjArr.splice(dmgRemove[dmgFlag], 1);
-    }
-    for (buffFlag in buffRemove) {//Removes flagged buff objects
-        this.buffObj.splice(buffRemove[buffFlag], 1);
-    }
-    /* #endregion */
-    /* #endregion */
-
 }
 
 Monster.prototype.changeHealth = function (amount) {
