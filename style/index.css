@@ -16,7 +16,8 @@ canvas {
 
 #volumeSlider {
     position: absolute;
-    left: 38%;
+    width: 75px;
+    left: 76%;
     top: 83%;
     z-index: 1000;
     float: bottom;
@@ -24,16 +25,32 @@ canvas {
 
 #volumeLabel {
     position: absolute;
-    left: 26%;
-    top: 75%;
     z-index: 1000;
     float: bottom;
+    left: 76%;
+    top: 65%;
 }
 
 #muteButton {
     position: absolute;
-    left: 61%;
-    top: 83%;
+    left: 89%;
+    top: 81%;
+    z-index: 1000;
+    float: bottom;
+}
+
+.room {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    width:20px;
+    height:20px;
+    border: 1px solid white;
+}
+
+.spellImg {
+    position: absolute;
+    left: 76%;
     z-index: 1000;
     float: bottom;
 }
@@ -42,21 +59,22 @@ canvas {
     position: absolute;
     z-index: 1000;
     float: bottom;
-    left: 81%;
+    left: 82%;
 }
 
 .spell {
     position: absolute;
     z-index: 1000;
     float: bottom;
-    left: 86%;
+    left: 87%;
+    color: lightgreen;
 }
 
 #healthLabel {
     position: absolute;
     z-index: 1000;
     float: bottom;
-    left: 71%;
+    left: 66.5%;
     top:44%;
 }
 
@@ -66,6 +84,14 @@ canvas {
     float: bottom;
     left: 72%;
     top:58%;
+}
+
+.hudImg {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
 }
 
 body {
