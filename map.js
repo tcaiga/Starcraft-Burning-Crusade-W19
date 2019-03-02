@@ -22,14 +22,14 @@ function Background() {
     this.row = 2;
     this.col = 2;
     this.roomCount = 0;
-    this.maxRoomCount = 6;
+    this.maxRoomCount = 5;
     this.map[this.row][this.col] = 2;
     this.facePos.push([this.col, this.row]);
     this.drawFaceCount = 0;
 }
 
 Background.prototype.draw = function () {
-    GAME_ENGINE.ctx.drawImage(AM.getAsset("./img/utilities/floor.png"), this.floorX, this.floorY, 608, 608);
+    GAME_ENGINE.ctx.drawImage(AM.getAsset("./img/utilities/floor.png"), this.floorX, this.floorY, 640, 640);
 }
 
 Background.prototype.update = function () {
@@ -161,7 +161,7 @@ Background.prototype.decorateRoom = function () {
     }
 }
 
-Background.prototype.validDirection = function () {
+Background.prototype.generateSurvivalMap = function () {
     music.play();
     while (this.roomCount < this.maxRoomCount) {
         let randomDirection = Math.floor(Math.random() * Math.floor(4));

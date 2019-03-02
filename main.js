@@ -318,7 +318,6 @@ Projectile.prototype.update = function () {
 
     this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
         this.width - 75, this.height - 75); // Hardcoded a lot of offset values
-
 }
 /* #endregion */
 
@@ -346,11 +345,28 @@ BoundingBox.prototype.collide = function (oth) {
 function Camera() {
     this.x = 0;
     this.y = 0;
+    this.currentRoom = 0;
 }
 
-Camera.prototype.update = function () { }
+Camera.prototype.update = function () {
+}
 
-Camera.prototype.draw = function () { 
+Camera.prototype.getStartingRoom = function () {
+    var roomNum = 0;
+    for (var i = 0; i < BACKGROUND.map.length; i++) {
+        for (var j = 0; j < BACKGROUND.map[i].length; j++) {
+            if (BACKGROUND.map[i][j] === 2) {
+                this.currentRoom = roomNum;
+            }
+
+            roomNum++;
+        }
+    }
+}
+
+Camera.prototype.draw = function () {
+    BACKGROUND.drawMiniMap();
+    document.getElementById("room" + this.currentRoom).style.backgroundColor = "green";
 }
 
 
@@ -360,18 +376,22 @@ Camera.prototype.move = function (direction) {
         this.x += canvasWidth;
         myPlayer.x += positionChange;
         BACKGROUND.x -= canvasWidth;
+        this.currentRoom++;
     } else if (direction === "left") {
         this.x -= canvasWidth;
         myPlayer.x -= positionChange;
         BACKGROUND.x += canvasWidth;
+        this.currentRoom--;
     } else if (direction === "up") {
         this.y -= canvasHeight;
         myPlayer.y -= positionChange;
         BACKGROUND.y += canvasHeight;
+        this.currentRoom -= 5;
     } else {
         this.y += canvasHeight;
         myPlayer.y += positionChange;
         BACKGROUND.y -= canvasHeight;
+        this.currentRoom += 5;
     }
 }
 /* #endregion */
