@@ -135,6 +135,8 @@ SceneManager.prototype.menuSelection = function (x, y) {
 SceneManager.prototype.playAgain = function (x, y) {
     //checks if player clicked play again (values are hardcoded)
     if (x >= 203 && x <=  435 && y >= 253 && y <= 276) {
+        music.pause();
+        music.currentTime = 0;
         GAME_ENGINE.reset();
         BACKGROUND = new Background();
     }
@@ -144,7 +146,6 @@ SceneManager.prototype.gameInit = function () {
     GAME_ENGINE.addEntity(BACKGROUND);
     // Using players choice to grab the appropriate character sprite
     // Player
-    console.log("test");
     myPlayer = new Player(AM.getAsset("./img/terran/marine/marine_move_right.png"),
         AM.getAsset("./img/terran/marine/marine_shoot_right.png"),
         AM.getAsset("./img/terran/marine/marine_death.png"), 0, 9);
