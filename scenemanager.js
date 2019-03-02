@@ -135,7 +135,6 @@ SceneManager.prototype.menuSelection = function (x, y) {
 
 SceneManager.prototype.gameInit = function () {
     GAME_ENGINE.addEntity(BACKGROUND);
-    GAME_ENGINE.addEntity(HUD);
     // Using players choice to grab the appropriate character sprite
     // Player
     console.log("test");

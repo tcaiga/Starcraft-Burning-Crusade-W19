@@ -18,12 +18,29 @@
 
 <body>
     <div class="wrapper">
-        <canvas id="canvas" tabindex="1" width="640" height="835"></canvas>
+        <canvas id="canvas" tabindex="1" width="640" height="640"></canvas>
         <div id="hud">
             <img src="./img/utilities/hud.png" />
             <h3 id="volumeLabel">Volume:</h3>
             <input type="range" min="0.0" max="0.2" value="0.1" step="0.02" class="slider" id="volumeSlider">
             <button class="button" id="muteButton" type="button">Mute</button>
+
+            <h3 class="spellLabel" style="top: 5%;">1 -
+                <h3 id="spell1" class="spell" style="top: 5%;">Ready</h3>
+            </h3>
+            <h3 class="spellLabel" style="top: 13%;">2 -
+                <h3 id="spell2" class="spell" style="top: 13%;">Ready</h3>
+            </h3>
+            <h3 class="spellLabel" style="top: 21%;">3 -
+                <h3 id="spell3" class="spell" style="top: 21%;">Ready</h3>
+            </h3>
+            <h3 class="spellLabel" style="top: 29%;">4 -
+                <h3 id="spell4" class="spell" style="top: 29%;">Ready</h3>
+            </h3>
+
+            <h3 id="healthLabel">Health
+                <h3 id ="health">1000</h3>
+            </h3>
         </div>
     </div>
 </body>

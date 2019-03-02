@@ -9,14 +9,12 @@ const AM = new AssetManager();
 const GAME_ENGINE = new GameEngine();
 var CAMERA = new Camera();
 const DS = new DamageSystem();
-const HUD = new Hud();
 
 var AUDIO;
 var BACKGROUND;
 var SCENE_MANAGER;
 var canvasWidth;
 var canvasHeight;
-var hudHeight;
 var playerX;
 var playerY;
 
@@ -371,25 +369,10 @@ Menu.prototype.update = function () {
 }
 
 Menu.prototype.draw = function () {
-    GAME_ENGINE.ctx.drawImage(this.background, 0, 0, canvasWidth, canvasHeight + hudHeight);
+    GAME_ENGINE.ctx.drawImage(this.background,0, 0, canvasWidth, canvasHeight,
+         0, 0, canvasWidth, canvasHeight);
 }
 
-
-
-function Hud() {
-    this.background = new Image();
-    this.background.src = "./img/utilities/hud.png";
-}
-
-Hud.prototype.update = function () { }
-
-Hud.prototype.draw = function () {
-    GAME_ENGINE.ctx.drawImage(this.background, 0, canvasHeight, canvasWidth, hudHeight);
-    GAME_ENGINE.ctx.fillStyle = "white";
-    GAME_ENGINE.ctx.font = "18px Arial";
-    GAME_ENGINE.ctx.fillText("Health", 455, canvasHeight + 125);
-    GAME_ENGINE.ctx.fillText(myPlayer.health, 455, canvasHeight + 150)
-}
 /* #endregion */
 
 /* #region Animation */
@@ -506,9 +489,8 @@ AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     document.body.style.backgroundColor = "black";
-    hudHeight = 195;
     canvasWidth = canvas.width;
-    canvasHeight = canvas.height - hudHeight;
+    canvasHeight = canvas.height;
 
 
     GAME_ENGINE.init(ctx);
