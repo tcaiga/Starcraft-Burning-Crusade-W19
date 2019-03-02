@@ -264,6 +264,7 @@ GameEngine.prototype.reset = function () {
     this.playerPick = -1;
     CAMERA = new Camera();
     myPlayer.dead = false;
+    document.getElementById("hud").style.display = "none";
 }
 
 GameEngine.prototype.addEntity = function (entity) {

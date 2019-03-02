@@ -111,7 +111,6 @@ Player.prototype.update = function () {
                 this.x += this.actualSpeed;
                 this.right = true;
             }
-            var actualSpeed = Math.floor((this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint * 100);
            
             /* #endregion */
         } else {
@@ -121,6 +120,17 @@ Player.prototype.update = function () {
         let t;
         for (t in this.abilityCD) {
             this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
+            // if (t > 0) {
+            //     var spellHTML = document.getElementById("spell" + t);
+            //     //display if spell is ready to use or not
+            //     if (this.abilityCD[t] > 0) {
+            //         spellHTML.innerHTML = this.abilityCD[t] / 10;
+            //         spellHTML.style.color = color_red;
+            //     } else {
+            //         spellHTML.innerHTML = "Ready";
+            //         spellHTML.style.color = color_green;
+            //     }
+            // }
         }
 
         // ****************
@@ -439,6 +449,29 @@ Animation.prototype.isDone = function () {
     return (this.elapsedTime >= this.totalTime);
 }
 
+function addHTMLListeners() {
+    var volumeSlider = document.getElementById("volumeSlider");
+    volumeSlider.addEventListener("change", function () {
+        music.volume = volumeSlider.value;
+        myCurrentVolume = music.volume;
+    }, false);
+    var muteButton = document.getElementById("muteButton");
+    muteButton.addEventListener("click", function () {
+        if (myIsMute) {
+            music.volume = myCurrentVolume;
+            muteButton.innerHTML = "Mute";
+            volumeSlider.value = myCurrentVolume;
+            myIsMute = false;
+        } else {
+            music.volume = 0.0;
+            muteButton.innerHTML = "Unmute";
+            volumeSlider.value = 0.0;
+            myIsMute = true;
+        }
+    }, false);
+
+}
+
 /* #endregion */
 
 /* #region Download queue and download */
@@ -495,9 +528,10 @@ AM.downloadAll(function () {
 
     GAME_ENGINE.init(ctx);
     GAME_ENGINE.start();
-
     GAME_ENGINE.addEntity(new Menu());
     AUDIO = new Audio();
+    document.getElementById("hud").style.display = "none";
+    addHTMLListeners();
     BACKGROUND = new Background();
     SCENE_MANAGER = new SceneManager();
 });

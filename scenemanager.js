@@ -146,6 +146,7 @@ SceneManager.prototype.gameInit = function () {
     BACKGROUND.validDirection();
     BACKGROUND.createWalls();
     BACKGROUND.decorateRoom();
+    document.getElementById("hud").style.display = "block";
     console.table(BACKGROUND.map);
     console.log(GAME_ENGINE.entities);
 }
