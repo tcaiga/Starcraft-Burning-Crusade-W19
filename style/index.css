@@ -1,8 +1,41 @@
 canvas {
-    margin: auto;
-    padding: 0;
-    display: block;
     border: 1px solid black;
+}
+
+#hud {
+    position: relative;
+    text-align: center;
+}
+
+.wrapper {
+    margin: 0 auto;
+    width: 640px;
+    height: 195px;
+    position: relative;
+}
+
+#volumeSlider {
+    position: absolute;
+    left: 38%;
+    top: 83%;
+    z-index: 1000;
+    float: bottom;
+}
+
+#volumeLabel {
+    position: absolute;
+    left: 26%;
+    top: 75%;
+    z-index: 1000;
+    float: bottom;
+}
+
+#muteButton {
+    position: absolute;
+    left: 61%;
+    top: 83%;
+    z-index: 1000;
+    float: bottom;
 }
 
 body {
