@@ -4,12 +4,12 @@
 // and the x and y offset to get bounds for room correct.
 var myPlayer;
 const EntityTypes = {
-    menu:0,
-    non_interactables:1,
-    traps:2,
-    projectiles:3,
-    enemies:4,
-    player:5
+    menu: 0,
+    non_interactables: 1,
+    traps: 2,
+    projectiles: 3,
+    enemies: 4,
+    player: 5
 }
 
 window.requestAnimFrame = (function () {
@@ -39,7 +39,6 @@ function GameEngine() {
     this.mouseY = 0;
     this.keyShift = false;
     this.movement = false;
-    this.playerPick;
     this.debug = false;
 }
 
@@ -91,6 +90,8 @@ GameEngine.prototype.startInput = function () {
                     myPlayer.x + 4,
                     myPlayer.y - (myPlayer.height / 2), x, y, 5);
                 GAME_ENGINE.addEntity(projectile);
+            } else {
+                SCENE_MANAGER.playAgain(x, y);
             }
         }
     }, false);
@@ -101,10 +102,7 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
-        // Sprint functionality
-        if (e.code === "ShiftLeft") {
-            that.keyShift = true;
-        }
+    
         if (e.code === "KeyW") {
             that.keyW = true;
             that.movement = true;
@@ -119,25 +117,23 @@ GameEngine.prototype.startInput = function () {
             that.movement = true;
         }
 
-        if (e.code === "KeyU") {
-           if (that.debug === false) {
-            that.debug = true;
-           } else {
-            that.debug = false;
-           }
-        }
-        //Abilities
-        if (e.code.includes("Digit")){
+         //Abilities
+         if (e.code.includes("Digit")) {
             that.digit[parseInt(e.code.charAt(5))] = true;
+        }
+
+        if (e.code === "KeyU") {
+            if (that.debug === false) {
+                that.debug = true;
+            } else {
+                that.debug = false;
+            }
         }
 
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
-        // Stop sprinting if left shift is released
-        if (e.code === "ShiftLeft") {
-            that.keyShift = false;
-        }
+    
 
         if (e.code === "KeyW") {
             that.keyW = false;
@@ -150,7 +146,7 @@ GameEngine.prototype.startInput = function () {
         }
 
         //Abilities
-        if (e.code.includes("Digit")){
+        if (e.code.includes("Digit")) {
             that.digit[parseInt(e.code.charAt(5))] = false;
         }
         /*if key is still being pressed down when another key is pressed up
@@ -206,7 +202,7 @@ GameEngine.prototype.addEntity = function (entity) {
 }
 
 GameEngine.prototype.removeEntity = function (entity) {
-let idx;
+    let idx;
     if (entity instanceof Player) {
         idx = this.entities[5].indexOf(entity);
         if (idx > -1) {
@@ -247,10 +243,10 @@ GameEngine.prototype.draw = function () {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
 
-            if (!entity.removeFromWorld && (entity instanceof Menu || entity instanceof Background 
+            if (!entity.removeFromWorld && (entity instanceof Menu || entity instanceof Background
                 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
 
-                entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
+                    entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.draw(this.ctx);
             }
         }
@@ -262,9 +258,9 @@ GameEngine.prototype.update = function () {
     for (let i = 0; i < this.entities.length; i++) {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
-            if (!entity.removeFromWorld && (entity instanceof Menu || entity instanceof Background 
+            if (!entity.removeFromWorld && (entity instanceof Menu || entity instanceof Background
                 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
-                entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
+                    entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.update();
             }
         }

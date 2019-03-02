@@ -15,8 +15,6 @@ var BACKGROUND;
 var SCENE_MANAGER;
 var canvasWidth;
 var canvasHeight;
-var playerX;
-var playerY;
 
 // Constant variable for tile size
 const TILE_SIZE = 16;
@@ -36,8 +34,6 @@ function Player(runSheet, shootSheet, deathSheet, xOffset, yOffset) {
     this.animationIdle = this.animationRun;
     this.x = 60;
     this.y = 60;
-    playerX = this.x;
-    playerY = this.y;
     this.xScale = 1;
     this.damageObjArr = [];
     this.buffObj = [];
@@ -46,12 +42,11 @@ function Player(runSheet, shootSheet, deathSheet, xOffset, yOffset) {
     this.cooldownAdj = 0;
     this.castTime = 0;
     this.isStunned = false;
-    this.sprint = 1;
     this.dead = false;
     this.baseMaxMovespeed = 2;
     this.maxMovespeedRatio = 1;
     this.maxMovespeedAdj = 0;
-    this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
+    this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
     this.right = true;
     this.maxHealth = 100;
     this.health = this.maxHealth;
@@ -78,30 +73,34 @@ Player.prototype.draw = function () {
             this.animationShoot.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
         } else if (!GAME_ENGINE.movement) {
             this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
+            if (this.dead) {
+                this.animationDeath.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+            } else {
+                if (!GAME_ENGINE.movement) {
+                    this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
+                } else {
+                    this.animationRun.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                }
+            }
+            GAME_ENGINE.ctx.restore();
+            if (GAME_ENGINE.debug) {
+                GAME_ENGINE.ctx.strokeStyle = "blue";
+                GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+                    this.boundingbox.width, this.boundingbox.height);
+            }
         } else {
-            this.animationRun.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+            this.dontdraw--;
         }
-
-        GAME_ENGINE.ctx.restore();
-        if (GAME_ENGINE.debug) {
-            GAME_ENGINE.ctx.strokeStyle = "blue";
-            GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-                this.boundingbox.width, this.boundingbox.height);
-        }
-    } else {
-        this.dontdraw--;
     }
 }
 
 Player.prototype.update = function () {
-    // Conditional check to see if player wants to sprint or not
-    this.sprint = GAME_ENGINE.keyShift ? 1.75 : 1;
     // Player movement controls
 
     if (!this.dead) {
         if (this.castTime <= 0 && !this.isStunned) {
             /* #region Player movement controls */
-            this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
+            this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
             if (GAME_ENGINE.keyW === true) {
                 this.y -= this.actualSpeed;
             }
@@ -116,7 +115,7 @@ Player.prototype.update = function () {
                 this.x += this.actualSpeed;
                 this.right = true;
             }
-           
+
             /* #endregion */
         } else {
             this.castTime--;
@@ -162,8 +161,6 @@ Player.prototype.update = function () {
 
         if (this.health <= 0) {
             this.dead = true;
-            GAME_ENGINE.reset();
-            BACKGROUND = new Background();
         }
 
         /* #region Damage system updates */
@@ -196,9 +193,6 @@ Player.prototype.update = function () {
         }
         /* #endregion */
         /* #endregion */
-
-        playerX = this.x;
-        playerY = this.y;
 
         this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
             this.width, this.height);
@@ -402,10 +396,10 @@ Camera.prototype.move = function (direction) {
 
 /* #region Menu */
 function Menu() {
-    this.button = {x: 406, width: 221, height: 39};
+    this.button = { x: 406, width: 221, height: 39 };
     this.storyY = 263;
     this.controlsY = 409;
-    this.back = {x:62, y:30, width:59,height:16};
+    this.back = { x: 62, y: 30, width: 59, height: 16 };
     this.controls = false;
     this.credits = false;
     this.background = new Image();
@@ -417,8 +411,8 @@ Menu.prototype.update = function () {
 }
 
 Menu.prototype.draw = function () {
-    GAME_ENGINE.ctx.drawImage(this.background,0, 0, canvasWidth, canvasHeight,
-         0, 0, canvasWidth, canvasHeight);
+    GAME_ENGINE.ctx.drawImage(this.background, 0, 0, canvasWidth, canvasHeight,
+        0, 0, canvasWidth, canvasHeight);
 }
 
 /* #endregion */

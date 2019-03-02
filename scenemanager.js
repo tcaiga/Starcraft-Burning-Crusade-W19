@@ -116,7 +116,6 @@ SceneManager.prototype.menuSelection = function (x, y) {
         if (x >= this.menu.button.x && x <= this.menu.button.x + this.menu.button.width
             && y >= this.menu.storyY && y <= this.menu.storyY + this.menu.button.height) {
             startGame = true;
-            GAME_ENGINE.playerPick = 0;
         }
         //controls
         else if (x >= this.menu.button.x && x <= this.menu.button.x + this.menu.button.width
@@ -130,6 +129,14 @@ SceneManager.prototype.menuSelection = function (x, y) {
         this.insideMenu = false;
         this.menu.removeFromWorld = true;
         SCENE_MANAGER.gameInit();
+    }
+} 
+
+SceneManager.prototype.playAgain = function (x, y) {
+    //checks if player clicked play again (values are hardcoded)
+    if (x >= 203 && x <=  435 && y >= 253 && y <= 276) {
+        GAME_ENGINE.reset();
+        BACKGROUND = new Background();
     }
 }
 
