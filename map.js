@@ -13,12 +13,11 @@ function Background() {
     this.facePos = [];
     this.directions = [[-1, 0], [0, 1], [1, 0], [0, -1]];
     this.map = [
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
     ];
     this.row = 2;
     this.col = 2;
@@ -190,6 +189,24 @@ Background.prototype.validDirection = function () {
                 }
                 this.roomCount++;
             }
+        }
+    }
+
+    this.drawMiniMap();
+}
+
+Background.prototype.drawMiniMap = function () {
+    var roomNum = 0;
+    for (var i = 0; i < this.map.length; i++) {
+        for (var j = 0; j < this.map[i].length; j++) {
+            if (this.map[i][j] === 1) {
+                document.getElementById("room" + roomNum).style.backgroundColor = "white";
+            } else if (this.map[i][j] === 2) {
+                document.getElementById("room" + roomNum).style.backgroundColor = "blue";
+            } else if (this.map[i][j] === 3) {
+                document.getElementById("room" + roomNum).style.backgroundColor = "red";
+            }
+            roomNum++;
         }
     }
 }
