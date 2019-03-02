@@ -1,4 +1,4 @@
-function Monster(spritesheetArr, x, y) {
+function Monster(spriteSheet, x, y) {
     Entity.call(this, GAME_ENGINE, 0, 350);
 
     // behavior stuff
@@ -16,7 +16,8 @@ function Monster(spritesheetArr, x, y) {
     this.isBoss = false;
 
     // animation stuff
-    this.flaggedLeft = false;
+    this.xScale = 1;
+    this.right = true;
     this.numOfFrames = 15;
     this.frameLength = .15;
     this.sheetWidth = 1;
@@ -44,14 +45,18 @@ function Monster(spritesheetArr, x, y) {
 }
 
 Monster.prototype.draw = function () {
-    var xScale = 1;
-    var xValue = this.x;
-    if (!this.right) {
-        GAME_ENGINE.ctx.save();
-        GAME_ENGINE.ctx.scale(-1, 1);
-        this.xScale = -1;
-        xValue = -this.x - this.width;
-    }
+    // **************************************************************
+    // BIG ISSUES HERE NEED TO FIX THIS TO FLIP MONSTER SPRITE SHEETS
+    // **************************************************************
+    // this.xScale = 1;
+    // var xValue = this.x;
+    // if (!this.right) {
+    //     GAME_ENGINE.ctx.save();
+    //     GAME_ENGINE.ctx.scale(-1, 1);
+    //     this.xScale = -1;
+    //     xValue = -this.x - this.width;
+    // }
+
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = "red";
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
@@ -60,7 +65,9 @@ Monster.prototype.draw = function () {
         GAME_ENGINE.ctx.strokeRect(this.visionBox.x, this.visionBox.y,
             this.visionBox.width, this.visionBox.height);
     }
-    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+
+
+    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
     // Displaying Monster health
     GAME_ENGINE.ctx.font = "15px Arial";
     GAME_ENGINE.ctx.fillStyle = "white";
@@ -80,6 +87,14 @@ function distance(monster) {
 }
 
 Monster.prototype.update = function () {
+    // Flipping sprite sheet for monsters depending on if the player is to the left or right.
+    if (myPlayer.x > this.x) {
+        this.right = true;
+    } else {
+        this.right = false;
+    }
+
+
     if (this.isBoss) {
         this.bossBehavior();
     } else {
@@ -113,16 +128,6 @@ Monster.prototype.update = function () {
 
     // based on the number of ticks since the player was last hit, we pause the monster
     if (this.pause == false && !this.isStunned) {
-        // change spritesheet based on direction enemy is moving
-        if (dirX < 0 && this.flaggedLeft == false) {
-            this.flaggedLeft = true;
-            this.animation = new Animation(this.spritesheetArr['l'], this.width, this.height,
-                this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
-        } else if (dirX > 0 && this.flaggedLeft == true) {
-            this.flaggedLeft = false;
-            this.animation = new Animation(this.spritesheetArr['r'], this.width, this.height,
-                this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
-        }
         // get the distance from the player
         var dis = Math.sqrt(dirX * dirX + dirY * dirY);
         // nomralize the vector
@@ -254,7 +259,7 @@ function Hydralisk(spriteSheet, x, y) {
     this.y = y;
 
     this.counter = 0;
-    this.animation = new Animation(spriteSheet, this.width, this.height, sheetWidth, frameLength, numOfFrames, true, this.scale);
+    this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 }
 
 function Infested(spriteSheet, x, y) {
@@ -278,7 +283,7 @@ function Infested(spriteSheet, x, y) {
     this.y = y;
 
     this.counter = 0;
-    this.animation = new Animation(spriteSheet, this.width, this.height, sheetWidth, frameLength, numOfFrames, true, this.scale);
+    this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 }
 
 function Ultralisk(spriteSheet, x, y) {
@@ -302,7 +307,7 @@ function Ultralisk(spriteSheet, x, y) {
     this.y = y;
 
     this.counter = 0;
-    this.animation = new Animation(spriteSheet, this.width, this.height, sheetWidth, frameLength, numOfFrames, true, this.scale);
+    this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 }
 
 function Zergling(spriteSheet, x, y) {
@@ -326,7 +331,7 @@ function Zergling(spriteSheet, x, y) {
     this.y = y;
 
     this.counter = 0;
-    this.animation = new Animation(spriteSheet, this.width, this.height, sheetWidth, frameLength, numOfFrames, true, this.scale);
+    this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 }
 
 function Zerg_Boss(spriteSheet, x, y) {

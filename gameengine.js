@@ -325,8 +325,7 @@ GameEngine.prototype.draw = function () {
     for (let i = 0; i < this.entities.length; i++) {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
-            if (!entity.removeFromWorld && (entity instanceof Menu || 
-                entity instanceof Hud || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
+            if (!entity.removeFromWorld && (i <= 1 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
                 entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.draw(this.ctx);
             }
