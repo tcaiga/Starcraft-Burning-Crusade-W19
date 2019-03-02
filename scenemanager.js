@@ -102,23 +102,31 @@ function SceneManager() {
     this.menu = GAME_ENGINE.entities[0][0];
 }
 
-SceneManager.prototype.menuSelection = function(x, y) {
-    var classPicked = false;
-    if(x >= this.menu.mageButtonX && x <= this.menu.mageButtonX + this.menu.mageWidth
-        && y >= this.menu.mageButtonY && y <= this.menu.mageButtonY + this.menu.classButtonH) {
-        classPicked = true;
-        GAME_ENGINE.playerPick = 0;
-    }  else if (x >= this.menu.rangerButtonX && x <= this.menu.rangerButtonX + this.menu.rangerWidth
-        && y >= this.menu.rangerButtonY && y <= this.menu.rangerButtonY + this.menu.classButtonH) {
-        classPicked = true;
-        GAME_ENGINE.playerPick = 1;
-    } else if (x >= this.menu.knightButtonX && x <= this.menu.knightButtonX + this.menu.knightWidth
-        && y >= this.menu.knightButtonY && y <= this.menu.knightButtonY + this.menu.classButtonH) {
-        classPicked = true;
-        GAME_ENGINE.playerPick = 2;
+SceneManager.prototype.menuSelection = function (x, y) {
+    var startGame = false;
+    //inside controls
+    if (this.menu.controls) {
+        if (x >= this.menu.back.x && x <= this.menu.back.x + this.menu.back.width
+            && y >= this.menu.back.y && y <= this.menu.back.y + this.menu.back.height) {
+            this.menu.controls = false;
+            this.menu.background.src = "./img/utilities/menu.png";
+        }
+    } else {
+        //story
+        if (x >= this.menu.button.x && x <= this.menu.button.x + this.menu.button.width
+            && y >= this.menu.storyY && y <= this.menu.storyY + this.menu.button.height) {
+            startGame = true;
+            GAME_ENGINE.playerPick = 0;
+        }
+        //controls
+        else if (x >= this.menu.button.x && x <= this.menu.button.x + this.menu.button.width
+            && y >= this.menu.controlsY && y <= this.menu.controlsY + this.menu.button.height) {
+            this.menu.controls = true;
+            this.menu.background.src = "./img/utilities/controls.png";
+        }
     }
 
-    if (classPicked) {
+    if (startGame) {
         this.insideMenu = false;
         this.menu.removeFromWorld = true;
         SCENE_MANAGER.gameInit();
@@ -127,18 +135,19 @@ SceneManager.prototype.menuSelection = function(x, y) {
 
 SceneManager.prototype.gameInit = function () {
     GAME_ENGINE.addEntity(BACKGROUND);
-    
     // Using players choice to grab the appropriate character sprite
     // Player
-    myPlayer = new Player(AM.getAsset(characterSprites[GAME_ENGINE.playerPick]["spritesheet"]), 
-    characterSprites[GAME_ENGINE.playerPick]["xOffset"], characterSprites[GAME_ENGINE.playerPick]["yOffset"]);
+    console.log("test");
+    myPlayer = new Player(AM.getAsset(characterSprites[GAME_ENGINE.playerPick]["spritesheet"]),
+        characterSprites[GAME_ENGINE.playerPick]["xOffset"], characterSprites[GAME_ENGINE.playerPick]["yOffset"]);
     GAME_ENGINE.addEntity(myPlayer);
-    document.getElementById("health").innerHTML = myPlayer.health;
-    document.getElementById("location").innerHTML = "Location: 1-1";
     GAME_ENGINE.addEntity(CAMERA);
 
-    BACKGROUND.validDirection();
+    CAMERA.getStartingRoom();
+    BACKGROUND.generateSurvivalMap();
     BACKGROUND.createWalls();
     BACKGROUND.decorateRoom();
+    document.getElementById("hud").style.display = "block";
     console.table(BACKGROUND.map);
+    console.log(GAME_ENGINE.entities);
 }

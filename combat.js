@@ -3,6 +3,7 @@ SwordBoomerang.prototype = Projectile.prototype;
 GreaterFireball.prototype = Projectile.prototype;
 FlameBreathBolt.prototype = Projectile.prototype;
 MultiArrow.prototype = Projectile.prototype;
+Spike.prototype = Projectile.prototype;
 
 function SwordBoomerang(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin/* same number assignment as the ent array*/);
@@ -317,6 +318,27 @@ function SpawnZerglings() {
     }
 
 }
+
+function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin) {
+    this.width = 100;
+    this.height = 100;
+    ss1Ani = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
+    ss1 = new StillStand(ss1Ani, 90, originX, originY);
+    GAME_ENGINE.addEntity(ss1);
+    ss1.onDeath = function () {
+        GAME_ENGINE.addEntity(new Spike(spriteSheet, originX, originY, xTarget, yTarget, origin));
+    }
+
+
+}
+let ctr = 0;
+function Spike(spriteSheet, originX, originY, xTarget, yTarget, origin) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
+    this.projectileSpeed = 5;
+    this.penetrative = false;
+    ctr++;
+}
+
 
 // for ability stuff
 function getRandomInt(min, max) {

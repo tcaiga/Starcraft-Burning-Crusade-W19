@@ -1,45 +1,108 @@
+body {
+    font-family: Starcraft;
+}
+
 canvas {
-    position: absolute;
-    left: 50%;
-    margin-left:-320px;
-    top:50%;
-    margin-top:-320px;
     border: 1px solid black;
 }
 
-#sidebar {
+#hud {
+    position: relative;
+    text-align: center;
+}
+
+.wrapper {
+    margin: 0 auto;
+    width: 640px;
+    height: 195px;
+    position: relative;
+}
+
+#volumeSlider {
     position: absolute;
-    right:0;
-    height:100%;
-    background-color: #4C4C4C;
-    float: right;
+    left: 76%;
+    top: 83%;
+    z-index: 1000;
+    float: bottom;
+}
+
+#volumeLabel {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 76.5%;
+    top: 65%;
+}
+
+#muteButton {
+    position: absolute;
+    left: 89%;
+    top: 81%;
+    z-index: 1000;
+    float: bottom;
+}
+
+.room {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    width:20px;
+    height:20px;
     border: 1px solid black;
 }
 
-#wrapper {
-    margin-left:auto;
-    margin-right:auto;
-    width:762px;
+.spellImg {
+    position: absolute;
+    left: 76%;
+    z-index: 1000;
+    float: bottom;
 }
 
-.abilities {
-    display: inline;
+.spellLabel {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 82%;
 }
-
 
 .spell {
-    display: inline;
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 87%;
     color: lightgreen;
+}
+
+#healthLabel {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 67%;
+    top:37%;
 }
 
 #health {
-    display: inline;
-    color: lightgreen;
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 67.5%;
+    top:44%;
 }
 
-#speed {
-    display: inline;
-    color: lightgreen;
+#healthImg {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 67%;
+    top:62%;
+}
+
+.hudImg {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
 }
 
 body {

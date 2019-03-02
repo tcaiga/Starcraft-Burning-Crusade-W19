@@ -1,6 +1,9 @@
 function Background() {
     this.x = -1280;
     this.y = -1280;
+
+    this.floorX = 0;
+    this.floorY = 0;
     // Keeping track of the last direction the generator has moved.
     // 0 = North
     // 1 = East
@@ -10,60 +13,23 @@ function Background() {
     this.facePos = [];
     this.directions = [[-1, 0], [0, 1], [1, 0], [0, -1]];
     this.map = [
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
     ];
     this.row = 2;
     this.col = 2;
     this.roomCount = 0;
-    this.maxRoomCount = 6;
+    this.maxRoomCount = 5;
     this.map[this.row][this.col] = 2;
     this.facePos.push([this.col, this.row]);
-    this.three = new Image();
-    this.three.src = "./img/floor1.png";
-    this.zero = new Image();
-    this.zero.src = "./img/floor2.png";
-    this.two = new Image();
-    this.two.src = "./img/blacktile.png";
-    this.tile = null;
     this.drawFaceCount = 0;
 }
 
 Background.prototype.draw = function () {
-    for (let i = 0; i < this.map.length; i++) {
-        for (let j = 0; j < this.map[i].length; j++) {
-            for (let r = 0; r < 20; r++) {
-                for (let s = 0; s < 20; s++) {
-                    // Determining tiles to choose
-                    let tempTile = ROOMS[this.map[i][j]][r * 20 + s];
-                    if (tempTile === 0) {
-                        this.tile = this.zero;
-                    }
-                    // else if (tempTile === 2) {
-                    //     this.tile = this.two;
-                    // } 
-                    else if (tempTile === 3) {
-                        this.tile = this.three;
-                    }
-                    // Drawing Tiles
-                    if (tempTile === 0 || tempTile === 3) {
-                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2,
-                            this.y + i * canvasHeight + r * TILE_SIZE * 2);
-                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2 + TILE_SIZE,
-                            this.y + i * canvasHeight + r * TILE_SIZE * 2);
-                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2,
-                            this.y + i * canvasHeight + r * TILE_SIZE * 2 + TILE_SIZE);
-                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2 + TILE_SIZE,
-                            this.y + i * canvasHeight + r * TILE_SIZE * 2 + TILE_SIZE);
-                    }
-                }
-            }
-        }
-    }
+    GAME_ENGINE.ctx.drawImage(AM.getAsset("./img/utilities/floor.png"), this.floorX, this.floorY, 640, 640);
 }
 
 Background.prototype.update = function () {
@@ -87,7 +53,7 @@ Background.prototype.createWalls = function () {
                                 this.y + i * canvasHeight + row * TILE_SIZE * 2, "down"));
                         } else if (row === 0) {
                             GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
-                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "up"));
+                                this.y + i * canvasHeight + row * TILE_SIZE * 2 + 1, "up"));
                         }
                     }
                 }
@@ -106,7 +72,7 @@ Background.prototype.decorateRoom = function () {
                 // Adding a door to go forward for all rooms except the ending room.
                 if (this.face[this.drawFaceCount] === 0) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                        testPos[1] * canvasHeight + BACKGROUND.y, "up"));
+                        testPos[1] * canvasHeight + BACKGROUND.y + 1, "up"));
                 } else if (this.face[this.drawFaceCount] === 1) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 608 + BACKGROUND.x,
                         testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right"));
@@ -119,17 +85,17 @@ Background.prototype.decorateRoom = function () {
                 }
 
                 // Adding traps in all rooms except the starting and ending rooms.
-                let choice = Math.floor(Math.random() * 3);
+                let choice = Math.floor(Math.random() * 2);
                 // 33% chance a room that is not the start or end will have traps.
                 if (this.drawFaceCount > 0) {
                     if (choice === 0) {
                         for (let r = 1; r < 4; r++) {
                             for (let s = 1; s < 4; s++) {
-                                // 9 traps appear in the shape of a cube spaced out.
-                                var trap = new Trap(AM.getAsset("./img/floor_trap_up.png"),
-                                AM.getAsset("./img/floor_trap_down.png"), testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
+                                // 9 infested terrans appear in the shape of a cube spaced out.
+                                var infested = new Infested(AM.getAsset("./img/zerg/infested/infested_move_right.png"),
+                                testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
                                 testPos[1] * canvasHeight + (s * 160) + BACKGROUND.y - 10);
-                                GAME_ENGINE.addEntity(trap);
+                                GAME_ENGINE.addEntity(infested);
                             }
                         }
                     } else if (choice === 1) {
@@ -148,7 +114,7 @@ Background.prototype.decorateRoom = function () {
                             testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left"));
                     } else if (this.face[this.drawFaceCount] === 2) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + BACKGROUND.y, "up"));
+                            testPosReverse[1] * canvasHeight + BACKGROUND.y + 1, "up"));
                     } else if (this.face[this.drawFaceCount] === 3) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 608 + BACKGROUND.x,
                             testPosReverse[1] * canvasHeight + 304 + BACKGROUND.y, "right"));
@@ -165,77 +131,28 @@ Background.prototype.decorateRoom = function () {
                             testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left"));
                     } else if (this.face[this.drawFaceCount] === 2) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + BACKGROUND.y, "up"));
+                            testPos[1] * canvasHeight + BACKGROUND.y + 1, "up"));
                     } else if (this.face[this.drawFaceCount] === 3) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 608 + BACKGROUND.x,
                             testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right"));
                     }
                 }
                 
-                if (this.drawFaceCount % 4 === 0) {
-                    var tinyzombie = new TinyZombie({
-                        'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-                        'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+                if (this.drawFaceCount % 3 === 0) {
+                    var zergling = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
+                    testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
 
-                    var tinyzombie1 = new TinyZombie({
-                        'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-                        'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x - 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+                    GAME_ENGINE.addEntity(zergling);
+                } else if (this.drawFaceCount % 3 === 1) {
+                    var hydralisk = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"),
+                    testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
 
-                    var tinyzombie2 = new TinyZombie({
-                        'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-                        'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 32);
+                    GAME_ENGINE.addEntity(hydralisk);
+                } else if (this.drawFaceCount % 3 === 2) {
+                    var ultralisk = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
+                    testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
 
-                    var tinyzombie3 = new TinyZombie({
-                        'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-                        'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y - 32);
-
-                    GAME_ENGINE.addEntity(tinyzombie);
-                    GAME_ENGINE.addEntity(tinyzombie1);
-                    GAME_ENGINE.addEntity(tinyzombie2);
-                    GAME_ENGINE.addEntity(tinyzombie3);
-                } else if (this.drawFaceCount % 4 === 1) {
-                    var maskedorc = new MaskedOrc({
-                        'r': AM.getAsset("./img/monsters/masked_orc_run.png"),
-                        'l': AM.getAsset("./img/monsters/masked_orc_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-
-                    var ogre = new Ogre({
-                        'r': AM.getAsset("./img/monsters/ogre_run.png"),
-                        'l': AM.getAsset("./img/monsters/ogre_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x - 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-
-                    var swampy = new Swampy({
-                        'r': AM.getAsset("./img/monsters/swampy_run.png"),
-                        'l': AM.getAsset("./img/monsters/swampy_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 32);
-
-                    GAME_ENGINE.addEntity(maskedorc);
-                    GAME_ENGINE.addEntity(ogre);
-                    GAME_ENGINE.addEntity(swampy);
-                } else if (this.drawFaceCount % 4 === 2) {
-                    var devil = new Devil({
-                        'r': AM.getAsset("./img/devil.png"),
-                        'l': AM.getAsset("./img/devil_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-
-                    var acolyte = new Acolyte({
-                        'r': AM.getAsset("./img/acolyte.png"),
-                        'l': AM.getAsset("./img/acolyte_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 32);
-
-                    GAME_ENGINE.addEntity(devil);
-                    GAME_ENGINE.addEntity(acolyte);
-                } else if (this.drawFaceCount % 4 === 3) {
-                    var bigdemon = new BigDemon({
-                        'r': AM.getAsset("./img/monsters/big_demon_run.png"),
-                        'l': AM.getAsset("./img/monsters/big_demon_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-
-                    GAME_ENGINE.addEntity(bigdemon);
+                    GAME_ENGINE.addEntity(ultralisk);
                 }
 
                 this.drawFaceCount++;
@@ -244,7 +161,7 @@ Background.prototype.decorateRoom = function () {
     }
 }
 
-Background.prototype.validDirection = function () {
+Background.prototype.generateSurvivalMap = function () {
     music.play();
     while (this.roomCount < this.maxRoomCount) {
         let randomDirection = Math.floor(Math.random() * Math.floor(4));
@@ -274,6 +191,24 @@ Background.prototype.validDirection = function () {
             }
         }
     }
+
+    this.drawMiniMap();
+}
+
+Background.prototype.drawMiniMap = function () {
+    var roomNum = 0;
+    for (var i = 0; i < this.map.length; i++) {
+        for (var j = 0; j < this.map[i].length; j++) {
+            if (this.map[i][j] === 1) {
+                document.getElementById("room" + roomNum).style.backgroundColor = "white";
+            } else if (this.map[i][j] === 2) {
+                document.getElementById("room" + roomNum).style.backgroundColor = "blue";
+            } else if (this.map[i][j] === 3) {
+                document.getElementById("room" + roomNum).style.backgroundColor = "red";
+            }
+            roomNum++;
+        }
+    }
 }
 
 function Door(theX, theY, theDirection) {
@@ -281,7 +216,7 @@ function Door(theX, theY, theDirection) {
     this.y = theY;
     this.direction = theDirection;
     this.image = new Image();
-    this.image.src = "./img/door_closed.png";
+    this.image.src = "./img/buildings/door_open.png";
     this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 }
 
@@ -300,7 +235,7 @@ function Wall(theX, theY, theDirection) {
     this.y = theY;
     this.direction = theDirection;
     this.image = new Image();
-    this.image.src = "./img/floor1.png";
+    this.image.src = "./img/utilities/wall_tile.png";
     this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 }
 
