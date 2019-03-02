@@ -143,6 +143,7 @@ SceneManager.prototype.gameInit = function () {
     GAME_ENGINE.addEntity(myPlayer);
     GAME_ENGINE.addEntity(CAMERA);
 
+    CAMERA.getStartingRoom();
     BACKGROUND.generateSurvivalMap();
     BACKGROUND.createWalls();
     BACKGROUND.decorateRoom();

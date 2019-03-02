@@ -29,7 +29,7 @@ function Background() {
 }
 
 Background.prototype.draw = function () {
-    GAME_ENGINE.ctx.drawImage(AM.getAsset("./img/utilities/floor.png"), this.floorX, this.floorY, 608, 608);
+    GAME_ENGINE.ctx.drawImage(AM.getAsset("./img/utilities/floor.png"), this.floorX, this.floorY, 640, 640);
 }
 
 Background.prototype.update = function () {
