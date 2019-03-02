@@ -33,7 +33,8 @@ function GameEngine() {
     this.keyS = false;
     this.keyD = false;
     this.keyW = false;
-    this.digit = [false, false, false, false, false, false, false, false, false, false];
+    this.digit = [false,false,false,false,false,false,false,false,false,false];
+    this.mouseClick = false;
     this.mouseX = 0;
     this.mouseY = 0;
     this.keyShift = false;
@@ -72,8 +73,12 @@ GameEngine.prototype.startInput = function () {
 
     var that = this;
     // event listeners are added here
+    this.ctx.canvas.addEventListener("mouseup", function (e) {
+        that.mouseClick = false;
+    }, false);
 
-    this.ctx.canvas.addEventListener("click", function (e) {
+    this.ctx.canvas.addEventListener("mousedown", function (e) {
+        that.mouseClick = true;
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
         if (SCENE_MANAGER.insideMenu) {
@@ -82,7 +87,7 @@ GameEngine.prototype.startInput = function () {
             if (!myPlayer.dead) {
                 // Projectile
                 var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
-                    myPlayer.x - (myPlayer.width / 2),
+                    myPlayer.x + 4,
                     myPlayer.y - (myPlayer.height / 2), x, y, 5);
                 GAME_ENGINE.addEntity(projectile);
             } else {

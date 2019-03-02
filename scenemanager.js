@@ -144,8 +144,10 @@ SceneManager.prototype.gameInit = function () {
     GAME_ENGINE.addEntity(BACKGROUND);
     // Using players choice to grab the appropriate character sprite
     // Player
+    console.log("test");
     myPlayer = new Player(AM.getAsset("./img/terran/marine/marine_move_right.png"),
-     AM.getAsset("./img/terran/marine/marine_death.png"), 0, 9);
+        AM.getAsset("./img/terran/marine/marine_shoot_right.png"),
+        AM.getAsset("./img/terran/marine/marine_death.png"), 0, 9);
     GAME_ENGINE.addEntity(myPlayer);
     GAME_ENGINE.addEntity(CAMERA);
 

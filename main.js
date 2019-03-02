@@ -21,16 +21,17 @@ const TILE_SIZE = 16;
 /* #endregion */
 
 /* #region Player */
-function Player(spritesheet, spritesheetDead, xOffset, yOffset) {
+function Player(runSheet, shootSheet, deathSheet, xOffset, yOffset) {
     // Relevant for Player box
     this.width = 32;
     this.height = 32;
     this.scale = 1.5;
     this.xOffset = xOffset * this.scale;
     this.yOffset = yOffset * this.scale;
-    this.animationRun = new Animation(spritesheet, this.width, this.height, 1, 0.04, 9, true, this.scale);
+    this.animationRun = new Animation(runSheet, this.width, this.height, 1, 0.04, 9, true, this.scale);
+    this.animationShoot = new Animation(shootSheet, this.width, this.height, 1, 0.04, 2, true, this.scale);
+    this.animationDeath = new Animation(deathSheet, 65, 40, 1, 0.04, 8, true, this.scale);
     this.animationIdle = this.animationRun;
-    this.animationDead = new Animation(spritesheetDead, 65, 40, 1, 0.25, 8, true, this.scale);
     this.x = 60;
     this.y = 60;
     this.xScale = 1;
@@ -69,20 +70,22 @@ Player.prototype.draw = function () {
     //draw player character with no animation if player is not currently moving
     if (this.dontdraw <= 0) {
         if (this.dead) {
-            this.animationDead.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+            this.animationDeath.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
         } else {
-            if (!GAME_ENGINE.movement) {
+            if (GAME_ENGINE.mouseClick === true) {
+                this.animationShoot.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+            } else if (!GAME_ENGINE.movement) {
                 this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
             } else {
                 this.animationRun.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
             }
         }
         GAME_ENGINE.ctx.restore();
-            if (GAME_ENGINE.debug) {
-                GAME_ENGINE.ctx.strokeStyle = "blue";
-                GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-                    this.boundingbox.width, this.boundingbox.height);
-            }
+        if (GAME_ENGINE.debug) {
+            GAME_ENGINE.ctx.strokeStyle = "blue";
+            GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+                this.boundingbox.width, this.boundingbox.height);
+        }
     } else {
         this.dontdraw--;
     }
@@ -489,8 +492,10 @@ function addHTMLListeners() {
 // Harrison's Fireball
 AM.queueDownload("./img/fireball.png");
 
-// Buildings and Map
+// Map
 AM.queueDownload("./img/utilities/floor.png");
+
+// Buildings
 AM.queueDownload("./img/buildings/crashed_cruiser.png");
 AM.queueDownload("./img/buildings/gravemind.png");
 AM.queueDownload("./img/buildings/hive.png");
