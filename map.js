@@ -26,44 +26,11 @@ function Background() {
     this.maxRoomCount = 6;
     this.map[this.row][this.col] = 2;
     this.facePos.push([this.col, this.row]);
-    this.three = new Image();
-    this.three.src = "./img/floor1.png";
-    this.zero = new Image();
-    this.zero.src = "./img/floor2.png";
-    this.two = new Image();
-    this.two.src = "./img/blacktile.png";
-    this.tile = null;
     this.drawFaceCount = 0;
 }
 
 Background.prototype.draw = function () {
-    GAME_ENGINE.ctx.drawImage(AM.getAsset("./img/utilities/floor.png"), this.floorX, this.floorY, 608, 608);
-
-    for (let i = 0; i < this.map.length; i++) {
-        for (let j = 0; j < this.map[i].length; j++) {
-            for (let r = 0; r < 20; r++) {
-                for (let s = 0; s < 20; s++) {
-                    // Determining tiles to choose
-                    let tempTile = ROOMS[this.map[i][j]][r * 20 + s];
-                    if (tempTile === 3) {
-                        this.tile = this.three;
-                    }
-                    // Drawing Tiles
-                    if ((tempTile === 0 || tempTile === 3) 
-                    && this.y + i * canvasHeight + r * TILE_SIZE * 2 <= Math.abs(canvasHeight + Camera.y)) {
-                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2,
-                            this.y + i * canvasHeight + r * TILE_SIZE * 2);
-                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2 + TILE_SIZE,
-                            this.y + i * canvasHeight + r * TILE_SIZE * 2);
-                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2,
-                            this.y + i * canvasHeight + r * TILE_SIZE * 2 + TILE_SIZE);
-                        GAME_ENGINE.ctx.drawImage(this.tile, this.x + j * canvasWidth + s * TILE_SIZE * 2 + TILE_SIZE,
-                            this.y + i * canvasHeight + r * TILE_SIZE * 2 + TILE_SIZE);
-                    }
-                }
-            }
-        }
-    }
+    GAME_ENGINE.ctx.drawImage("./img/utilities/floor.png", this.floorX, this.floorY, 608, 608);
 }
 
 Background.prototype.update = function () {
@@ -174,78 +141,21 @@ Background.prototype.decorateRoom = function () {
                     }
                 }
                 
-                if (this.drawFaceCount % 4 === 0) {
-                    var tinyzombie = new TinyZombie({
-                        'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-                        'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+                if (this.drawFaceCount % 3 === 0) {
+                    var zergling = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
+                    testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
 
-                    var tinyzombie1 = new TinyZombie({
-                        'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-                        'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x - 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+                    GAME_ENGINE.addEntity(zergling);
+                } else if (this.drawFaceCount % 3 === 1) {
+                    var hydralisk = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"),
+                    testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
 
-                    var tinyzombie2 = new TinyZombie({
-                        'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-                        'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 32);
+                    GAME_ENGINE.addEntity(hydralisk);
+                } else if (this.drawFaceCount % 3 === 2) {
+                    var ultralisk = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
+                    testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
 
-                    var tinyzombie3 = new TinyZombie({
-                        'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-                        'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y - 32);
-
-                    GAME_ENGINE.addEntity(tinyzombie);
-                    GAME_ENGINE.addEntity(tinyzombie1);
-                    GAME_ENGINE.addEntity(tinyzombie2);
-                    GAME_ENGINE.addEntity(tinyzombie3);
-                } else if (this.drawFaceCount % 4 === 1) {
-                    var maskedorc = new MaskedOrc({
-                        'r': AM.getAsset("./img/monsters/masked_orc_run.png"),
-                        'l': AM.getAsset("./img/monsters/masked_orc_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-
-                    var ogre = new Ogre({
-                        'r': AM.getAsset("./img/monsters/ogre_run.png"),
-                        'l': AM.getAsset("./img/monsters/ogre_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x - 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-
-                    var swampy = new Swampy({
-                        'r': AM.getAsset("./img/monsters/swampy_run.png"),
-                        'l': AM.getAsset("./img/monsters/swampy_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 32);
-
-                    var zerg = new Zerg_Boss({
-                        'r': AM.getAsset("./img/zerg/spawning_pool.png"),
-                        'l': AM.getAsset("./img/zerg/spawning_pool.png"),
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x - 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-
-                    GAME_ENGINE.addEntity(maskedorc);
-                    GAME_ENGINE.addEntity(ogre);
-                    GAME_ENGINE.addEntity(swampy);
-                    GAME_ENGINE.addEntity(zerg);
-                    console.log("\nSP x = " + zerg.x + "\nSP y = " + zerg.y);
-
-                } else if (this.drawFaceCount % 4 === 2) {
-                    var devil = new Devil({
-                        'r': AM.getAsset("./img/devil.png"),
-                        'l': AM.getAsset("./img/devil_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-
-                    var acolyte = new Acolyte({
-                        'r': AM.getAsset("./img/acolyte.png"),
-                        'l': AM.getAsset("./img/acolyte_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 32);
-
-                    GAME_ENGINE.addEntity(devil);
-                    GAME_ENGINE.addEntity(acolyte);
-                } else if (this.drawFaceCount % 4 === 3) {
-                    var bigdemon = new BigDemon({
-                        'r': AM.getAsset("./img/monsters/big_demon_run.png"),
-                        'l': AM.getAsset("./img/monsters/big_demon_run_left.png")
-                    }, testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-
-                    GAME_ENGINE.addEntity(bigdemon);
+                    GAME_ENGINE.addEntity(ultralisk);
                 }
 
                 this.drawFaceCount++;
