@@ -252,8 +252,8 @@ function Hydralisk(spriteSheet, x, y) {
     this.sheetWidth = 1;
 
     // gameplay
-    this.speed = 150;
-    this.health = 15;
+    this.speed = 100;
+    this.health = 45;
 
     this.x = x;
     this.y = y;
@@ -300,8 +300,8 @@ function Ultralisk(spriteSheet, x, y) {
     this.sheetWidth = 1;
 
     // gameplay
-    this.speed = 150;
-    this.health = 15;
+    this.speed = 100;
+    this.health = 100;
 
     this.x = x;
     this.y = y;
@@ -324,8 +324,8 @@ function Zergling(spriteSheet, x, y) {
     this.sheetWidth = 1;
 
     // gameplay
-    this.speed = 150;
-    this.health = 15;
+    this.speed = 200;
+    this.health = 30;
 
     this.x = x;
     this.y = y;
