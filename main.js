@@ -54,6 +54,8 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
     this.runDirection = "right";
     this.shootDirection = "right";
+    this.maxShootCounter = 0.3;
+    this.shootCounter = this.maxShootCounter;
     this.maxHealth = 100;
     this.health = this.maxHealth;
     this.healthPercent = 100;
@@ -67,18 +69,20 @@ Player.prototype.draw = function () {
     GAME_ENGINE.ctx.strokeRect(CAMERA.x, CAMERA.y, canvasWidth - 1, canvasHeight - 1);
     this.xScale = 1;
     var xValue = this.x;
-    if (this.runDirection === "left" || this.shootDirection === "left") {
-        GAME_ENGINE.ctx.save();
-        GAME_ENGINE.ctx.scale(-1, 1);
-        this.xScale = -1;
-        xValue = -this.x - this.width;
-    }
     //draw player character with no animation if player is not currently moving
     if (this.dontdraw <= 0) {
         if (this.dead) {
             this.animationDeath.drawFrameAniThenIdle(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
         } else {
+            // if statements for shooting logic
             if (GAME_ENGINE.shoot === true) {
+                // if statements for running logic
+                if (this.shootDirection === "left") {
+                    GAME_ENGINE.ctx.save();
+                    GAME_ENGINE.ctx.scale(-1, 1);
+                    this.xScale = -1;
+                    xValue = -this.x - this.width;
+                }
                 if (this.shootDirection === "left" || this.shootDirection === "right") {
                     this.animationShootSide.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
                 } else if (this.shootDirection === "up") {
@@ -86,9 +90,24 @@ Player.prototype.draw = function () {
                 } else {
                     this.animationShootDown.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
                 }
-             } else if (!GAME_ENGINE.movement) {
+            } else if (!GAME_ENGINE.movement) {
+                // if statements for running logic
+                if (this.runDirection === "left") {
+                    GAME_ENGINE.ctx.save();
+                    GAME_ENGINE.ctx.scale(-1, 1);
+                    this.xScale = -1;
+                    xValue = -this.x - this.width;
+                }
+                //animation for when player is not moving or shooting
                 this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
             } else {
+                // if statements for running logic
+                if (this.runDirection === "left") {
+                    GAME_ENGINE.ctx.save();
+                    GAME_ENGINE.ctx.scale(-1, 1);
+                    this.xScale = -1;
+                    xValue = -this.x - this.width;
+                }
                 if (this.runDirection === "left" || this.runDirection === "right") {
                     this.animationRunSide.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
                 } else if (this.runDirection === "up") {
@@ -119,28 +138,40 @@ Player.prototype.update = function () {
             if (GAME_ENGINE.keyW === true) {
                 this.y -= this.actualSpeed;
                 this.runDirection = "up";
+                this.animationIdle = this.animationRunUp;
             } else if (GAME_ENGINE.keyA === true) {
                 this.x -= this.actualSpeed;
                 this.runDirection = "left";
+                this.animationIdle = this.animationRunSide;
             } else if (GAME_ENGINE.keyS === true) {
                 this.y += this.actualSpeed;
                 this.runDirection = "down";
+                this.animationIdle = this.animationRunDown;
             } else if (GAME_ENGINE.keyD === true) {
                 this.x += this.actualSpeed;
                 this.runDirection = "right";
+                this.animationIdle = this.animationRunSide;
             }
-
-            if (GAME_ENGINE.keyUp === true) {
-                this.shootDirection = "up";
-            } else if (GAME_ENGINE.keyLeft === true) {
-                this.shootDirection = "left";
-            } else if (GAME_ENGINE.keyRight === true) {
-                this.shootDirection = "right";
-            } else if (GAME_ENGINE.keyDown === true) {
-                this.shootDirection = "down";
-            }
-
             /* #endregion */
+
+            if (GAME_ENGINE.shoot) {
+                if (this.shootCounter >= this.maxShootCounter) {
+                    var direction = "down";
+                    if (GAME_ENGINE.keyUp === true) {
+                        var direction = "up";
+                    } else if (GAME_ENGINE.keyLeft === true) {
+                        var direction = "left";
+                    } else if (GAME_ENGINE.keyRight === true) {
+                        var direction = "right";
+                    } 
+                    this.shootDirection = direction;
+                    this.shootProjectile(direction);
+                    this.shootCounter = 0;
+                } else {
+                    this.shootCounter += GAME_ENGINE.clockTick;
+                }
+            }
+
         } else {
             this.castTime--;
         }
@@ -222,6 +253,28 @@ Player.prototype.update = function () {
             this.width, this.height);
     }
 
+}
+
+Player.prototype.shootProjectile = function (direction) {
+    var xTar = myPlayer.x;
+    var yTar = myPlayer.y;
+    if (direction === "up") {
+        xTar = myPlayer.x + (myPlayer.width / 2) + 8;
+    } else if (direction === "left") {
+        xTar = myPlayer.x - 8;
+        yTar = myPlayer.y + (myPlayer.height / 2) + 3;
+    } else if (direction === "right") {
+        xTar = myPlayer.x + myPlayer.width + 8;
+        yTar = myPlayer.y + (myPlayer.height / 2) + 3;
+    } else {
+        xTar = myPlayer.x + (myPlayer.width / 2) + 8;
+        yTar = myPlayer.y + myPlayer.height + 4;
+    }
+    var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
+        myPlayer.x + 4,
+        myPlayer.y - (myPlayer.height / 2),
+         xTar, yTar, 5);
+    GAME_ENGINE.addEntity(projectile);
 }
 
 Player.prototype.changeHealth = function (amount) {

@@ -111,37 +111,15 @@ GameEngine.prototype.startInput = function () {
         if (e.code === "ArrowUp") {
             that.shoot = true;
             that.keyUp = true;
-            // Projectile
-            var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
-                myPlayer.x + 4,
-                myPlayer.y - (myPlayer.height / 2), myPlayer.x  + (myPlayer.width / 2) + 8, myPlayer.y, 5);
-            GAME_ENGINE.addEntity(projectile);
         } else if (e.code === "ArrowLeft") {
             that.shoot = true;
             that.keyLeft = true;
-            // Projectile
-            var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
-                myPlayer.x + 4,
-                myPlayer.y - (myPlayer.height / 2), myPlayer.x  - 4,
-                myPlayer.y - (myPlayer.height / 2), 5);
-            GAME_ENGINE.addEntity(projectile);
         } else if (e.code === "ArrowRight") {
             that.shoot = true;
             that.keyRight = true;
-            // Projectile
-            var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
-                myPlayer.x + 4,
-                myPlayer.y - (myPlayer.height / 2), myPlayer.x  + myPlayer.width + 4,
-                myPlayer.y - (myPlayer.height / 2), 5);
-            GAME_ENGINE.addEntity(projectile);
         } else if (e.code === "ArrowDown") {
             that.shoot = true;
             that.keyDown = true;
-            // Projectile
-            var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
-                myPlayer.x + 4,
-                myPlayer.y - (myPlayer.height / 2), myPlayer.x  + 4, myPlayer.y + myPlayer.height + 4, 5);
-            GAME_ENGINE.addEntity(projectile);
         }
 
         //Abilities
@@ -173,16 +151,12 @@ GameEngine.prototype.startInput = function () {
         }
 
         if (e.code === "ArrowUp") {
-            that.shoot = false;
             that.keyUp = false;
         } else if (e.code === "ArrowLeft") {
-            that.shoot = false;
             that.keyLeft = false;
         } else if (e.code === "ArrowRight") {
-            that.shoot = false;
             that.keyRight = false;
         } else if (e.code === "ArrowDown") {
-            that.shoot = false;
             that.keyDown = false;
         }
 
@@ -194,6 +168,12 @@ GameEngine.prototype.startInput = function () {
           then movement is still happening. */
         if (!that.keyW && !that.keyA && !that.keyS && !that.keyD) {
             that.movement = false;
+        }
+
+        /*if key is still being pressed down when another key is pressed up
+          then movement is still happening. */
+          if (!that.keyUp && !that.keyLeft && !that.keyRight && !that.keyDown) {
+            that.shoot = false;
         }
     }, false);
 }
