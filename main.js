@@ -47,6 +47,11 @@ function Player(runSheets, shootSheet, deathSheet, xOffset, yOffset) {
     this.isStunned = false;
     this.dead = false;
     this.baseMaxMovespeed = 2.5;
+    this.velocity = {x:0,y:0};
+    this.friction = .5;
+    this.baseAcceleration = {x:1,y:1};
+    this.accelerationRatio = 1;
+    this.accelerationAdj = 0;
     this.maxMovespeedRatio = 1;
     this.maxMovespeedAdj = 0;
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
@@ -104,22 +109,56 @@ Player.prototype.update = function () {
     // Player movement controls
 
     if (!this.dead) {
+        this.velocity = (this.castTime > 0 || this.isStunned) ? {x:0,y:0} : this.velocity;
         if (this.castTime <= 0 && !this.isStunned) {
             /* #region Player movement controls */
-            this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
-            if (GAME_ENGINE.keyW === true) {
-                this.y -= this.actualSpeed;
-                this.direction = "up";
-            } else if (GAME_ENGINE.keyA === true) {
-                this.x -= this.actualSpeed;
-                this.direction = "left";
-            } else if (GAME_ENGINE.keyS === true) {
-                this.y += this.actualSpeed;
-                this.direction = "down";
-            } else if (GAME_ENGINE.keyD === true) {
-                this.x += this.actualSpeed;
-                this.direction = "right";
-            }
+            
+            //Speed shift calculation
+            let speedShift = {x:this.baseAcceleration.x * this.accelerationRatio + this.accelerationAdj
+                            ,y:this.baseAcceleration.y * this.accelerationRatio + this.accelerationAdj};
+            //I love lambda...
+            //Friction
+            this.velocity.x = (this.velocity.x < .1 && this.velocity.x > -.1) ? 0 : this.velocity.x - Math.sign(this.velocity.x)*this.friction;
+            this.velocity.y = (this.velocity.y < .1 && this.velocity.y > -.1) ? 0 : this.velocity.y - Math.sign(this.velocity.y)*this.friction;
+
+            //Application of acceleration
+            this.velocity.x += (GAME_ENGINE.keyD) ? speedShift.x : 0;
+            this.velocity.x -= (GAME_ENGINE.keyA) ? speedShift.x : 0;
+            this.velocity.y -= (GAME_ENGINE.keyW) ? speedShift.y : 0;
+            this.velocity.y += (GAME_ENGINE.keyS) ? speedShift.y : 0;
+            console.log(this.velocity);
+
+            //Check max
+            this.velocity.x = (Math.abs(this.velocity.x) > this.baseMaxMovespeed) ? Math.sign(this.velocity.x) * this.baseMaxMovespeed : this.velocity.x;
+            this.velocity.y = (Math.abs(this.velocity.y) > this.baseMaxMovespeed) ? Math.sign(this.velocity.y) * this.baseMaxMovespeed : this.velocity.y;
+
+            //Application of velocity
+            this.x += this.velocity.x;
+            this.y += this.velocity.y;
+
+            //Animation direction
+            if (GAME_ENGINE.keyW){this.direction = "up";}
+            else if (GAME_ENGINE.keyA){this.direction = "left";}
+            else if (GAME_ENGINE.keyS){this.direction = "down";}
+            else if (GAME_ENGINE.keyD){this.direction = "right";}
+
+
+            //IF MISTAKE (or preferred) USE OLD MOVEMENT
+            // this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
+            // if (GAME_ENGINE.keyW === true) {
+            //     this.y -= this.actualSpeed;
+            //     this.direction = "up";
+            // } else if (GAME_ENGINE.keyA === true) {
+            //     this.x -= this.actualSpeed;
+            //     this.direction = "left";
+            // } else if (GAME_ENGINE.keyS === true) {
+            //     this.y += this.actualSpeed;
+            //     this.direction = "down";
+            // } else if (GAME_ENGINE.keyD === true) {
+            //     this.x += this.actualSpeed;
+            //     this.direction = "right";
+            // }
+            
 
             /* #endregion */
         } else {
