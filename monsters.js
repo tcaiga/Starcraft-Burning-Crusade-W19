@@ -31,9 +31,17 @@ function Monster(spriteSheet, x, y) {
     this.x = x;
     this.speed = 100;
     this.health = 100;
+
+    // Damage stuff
+    // Changed in each monster
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 20;//Adjustable
     this.damageObjArr = [];
-    this.damageObj = DS.CreateDamageObject(20, 0, DTypes.Normal, DS.CloneBuffObject(PremadeBuffs.HasteWeak));
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
     this.buffObj = [];
+
     this.counter = 0;
 
     this.boundingbox = new BoundingBox(this.x, this.y,
@@ -45,7 +53,9 @@ function Monster(spriteSheet, x, y) {
 }
 
 Monster.prototype.draw = function () {
-
+    // **************************************************************
+    // BIG ISSUES HERE NEED TO FIX THIS TO FLIP MONSTER SPRITE SHEETS
+    // **************************************************************
     this.xScale = 1;
     var xValue = this.x;
     if (!this.right) {
@@ -69,7 +79,7 @@ Monster.prototype.draw = function () {
     GAME_ENGINE.ctx.restore();
 
     // Displaying Monster health
-    GAME_ENGINE.ctx.font = "15px Arial";
+    GAME_ENGINE.ctx.font = "15px Starcraft";
     GAME_ENGINE.ctx.fillStyle = "white";
     GAME_ENGINE.ctx.fillText("Health: " + Math.floor(this.health), this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
 }
@@ -81,8 +91,8 @@ function pathTo(x, y) {
 } 
 
 function distance(monster) {
-    var dx = playerX - monster.x;
-    var dy = playerX - monster.y;
+    var dx = myPlayer.x - monster.x;
+    var dy = myPlayer.x- monster.y;
     return Math.sqrt(dx * dx, dy * dy);
 }
 
@@ -111,8 +121,8 @@ Monster.prototype.update = function () {
         dirY = this.pathY - this.y;
     } else {
         // get the direction vector pointing towards player
-        dirX = playerX - this.x;
-        dirY = playerY - this.y;
+        dirX = myPlayer.x - this.x;
+        dirY = myPlayer.y - this.y;
     }
 
 
@@ -146,8 +156,8 @@ Monster.prototype.update = function () {
 
     Entity.prototype.update.call(this);
 
-    this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y,
-        this.width * this.scale, this.height * this.scale);
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 
 
     this.visionBox = new BoundingBox(this.boundingbox.x + .5 * (this.width * this.scale - this.visionWidth),
@@ -181,6 +191,40 @@ Monster.prototype.update = function () {
             }
         }
     }
+
+
+
+    /* #region Damage system updates */
+    let dmgObj;
+    let dmgRemove = [];
+    let dmgFlag;
+    let buff;
+    let buffRemove = [];
+    let buffFlag;
+    /* #region Updates */
+    for (dmgObj in this.damageObjArr) {//Updates damage objects
+        this.damageObjArr[dmgObj].update();
+        if (this.damageObjArr[dmgObj].timeLeft <= 0) {
+            dmgRemove.push(dmgObj);//Adds to trash system
+        }
+    }
+    for (buff in this.buffObj) {//Updates buff objects
+        this.buffObj[buff].update(this);
+        if (this.buffObj[buff].timeLeft <= 0) {
+            buffRemove.push(buff);//Adds to trash system
+        }
+    }
+    /* #endregion */
+    /* #region Removal */
+    for (dmgFlag in dmgRemove) {//Removes flagged damage objects
+        this.damageObjArr.splice(dmgRemove[dmgFlag], 1);
+    }
+    for (buffFlag in buffRemove) {//Removes flagged buff objects
+        this.buffObj.splice(buffRemove[buffFlag], 1);
+    }
+    /* #endregion */
+    /* #endregion */
+
 }
 
 Monster.prototype.changeHealth = function (amount) {
@@ -218,11 +262,19 @@ function Hydralisk(spriteSheet, x, y) {
     this.sheetWidth = 1;
 
     // gameplay
-    this.speed = 100;
-    this.health = 45;
-
+    this.speed = 150;
+    this.health = 15;
     this.x = x;
     this.y = y;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 15;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.SlowWeak/*Adjustable*/);//Slow or haste or null w/e
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
 
     this.counter = 0;
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
@@ -248,6 +300,15 @@ function Infested(spriteSheet, x, y) {
     this.x = x;
     this.y = y;
 
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 15;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
     this.counter = 0;
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 }
@@ -266,11 +327,20 @@ function Ultralisk(spriteSheet, x, y) {
     this.sheetWidth = 1;
 
     // gameplay
-    this.speed = 100;
-    this.health = 100;
+    this.speed = 150;
+    this.health = 15;
 
     this.x = x;
     this.y = y;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 30;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
 
     this.counter = 0;
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
@@ -290,11 +360,20 @@ function Zergling(spriteSheet, x, y) {
     this.sheetWidth = 1;
 
     // gameplay
-    this.speed = 200;
-    this.health = 30;
+    this.speed = 150;
+    this.health = 15;
 
     this.x = x;
     this.y = y;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 4;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
 
     this.counter = 0;
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
@@ -322,6 +401,15 @@ function Zerg_Boss(spriteSheet, x, y) {
     this.mobCount = 0;
     this.lastInfestedPod = 50;
     this.lastSpikeExplosion = 150;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 10;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
 
 
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth,

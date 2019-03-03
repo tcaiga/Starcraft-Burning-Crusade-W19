@@ -15,27 +15,30 @@ var BACKGROUND;
 var SCENE_MANAGER;
 var canvasWidth;
 var canvasHeight;
-var playerX;
-var playerY;
 
 // Constant variable for tile size
 const TILE_SIZE = 16;
 /* #endregion */
 
 /* #region Player */
-function Player(spritesheet, xOffset, yOffset) {
+function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
+    console.log(runSheets);
     // Relevant for Player box
     this.width = 32;
     this.height = 32;
     this.scale = 1.5;
     this.xOffset = xOffset * this.scale;
     this.yOffset = yOffset * this.scale;
-    this.animationRun = new Animation(spritesheet, this.width, this.height, 1, 0.04, 9, true, this.scale);
-    this.animationIdle = this.animationRun;
+    this.animationRunSide = new Animation(runSheets["side"], this.width, this.height, 1, 0.04, 9, true, this.scale);
+    this.animationRunUp = new Animation(runSheets["up"], this.width, this.height, 1, 0.04, 9, true, this.scale);
+    this.animationRunDown = new Animation(runSheets["down"], this.width, this.height, 1, 0.04, 9, true, this.scale);
+    this.animationShootSide = new Animation(shootSheets["side"], this.width, this.height, 1, 0.04, 2, true, this.scale);
+    this.animationShootUp = new Animation(shootSheets["up"], this.width, this.height, 1, 0.04, 2, true, this.scale);
+    this.animationShootDown = new Animation(shootSheets["down"], this.width, this.height, 1, 0.04, 2, true, this.scale);
+    this.animationDeath = new Animation(deathSheet, 65, 40, 1, 0.04, 8, true, this.scale);
+    this.animationIdle = this.animationRunSide;
     this.x = 60;
     this.y = 60;
-    playerX = this.x;
-    playerY = this.y;
     this.xScale = 1;
     this.damageObjArr = [];
     this.buffObj = [];
@@ -44,13 +47,15 @@ function Player(spritesheet, xOffset, yOffset) {
     this.cooldownAdj = 0;
     this.castTime = 0;
     this.isStunned = false;
-    this.sprint = 1;
     this.dead = false;
-    this.baseMaxMovespeed = 2;
+    this.baseMaxMovespeed = 2.5;
     this.maxMovespeedRatio = 1;
     this.maxMovespeedAdj = 0;
-    this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
-    this.right = true;
+    this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
+    this.runDirection = "right";
+    this.shootDirection = "right";
+    this.maxShootCounter = 0.3;
+    this.shootCounter = this.maxShootCounter;
     this.maxHealth = 100;
     this.health = this.maxHealth;
     this.healthPercent = 100;
@@ -64,20 +69,54 @@ Player.prototype.draw = function () {
     GAME_ENGINE.ctx.strokeRect(CAMERA.x, CAMERA.y, canvasWidth - 1, canvasHeight - 1);
     this.xScale = 1;
     var xValue = this.x;
-    if (!this.right) {
-        GAME_ENGINE.ctx.save();
-        GAME_ENGINE.ctx.scale(-1, 1);
-        this.xScale = -1;
-        xValue = -this.x - this.width;
-    }
     //draw player character with no animation if player is not currently moving
     if (this.dontdraw <= 0) {
-        if (!GAME_ENGINE.movement) {
-            this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
+        if (this.dead) {
+            this.animationDeath.drawFrameAniThenIdle(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
         } else {
-            this.animationRun.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+            // if statements for shooting logic
+            if (GAME_ENGINE.shoot === true) {
+                // if statements for running logic
+                if (this.shootDirection === "left") {
+                    GAME_ENGINE.ctx.save();
+                    GAME_ENGINE.ctx.scale(-1, 1);
+                    this.xScale = -1;
+                    xValue = -this.x - this.width;
+                }
+                if (this.shootDirection === "left" || this.shootDirection === "right") {
+                    this.animationShootSide.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                } else if (this.shootDirection === "up") {
+                    this.animationShootUp.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                } else {
+                    this.animationShootDown.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                }
+            } else if (!GAME_ENGINE.movement) {
+                // if statements for running logic
+                if (this.runDirection === "left") {
+                    GAME_ENGINE.ctx.save();
+                    GAME_ENGINE.ctx.scale(-1, 1);
+                    this.xScale = -1;
+                    xValue = -this.x - this.width;
+                }
+                //animation for when player is not moving or shooting
+                this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
+            } else {
+                // if statements for running logic
+                if (this.runDirection === "left") {
+                    GAME_ENGINE.ctx.save();
+                    GAME_ENGINE.ctx.scale(-1, 1);
+                    this.xScale = -1;
+                    xValue = -this.x - this.width;
+                }
+                if (this.runDirection === "left" || this.runDirection === "right") {
+                    this.animationRunSide.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                } else if (this.runDirection === "up") {
+                    this.animationRunUp.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                } else {
+                    this.animationRunDown.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                }
+            }
         }
-
         GAME_ENGINE.ctx.restore();
         if (GAME_ENGINE.debug) {
             GAME_ENGINE.ctx.strokeStyle = "blue";
@@ -90,30 +129,49 @@ Player.prototype.draw = function () {
 }
 
 Player.prototype.update = function () {
-    // Conditional check to see if player wants to sprint or not
-    this.sprint = GAME_ENGINE.keyShift ? 1.75 : 1;
     // Player movement controls
 
     if (!this.dead) {
         if (this.castTime <= 0 && !this.isStunned) {
             /* #region Player movement controls */
-            this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj) * this.sprint;
+            this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
             if (GAME_ENGINE.keyW === true) {
                 this.y -= this.actualSpeed;
-            }
-            if (GAME_ENGINE.keyA === true) {
+                this.runDirection = "up";
+                this.animationIdle = this.animationRunUp;
+            } else if (GAME_ENGINE.keyA === true) {
                 this.x -= this.actualSpeed;
-                this.right = false;
-            }
-            if (GAME_ENGINE.keyS === true) {
+                this.runDirection = "left";
+                this.animationIdle = this.animationRunSide;
+            } else if (GAME_ENGINE.keyS === true) {
                 this.y += this.actualSpeed;
-            }
-            if (GAME_ENGINE.keyD === true) {
+                this.runDirection = "down";
+                this.animationIdle = this.animationRunDown;
+            } else if (GAME_ENGINE.keyD === true) {
                 this.x += this.actualSpeed;
-                this.right = true;
+                this.runDirection = "right";
+                this.animationIdle = this.animationRunSide;
             }
-           
             /* #endregion */
+
+            if (GAME_ENGINE.shoot) {
+                if (this.shootCounter >= this.maxShootCounter) {
+                    var direction = "down";
+                    if (GAME_ENGINE.keyUp === true) {
+                        var direction = "up";
+                    } else if (GAME_ENGINE.keyLeft === true) {
+                        var direction = "left";
+                    } else if (GAME_ENGINE.keyRight === true) {
+                        var direction = "right";
+                    } 
+                    this.shootDirection = direction;
+                    this.shootProjectile(direction);
+                    this.shootCounter = 0;
+                } else {
+                    this.shootCounter += GAME_ENGINE.clockTick;
+                }
+            }
+
         } else {
             this.castTime--;
         }
@@ -158,8 +216,6 @@ Player.prototype.update = function () {
 
         if (this.health <= 0) {
             this.dead = true;
-            GAME_ENGINE.reset();
-            BACKGROUND = new Background();
         }
 
         /* #region Damage system updates */
@@ -193,13 +249,32 @@ Player.prototype.update = function () {
         /* #endregion */
         /* #endregion */
 
-        playerX = this.x;
-        playerY = this.y;
-
         this.boundingbox = new BoundingBox(this.x + (this.xScale * 4), this.y + 13,
             this.width, this.height);
     }
 
+}
+
+Player.prototype.shootProjectile = function (direction) {
+    var xTar = myPlayer.x;
+    var yTar = myPlayer.y;
+    if (direction === "up") {
+        xTar = myPlayer.x + (myPlayer.width / 2) + 8;
+    } else if (direction === "left") {
+        xTar = myPlayer.x - 8;
+        yTar = myPlayer.y + (myPlayer.height / 2) + 3;
+    } else if (direction === "right") {
+        xTar = myPlayer.x + myPlayer.width + 8;
+        yTar = myPlayer.y + (myPlayer.height / 2) + 3;
+    } else {
+        xTar = myPlayer.x + (myPlayer.width / 2) + 8;
+        yTar = myPlayer.y + myPlayer.height + 4;
+    }
+    var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
+        myPlayer.x + 4,
+        myPlayer.y - (myPlayer.height / 2),
+         xTar, yTar, 5);
+    GAME_ENGINE.addEntity(projectile);
 }
 
 Player.prototype.changeHealth = function (amount) {
@@ -232,7 +307,6 @@ Player.prototype.changeHealth = function (amount) {
 }
 /* #endregion */
 
-/* #region Projectile */
 /* #region Base Projectile */
 function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) {
     this.origin = belongsTo;
@@ -255,7 +329,16 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) 
     this.childCollide;//function
     this.speed = 200;
     this.projectileSpeed = 7.5;
-    this.damageObj = DS.CreateDamageObject(15, 0, DTypes.Normal, null);
+
+    // Damage stuff
+    this.durationBetweenHits = 50;//Adjustable
+    this.totalDamage = 15;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Piercing, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
     this.penetrative = false;
     this.aniX = -18;
     this.aniY = -5;
@@ -398,10 +481,10 @@ Camera.prototype.move = function (direction) {
 
 /* #region Menu */
 function Menu() {
-    this.button = {x: 406, width: 221, height: 39};
+    this.button = { x: 406, width: 221, height: 39 };
     this.storyY = 263;
     this.controlsY = 409;
-    this.back = {x:62, y:30, width:59,height:16};
+    this.back = { x: 62, y: 30, width: 59, height: 16 };
     this.controls = false;
     this.credits = false;
     this.background = new Image();
@@ -413,8 +496,8 @@ Menu.prototype.update = function () {
 }
 
 Menu.prototype.draw = function () {
-    GAME_ENGINE.ctx.drawImage(this.background,0, 0, canvasWidth, canvasHeight,
-         0, 0, canvasWidth, canvasHeight);
+    GAME_ENGINE.ctx.drawImage(this.background, 0, 0, canvasWidth, canvasHeight,
+        0, 0, canvasWidth, canvasHeight);
 }
 
 /* #endregion */
@@ -444,23 +527,29 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     var yindex = 0;
     xindex = frame % this.sheetWidth;
     yindex = Math.floor(frame / this.sheetWidth);
-
-    var xPosition;
-    if ((x >= 0 && CAMERA.x >= 0) || (x < 0 && CAMERA.x < 0)) {
-        xPosition = x - CAMERA.x;
-    } else {
-        xPosition = x + CAMERA.x;
-    }
-    ctx.drawImage(this.spriteSheet,
-        xindex * this.frameWidth, yindex * this.frameHeight,
-        this.frameWidth, this.frameHeight,
-        xPosition, y - CAMERA.y,
-        this.frameWidth * this.scale,
-        this.frameHeight * this.scale);
+    this.drawFrameHelper(ctx, x, y, xindex * this.frameWidth, yindex * this.frameHeight);
 }
 
+Animation.prototype.drawFrameAniThenIdle = function (tick, ctx, x, y) {
+    this.elapsedTime += tick;
+    var xindex = 0;
+    var yindex = 0;
+    if (this.isDone()) {
+        xindex = this.frames % this.sheetWidth;
+        yindex = Math.floor(this.frames / this.sheetWidth) - 1;
+    } else {
+        var frame = this.currentFrame();
+        xindex = frame % this.sheetWidth;
+        yindex = Math.floor(frame / this.sheetWidth);
+    }
+    this.drawFrameHelper(ctx, x, y, xindex * this.frameWidth, yindex * this.frameHeight);
+}
 
 Animation.prototype.drawFrameIdle = function (ctx, x, y) {
+    this.drawFrameHelper(ctx, x, y, 0, 0);
+}
+
+Animation.prototype.drawFrameHelper = function (ctx, x, y, xFrame, yFrame) {
     var xPosition;
     if ((x >= 0 && CAMERA.x >= 0) || (x < 0 && CAMERA.x < 0)) {
         xPosition = x - CAMERA.x;
@@ -468,7 +557,7 @@ Animation.prototype.drawFrameIdle = function (ctx, x, y) {
         xPosition = x + CAMERA.x;
     }
     ctx.drawImage(this.spriteSheet,
-        0, 0,
+        xFrame, yFrame,
         this.frameWidth, this.frameHeight,
         xPosition, y - CAMERA.y,
         this.frameWidth * this.scale,
@@ -497,8 +586,10 @@ function addHTMLListeners() {
 // Harrison's Fireball
 AM.queueDownload("./img/fireball.png");
 
-// Buildings and Map
+// Map
 AM.queueDownload("./img/utilities/floor.png");
+
+// Buildings
 AM.queueDownload("./img/buildings/crashed_cruiser.png");
 AM.queueDownload("./img/buildings/gravemind.png");
 AM.queueDownload("./img/buildings/hive.png");
@@ -507,7 +598,11 @@ AM.queueDownload("./img/buildings/ion_cannon.png");
 
 // Marine
 AM.queueDownload("./img/terran/marine/marine_move_right.png");
+AM.queueDownload("./img/terran/marine/marine_move_up.png");
+AM.queueDownload("./img/terran/marine/marine_move_down.png");
 AM.queueDownload("./img/terran/marine/marine_shoot_right.png");
+AM.queueDownload("./img/terran/marine/marine_shoot_up.png");
+AM.queueDownload("./img/terran/marine/marine_shoot_down.png");
 AM.queueDownload("./img/terran/marine/marine_death.png");
 
 // Sunken Spike

@@ -2,17 +2,14 @@
 // The first index of the array is the mage, second being ranger, and third being knight.
 // Each index contains a JSON object which has the left and right faces for the sprites.
 // and the x and y offset to get bounds for room correct.
-var characterSprites = [{ spritesheet: "./img/terran/marine/marine_move_right.png", xOffset: 0, yOffset: 9 },
-{ spritesheet: "./img/terran/marine/marine_move_right.png", xOffset: 0, yOffset: 8 },
-{ spritesheet: "./img/terran/marine/marine_move_right.png", xOffset: 0, yOffset: 6 }];
 var myPlayer;
 const EntityTypes = {
-    menu:0,
-    non_interactables:1,
-    traps:2,
-    projectiles:3,
-    enemies:4,
-    player:5
+    menu: 0,
+    non_interactables: 1,
+    traps: 2,
+    projectiles: 3,
+    enemies: 4,
+    player: 5
 }
 
 window.requestAnimFrame = (function () {
@@ -36,12 +33,16 @@ function GameEngine() {
     this.keyS = false;
     this.keyD = false;
     this.keyW = false;
-    this.digit = [false,false,false,false,false,false,false,false,false,false];
+    this.keyUp = false;
+    this.keyLeft = false;
+    this.keyRight = false;
+    this.keyDown = false;
+    this.digit = [false, false, false, false, false, false, false, false, false, false];
+    this.shoot = false;
     this.mouseX = 0;
     this.mouseY = 0;
     this.keyShift = false;
     this.movement = false;
-    this.playerPick;
     this.debug = false;
 }
 
@@ -75,111 +76,14 @@ GameEngine.prototype.startInput = function () {
     }
 
     var that = this;
-    // event listeners are added here
-
-    this.ctx.canvas.addEventListener("click", function (e) {
+  
+    this.ctx.canvas.addEventListener("mousedown", function (e) {
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
         if (SCENE_MANAGER.insideMenu) {
             SCENE_MANAGER.menuSelection(x, y);
-        } else {
-            if (!myPlayer.dead) {
-                if (that.playerPick == 0) {
-                    // Projectile
-                    var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
-                        myPlayer.x - (myPlayer.width / 2),
-                         myPlayer.y - (myPlayer.height / 2), x, y, 5);
-                    GAME_ENGINE.addEntity(projectile);
-                } else if (that.playerPick == 1) {
-                let angle = Math.atan2(y - 20 - myPlayer.y - (myPlayer.height / 2)
-                , x - 35 - myPlayer.x - (myPlayer.width / 2));
-    
-                let sprite;
-                if (angle > -Math.PI / 8 && angle < Math.PI / 8) {
-                    //R
-                    sprite = "./img/ability/arrow_r_8x8.png";
-                } else if (angle > Math.PI/8 && angle < 3*Math.PI/8) {
-                    //DR
-                    sprite = "./img/ability/arrow_dr_8x8.png";
-                } else if (angle > 3*Math.PI/8 && angle < 5*Math.PI/8) {
-                    //D
-                    sprite = "./img/ability/arrow_d_8x8.png";
-                } else if (angle > 5*Math.PI/8 && angle < 7*Math.PI/8) {
-                    //DL
-                    sprite = "./img/ability/arrow_dl_8x8.png";
-                } else if (angle < -7*Math.PI/8 || angle > 7*Math.PI/8) {
-                    //L
-                    sprite = "./img/ability/arrow_l_8x8.png";
-                } else if (angle > -7*Math.PI/8 && angle < -5*Math.PI/8) {
-                    //UL
-                    sprite = "./img/ability/arrow_ul_8x8.png";
-                } else if (angle > -5*Math.PI/8 && angle < -3*Math.PI/8) {
-                    //U
-                    sprite = "./img/ability/arrow_u_8x8.png";
-                } else if (angle > -3*Math.PI/8 && angle < -Math.PI/8) {
-                    //UR
-                    sprite = "./img/ability/arrow_ur_8x8.png";
-                }
-                let ani = new Animation(AM.getAsset(sprite), 8,8,1,0.13,1,true,2);
-                let projectile = new Projectile(AM.getAsset(sprite),
-                        myPlayer.x - (myPlayer.width / 2),
-                         myPlayer.y - (myPlayer.height / 2), x, y, 5);
-                projectile.animation = ani;
-                projectile.aniX = 15;
-                projectile.aniY = 30;
-                GAME_ENGINE.addEntity(projectile);
-                } else if (that.playerPick == 2){
-                    let angle = Math.atan2(y - 20 - myPlayer.y - (myPlayer.height / 2) + CAMERA.y
-                        , x - 35 - myPlayer.x - (myPlayer.width / 2) + CAMERA.x);
-                    let offsetX = 0;
-                    let offsetY = 0;
-                    let sprite = "./img/ability/knight_attack_right";
-                    if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
-                        //Right
-                        sprite = "./img/ability/knight_attack_right";
-                        offsetX = 15;
-                    } else if (angle > -3 * Math.PI / 4 && angle < -Math.PI / 4) {
-                        //Up
-                        sprite = "./img/ability/knight_attack_up";
-                        offsetY = -20;
-                    } else if (angle > 3 * Math.PI / 4 || angle < -3 * Math.PI / 4) {
-                        //Left
-                        sprite = "./img/ability/knight_attack_left";
-                        offsetX = -15;
-                    } else {
-                        //Down
-                        sprite = "./img/ability/knight_attack_down";
-                        offsetY = 10;
-                    }
-                    let ss1Ani = new Animation(AM.getAsset(sprite + ".png"),32,32,1,0.08,6,false,2);
-                    let ss1 = new StillStand(ss1Ani,15
-                        , myPlayer.x + myPlayer.width/2 + offsetX
-                        , myPlayer.y + myPlayer.height/2 + offsetY + 15);
-                    ss1.target = myPlayer;
-                    ss1.boundingbox = new BoundingBox(myPlayer.x + myPlayer.width/2 + offsetX - myPlayer.width
-                        , myPlayer.y + myPlayer.height/2 + offsetY - myPlayer.height, 40, 40);
-                    ss1.aniX = -25;
-                    ss1.aniY = -28;
-                    ss1.damageObj = DS.CreateDamageObject(15,0,DTypes.Normal);
-                    ss1.entityHitType = EntityTypes.enemies;
-                    ss1.penetrative = true;
-                    ss1.onUpdate = function () {
-                        ss1.x = ss1.target.x + ss1.target.width/2 + offsetX - 7;
-                        ss1.y = ss1.target.y + ss1.target.height/2 + offsetY + 15;
-                        ss1.boundingbox = new BoundingBox(ss1.x + ss1.target.width/2 + offsetX - ss1.target.width
-                            , ss1.y + ss1.target.height/2 + offsetY - ss1.target.height, 40, 40);
-                        
-                    }
-                    ss1.onDraw = function () {
-                        if (GAME_ENGINE.debug){
-                            GAME_ENGINE.ctx.strokeStyle = color_green; 
-                            GAME_ENGINE.ctx.strokeRect(ss1.boundingbox.x,ss1.boundingbox.y
-                                ,ss1.boundingbox.width,ss1.boundingbox.height);
-                        }
-                    }
-                    GAME_ENGINE.addEntity(ss1);
-                }
-            }
+        } else if (myPlayer.dead) {
+            SCENE_MANAGER.playAgain(x, y);
         }
     }, false);
 
@@ -189,10 +93,7 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
-        // Sprint functionality
-        if (e.code === "ShiftLeft") {
-            that.keyShift = true;
-        }
+        e.preventDefault();
         if (e.code === "KeyW") {
             that.keyW = true;
             that.movement = true;
@@ -207,25 +108,37 @@ GameEngine.prototype.startInput = function () {
             that.movement = true;
         }
 
-        if (e.code === "KeyU") {
-           if (that.debug === false) {
-            that.debug = true;
-           } else {
-            that.debug = false;
-           }
+        if (e.code === "ArrowUp") {
+            that.shoot = true;
+            that.keyUp = true;
+        } else if (e.code === "ArrowLeft") {
+            that.shoot = true;
+            that.keyLeft = true;
+        } else if (e.code === "ArrowRight") {
+            that.shoot = true;
+            that.keyRight = true;
+        } else if (e.code === "ArrowDown") {
+            that.shoot = true;
+            that.keyDown = true;
         }
+
         //Abilities
-        if (e.code.includes("Digit")){
+        if (e.code.includes("Digit")) {
             that.digit[parseInt(e.code.charAt(5))] = true;
+        }
+
+        if (e.code === "KeyU") {
+            if (that.debug === false) {
+                that.debug = true;
+            } else {
+                that.debug = false;
+            }
         }
 
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
-        // Stop sprinting if left shift is released
-        if (e.code === "ShiftLeft") {
-            that.keyShift = false;
-        }
+
 
         if (e.code === "KeyW") {
             that.keyW = false;
@@ -237,14 +150,30 @@ GameEngine.prototype.startInput = function () {
             that.keyD = false;
         }
 
+        if (e.code === "ArrowUp") {
+            that.keyUp = false;
+        } else if (e.code === "ArrowLeft") {
+            that.keyLeft = false;
+        } else if (e.code === "ArrowRight") {
+            that.keyRight = false;
+        } else if (e.code === "ArrowDown") {
+            that.keyDown = false;
+        }
+
         //Abilities
-        if (e.code.includes("Digit")){
+        if (e.code.includes("Digit")) {
             that.digit[parseInt(e.code.charAt(5))] = false;
         }
         /*if key is still being pressed down when another key is pressed up
           then movement is still happening. */
         if (!that.keyW && !that.keyA && !that.keyS && !that.keyD) {
             that.movement = false;
+        }
+
+        /*if key is still being pressed down when another key is pressed up
+          then movement is still happening. */
+          if (!that.keyUp && !that.keyLeft && !that.keyRight && !that.keyDown) {
+            that.shoot = false;
         }
     }, false);
 }
@@ -294,7 +223,7 @@ GameEngine.prototype.addEntity = function (entity) {
 }
 
 GameEngine.prototype.removeEntity = function (entity) {
-let idx;
+    let idx;
     if (entity instanceof Player) {
         idx = this.entities[5].indexOf(entity);
         if (idx > -1) {
@@ -335,10 +264,10 @@ GameEngine.prototype.draw = function () {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
 
-            if (!entity.removeFromWorld && (entity instanceof Menu || entity instanceof Background 
+            if (!entity.removeFromWorld && (entity instanceof Menu || entity instanceof Background
                 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
 
-                entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
+                    entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.draw(this.ctx);
             }
         }
@@ -350,9 +279,9 @@ GameEngine.prototype.update = function () {
     for (let i = 0; i < this.entities.length; i++) {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
-            if (!entity.removeFromWorld && (entity instanceof Menu || entity instanceof Background 
+            if (!entity.removeFromWorld && (entity instanceof Menu || entity instanceof Background
                 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
-                entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
+                    entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.update();
             }
         }
