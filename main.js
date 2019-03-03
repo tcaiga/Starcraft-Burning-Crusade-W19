@@ -21,7 +21,7 @@ const TILE_SIZE = 16;
 /* #endregion */
 
 /* #region Player */
-function Player(runSheets, shootSheet, deathSheet, xOffset, yOffset) {
+function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     console.log(runSheets);
     // Relevant for Player box
     this.width = 32;
@@ -32,7 +32,9 @@ function Player(runSheets, shootSheet, deathSheet, xOffset, yOffset) {
     this.animationRunSide = new Animation(runSheets["side"], this.width, this.height, 1, 0.04, 9, true, this.scale);
     this.animationRunUp = new Animation(runSheets["up"], this.width, this.height, 1, 0.04, 9, true, this.scale);
     this.animationRunDown = new Animation(runSheets["down"], this.width, this.height, 1, 0.04, 9, true, this.scale);
-    this.animationShoot = new Animation(shootSheet, this.width, this.height, 1, 0.04, 2, true, this.scale);
+    this.animationShootSide = new Animation(shootSheets["side"], this.width, this.height, 1, 0.04, 2, true, this.scale);
+    this.animationShootUp = new Animation(shootSheets["up"], this.width, this.height, 1, 0.04, 2, true, this.scale);
+    this.animationShootDown = new Animation(shootSheets["down"], this.width, this.height, 1, 0.04, 2, true, this.scale);
     this.animationDeath = new Animation(deathSheet, 65, 40, 1, 0.04, 8, true, this.scale);
     this.animationIdle = this.animationRunSide;
     this.x = 60;
@@ -50,7 +52,8 @@ function Player(runSheets, shootSheet, deathSheet, xOffset, yOffset) {
     this.maxMovespeedRatio = 1;
     this.maxMovespeedAdj = 0;
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
-    this.direction = "right";
+    this.runDirection = "right";
+    this.shootDirection = "right";
     this.maxHealth = 100;
     this.health = this.maxHealth;
     this.healthPercent = 100;
@@ -64,7 +67,7 @@ Player.prototype.draw = function () {
     GAME_ENGINE.ctx.strokeRect(CAMERA.x, CAMERA.y, canvasWidth - 1, canvasHeight - 1);
     this.xScale = 1;
     var xValue = this.x;
-    if (this.direction === "left") {
+    if (this.runDirection === "left" || this.shootDirection === "left") {
         GAME_ENGINE.ctx.save();
         GAME_ENGINE.ctx.scale(-1, 1);
         this.xScale = -1;
@@ -75,14 +78,20 @@ Player.prototype.draw = function () {
         if (this.dead) {
             this.animationDeath.drawFrameAniThenIdle(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
         } else {
-            if (GAME_ENGINE.mouseClick === true) {
-                this.animationShoot.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y)
+            if (GAME_ENGINE.shoot === true) {
+                if (this.shootDirection === "left" || this.shootDirection === "right") {
+                    this.animationShootSide.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                } else if (this.shootDirection === "up") {
+                    this.animationShootUp.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                } else {
+                    this.animationShootDown.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                }
              } else if (!GAME_ENGINE.movement) {
                 this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
             } else {
-                if (this.direction === "left" || this.direction === "right") {
+                if (this.runDirection === "left" || this.runDirection === "right") {
                     this.animationRunSide.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
-                } else if (this.direction === "up") {
+                } else if (this.runDirection === "up") {
                     this.animationRunUp.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
                 } else {
                     this.animationRunDown.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
@@ -109,16 +118,26 @@ Player.prototype.update = function () {
             this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
             if (GAME_ENGINE.keyW === true) {
                 this.y -= this.actualSpeed;
-                this.direction = "up";
+                this.runDirection = "up";
             } else if (GAME_ENGINE.keyA === true) {
                 this.x -= this.actualSpeed;
-                this.direction = "left";
+                this.runDirection = "left";
             } else if (GAME_ENGINE.keyS === true) {
                 this.y += this.actualSpeed;
-                this.direction = "down";
+                this.runDirection = "down";
             } else if (GAME_ENGINE.keyD === true) {
                 this.x += this.actualSpeed;
-                this.direction = "right";
+                this.runDirection = "right";
+            }
+
+            if (GAME_ENGINE.keyUp === true) {
+                this.shootDirection = "up";
+            } else if (GAME_ENGINE.keyLeft === true) {
+                this.shootDirection = "left";
+            } else if (GAME_ENGINE.keyRight === true) {
+                this.shootDirection = "right";
+            } else if (GAME_ENGINE.keyDown === true) {
+                this.shootDirection = "down";
             }
 
             /* #endregion */
@@ -521,6 +540,8 @@ AM.queueDownload("./img/terran/marine/marine_move_right.png");
 AM.queueDownload("./img/terran/marine/marine_move_up.png");
 AM.queueDownload("./img/terran/marine/marine_move_down.png");
 AM.queueDownload("./img/terran/marine/marine_shoot_right.png");
+AM.queueDownload("./img/terran/marine/marine_shoot_up.png");
+AM.queueDownload("./img/terran/marine/marine_shoot_down.png");
 AM.queueDownload("./img/terran/marine/marine_death.png");
 
 // Sunken Spike
