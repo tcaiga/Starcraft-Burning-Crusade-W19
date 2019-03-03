@@ -168,6 +168,11 @@ Monster.prototype.update = function () {
         //Check max
         this.velocity.x = (Math.abs(this.velocity.x) > this.speed/100) ? Math.sign(this.velocity.x) * this.speed/100 : this.velocity.x;
         this.velocity.y = (Math.abs(this.velocity.y) > this.speed/100) ? Math.sign(this.velocity.y) * this.speed/100 : this.velocity.y;
+        let mag = Math.sqrt(Math.pow(this.velocity.x,2) + Math.pow(this.velocity.y,2));
+            if (mag > (this.speed / 100)) {//Circle max movespeed
+                this.velocity.x = (this.speed / 100) * this.velocity.x / mag;
+                this.velocity.y = (this.speed / 100) * this.velocity.y / mag;
+            }
 
         //Application of velocity
         this.x += this.velocity.x;

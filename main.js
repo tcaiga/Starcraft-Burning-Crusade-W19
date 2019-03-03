@@ -126,11 +126,15 @@ Player.prototype.update = function () {
             this.velocity.x -= (GAME_ENGINE.keyA) ? speedShift.x : 0;
             this.velocity.y -= (GAME_ENGINE.keyW) ? speedShift.y : 0;
             this.velocity.y += (GAME_ENGINE.keyS) ? speedShift.y : 0;
-            console.log(this.velocity);
 
             //Check max
             this.velocity.x = (Math.abs(this.velocity.x) > this.baseMaxMovespeed) ? Math.sign(this.velocity.x) * this.baseMaxMovespeed : this.velocity.x;
             this.velocity.y = (Math.abs(this.velocity.y) > this.baseMaxMovespeed) ? Math.sign(this.velocity.y) * this.baseMaxMovespeed : this.velocity.y;
+            let mag = Math.sqrt(Math.pow(this.velocity.x,2) + Math.pow(this.velocity.y,2));
+            if (mag > this.baseMaxMovespeed) {//Circle max movespeed
+                this.velocity.x = this.baseMaxMovespeed * this.velocity.x / mag;
+                this.velocity.y = this.baseMaxMovespeed * this.velocity.y / mag;
+            }
 
             //Application of velocity
             this.x += this.velocity.x;
