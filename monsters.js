@@ -32,6 +32,14 @@ function Monster(spriteSheet, x, y) {
     this.speed = 100;
     this.health = 100;
 
+    //Movement
+    this.velocity = {x:0,y:0};
+    this.friction = .5;
+    this.baseAcceleration = {x:1,y:1};
+    this.accelerationRatio = 1;
+    this.accelerationAdj = 0;
+
+
     // Damage stuff
     // Changed in each monster
     this.durationBetweenHits = 40;//Adjustable
@@ -143,9 +151,31 @@ Monster.prototype.update = function () {
         // nomralize the vector
         dirX = dirX / dis;
         dirY = dirY / dis;
+
+        //New movement with acceleration/velocity
+        //Speed shift calculation
+        let speedShift = {x:this.baseAcceleration.x * this.accelerationRatio + this.accelerationAdj
+                        ,y:this.baseAcceleration.y * this.accelerationRatio + this.accelerationAdj};
+
+        //Friction
+        this.velocity.x = (this.velocity.x < .1 && this.velocity.x > -.1) ? 0 : this.velocity.x - Math.sign(this.velocity.x)*this.friction;
+        this.velocity.y = (this.velocity.y < .1 && this.velocity.y > -.1) ? 0 : this.velocity.y - Math.sign(this.velocity.y)*this.friction;
+
+        //Application of acceleration
+        this.velocity.x += dirX * (speedShift.x);
+        this.velocity.y += dirY * (speedShift.y);
+
+        //Check max
+        this.velocity.x = (Math.abs(this.velocity.x) > this.speed/100) ? Math.sign(this.velocity.x) * this.speed/100 : this.velocity.x;
+        this.velocity.y = (Math.abs(this.velocity.y) > this.speed/100) ? Math.sign(this.velocity.y) * this.speed/100 : this.velocity.y;
+
+        //Application of velocity
+        this.x += this.velocity.x;
+        this.y += this.velocity.y;
+
         // change x and y based on our vector
-        this.x += dirX * (this.speed / 100);
-        this.y += dirY * (this.speed / 100);
+        //this.x += dirX * (this.speed / 100);
+        //this.y += dirY * (this.speed / 100);
     } else {
         this.ticksSinceLastHit += 1;
         if (this.ticksSinceLastHit >= 60) {
