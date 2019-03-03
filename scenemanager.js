@@ -160,7 +160,8 @@ SceneManager.prototype.gameInit = function () {
     GAME_ENGINE.addEntity(CAMERA);
 
     CAMERA.getStartingRoom();
-    BACKGROUND.generateSurvivalMap();
+    //BACKGROUND.generateSurvivalMap();
+    BACKGROUND.generateLevelOne();
     BACKGROUND.createWalls();
     BACKGROUND.decorateRoom();
     document.getElementById("hud").style.display = "block";
