@@ -33,7 +33,7 @@ function GameEngine() {
     this.keyS = false;
     this.keyD = false;
     this.keyW = false;
-    this.digit = [false,false,false,false,false,false,false,false,false,false];
+    this.digit = [false, false, false, false, false, false, false, false, false, false];
     this.mouseClick = false;
     this.mouseX = 0;
     this.mouseY = 0;
@@ -83,16 +83,8 @@ GameEngine.prototype.startInput = function () {
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
         if (SCENE_MANAGER.insideMenu) {
             SCENE_MANAGER.menuSelection(x, y);
-        } else {
-            if (!myPlayer.dead) {
-                // Projectile
-                var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
-                    myPlayer.x + 4,
-                    myPlayer.y - (myPlayer.height / 2), x, y, 5);
-                GAME_ENGINE.addEntity(projectile);
-            } else {
-                SCENE_MANAGER.playAgain(x, y);
-            }
+        } else if (myPlayer.dead) {
+            SCENE_MANAGER.playAgain(x, y);
         }
     }, false);
 
@@ -102,7 +94,7 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
-    
+        e.preventDefault();
         if (e.code === "KeyW") {
             that.keyW = true;
             that.movement = true;
@@ -117,8 +109,36 @@ GameEngine.prototype.startInput = function () {
             that.movement = true;
         }
 
-         //Abilities
-         if (e.code.includes("Digit")) {
+        if (e.code === "ArrowUp") {
+            // Projectile
+            var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
+                myPlayer.x + 4,
+                myPlayer.y - (myPlayer.height / 2), myPlayer.x  + (myPlayer.width / 2) + 8, myPlayer.y, 5);
+            GAME_ENGINE.addEntity(projectile);
+        } else if (e.code === "ArrowLeft") {
+            // Projectile
+            var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
+                myPlayer.x + 4,
+                myPlayer.y - (myPlayer.height / 2), myPlayer.x  - 4,
+                myPlayer.y - (myPlayer.height / 2), 5);
+            GAME_ENGINE.addEntity(projectile);
+        } else if (e.code === "ArrowRight") {
+            // Projectile
+            var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
+                myPlayer.x + 4,
+                myPlayer.y - (myPlayer.height / 2), myPlayer.x  + myPlayer.width + 4,
+                myPlayer.y - (myPlayer.height / 2), 5);
+            GAME_ENGINE.addEntity(projectile);
+        } else if (e.code === "ArrowDown") {
+            // Projectile
+            var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
+                myPlayer.x + 4,
+                myPlayer.y - (myPlayer.height / 2), myPlayer.x  + 4, myPlayer.y + myPlayer.height + 4, 5);
+            GAME_ENGINE.addEntity(projectile);
+        }
+
+        //Abilities
+        if (e.code.includes("Digit")) {
             that.digit[parseInt(e.code.charAt(5))] = true;
         }
 
@@ -133,7 +153,7 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
-    
+
 
         if (e.code === "KeyW") {
             that.keyW = false;

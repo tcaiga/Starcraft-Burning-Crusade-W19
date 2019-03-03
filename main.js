@@ -21,17 +21,20 @@ const TILE_SIZE = 16;
 /* #endregion */
 
 /* #region Player */
-function Player(runSheet, shootSheet, deathSheet, xOffset, yOffset) {
+function Player(runSheets, shootSheet, deathSheet, xOffset, yOffset) {
+    console.log(runSheets);
     // Relevant for Player box
     this.width = 32;
     this.height = 32;
     this.scale = 1.5;
     this.xOffset = xOffset * this.scale;
     this.yOffset = yOffset * this.scale;
-    this.animationRun = new Animation(runSheet, this.width, this.height, 1, 0.04, 9, true, this.scale);
+    this.animationRunSide = new Animation(runSheets["side"], this.width, this.height, 1, 0.04, 9, true, this.scale);
+    this.animationRunUp = new Animation(runSheets["up"], this.width, this.height, 1, 0.04, 9, true, this.scale);
+    this.animationRunDown = new Animation(runSheets["down"], this.width, this.height, 1, 0.04, 9, true, this.scale);
     this.animationShoot = new Animation(shootSheet, this.width, this.height, 1, 0.04, 2, true, this.scale);
     this.animationDeath = new Animation(deathSheet, 65, 40, 1, 0.04, 8, true, this.scale);
-    this.animationIdle = this.animationRun;
+    this.animationIdle = this.animationRunSide;
     this.x = 60;
     this.y = 60;
     this.xScale = 1;
@@ -47,7 +50,7 @@ function Player(runSheet, shootSheet, deathSheet, xOffset, yOffset) {
     this.maxMovespeedRatio = 1;
     this.maxMovespeedAdj = 0;
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
-    this.right = true;
+    this.direction = "right";
     this.maxHealth = 100;
     this.health = this.maxHealth;
     this.healthPercent = 100;
@@ -61,7 +64,7 @@ Player.prototype.draw = function () {
     GAME_ENGINE.ctx.strokeRect(CAMERA.x, CAMERA.y, canvasWidth - 1, canvasHeight - 1);
     this.xScale = 1;
     var xValue = this.x;
-    if (!this.right) {
+    if (this.direction === "left") {
         GAME_ENGINE.ctx.save();
         GAME_ENGINE.ctx.scale(-1, 1);
         this.xScale = -1;
@@ -77,7 +80,13 @@ Player.prototype.draw = function () {
              } else if (!GAME_ENGINE.movement) {
                 this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
             } else {
-                this.animationRun.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                if (this.direction === "left" || this.direction === "right") {
+                    this.animationRunSide.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                } else if (this.direction === "up") {
+                    this.animationRunUp.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                } else {
+                    this.animationRunDown.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                }
             }
         }
         GAME_ENGINE.ctx.restore();
@@ -100,17 +109,16 @@ Player.prototype.update = function () {
             this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
             if (GAME_ENGINE.keyW === true) {
                 this.y -= this.actualSpeed;
-            }
-            if (GAME_ENGINE.keyA === true) {
+                this.direction = "up";
+            } else if (GAME_ENGINE.keyA === true) {
                 this.x -= this.actualSpeed;
-                this.right = false;
-            }
-            if (GAME_ENGINE.keyS === true) {
+                this.direction = "left";
+            } else if (GAME_ENGINE.keyS === true) {
                 this.y += this.actualSpeed;
-            }
-            if (GAME_ENGINE.keyD === true) {
+                this.direction = "down";
+            } else if (GAME_ENGINE.keyD === true) {
                 this.x += this.actualSpeed;
-                this.right = true;
+                this.direction = "right";
             }
 
             /* #endregion */
@@ -518,6 +526,8 @@ AM.queueDownload("./img/buildings/ion_cannon.png");
 
 // Marine
 AM.queueDownload("./img/terran/marine/marine_move_right.png");
+AM.queueDownload("./img/terran/marine/marine_move_up.png");
+AM.queueDownload("./img/terran/marine/marine_move_down.png");
 AM.queueDownload("./img/terran/marine/marine_shoot_right.png");
 AM.queueDownload("./img/terran/marine/marine_death.png");
 
