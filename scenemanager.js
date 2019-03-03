@@ -149,7 +149,9 @@ SceneManager.prototype.gameInit = function () {
     myPlayer = new Player({side: AM.getAsset("./img/terran/marine/marine_move_right.png"),
         up: AM.getAsset("./img/terran/marine/marine_move_up.png"),
          down: AM.getAsset("./img/terran/marine/marine_move_down.png")},
-        AM.getAsset("./img/terran/marine/marine_shoot_right.png"),
+        {side: AM.getAsset("./img/terran/marine/marine_shoot_right.png"),
+        up: AM.getAsset("./img/terran/marine/marine_shoot_up.png"),
+        down: AM.getAsset("./img/terran/marine/marine_shoot_down.png")},
         AM.getAsset("./img/terran/marine/marine_death.png"), 0, 9);
 
     //console.log(myPlayer);
