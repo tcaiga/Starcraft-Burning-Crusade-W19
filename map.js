@@ -1,6 +1,6 @@
 function Background() {
-    this.x = -1280;
-    this.y = -1280;
+    this.x = 0;
+    this.y = 0;
 
     this.floorX = 0;
     this.floorY = 0;
@@ -19,12 +19,10 @@ function Background() {
         [0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0],
     ];
-    this.row = 2;
-    this.col = 2;
+    this.row = 0;
+    this.col = 0;
     this.roomCount = 0;
     this.maxRoomCount = 5;
-    this.map[this.row][this.col] = 2;
-    this.facePos.push([this.col, this.row]);
     this.drawFaceCount = 0;
 }
 
@@ -174,6 +172,12 @@ Background.prototype.decorateRoom = function () {
 }
 
 Background.prototype.generateSurvivalMap = function () {
+    this.x = -1280;
+    this.y = -1280;
+    this.row = 2;
+    this.col = 2;
+    this.map[this.row][this.col] = 2;
+    this.facePos.push([this.col, this.row]);
     music.play();
     while (this.roomCount < this.maxRoomCount) {
         let randomDirection = Math.floor(Math.random() * Math.floor(4));
@@ -203,6 +207,106 @@ Background.prototype.generateSurvivalMap = function () {
             }
         }
     }
+
+    this.drawMiniMap();
+}
+
+Background.prototype.generateLevelOne = function () {
+    music.play();
+    this.maxRoomCount = 6;
+    this.map = [
+        [2, 1, 1, 0, 0],
+        [0, 1, 1, 0, 0],
+        [0, 1, 3, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+    ];
+
+    this.face.push(1);
+    this.facePos.push([0, 0]);
+    this.face.push(1);
+    this.facePos.push([1, 0]);
+    this.face.push(2);
+    this.facePos.push([2, 0]);
+    this.face.push(3);
+    this.facePos.push([2, 1]);
+    this.face.push(2);
+    this.facePos.push([1, 1]);
+    this.face.push(1);
+    this.facePos.push([1, 2]);
+    this.facePos.push([2, 2]);
+
+    this.drawMiniMap();
+}
+
+Background.prototype.generateLevelTwo = function () {
+    music.play();
+    this.maxRoomCount = 8;
+    this.map = [
+        [2, 1, 0, 0, 0],
+        [0, 1, 1, 1, 0],
+        [0, 0, 1, 1, 0],
+        [0, 0, 1, 3, 0],
+        [0, 0, 0, 0, 0],
+    ];
+
+    this.face.push(1);
+    this.facePos.push([0, 0]);
+    this.face.push(2);
+    this.facePos.push([1, 0]);
+    this.face.push(1);
+    this.facePos.push([1, 1]);
+    this.face.push(1);
+    this.facePos.push([2, 1]);
+    this.face.push(2);
+    this.facePos.push([3, 1]);
+    this.face.push(3);
+    this.facePos.push([3, 2]);
+    this.face.push(2);
+    this.facePos.push([2, 2]);
+    this.face.push(1);
+    this.facePos.push([2, 3]);
+    this.facePos.push([3, 3]);
+
+    this.drawMiniMap();
+}
+
+Background.prototype.generateLevelThree = function () {
+    music.play();
+    this.maxRoomCount = 12;
+    this.map = [
+        [2, 1, 1, 0, 0],
+        [0, 0, 1, 0, 0],
+        [0, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1],
+        [0, 0, 0, 0, 3],
+    ];
+
+    this.face.push(1);
+    this.facePos.push([0, 0]);
+    this.face.push(1);
+    this.facePos.push([1, 0]);
+    this.face.push(2);
+    this.facePos.push([2, 0]);
+    this.face.push(2);
+    this.facePos.push([2, 1]);
+    this.face.push(3);
+    this.facePos.push([2, 2]);
+    this.face.push(2);
+    this.facePos.push([1, 2]);
+    this.face.push(1);
+    this.facePos.push([1, 3]);
+    this.face.push(1);
+    this.facePos.push([2, 3]);
+    this.face.push(0);
+    this.facePos.push([3, 3]);
+    this.face.push(1);
+    this.facePos.push([3, 2]);
+    this.face.push(2);
+    this.facePos.push([4, 2]);
+    this.face.push(2);
+    this.facePos.push([4, 3]);
+    this.facePos.push([4, 4]);
 
     this.drawMiniMap();
 }

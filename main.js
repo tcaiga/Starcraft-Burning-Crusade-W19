@@ -56,7 +56,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.shootDirection = "right";
     this.maxShootCounter = 0.3;
     this.shootCounter = this.maxShootCounter;
-    this.maxHealth = 100;
+    this.maxHealth = 1000;
     this.health = this.maxHealth;
     this.healthPercent = 100;
     this.dontdraw = 0;
@@ -606,7 +606,7 @@ AM.queueDownload("./img/terran/marine/marine_shoot_down.png");
 AM.queueDownload("./img/terran/marine/marine_death.png");
 
 // Sunken Spike
-AM.queueDownload("./img/zerg/extras/sunken_spike.png");
+AM.queueDownload("./img/zerg/sunken_spike.png");
 
 // Hydralisk
 AM.queueDownload("./img/zerg/hydra/hydra_move_right.png");
