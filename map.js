@@ -37,18 +37,6 @@ function Background() {
 
 Background.prototype.draw = function () {
     GAME_ENGINE.ctx.drawImage(AM.getAsset("./img/utilities/floor.png"), this.floorX, this.floorY, 640, 640);
-    if (myPlayer.dead) {
-        GAME_ENGINE.ctx.font = "50px Starcraft";
-        //console.log(GAME_ENGINE.ctx.measureText("Game Over"));
-        GAME_ENGINE.ctx.fillStyle = color_red;
-        GAME_ENGINE.ctx.fillText("Game Over", 135, 200);
-        GAME_ENGINE.ctx.font = "30px Starcraft";
-        //console.log(GAME_ENGINE.ctx.measureText("Play Again"));
-        GAME_ENGINE.ctx.fillText("Play Again", 208, 275);
-        // GAME_ENGINE.ctx.strokeStyle = color_red;
-        // GAME_ENGINE.ctx.strokeRect(205, 253, 230, 28);
-
-    }
 }
 
 Background.prototype.update = function () {

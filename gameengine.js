@@ -109,7 +109,6 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
-        e.preventDefault();
         if (e.code === "KeyW") {
             that.keyW = true;
             that.movement = true;
@@ -206,7 +205,10 @@ GameEngine.prototype.reset = function () {
         }
     }
     //menu is no longer removed from world
-    this.entities[0][0].removeFromWorld = false;
+    var menu = this.entities[0][0];
+    menu.removeFromWorld = false;
+    menu.story = false;
+    menu.survival = false;
     SCENE_MANAGER.menu = this.entities[0][0];
     SCENE_MANAGER.insideMenu = true;
     this.playerPick = -1;

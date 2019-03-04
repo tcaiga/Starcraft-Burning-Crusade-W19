@@ -78,6 +78,15 @@ Player.prototype.draw = function () {
     if (this.dontdraw <= 0) {
         if (this.dead) {
             this.animationDeath.drawFrameAniThenIdle(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+            GAME_ENGINE.ctx.font = "50px Starcraft";
+        //console.log(GAME_ENGINE.ctx.measureText("Game Over"));
+        GAME_ENGINE.ctx.fillStyle = color_red;
+        GAME_ENGINE.ctx.fillText("Game Over", 135, 200);
+        GAME_ENGINE.ctx.font = "30px Starcraft";
+        //console.log(GAME_ENGINE.ctx.measureText("Play Again"));
+        GAME_ENGINE.ctx.fillText("Play Again", 208, 275);
+        // GAME_ENGINE.ctx.strokeStyle = color_red;
+        // GAME_ENGINE.ctx.strokeRect(205, 253, 230, 28);
         } else {
             // if statements for shooting logic
             if (GAME_ENGINE.shoot === true) {
@@ -530,9 +539,12 @@ function Menu() {
     this.button = { x: 406, width: 221, height: 39 };
     this.storyY = 263;
     this.controlsY = 409;
+    this.survivalY = 336;
     this.back = { x: 62, y: 30, width: 59, height: 16 };
     this.controls = false;
     this.credits = false;
+    this.story = false;
+    this.survival = false;
     this.background = new Image();
     this.background.src = "./img/utilities/menu.png";
 }
