@@ -61,7 +61,11 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
     this.runDirection = "right";
     this.shootDirection = "right";
-    this.maxShootCounter = 0.3;
+    this.maxAmmo = 12;
+    this.currentAmmo = this.maxAmmo;
+    this.reloadTime = 80;
+    this.reloadCounter = 0;
+    this.maxShootCounter = 0.2;
     this.shootCounter = this.maxShootCounter;
     this.maxHealth = 1000;
     this.health = this.maxHealth;
@@ -90,7 +94,7 @@ Player.prototype.draw = function () {
             // GAME_ENGINE.ctx.strokeRect(205, 253, 230, 28);
         } else {
             // if statements for shooting logic
-            if (GAME_ENGINE.shoot === true) {
+            if (GAME_ENGINE.shoot === true && this.currentAmmo > 0) {
                 // if statements for running logic
                 if (this.shootDirection === "left") {
                     GAME_ENGINE.ctx.save();
@@ -205,8 +209,18 @@ Player.prototype.update = function () {
 
             /* #endregion */
 
-            if (GAME_ENGINE.shoot) {
+
+            //Reload
+            if (this.reloadCounter >= this.reloadTime && this.currentAmmo <= 0) {
+                this.currentAmmo = this.maxAmmo;
+                this.reloadCounter = 0;
+            } else if (this.currentAmmo <= 0) {
+                this.reloadCounter++;
+            }
+
+            if (GAME_ENGINE.shoot  && this.currentAmmo > 0) {
                 var direction;
+
                 if (this.shootCounter >= this.maxShootCounter) {
                     direction = "down";
                     if (GAME_ENGINE.keyUp === true) {
@@ -222,6 +236,7 @@ Player.prototype.update = function () {
                         myPlayer.y + 23,
                         0, 0, 5, direction);
                     GAME_ENGINE.addEntity(projectile);
+                    this.currentAmmo--;
                     this.shootCounter = 0;
                 } else {
                     this.shootCounter += GAME_ENGINE.clockTick;
