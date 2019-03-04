@@ -180,25 +180,23 @@ GameEngine.prototype.startInput = function () {
 }
 
 GameEngine.prototype.reset = function () {
-    for (let i = 1; i < this.entities.length; i++) {
+    for (let i = 0; i < this.entities.length; i++) {
         for (let j = this.entities[i].length - 1; j >= 0; j--) {
             var entity = this.entities[i][j];
             entity.removeFromWorld = true;
             this.entities[i].pop();
         }
     }
-    //menu is no longer removed from world
-    var menu = this.entities[0][0];
-    menu.removeFromWorld = false;
-    menu.story = false;
-    menu.survival = false;
-    SCENE_MANAGER.menu = this.entities[0][0];
+ 
+    var menu = new Menu();
+    GAME_ENGINE.addEntity(menu);
+    SCENE_MANAGER.menu = menu;
     SCENE_MANAGER.insideMenu = true;
-    this.playerPick = -1;
     CAMERA = new Camera();
-    myPlayer.dead = false;
     myScore = 0;
     myLevel = 1;
+
+    //resetting html elements
     document.getElementById("hud").style.display = "none";
     document.getElementById("health").innerHTML = myPlayer.maxHealth;
     document.getElementById("healthImg").src = "./img/health_wireframe/green_health.png";
@@ -221,7 +219,7 @@ GameEngine.prototype.addEntity = function (entity) {
         this.entities[3].push(entity);
     } else if (entity instanceof Trap) {
         this.entities[2].push(entity);
-    } else if (entity instanceof Menu) {
+    } else if (entity instanceof Menu || entity instanceof Background) {
         this.entities[0].push(entity);
     } else {
         this.entities[1].push(entity);
@@ -250,7 +248,7 @@ GameEngine.prototype.removeEntity = function (entity) {
         if (idx > -1) {
             this.entities[2].splice(idx, 1);
         }
-    } else if (entity instanceof Menu) {
+    } else if (entity instanceof Menu || entity instanceof Background) {
         idx = this.entities[0].indexOf(entity);
         if (idx > -1) {
             this.entities[0].splice(idx, 1);
@@ -269,9 +267,8 @@ GameEngine.prototype.draw = function () {
     for (let i = 0; i < this.entities.length; i++) {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
-            if (!entity.removeFromWorld && (entity instanceof Menu || entity instanceof Background
+            if (!entity.removeFromWorld && (i === 0 /*index 0 holds background and menu*/
                 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
-
                     entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.draw(this.ctx);
             }
@@ -284,7 +281,7 @@ GameEngine.prototype.update = function () {
     for (let i = 0; i < this.entities.length; i++) {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
-            if (!entity.removeFromWorld && (entity instanceof Menu || entity instanceof Background
+            if (!entity.removeFromWorld && (i === 0 /*index 0 holds background and menu*/
                 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
                     entity.y >= CAMERA.y && entity.y <= CAMERA.y + canvasHeight))) {
                 entity.update();
