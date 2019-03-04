@@ -109,6 +109,7 @@ SceneManager.prototype.gameInit = function () {
     //console.log(myPlayer);
 
     GAME_ENGINE.addEntity(myPlayer);
+    document.getElementById("health").innerHTML = myPlayer.health;
     GAME_ENGINE.addEntity(CAMERA);
 
     BACKGROUND.generateSurvivalMap();

@@ -304,7 +304,7 @@ Player.prototype.shootProjectile = function (direction) {
     var xTar = myPlayer.x;
     var yTar = myPlayer.y;
     if (direction === "up") {
-        xTar = myPlayer.x + (myPlayer.width / 2) + 8;
+        xTar = myPlayer.x + (myPlayer.width / 2);
     } else if (direction === "left") {
         xTar = myPlayer.x - 8;
         yTar = myPlayer.y + (myPlayer.height / 2) + 3;
@@ -315,7 +315,7 @@ Player.prototype.shootProjectile = function (direction) {
         xTar = myPlayer.x + (myPlayer.width / 2) + 8;
         yTar = myPlayer.y + myPlayer.height + 4;
     }
-    var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
+    var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"/*"./img/fireball.png"*/),
         myPlayer.x + 4,
         myPlayer.y - (myPlayer.height / 2),
          xTar, yTar, 5);
@@ -356,16 +356,18 @@ Player.prototype.changeHealth = function (amount) {
 function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) {
     this.origin = belongsTo;
 
-    this.width = 100;
-    this.height = 100;
+    // this.width = 100;
+    // this.height = 100;
+    this.width = 13;
+    this.height = 13;
     this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
-
+    this.spriteSheet = spriteSheet;
     this.targetType = 4;
     this.x = originX - CAMERA.x;
     this.y = originY - CAMERA.y;
 
-    this.xTar = xTarget - 20;
-    this.yTar = yTarget - 35;
+    this.xTar = xTarget - CAMERA.x;
+    this.yTar = yTarget - CAMERA.y;
     // Determining where the projectile should go angle wise.
     this.angle = Math.atan2(this.yTar - this.y, this.xTar - this.x);
     this.counter = 0; // Counter to make damage consistent
@@ -389,14 +391,14 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) 
     this.aniY = -5;
     Entity.call(this, GAME_ENGINE, originX, originY);
 
-    this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
-        this.width - 75, this.height - 75);
+    this.boundingbox = new BoundingBox(this.x, this.y, this.width, this.height);
 
 }
 
 Projectile.prototype.draw = function () {
     (typeof this.childDraw === 'function') ? this.childDraw() : null;
-    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x + this.aniX, this.y + this.aniY);
+    //this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x + this.aniX, this.y + this.aniY);
+    GAME_ENGINE.ctx.drawImage(this.spriteSheet, this.x - CAMERA.x, this.y - CAMERA.y, this.width, this.height);
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = color_yellow;
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
@@ -414,8 +416,8 @@ Projectile.prototype.update = function () {
     this.x += velX;
     this.y += velY;
 
-    if (this.x - CAMERA.x < 16 || this.x - CAMERA.x > canvasWidth - 58
-        || this.y - CAMERA.y < 0 || this.y - CAMERA.y > canvasHeight - 80) {
+    if (this.x - CAMERA.x <= TILE_SIZE * 2 || this.x - CAMERA.x >= canvasWidth - TILE_SIZE * 2
+        || this.y - CAMERA.y <= TILE_SIZE * 2 || this.y - CAMERA.y >= canvasHeight - TILE_SIZE * 2) {
         this.removeFromWorld = true;
         GAME_ENGINE.removeEntity(this);
     }
@@ -444,8 +446,7 @@ Projectile.prototype.update = function () {
         }
     }
 
-    this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
-        this.width - 75, this.height - 75); // Hardcoded a lot of offset values
+    this.boundingbox = new BoundingBox(this.x, this.y, this.width, this.height);
 }
 /* #endregion */
 
@@ -649,6 +650,7 @@ AM.queueDownload("./img/terran/marine/marine_shoot_right.png");
 AM.queueDownload("./img/terran/marine/marine_shoot_up.png");
 AM.queueDownload("./img/terran/marine/marine_shoot_down.png");
 AM.queueDownload("./img/terran/marine/marine_death.png");
+AM.queueDownload("./img/terran/bullet.png");
 
 // Sunken Spike
 AM.queueDownload("./img/zerg/sunken_spike.png");
