@@ -213,12 +213,40 @@ Background.prototype.generateSurvivalMap = function () {
 
 Background.prototype.generateLevelOne = function () {
     music.play();
-    this.maxRoomCount = 7;
+    this.maxRoomCount = 6;
+    this.map = [
+        [2, 1, 1, 0, 0],
+        [0, 1, 1, 0, 0],
+        [0, 1, 3, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+    ];
+
+    this.face.push(1);
+    this.facePos.push([0, 0]);
+    this.face.push(1);
+    this.facePos.push([1, 0]);
+    this.face.push(2);
+    this.facePos.push([2, 0]);
+    this.face.push(3);
+    this.facePos.push([2, 1]);
+    this.face.push(2);
+    this.facePos.push([1, 1]);
+    this.face.push(1);
+    this.facePos.push([1, 2]);
+    this.facePos.push([2, 2]);
+
+    this.drawMiniMap();
+}
+
+Background.prototype.generateLevelTwo = function () {
+    music.play();
+    this.maxRoomCount = 8;
     this.map = [
         [2, 1, 0, 0, 0],
-        [0, 1, 1, 0, 0],
-        [0, 3, 1, 0, 0],
-        [0, 1, 1, 0, 0],
+        [0, 1, 1, 1, 0],
+        [0, 0, 1, 1, 0],
+        [0, 0, 1, 3, 0],
         [0, 0, 0, 0, 0],
     ];
 
@@ -228,14 +256,57 @@ Background.prototype.generateLevelOne = function () {
     this.facePos.push([1, 0]);
     this.face.push(1);
     this.facePos.push([1, 1]);
-    this.face.push(2);
+    this.face.push(1);
     this.facePos.push([2, 1]);
     this.face.push(2);
-    this.facePos.push([2, 2]);
+    this.facePos.push([3, 1]);
     this.face.push(3);
+    this.facePos.push([3, 2]);
+    this.face.push(2);
+    this.facePos.push([2, 2]);
+    this.face.push(1);
+    this.facePos.push([2, 3]);
+    this.facePos.push([3, 3]);
+
+    this.drawMiniMap();
+}
+
+Background.prototype.generateLevelThree = function () {
+    music.play();
+    this.maxRoomCount = 12;
+    this.map = [
+        [2, 1, 1, 0, 0],
+        [0, 0, 1, 0, 0],
+        [0, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1],
+        [0, 0, 0, 0, 3],
+    ];
+
+    this.face.push(1);
+    this.facePos.push([0, 0]);
+    this.face.push(1);
+    this.facePos.push([1, 0]);
+    this.face.push(2);
+    this.facePos.push([2, 0]);
+    this.face.push(2);
+    this.facePos.push([2, 1]);
+    this.face.push(3);
+    this.facePos.push([2, 2]);
+    this.face.push(2);
+    this.facePos.push([1, 2]);
+    this.face.push(1);
+    this.facePos.push([1, 3]);
+    this.face.push(1);
     this.facePos.push([2, 3]);
     this.face.push(0);
-    this.facePos.push([1, 3]);
+    this.facePos.push([3, 3]);
+    this.face.push(1);
+    this.facePos.push([3, 2]);
+    this.face.push(2);
+    this.facePos.push([4, 2]);
+    this.face.push(2);
+    this.facePos.push([4, 3]);
+    this.facePos.push([4, 4]);
 
     this.drawMiniMap();
 }
