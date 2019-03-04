@@ -93,8 +93,8 @@ SceneManager.prototype.menuSelection = function (x, y) {
         } else if (this.menu.story) {
             // **** Levels 1-3 ****
             BACKGROUND.generateLevelOne();
-            BACKGROUND.generateLevelTwo();
-            BACKGROUND.generateLevelThree();
+            // BACKGROUND.generateLevelTwo();
+            // BACKGROUND.generateLevelThree();
         }
         SCENE_MANAGER.gameInit();
     }
