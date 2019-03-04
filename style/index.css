@@ -89,6 +89,22 @@ canvas {
     top:44%;
 }
 
+#levelLabel {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 1%;
+    top:5%;
+}
+
+#level {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 12%;
+    top:5%;
+}
+
 #healthImg {
     position: absolute;
     z-index: 1000;
