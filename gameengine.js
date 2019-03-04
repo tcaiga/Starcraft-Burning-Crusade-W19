@@ -109,7 +109,6 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
-        e.preventDefault();
         if (e.code === "KeyW") {
             that.keyW = true;
             that.movement = true;

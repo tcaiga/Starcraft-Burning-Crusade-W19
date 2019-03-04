@@ -210,7 +210,11 @@ Player.prototype.update = function () {
                         var direction = "right";
                     } 
                     this.shootDirection = direction;
-                    this.shootProjectile(direction);
+                    var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
+                        myPlayer.x + 15,
+                        myPlayer.y + 23,
+                        0, 0, 5, direction);
+                    GAME_ENGINE.addEntity(projectile);
                     this.shootCounter = 0;
                 } else {
                     this.shootCounter += GAME_ENGINE.clockTick;
@@ -300,28 +304,6 @@ Player.prototype.update = function () {
 
 }
 
-Player.prototype.shootProjectile = function (direction) {
-    var xTar = myPlayer.x;
-    var yTar = myPlayer.y;
-    if (direction === "up") {
-        xTar = myPlayer.x + (myPlayer.width / 2);
-    } else if (direction === "left") {
-        xTar = myPlayer.x - 8;
-        yTar = myPlayer.y + (myPlayer.height / 2) + 3;
-    } else if (direction === "right") {
-        xTar = myPlayer.x + myPlayer.width + 8;
-        yTar = myPlayer.y + (myPlayer.height / 2) + 3;
-    } else {
-        xTar = myPlayer.x + (myPlayer.width / 2) + 8;
-        yTar = myPlayer.y + myPlayer.height + 4;
-    }
-    var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"/*"./img/fireball.png"*/),
-        myPlayer.x + 4,
-        myPlayer.y - (myPlayer.height / 2),
-         xTar, yTar, 5);
-    GAME_ENGINE.addEntity(projectile);
-}
-
 Player.prototype.changeHealth = function (amount) {
     if (amount > 0) {
         //display healing animation
@@ -353,11 +335,8 @@ Player.prototype.changeHealth = function (amount) {
 /* #endregion */
 
 /* #region Base Projectile */
-function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) {
+function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, direction) {
     this.origin = belongsTo;
-
-    // this.width = 100;
-    // this.height = 100;
     this.width = 13;
     this.height = 13;
     this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
@@ -365,17 +344,18 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) 
     this.targetType = 4;
     this.x = originX - CAMERA.x;
     this.y = originY - CAMERA.y;
-
-    this.xTar = xTarget - CAMERA.x;
-    this.yTar = yTarget - CAMERA.y;
-    // Determining where the projectile should go angle wise.
-    this.angle = Math.atan2(this.yTar - this.y, this.xTar - this.x);
+    this.direction = direction;
     this.counter = 0; // Counter to make damage consistent
     this.childUpdate;//function
     this.childDraw;//function
     this.childCollide;//function
     this.speed = 200;
     this.projectileSpeed = 7.5;
+
+    this.xTar = xTarget - CAMERA.x;
+    this.yTar = yTarget - CAMERA.y;
+    // Determining where the projectile should go angle wise.
+    this.angle = Math.atan2(this.yTar - this.y, this.xTar - this.x);
 
     // Damage stuff
     this.durationBetweenHits = 50;//Adjustable
@@ -409,10 +389,27 @@ Projectile.prototype.draw = function () {
 Projectile.prototype.update = function () {
     //var projectileSpeed = 7.5;
     (typeof this.childUpdate === 'function') ? this.childUpdate() : null;
-    // Generating the speed to move at target direction
-    var velY = Math.sin(this.angle) * this.projectileSpeed;
-    var velX = Math.cos(this.angle) * this.projectileSpeed;
     // Moving the actual projectile.
+
+    var velX = 0;
+    var velY = 0;
+
+    if (this.direction === "angle") {
+        // Generating the speed to move at target direction
+        velY = Math.sin(this.angle) * this.projectileSpeed;
+        velX = Math.cos(this.angle) * this.projectileSpeed;
+    } else {
+        if (this.direction === "up") {
+            velY = -this.projectileSpeed;
+        } else if (this.direction === "left") {
+            velX = -this.projectileSpeed;
+        } else if (this.direction === "right") {
+            velX = this.projectileSpeed;
+        } else if (this.direction === "down") {
+            velY = this.projectileSpeed;
+        }
+    }
+
     this.x += velX;
     this.y += velY;
 
