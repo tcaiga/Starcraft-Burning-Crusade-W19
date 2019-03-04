@@ -24,24 +24,29 @@ window.requestAnimFrame = (function () {
 })();
 
 function GameEngine() {
-    //menu, non-interactable (terrain),traps, projectiles, enemies, player
+    //menu, non-interactable ,traps, projectiles, enemies, player
     this.entities = [[], [], [], [], [], []];
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
+    //propertiess for checking player movement
     this.keyA = false;
     this.keyS = false;
     this.keyD = false;
     this.keyW = false;
+
+    //properties used for checking shoot direction
     this.keyUp = false;
     this.keyLeft = false;
     this.keyRight = false;
     this.keyDown = false;
+
     this.digit = [false, false, false, false, false, false, false, false, false, false];
     this.shoot = false;
     this.mouseX = 0;
     this.mouseY = 0;
     this.keyShift = false;
+    this.mouseClick = false;
     this.movement = false;
     this.debug = false;
 }
@@ -66,34 +71,44 @@ GameEngine.prototype.startInput = function () {
     var getXandY = function (e) {
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
-
-        if (x < 1024) {
-            x = Math.floor(x / 32);
-            y = Math.floor(y / 32);
-        }
-
         return { x: x, y: y };
     }
 
     var that = this;
   
     this.ctx.canvas.addEventListener("mousedown", function (e) {
-        var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
-        var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
+        that.mouseClick = true;
+        var x = getXandY(e).x;
+        var y = getXandY(e).y;
         if (SCENE_MANAGER.insideMenu) {
             SCENE_MANAGER.menuSelection(x, y);
         } else if (myPlayer.dead) {
             SCENE_MANAGER.playAgain(x, y);
         }
+        // else {
+        //     if (!myPlayer.dead) {
+        //         // Projectile
+        //         var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
+        //             myPlayer.x - (myPlayer.width / 2),
+        //             myPlayer.y - (myPlayer.height / 2), x, y, 5);
+        //         GAME_ENGINE.addEntity(projectile);
+        //     } else {
+        //         SCENE_MANAGER.playAgain(x, y);
+        //     }
+        // }
     }, false);
 
+    // // event listeners are added here
+    // this.ctx.canvas.addEventListener("mouseup", function (e) {
+    //     that.mouseClick = false;
+    // }, false);
+
     this.ctx.canvas.addEventListener("mousemove", function (e) {
-        that.mouseX = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
-        that.mouseY = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
+        that.mouseX = getXandY(e).x;
+        that.mouseY = getXandY(e).y;
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
-        e.preventDefault();
         if (e.code === "KeyW") {
             that.keyW = true;
             that.movement = true;
@@ -127,6 +142,7 @@ GameEngine.prototype.startInput = function () {
             that.digit[parseInt(e.code.charAt(5))] = true;
         }
 
+        //toggle debug mode
         if (e.code === "KeyU") {
             if (that.debug === false) {
                 that.debug = true;
@@ -138,8 +154,6 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
-
-
         if (e.code === "KeyW") {
             that.keyW = false;
         } else if (e.code === "KeyA") {
@@ -152,12 +166,16 @@ GameEngine.prototype.startInput = function () {
 
         if (e.code === "ArrowUp") {
             that.keyUp = false;
+            myPlayer.shootCounter = myPlayer.maxShootCounter;
         } else if (e.code === "ArrowLeft") {
             that.keyLeft = false;
+            myPlayer.shootCounter = myPlayer.maxShootCounter;
         } else if (e.code === "ArrowRight") {
             that.keyRight = false;
+            myPlayer.shootCounter = myPlayer.maxShootCounter;
         } else if (e.code === "ArrowDown") {
             that.keyDown = false;
+            myPlayer.shootCounter = myPlayer.maxShootCounter;
         }
 
         //Abilities
@@ -171,7 +189,7 @@ GameEngine.prototype.startInput = function () {
         }
 
         /*if key is still being pressed down when another key is pressed up
-          then movement is still happening. */
+          then shooting is still happening. */
           if (!that.keyUp && !that.keyLeft && !that.keyRight && !that.keyDown) {
             that.shoot = false;
         }
@@ -187,7 +205,10 @@ GameEngine.prototype.reset = function () {
         }
     }
     //menu is no longer removed from world
-    this.entities[0][0].removeFromWorld = false;
+    var menu = this.entities[0][0];
+    menu.removeFromWorld = false;
+    menu.story = false;
+    menu.survival = false;
     SCENE_MANAGER.menu = this.entities[0][0];
     SCENE_MANAGER.insideMenu = true;
     this.playerPick = -1;

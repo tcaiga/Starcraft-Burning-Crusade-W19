@@ -33,7 +33,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.animationRunUp = new Animation(runSheets["up"], this.width, this.height, 1, 0.04, 9, true, this.scale);
     this.animationRunDown = new Animation(runSheets["down"], this.width, this.height, 1, 0.04, 9, true, this.scale);
     this.animationShootSide = new Animation(shootSheets["side"], this.width, this.height, 1, 0.04, 2, true, this.scale);
-    this.animationShootUp = new Animation(shootSheets["up"], this.width, this.height, 1, 0.04, 2, true, this.scale);
+    this.animationShootUp = new Animation(shootSheets["up"], this.width , this.height, 1, 0.04, 2, true, this.scale);
     this.animationShootDown = new Animation(shootSheets["down"], this.width, this.height, 1, 0.04, 2, true, this.scale);
     this.animationDeath = new Animation(deathSheet, 65, 40, 1, 0.04, 8, true, this.scale);
     this.animationIdle = this.animationRunSide;
@@ -49,6 +49,11 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.isStunned = false;
     this.dead = false;
     this.baseMaxMovespeed = 2.5;
+    this.velocity = {x:0,y:0};
+    this.friction = .5;
+    this.baseAcceleration = {x:1,y:1};
+    this.accelerationRatio = 1;
+    this.accelerationAdj = 0;
     this.maxMovespeedRatio = 1;
     this.maxMovespeedAdj = 0;
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
@@ -56,7 +61,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.shootDirection = "right";
     this.maxShootCounter = 0.3;
     this.shootCounter = this.maxShootCounter;
-    this.maxHealth = 100;
+    this.maxHealth = 1000;
     this.health = this.maxHealth;
     this.healthPercent = 100;
     this.dontdraw = 0;
@@ -73,6 +78,15 @@ Player.prototype.draw = function () {
     if (this.dontdraw <= 0) {
         if (this.dead) {
             this.animationDeath.drawFrameAniThenIdle(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+            GAME_ENGINE.ctx.font = "50px Starcraft";
+        //console.log(GAME_ENGINE.ctx.measureText("Game Over"));
+        GAME_ENGINE.ctx.fillStyle = color_red;
+        GAME_ENGINE.ctx.fillText("Game Over", 135, 200);
+        GAME_ENGINE.ctx.font = "30px Starcraft";
+        //console.log(GAME_ENGINE.ctx.measureText("Play Again"));
+        GAME_ENGINE.ctx.fillText("Play Again", 208, 275);
+        // GAME_ENGINE.ctx.strokeStyle = color_red;
+        // GAME_ENGINE.ctx.strokeRect(205, 253, 230, 28);
         } else {
             // if statements for shooting logic
             if (GAME_ENGINE.shoot === true) {
@@ -132,8 +146,47 @@ Player.prototype.update = function () {
     // Player movement controls
 
     if (!this.dead) {
+        this.velocity = (this.castTime > 0 || this.isStunned) ? {x:0,y:0} : this.velocity;
         if (this.castTime <= 0 && !this.isStunned) {
             /* #region Player movement controls */
+
+            
+//             //Speed shift calculation
+//             let speedShift = {x:this.baseAcceleration.x * this.accelerationRatio + this.accelerationAdj
+//                             ,y:this.baseAcceleration.y * this.accelerationRatio + this.accelerationAdj};
+//             //I love lambda...
+//             //Friction
+//             this.velocity.x = (this.velocity.x < .1 && this.velocity.x > -.1) ? 0 : this.velocity.x - Math.sign(this.velocity.x)*this.friction;
+//             this.velocity.y = (this.velocity.y < .1 && this.velocity.y > -.1) ? 0 : this.velocity.y - Math.sign(this.velocity.y)*this.friction;
+
+//             //Application of acceleration
+//             this.velocity.x += (GAME_ENGINE.keyD) ? speedShift.x : 0;
+//             this.velocity.x -= (GAME_ENGINE.keyA) ? speedShift.x : 0;
+//             this.velocity.y -= (GAME_ENGINE.keyW) ? speedShift.y : 0;
+//             this.velocity.y += (GAME_ENGINE.keyS) ? speedShift.y : 0;
+
+//             //Check max
+//             this.velocity.x = (Math.abs(this.velocity.x) > this.baseMaxMovespeed) ? Math.sign(this.velocity.x) * this.baseMaxMovespeed : this.velocity.x;
+//             this.velocity.y = (Math.abs(this.velocity.y) > this.baseMaxMovespeed) ? Math.sign(this.velocity.y) * this.baseMaxMovespeed : this.velocity.y;
+//             let mag = Math.sqrt(Math.pow(this.velocity.x,2) + Math.pow(this.velocity.y,2));
+//             if (mag > this.baseMaxMovespeed) {//Circle max movespeed
+//                 this.velocity.x = this.baseMaxMovespeed * this.velocity.x / mag;
+//                 this.velocity.y = this.baseMaxMovespeed * this.velocity.y / mag;
+//             }
+
+//             //Application of velocity
+//             this.x += this.velocity.x;
+//             this.y += this.velocity.y;
+
+//             //Animation direction
+//             if (GAME_ENGINE.keyW){this.direction = "up";}
+//             else if (GAME_ENGINE.keyA){this.direction = "left";}
+//             else if (GAME_ENGINE.keyS){this.direction = "down";}
+//             else if (GAME_ENGINE.keyD){this.direction = "right";}
+
+
+
+            
             this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
             if (GAME_ENGINE.keyW === true) {
                 this.y -= this.actualSpeed;
@@ -152,6 +205,7 @@ Player.prototype.update = function () {
                 this.runDirection = "right";
                 this.animationIdle = this.animationRunSide;
             }
+
             /* #endregion */
 
             if (GAME_ENGINE.shoot) {
@@ -165,7 +219,11 @@ Player.prototype.update = function () {
                         var direction = "right";
                     } 
                     this.shootDirection = direction;
-                    this.shootProjectile(direction);
+                    var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
+                        myPlayer.x + 15,
+                        myPlayer.y + 23,
+                        0, 0, 5, direction);
+                    GAME_ENGINE.addEntity(projectile);
                     this.shootCounter = 0;
                 } else {
                     this.shootCounter += GAME_ENGINE.clockTick;
@@ -255,28 +313,6 @@ Player.prototype.update = function () {
 
 }
 
-Player.prototype.shootProjectile = function (direction) {
-    var xTar = myPlayer.x;
-    var yTar = myPlayer.y;
-    if (direction === "up") {
-        xTar = myPlayer.x + (myPlayer.width / 2) + 8;
-    } else if (direction === "left") {
-        xTar = myPlayer.x - 8;
-        yTar = myPlayer.y + (myPlayer.height / 2) + 3;
-    } else if (direction === "right") {
-        xTar = myPlayer.x + myPlayer.width + 8;
-        yTar = myPlayer.y + (myPlayer.height / 2) + 3;
-    } else {
-        xTar = myPlayer.x + (myPlayer.width / 2) + 8;
-        yTar = myPlayer.y + myPlayer.height + 4;
-    }
-    var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
-        myPlayer.x + 4,
-        myPlayer.y - (myPlayer.height / 2),
-         xTar, yTar, 5);
-    GAME_ENGINE.addEntity(projectile);
-}
-
 Player.prototype.changeHealth = function (amount) {
     if (amount > 0) {
         //display healing animation
@@ -308,27 +344,27 @@ Player.prototype.changeHealth = function (amount) {
 /* #endregion */
 
 /* #region Base Projectile */
-function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) {
+function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, direction) {
     this.origin = belongsTo;
-
-    this.width = 100;
-    this.height = 100;
+    this.width = 13;
+    this.height = 13;
     this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
-
+    this.spriteSheet = spriteSheet;
     this.targetType = 4;
     this.x = originX - CAMERA.x;
     this.y = originY - CAMERA.y;
-
-    this.xTar = xTarget - 20;
-    this.yTar = yTarget - 35;
-    // Determining where the projectile should go angle wise.
-    this.angle = Math.atan2(this.yTar - this.y, this.xTar - this.x);
+    this.direction = direction;
     this.counter = 0; // Counter to make damage consistent
     this.childUpdate;//function
     this.childDraw;//function
     this.childCollide;//function
     this.speed = 200;
     this.projectileSpeed = 7.5;
+
+    this.xTar = xTarget - CAMERA.x;
+    this.yTar = yTarget - CAMERA.y;
+    // Determining where the projectile should go angle wise.
+    this.angle = Math.atan2(this.yTar - this.y, this.xTar - this.x);
 
     // Damage stuff
     this.durationBetweenHits = 50;//Adjustable
@@ -344,14 +380,14 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) 
     this.aniY = -5;
     Entity.call(this, GAME_ENGINE, originX, originY);
 
-    this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
-        this.width - 75, this.height - 75);
+    this.boundingbox = new BoundingBox(this.x, this.y, this.width, this.height);
 
 }
 
 Projectile.prototype.draw = function () {
     (typeof this.childDraw === 'function') ? this.childDraw() : null;
-    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x + this.aniX, this.y + this.aniY);
+    //this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x + this.aniX, this.y + this.aniY);
+    GAME_ENGINE.ctx.drawImage(this.spriteSheet, this.x - CAMERA.x, this.y - CAMERA.y, this.width, this.height);
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = color_yellow;
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
@@ -362,15 +398,32 @@ Projectile.prototype.draw = function () {
 Projectile.prototype.update = function () {
     //var projectileSpeed = 7.5;
     (typeof this.childUpdate === 'function') ? this.childUpdate() : null;
-    // Generating the speed to move at target direction
-    var velY = Math.sin(this.angle) * this.projectileSpeed;
-    var velX = Math.cos(this.angle) * this.projectileSpeed;
     // Moving the actual projectile.
+
+    var velX = 0;
+    var velY = 0;
+
+    if (this.direction === "angle") {
+        // Generating the speed to move at target direction
+        velY = Math.sin(this.angle) * this.projectileSpeed;
+        velX = Math.cos(this.angle) * this.projectileSpeed;
+    } else {
+        if (this.direction === "up") {
+            velY = -this.projectileSpeed;
+        } else if (this.direction === "left") {
+            velX = -this.projectileSpeed;
+        } else if (this.direction === "right") {
+            velX = this.projectileSpeed;
+        } else if (this.direction === "down") {
+            velY = this.projectileSpeed;
+        }
+    }
+
     this.x += velX;
     this.y += velY;
 
-    if (this.x - CAMERA.x < 16 || this.x - CAMERA.x > canvasWidth - 58
-        || this.y - CAMERA.y < 0 || this.y - CAMERA.y > canvasHeight - 80) {
+    if (this.x - CAMERA.x <= TILE_SIZE * 2 || this.x - CAMERA.x >= canvasWidth - TILE_SIZE * 2
+        || this.y - CAMERA.y <= TILE_SIZE * 2 || this.y - CAMERA.y >= canvasHeight - TILE_SIZE * 2) {
         this.removeFromWorld = true;
         GAME_ENGINE.removeEntity(this);
     }
@@ -399,8 +452,7 @@ Projectile.prototype.update = function () {
         }
     }
 
-    this.boundingbox = new BoundingBox(this.x + 8, this.y + 25,
-        this.width - 75, this.height - 75); // Hardcoded a lot of offset values
+    this.boundingbox = new BoundingBox(this.x, this.y, this.width, this.height);
 }
 /* #endregion */
 
@@ -438,7 +490,7 @@ Camera.prototype.getStartingRoom = function () {
     var roomNum = 0;
     for (var i = 0; i < BACKGROUND.map.length; i++) {
         for (var j = 0; j < BACKGROUND.map[i].length; j++) {
-            if (BACKGROUND.map[i][j] === 2) {
+            if (BACKGROUND.map[i][j] === 8) {
                 this.currentRoom = roomNum;
             }
 
@@ -484,9 +536,12 @@ function Menu() {
     this.button = { x: 406, width: 221, height: 39 };
     this.storyY = 263;
     this.controlsY = 409;
+    this.survivalY = 336;
     this.back = { x: 62, y: 30, width: 59, height: 16 };
     this.controls = false;
     this.credits = false;
+    this.story = false;
+    this.survival = false;
     this.background = new Image();
     this.background.src = "./img/utilities/menu.png";
 }
@@ -604,9 +659,10 @@ AM.queueDownload("./img/terran/marine/marine_shoot_right.png");
 AM.queueDownload("./img/terran/marine/marine_shoot_up.png");
 AM.queueDownload("./img/terran/marine/marine_shoot_down.png");
 AM.queueDownload("./img/terran/marine/marine_death.png");
+AM.queueDownload("./img/terran/bullet.png");
 
 // Sunken Spike
-AM.queueDownload("./img/zerg/extras/sunken_spike.png");
+AM.queueDownload("./img/zerg/sunken_spike.png");
 
 // Hydralisk
 AM.queueDownload("./img/zerg/hydra/hydra_move_right.png");

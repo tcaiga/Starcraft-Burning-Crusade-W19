@@ -1,6 +1,6 @@
 function Background() {
-    this.x = -1280;
-    this.y = -1280;
+    this.x = 0;
+    this.y = 0;
 
     this.floorX = 0;
     this.floorY = 0;
@@ -19,29 +19,24 @@ function Background() {
         [0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0],
     ];
-    this.row = 2;
-    this.col = 2;
+    this.row = 0;
+    this.col = 0;
     this.roomCount = 0;
     this.maxRoomCount = 5;
-    this.map[this.row][this.col] = 2;
-    this.facePos.push([this.col, this.row]);
     this.drawFaceCount = 0;
+
+    // **********************
+    // * Key for room types *
+    // **********************
+    // 1 - Base Room
+    // 2 - Infested Terran Trap Room
+    // 3 - Puzzle Room
+    // 8 - Starting Room
+    // 9 - Ending Room
 }
 
 Background.prototype.draw = function () {
     GAME_ENGINE.ctx.drawImage(AM.getAsset("./img/utilities/floor.png"), this.floorX, this.floorY, 640, 640);
-    if (myPlayer.dead) {
-        GAME_ENGINE.ctx.font = "50px Starcraft";
-        //console.log(GAME_ENGINE.ctx.measureText("Game Over"));
-        GAME_ENGINE.ctx.fillStyle = color_red;
-        GAME_ENGINE.ctx.fillText("Game Over", 135, 200);
-        GAME_ENGINE.ctx.font = "30px Starcraft";
-        //console.log(GAME_ENGINE.ctx.measureText("Play Again"));
-        GAME_ENGINE.ctx.fillText("Play Again", 208, 275);
-        // GAME_ENGINE.ctx.strokeStyle = color_red;
-        // GAME_ENGINE.ctx.strokeRect(205, 253, 230, 28);
-
-    }
 }
 
 Background.prototype.update = function () {
@@ -52,7 +47,11 @@ Background.prototype.createWalls = function () {
         for (let j = 0; j < this.map[i].length; j++) {
             for (let row = 0; row < 20; row++) {
                 for (let col = 0; col < 20; col++) {
-                    let tempTile = ROOMS[this.map[i][j]][row * 20 + col];
+                    let roomType = 0;
+                    if (this.map[i][j] !== 0) {
+                        roomType = 1;
+                    }
+                    let tempTile = ROOMS[roomType][row * 20 + col];
                     if (tempTile === 1) {
                         if (col === 0 && row != 0 && row != 19) {
                             GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
@@ -96,25 +95,6 @@ Background.prototype.decorateRoom = function () {
                         testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left"));
                 }
 
-                // Adding traps in all rooms except the starting and ending rooms.
-                let choice = Math.floor(Math.random() * 2);
-                // 33% chance a room that is not the start or end will have traps.
-                if (this.drawFaceCount > 0) {
-                    if (choice === 0) {
-                        for (let r = 1; r < 4; r++) {
-                            for (let s = 1; s < 4; s++) {
-                                // 9 infested terrans appear in the shape of a cube spaced out.
-                                var infested = new Infested(AM.getAsset("./img/zerg/infested/infested_move_right.png"),
-                                testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
-                                testPos[1] * canvasHeight + (s * 160) + BACKGROUND.y - 10);
-                                GAME_ENGINE.addEntity(infested);
-                            }
-                        }
-                    } else if (choice === 1) {
-    
-                    }
-                }
-
                 // Adding a door to go back for all rooms except starting room.
                 if (this.drawFaceCount < this.facePos.length - 1) {
                     let testPosReverse = this.facePos[this.drawFaceCount + 1];
@@ -149,24 +129,39 @@ Background.prototype.decorateRoom = function () {
                             testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right"));
                     }
                 }
-                
-                if (this.drawFaceCount % 3 === 0) {
-                    var zergling = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                    testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
 
-                    GAME_ENGINE.addEntity(zergling);
-                } else if (this.drawFaceCount % 3 === 1) {
-                    var hydralisk = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"),
-                    testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-
-                    GAME_ENGINE.addEntity(hydralisk);
-                } else if (this.drawFaceCount % 3 === 2) {
-                    var ultralisk = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
-                    testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-
-                    GAME_ENGINE.addEntity(ultralisk);
+                // Populating rooms with infested terran traps, monsters, and puzzles
+                if (this.drawFaceCount > 0) {
+                    if (this.map[testPos[1]][testPos[0]] === 1) {
+                        if (this.drawFaceCount % 3 === 0) {
+                            var zergling = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+        
+                            GAME_ENGINE.addEntity(zergling);
+                        } else if (this.drawFaceCount % 3 === 1) {
+                            var hydralisk = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+        
+                            GAME_ENGINE.addEntity(hydralisk);
+                        } else if (this.drawFaceCount % 3 === 2) {
+                            var ultralisk = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+        
+                            GAME_ENGINE.addEntity(ultralisk);
+                        }
+                    } else if (this.map[testPos[1]][testPos[0]] === 2) {
+                        for (let r = 1; r < 4; r++) {
+                            for (let s = 1; s < 4; s++) {
+                                // 9 infested terrans appear in the shape of a cube spaced out.
+                                var infested = new Infested(AM.getAsset("./img/zerg/infested/infested_move_right.png"),
+                                testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
+                                testPos[1] * canvasHeight + (s * 160) + BACKGROUND.y - 10);
+                                GAME_ENGINE.addEntity(infested);
+                            }
+                        }
+                    }
                 }
-
+                
                 this.drawFaceCount++;
             }
         }
@@ -174,6 +169,12 @@ Background.prototype.decorateRoom = function () {
 }
 
 Background.prototype.generateSurvivalMap = function () {
+    this.x = -1280;
+    this.y = -1280;
+    this.row = 2;
+    this.col = 2;
+    this.map[this.row][this.col] = 8;
+    this.facePos.push([this.col, this.row]);
     music.play();
     while (this.roomCount < this.maxRoomCount) {
         let randomDirection = Math.floor(Math.random() * Math.floor(4));
@@ -192,12 +193,17 @@ Background.prototype.generateSurvivalMap = function () {
                 this.face.push(randomDirection);
                 this.row += this.directions[randomDirection][0];
                 this.col += this.directions[randomDirection][1];
-
                 this.facePos.push([this.col, this.row]);
-                this.map[this.row][this.col] = 1;
+                let randomChoice = Math.floor((Math.random() * 3) + 1);
+                if (randomChoice === 3) { // 33% chance to spawn a trap room.
+                    this.map[this.row][this.col] = 2;
+                } else {
+                    this.map[this.row][this.col] = 1;
+                }
                 if (this.roomCount + 1 === this.maxRoomCount) {
-
-                    this.map[this.row][this.col] = 3;
+                    this.map[this.row][this.col] = 9; // Ending Room
+                } else if (this.roomCount + 2 === this.maxRoomCount) {
+                    this.map[this.row][this.col] = 3; // Puzzle Room
                 }
                 this.roomCount++;
             }
@@ -207,16 +213,116 @@ Background.prototype.generateSurvivalMap = function () {
     this.drawMiniMap();
 }
 
+Background.prototype.generateLevelOne = function () {
+    music.play();
+    this.maxRoomCount = 6;
+    this.map = [
+        [8, 1, 1, 0, 0],
+        [0, 2, 1, 0, 0],
+        [0, 3, 9, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+    ];
+
+    this.face.push(1);
+    this.facePos.push([0, 0]);
+    this.face.push(1);
+    this.facePos.push([1, 0]);
+    this.face.push(2);
+    this.facePos.push([2, 0]);
+    this.face.push(3);
+    this.facePos.push([2, 1]);
+    this.face.push(2);
+    this.facePos.push([1, 1]);
+    this.face.push(1);
+    this.facePos.push([1, 2]);
+    this.facePos.push([2, 2]);
+
+    this.drawMiniMap();
+}
+
+Background.prototype.generateLevelTwo = function () {
+    music.play();
+    this.maxRoomCount = 8;
+    this.map = [
+        [8, 1, 0, 0, 0],
+        [0, 1, 2, 1, 0],
+        [0, 0, 2, 1, 0],
+        [0, 0, 3, 9, 0],
+        [0, 0, 0, 0, 0],
+    ];
+
+    this.face.push(1);
+    this.facePos.push([0, 0]);
+    this.face.push(2);
+    this.facePos.push([1, 0]);
+    this.face.push(1);
+    this.facePos.push([1, 1]);
+    this.face.push(1);
+    this.facePos.push([2, 1]);
+    this.face.push(2);
+    this.facePos.push([3, 1]);
+    this.face.push(3);
+    this.facePos.push([3, 2]);
+    this.face.push(2);
+    this.facePos.push([2, 2]);
+    this.face.push(1);
+    this.facePos.push([2, 3]);
+    this.facePos.push([3, 3]);
+
+    this.drawMiniMap();
+}
+
+Background.prototype.generateLevelThree = function () {
+    music.play();
+    this.maxRoomCount = 12;
+    this.map = [
+        [8, 1, 1, 0, 0],
+        [0, 0, 2, 0, 0],
+        [0, 1, 1, 1, 2],
+        [0, 1, 2, 1, 3],
+        [0, 0, 0, 0, 9],
+    ];
+
+    this.face.push(1);
+    this.facePos.push([0, 0]);
+    this.face.push(1);
+    this.facePos.push([1, 0]);
+    this.face.push(2);
+    this.facePos.push([2, 0]);
+    this.face.push(2);
+    this.facePos.push([2, 1]);
+    this.face.push(3);
+    this.facePos.push([2, 2]);
+    this.face.push(2);
+    this.facePos.push([1, 2]);
+    this.face.push(1);
+    this.facePos.push([1, 3]);
+    this.face.push(1);
+    this.facePos.push([2, 3]);
+    this.face.push(0);
+    this.facePos.push([3, 3]);
+    this.face.push(1);
+    this.facePos.push([3, 2]);
+    this.face.push(2);
+    this.facePos.push([4, 2]);
+    this.face.push(2);
+    this.facePos.push([4, 3]);
+    this.facePos.push([4, 4]);
+
+    this.drawMiniMap();
+}
+
 Background.prototype.drawMiniMap = function () {
     var roomNum = 0;
     for (var i = 0; i < this.map.length; i++) {
         for (var j = 0; j < this.map[i].length; j++) {
-            if (this.map[i][j] === 1) {
-                document.getElementById("room" + roomNum).style.backgroundColor = "white";
-            } else if (this.map[i][j] === 2) {
+            if (this.map[i][j] === 8) {
                 document.getElementById("room" + roomNum).style.backgroundColor = "blue";
-            } else if (this.map[i][j] === 3) {
+            } else if (this.map[i][j] === 9) {
                 document.getElementById("room" + roomNum).style.backgroundColor = "red";
+            } else if (this.map[i][j] !== 0) {
+                document.getElementById("room" + roomNum).style.backgroundColor = "white";
             }
             roomNum++;
         }
