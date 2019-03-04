@@ -159,8 +159,13 @@ SceneManager.prototype.gameInit = function () {
     GAME_ENGINE.addEntity(myPlayer);
     GAME_ENGINE.addEntity(CAMERA);
 
-    CAMERA.getStartingRoom();
     BACKGROUND.generateSurvivalMap();
+
+    // **** Levels 1-3 ****
+    //BACKGROUND.generateLevelOne();
+    //BACKGROUND.generateLevelTwo();
+    //BACKGROUND.generateLevelThree();
+    CAMERA.getStartingRoom();
     BACKGROUND.createWalls();
     BACKGROUND.decorateRoom();
     document.getElementById("hud").style.display = "block";
