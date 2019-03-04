@@ -24,6 +24,15 @@ function Background() {
     this.roomCount = 0;
     this.maxRoomCount = 5;
     this.drawFaceCount = 0;
+
+    // **********************
+    // * Key for room types *
+    // **********************
+    // 1 - Base Room
+    // 2 - Infested Terran Trap Room
+    // 3 - Puzzle Room
+    // 8 - Starting Room
+    // 9 - Ending Room
 }
 
 Background.prototype.draw = function () {
@@ -50,7 +59,11 @@ Background.prototype.createWalls = function () {
         for (let j = 0; j < this.map[i].length; j++) {
             for (let row = 0; row < 20; row++) {
                 for (let col = 0; col < 20; col++) {
-                    let tempTile = ROOMS[this.map[i][j]][row * 20 + col];
+                    let roomType = 0;
+                    if (this.map[i][j] !== 0) {
+                        roomType = 1;
+                    }
+                    let tempTile = ROOMS[roomType][row * 20 + col];
                     if (tempTile === 1) {
                         if (col === 0 && row != 0 && row != 19) {
                             GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
@@ -93,12 +106,9 @@ Background.prototype.decorateRoom = function () {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
                         testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left"));
                 }
-
-                // Adding traps in all rooms except the starting and ending rooms.
-                let choice = Math.floor(Math.random() * 2);
-                // 33% chance a room that is not the start or end will have traps.
+                
                 if (this.drawFaceCount > 0) {
-                    if (choice === 0) {
+                    if (this.map[i][j] === 4) {
                         for (let r = 1; r < 4; r++) {
                             for (let s = 1; s < 4; s++) {
                                 // 9 infested terrans appear in the shape of a cube spaced out.
@@ -108,8 +118,6 @@ Background.prototype.decorateRoom = function () {
                                 GAME_ENGINE.addEntity(infested);
                             }
                         }
-                    } else if (choice === 1) {
-    
                     }
                 }
 
@@ -176,7 +184,7 @@ Background.prototype.generateSurvivalMap = function () {
     this.y = -1280;
     this.row = 2;
     this.col = 2;
-    this.map[this.row][this.col] = 2;
+    this.map[this.row][this.col] = 8;
     this.facePos.push([this.col, this.row]);
     music.play();
     while (this.roomCount < this.maxRoomCount) {
@@ -196,12 +204,17 @@ Background.prototype.generateSurvivalMap = function () {
                 this.face.push(randomDirection);
                 this.row += this.directions[randomDirection][0];
                 this.col += this.directions[randomDirection][1];
-
                 this.facePos.push([this.col, this.row]);
-                this.map[this.row][this.col] = 1;
+                let randomChoice = Math.floor((Math.random() * 3) + 1);
+                if (randomChoice === 3) { // 33% chance to spawn a trap room.
+                    this.map[this.row][this.col] = 2;
+                } else {
+                    this.map[this.row][this.col] = 1;
+                }
                 if (this.roomCount + 1 === this.maxRoomCount) {
-
-                    this.map[this.row][this.col] = 3;
+                    this.map[this.row][this.col] = 9; // Ending Room
+                } else if (this.roomCount + 2 === this.maxRoomCount) {
+                    this.map[this.row][this.col] = 3; // Puzzle Room
                 }
                 this.roomCount++;
             }
@@ -215,9 +228,9 @@ Background.prototype.generateLevelOne = function () {
     music.play();
     this.maxRoomCount = 6;
     this.map = [
-        [2, 1, 1, 0, 0],
-        [0, 1, 1, 0, 0],
-        [0, 1, 3, 0, 0],
+        [8, 1, 1, 0, 0],
+        [0, 2, 1, 0, 0],
+        [0, 3, 9, 0, 0],
         [0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0],
     ];
@@ -243,10 +256,10 @@ Background.prototype.generateLevelTwo = function () {
     music.play();
     this.maxRoomCount = 8;
     this.map = [
-        [2, 1, 0, 0, 0],
-        [0, 1, 1, 1, 0],
-        [0, 0, 1, 1, 0],
-        [0, 0, 1, 3, 0],
+        [8, 1, 0, 0, 0],
+        [0, 1, 2, 1, 0],
+        [0, 0, 2, 1, 0],
+        [0, 0, 3, 9, 0],
         [0, 0, 0, 0, 0],
     ];
 
@@ -275,11 +288,11 @@ Background.prototype.generateLevelThree = function () {
     music.play();
     this.maxRoomCount = 12;
     this.map = [
-        [2, 1, 1, 0, 0],
-        [0, 0, 1, 0, 0],
-        [0, 1, 1, 1, 1],
-        [0, 1, 1, 1, 1],
-        [0, 0, 0, 0, 3],
+        [8, 1, 1, 0, 0],
+        [0, 0, 2, 0, 0],
+        [0, 1, 1, 1, 2],
+        [0, 1, 2, 1, 3],
+        [0, 0, 0, 0, 9],
     ];
 
     this.face.push(1);
@@ -315,12 +328,12 @@ Background.prototype.drawMiniMap = function () {
     var roomNum = 0;
     for (var i = 0; i < this.map.length; i++) {
         for (var j = 0; j < this.map[i].length; j++) {
-            if (this.map[i][j] === 1) {
-                document.getElementById("room" + roomNum).style.backgroundColor = "white";
-            } else if (this.map[i][j] === 2) {
+            if (this.map[i][j] === 8) {
                 document.getElementById("room" + roomNum).style.backgroundColor = "blue";
-            } else if (this.map[i][j] === 3) {
+            } else if (this.map[i][j] === 9) {
                 document.getElementById("room" + roomNum).style.backgroundColor = "red";
+            } else if (this.map[i][j] !== 0) {
+                document.getElementById("room" + roomNum).style.backgroundColor = "white";
             }
             roomNum++;
         }
