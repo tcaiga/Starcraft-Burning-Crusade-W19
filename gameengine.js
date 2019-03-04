@@ -156,11 +156,14 @@ GameEngine.prototype.startInput = function () {
     this.ctx.canvas.addEventListener("keyup", function (e) {
         if (e.code === "KeyW") {
             that.keyW = false;
-        } else if (e.code === "KeyA") {
+        }
+        if (e.code === "KeyA") {
             that.keyA = false;
-        } else if (e.code === "KeyS") {
+        }
+        if (e.code === "KeyS") {
             that.keyS = false;
-        } else if (e.code === "KeyD") {
+        }
+        if (e.code === "KeyD") {
             that.keyD = false;
         }
 
@@ -214,6 +217,8 @@ GameEngine.prototype.reset = function () {
     this.playerPick = -1;
     CAMERA = new Camera();
     myPlayer.dead = false;
+    myScore = 0;
+    myLevel = 1;
     document.getElementById("hud").style.display = "none";
     document.getElementById("health").innerHTML = myPlayer.maxHealth;
     document.getElementById("healthImg").src = "./img/health_wireframe/green_health.png";
@@ -284,7 +289,6 @@ GameEngine.prototype.draw = function () {
     for (let i = 0; i < this.entities.length; i++) {
         for (let j = 0; j < this.entities[i].length; j++) {
             var entity = this.entities[i][j];
-
             if (!entity.removeFromWorld && (entity instanceof Menu || entity instanceof Background
                 || (entity.x >= CAMERA.x && entity.x <= CAMERA.x + canvasWidth &&
 

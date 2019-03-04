@@ -15,6 +15,8 @@ var BACKGROUND;
 var SCENE_MANAGER;
 var canvasWidth;
 var canvasHeight;
+var myScore = 0;
+var myLevel = 1;
 
 // Constant variable for tile size
 const TILE_SIZE = 16;
@@ -151,32 +153,32 @@ Player.prototype.update = function () {
             /* #region Player movement controls */
 
             
-//             //Speed shift calculation
-//             let speedShift = {x:this.baseAcceleration.x * this.accelerationRatio + this.accelerationAdj
-//                             ,y:this.baseAcceleration.y * this.accelerationRatio + this.accelerationAdj};
-//             //I love lambda...
-//             //Friction
-//             this.velocity.x = (this.velocity.x < .1 && this.velocity.x > -.1) ? 0 : this.velocity.x - Math.sign(this.velocity.x)*this.friction;
-//             this.velocity.y = (this.velocity.y < .1 && this.velocity.y > -.1) ? 0 : this.velocity.y - Math.sign(this.velocity.y)*this.friction;
+            //Speed shift calculation
+            let speedShift = {x:this.baseAcceleration.x * this.accelerationRatio + this.accelerationAdj
+                            ,y:this.baseAcceleration.y * this.accelerationRatio + this.accelerationAdj};
+            //I love lambda...
+            //Friction
+            this.velocity.x = (this.velocity.x < .1 && this.velocity.x > -.1) ? 0 : this.velocity.x - Math.sign(this.velocity.x)*this.friction;
+            this.velocity.y = (this.velocity.y < .1 && this.velocity.y > -.1) ? 0 : this.velocity.y - Math.sign(this.velocity.y)*this.friction;
 
-//             //Application of acceleration
-//             this.velocity.x += (GAME_ENGINE.keyD) ? speedShift.x : 0;
-//             this.velocity.x -= (GAME_ENGINE.keyA) ? speedShift.x : 0;
-//             this.velocity.y -= (GAME_ENGINE.keyW) ? speedShift.y : 0;
-//             this.velocity.y += (GAME_ENGINE.keyS) ? speedShift.y : 0;
+            //Application of acceleration
+            this.velocity.x += (GAME_ENGINE.keyD) ? speedShift.x : 0;
+            this.velocity.x -= (GAME_ENGINE.keyA) ? speedShift.x : 0;
+            this.velocity.y -= (GAME_ENGINE.keyW) ? speedShift.y : 0;
+            this.velocity.y += (GAME_ENGINE.keyS) ? speedShift.y : 0;
 
-//             //Check max
-//             this.velocity.x = (Math.abs(this.velocity.x) > this.baseMaxMovespeed) ? Math.sign(this.velocity.x) * this.baseMaxMovespeed : this.velocity.x;
-//             this.velocity.y = (Math.abs(this.velocity.y) > this.baseMaxMovespeed) ? Math.sign(this.velocity.y) * this.baseMaxMovespeed : this.velocity.y;
-//             let mag = Math.sqrt(Math.pow(this.velocity.x,2) + Math.pow(this.velocity.y,2));
-//             if (mag > this.baseMaxMovespeed) {//Circle max movespeed
-//                 this.velocity.x = this.baseMaxMovespeed * this.velocity.x / mag;
-//                 this.velocity.y = this.baseMaxMovespeed * this.velocity.y / mag;
-//             }
+            //Check max
+            this.velocity.x = (Math.abs(this.velocity.x) > this.baseMaxMovespeed) ? Math.sign(this.velocity.x) * this.baseMaxMovespeed : this.velocity.x;
+            this.velocity.y = (Math.abs(this.velocity.y) > this.baseMaxMovespeed) ? Math.sign(this.velocity.y) * this.baseMaxMovespeed : this.velocity.y;
+            let mag = Math.sqrt(Math.pow(this.velocity.x,2) + Math.pow(this.velocity.y,2));
+            if (mag > this.baseMaxMovespeed) {//Circle max movespeed
+                this.velocity.x = this.baseMaxMovespeed * this.velocity.x / mag;
+                this.velocity.y = this.baseMaxMovespeed * this.velocity.y / mag;
+            }
 
-//             //Application of velocity
-//             this.x += this.velocity.x;
-//             this.y += this.velocity.y;
+            //Application of velocity
+            this.x += this.velocity.x;
+            this.y += this.velocity.y;
 
 //             //Animation direction
 //             if (GAME_ENGINE.keyW){this.direction = "up";}
@@ -189,19 +191,22 @@ Player.prototype.update = function () {
             
             this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
             if (GAME_ENGINE.keyW === true) {
-                this.y -= this.actualSpeed;
+               // this.y -= this.actualSpeed;
                 this.runDirection = "up";
                 this.animationIdle = this.animationRunUp;
-            } else if (GAME_ENGINE.keyA === true) {
-                this.x -= this.actualSpeed;
+            }
+            if (GAME_ENGINE.keyS === true) {
+                // this.y += this.actualSpeed;
+                 this.runDirection = "down";
+                 this.animationIdle = this.animationRunDown;
+             } 
+            if (GAME_ENGINE.keyA === true) {
+                //this.x -= this.actualSpeed;
                 this.runDirection = "left";
                 this.animationIdle = this.animationRunSide;
-            } else if (GAME_ENGINE.keyS === true) {
-                this.y += this.actualSpeed;
-                this.runDirection = "down";
-                this.animationIdle = this.animationRunDown;
-            } else if (GAME_ENGINE.keyD === true) {
-                this.x += this.actualSpeed;
+            }
+            if (GAME_ENGINE.keyD === true) {
+               // this.x += this.actualSpeed;
                 this.runDirection = "right";
                 this.animationIdle = this.animationRunSide;
             }
@@ -209,14 +214,15 @@ Player.prototype.update = function () {
             /* #endregion */
 
             if (GAME_ENGINE.shoot) {
+                var direction;
                 if (this.shootCounter >= this.maxShootCounter) {
-                    var direction = "down";
+                    direction = "down";
                     if (GAME_ENGINE.keyUp === true) {
-                        var direction = "up";
+                        direction = "up";
                     } else if (GAME_ENGINE.keyLeft === true) {
-                        var direction = "left";
+                        direction = "left";
                     } else if (GAME_ENGINE.keyRight === true) {
-                        var direction = "right";
+                        direction = "right";
                     } 
                     this.shootDirection = direction;
                     var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
