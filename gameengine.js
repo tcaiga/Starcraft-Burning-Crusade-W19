@@ -1,7 +1,3 @@
-// Global Array that holds character sprites.
-// The first index of the array is the mage, second being ranger, and third being knight.
-// Each index contains a JSON object which has the left and right faces for the sprites.
-// and the x and y offset to get bounds for room correct.
 var myPlayer;
 const EntityTypes = {
     menu: 0,
@@ -85,23 +81,7 @@ GameEngine.prototype.startInput = function () {
         } else if (myPlayer.dead) {
             SCENE_MANAGER.playAgain(x, y);
         }
-        // else {
-        //     if (!myPlayer.dead) {
-        //         // Projectile
-        //         var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
-        //             myPlayer.x - (myPlayer.width / 2),
-        //             myPlayer.y - (myPlayer.height / 2), x, y, 5);
-        //         GAME_ENGINE.addEntity(projectile);
-        //     } else {
-        //         SCENE_MANAGER.playAgain(x, y);
-        //     }
-        // }
     }, false);
-
-    // // event listeners are added here
-    // this.ctx.canvas.addEventListener("mouseup", function (e) {
-    //     that.mouseClick = false;
-    // }, false);
 
     this.ctx.canvas.addEventListener("mousemove", function (e) {
         that.mouseX = getXandY(e).x;
