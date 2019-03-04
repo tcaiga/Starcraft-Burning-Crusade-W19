@@ -270,7 +270,7 @@ Player.prototype.shootProjectile = function (direction) {
         xTar = myPlayer.x + (myPlayer.width / 2) + 8;
         yTar = myPlayer.y + myPlayer.height + 4;
     }
-    var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
+    var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
         myPlayer.x + 4,
         myPlayer.y - (myPlayer.height / 2),
          xTar, yTar, 5);
@@ -311,8 +311,10 @@ Player.prototype.changeHealth = function (amount) {
 function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) {
     this.origin = belongsTo;
 
-    this.width = 100;
-    this.height = 100;
+    // this.width = 100;
+    // this.height = 100;
+    this.width = 13;
+    this.height = 13;
     this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
 
     this.targetType = 4;
@@ -351,7 +353,8 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo) 
 
 Projectile.prototype.draw = function () {
     (typeof this.childDraw === 'function') ? this.childDraw() : null;
-    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x + this.aniX, this.y + this.aniY);
+    //this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x + this.aniX, this.y + this.aniY);
+    GAME_ENGINE.ctx.drawImage(this.spriteSheet, this.x, this.y, this.width, this.height);
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = color_yellow;
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
@@ -604,9 +607,10 @@ AM.queueDownload("./img/terran/marine/marine_shoot_right.png");
 AM.queueDownload("./img/terran/marine/marine_shoot_up.png");
 AM.queueDownload("./img/terran/marine/marine_shoot_down.png");
 AM.queueDownload("./img/terran/marine/marine_death.png");
+AM.queueDownload("./img/terran/bullet.png");
 
 // Sunken Spike
-AM.queueDownload("./img/zerg/extras/sunken_spike.png");
+AM.queueDownload("./img/zerg/sunken_spike.png");
 
 // Hydralisk
 AM.queueDownload("./img/zerg/hydra/hydra_move_right.png");
