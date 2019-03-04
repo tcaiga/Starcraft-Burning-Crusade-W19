@@ -33,8 +33,12 @@ function GameEngine() {
     this.keyS = false;
     this.keyD = false;
     this.keyW = false;
+    this.keyUp = false;
+    this.keyLeft = false;
+    this.keyRight = false;
+    this.keyDown = false;
     this.digit = [false, false, false, false, false, false, false, false, false, false];
-    this.mouseClick = false;
+    this.shoot = false;
     this.mouseX = 0;
     this.mouseY = 0;
     this.keyShift = false;
@@ -72,13 +76,8 @@ GameEngine.prototype.startInput = function () {
     }
 
     var that = this;
-    // event listeners are added here
-    this.ctx.canvas.addEventListener("mouseup", function (e) {
-        that.mouseClick = false;
-    }, false);
-
+  
     this.ctx.canvas.addEventListener("mousedown", function (e) {
-        that.mouseClick = true;
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
         var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
         if (SCENE_MANAGER.insideMenu) {
@@ -110,31 +109,17 @@ GameEngine.prototype.startInput = function () {
         }
 
         if (e.code === "ArrowUp") {
-            // Projectile
-            var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
-                myPlayer.x + 4,
-                myPlayer.y - (myPlayer.height / 2), myPlayer.x  + (myPlayer.width / 2) + 8, myPlayer.y, 5);
-            GAME_ENGINE.addEntity(projectile);
+            that.shoot = true;
+            that.keyUp = true;
         } else if (e.code === "ArrowLeft") {
-            // Projectile
-            var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
-                myPlayer.x + 4,
-                myPlayer.y - (myPlayer.height / 2), myPlayer.x  - 4,
-                myPlayer.y - (myPlayer.height / 2), 5);
-            GAME_ENGINE.addEntity(projectile);
+            that.shoot = true;
+            that.keyLeft = true;
         } else if (e.code === "ArrowRight") {
-            // Projectile
-            var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
-                myPlayer.x + 4,
-                myPlayer.y - (myPlayer.height / 2), myPlayer.x  + myPlayer.width + 4,
-                myPlayer.y - (myPlayer.height / 2), 5);
-            GAME_ENGINE.addEntity(projectile);
+            that.shoot = true;
+            that.keyRight = true;
         } else if (e.code === "ArrowDown") {
-            // Projectile
-            var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
-                myPlayer.x + 4,
-                myPlayer.y - (myPlayer.height / 2), myPlayer.x  + 4, myPlayer.y + myPlayer.height + 4, 5);
-            GAME_ENGINE.addEntity(projectile);
+            that.shoot = true;
+            that.keyDown = true;
         }
 
         //Abilities
@@ -165,6 +150,16 @@ GameEngine.prototype.startInput = function () {
             that.keyD = false;
         }
 
+        if (e.code === "ArrowUp") {
+            that.keyUp = false;
+        } else if (e.code === "ArrowLeft") {
+            that.keyLeft = false;
+        } else if (e.code === "ArrowRight") {
+            that.keyRight = false;
+        } else if (e.code === "ArrowDown") {
+            that.keyDown = false;
+        }
+
         //Abilities
         if (e.code.includes("Digit")) {
             that.digit[parseInt(e.code.charAt(5))] = false;
@@ -173,6 +168,12 @@ GameEngine.prototype.startInput = function () {
           then movement is still happening. */
         if (!that.keyW && !that.keyA && !that.keyS && !that.keyD) {
             that.movement = false;
+        }
+
+        /*if key is still being pressed down when another key is pressed up
+          then movement is still happening. */
+          if (!that.keyUp && !that.keyLeft && !that.keyRight && !that.keyDown) {
+            that.shoot = false;
         }
     }, false);
 }

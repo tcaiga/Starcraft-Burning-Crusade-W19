@@ -21,7 +21,7 @@ const TILE_SIZE = 16;
 /* #endregion */
 
 /* #region Player */
-function Player(runSheets, shootSheet, deathSheet, xOffset, yOffset) {
+function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     console.log(runSheets);
     // Relevant for Player box
     this.width = 32;
@@ -32,7 +32,9 @@ function Player(runSheets, shootSheet, deathSheet, xOffset, yOffset) {
     this.animationRunSide = new Animation(runSheets["side"], this.width, this.height, 1, 0.04, 9, true, this.scale);
     this.animationRunUp = new Animation(runSheets["up"], this.width, this.height, 1, 0.04, 9, true, this.scale);
     this.animationRunDown = new Animation(runSheets["down"], this.width, this.height, 1, 0.04, 9, true, this.scale);
-    this.animationShoot = new Animation(shootSheet, this.width, this.height, 1, 0.04, 2, true, this.scale);
+    this.animationShootSide = new Animation(shootSheets["side"], this.width, this.height, 1, 0.04, 2, true, this.scale);
+    this.animationShootUp = new Animation(shootSheets["up"], this.width, this.height, 1, 0.04, 2, true, this.scale);
+    this.animationShootDown = new Animation(shootSheets["down"], this.width, this.height, 1, 0.04, 2, true, this.scale);
     this.animationDeath = new Animation(deathSheet, 65, 40, 1, 0.04, 8, true, this.scale);
     this.animationIdle = this.animationRunSide;
     this.x = 60;
@@ -55,8 +57,11 @@ function Player(runSheets, shootSheet, deathSheet, xOffset, yOffset) {
     this.maxMovespeedRatio = 1;
     this.maxMovespeedAdj = 0;
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
-    this.direction = "right";
-    this.maxHealth = 100;
+    this.runDirection = "right";
+    this.shootDirection = "right";
+    this.maxShootCounter = 0.3;
+    this.shootCounter = this.maxShootCounter;
+    this.maxHealth = 1000;
     this.health = this.maxHealth;
     this.healthPercent = 100;
     this.dontdraw = 0;
@@ -69,25 +74,48 @@ Player.prototype.draw = function () {
     GAME_ENGINE.ctx.strokeRect(CAMERA.x, CAMERA.y, canvasWidth - 1, canvasHeight - 1);
     this.xScale = 1;
     var xValue = this.x;
-    if (this.direction === "left") {
-        GAME_ENGINE.ctx.save();
-        GAME_ENGINE.ctx.scale(-1, 1);
-        this.xScale = -1;
-        xValue = -this.x - this.width;
-    }
     //draw player character with no animation if player is not currently moving
     if (this.dontdraw <= 0) {
         if (this.dead) {
             this.animationDeath.drawFrameAniThenIdle(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
         } else {
-            if (GAME_ENGINE.mouseClick === true) {
-                this.animationShoot.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y)
-             } else if (!GAME_ENGINE.movement) {
+            // if statements for shooting logic
+            if (GAME_ENGINE.shoot === true) {
+                // if statements for running logic
+                if (this.shootDirection === "left") {
+                    GAME_ENGINE.ctx.save();
+                    GAME_ENGINE.ctx.scale(-1, 1);
+                    this.xScale = -1;
+                    xValue = -this.x - this.width;
+                }
+                if (this.shootDirection === "left" || this.shootDirection === "right") {
+                    this.animationShootSide.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                } else if (this.shootDirection === "up") {
+                    this.animationShootUp.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                } else {
+                    this.animationShootDown.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                }
+            } else if (!GAME_ENGINE.movement) {
+                // if statements for running logic
+                if (this.runDirection === "left") {
+                    GAME_ENGINE.ctx.save();
+                    GAME_ENGINE.ctx.scale(-1, 1);
+                    this.xScale = -1;
+                    xValue = -this.x - this.width;
+                }
+                //animation for when player is not moving or shooting
                 this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
             } else {
-                if (this.direction === "left" || this.direction === "right") {
+                // if statements for running logic
+                if (this.runDirection === "left") {
+                    GAME_ENGINE.ctx.save();
+                    GAME_ENGINE.ctx.scale(-1, 1);
+                    this.xScale = -1;
+                    xValue = -this.x - this.width;
+                }
+                if (this.runDirection === "left" || this.runDirection === "right") {
                     this.animationRunSide.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
-                } else if (this.direction === "up") {
+                } else if (this.runDirection === "up") {
                     this.animationRunUp.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
                 } else {
                     this.animationRunDown.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
@@ -112,59 +140,83 @@ Player.prototype.update = function () {
         this.velocity = (this.castTime > 0 || this.isStunned) ? {x:0,y:0} : this.velocity;
         if (this.castTime <= 0 && !this.isStunned) {
             /* #region Player movement controls */
+
             
-            //Speed shift calculation
-            let speedShift = {x:this.baseAcceleration.x * this.accelerationRatio + this.accelerationAdj
-                            ,y:this.baseAcceleration.y * this.accelerationRatio + this.accelerationAdj};
-            //I love lambda...
-            //Friction
-            this.velocity.x = (this.velocity.x < .1 && this.velocity.x > -.1) ? 0 : this.velocity.x - Math.sign(this.velocity.x)*this.friction;
-            this.velocity.y = (this.velocity.y < .1 && this.velocity.y > -.1) ? 0 : this.velocity.y - Math.sign(this.velocity.y)*this.friction;
+//             //Speed shift calculation
+//             let speedShift = {x:this.baseAcceleration.x * this.accelerationRatio + this.accelerationAdj
+//                             ,y:this.baseAcceleration.y * this.accelerationRatio + this.accelerationAdj};
+//             //I love lambda...
+//             //Friction
+//             this.velocity.x = (this.velocity.x < .1 && this.velocity.x > -.1) ? 0 : this.velocity.x - Math.sign(this.velocity.x)*this.friction;
+//             this.velocity.y = (this.velocity.y < .1 && this.velocity.y > -.1) ? 0 : this.velocity.y - Math.sign(this.velocity.y)*this.friction;
 
-            //Application of acceleration
-            this.velocity.x += (GAME_ENGINE.keyD) ? speedShift.x : 0;
-            this.velocity.x -= (GAME_ENGINE.keyA) ? speedShift.x : 0;
-            this.velocity.y -= (GAME_ENGINE.keyW) ? speedShift.y : 0;
-            this.velocity.y += (GAME_ENGINE.keyS) ? speedShift.y : 0;
+//             //Application of acceleration
+//             this.velocity.x += (GAME_ENGINE.keyD) ? speedShift.x : 0;
+//             this.velocity.x -= (GAME_ENGINE.keyA) ? speedShift.x : 0;
+//             this.velocity.y -= (GAME_ENGINE.keyW) ? speedShift.y : 0;
+//             this.velocity.y += (GAME_ENGINE.keyS) ? speedShift.y : 0;
 
-            //Check max
-            this.velocity.x = (Math.abs(this.velocity.x) > this.baseMaxMovespeed) ? Math.sign(this.velocity.x) * this.baseMaxMovespeed : this.velocity.x;
-            this.velocity.y = (Math.abs(this.velocity.y) > this.baseMaxMovespeed) ? Math.sign(this.velocity.y) * this.baseMaxMovespeed : this.velocity.y;
-            let mag = Math.sqrt(Math.pow(this.velocity.x,2) + Math.pow(this.velocity.y,2));
-            if (mag > this.baseMaxMovespeed) {//Circle max movespeed
-                this.velocity.x = this.baseMaxMovespeed * this.velocity.x / mag;
-                this.velocity.y = this.baseMaxMovespeed * this.velocity.y / mag;
+//             //Check max
+//             this.velocity.x = (Math.abs(this.velocity.x) > this.baseMaxMovespeed) ? Math.sign(this.velocity.x) * this.baseMaxMovespeed : this.velocity.x;
+//             this.velocity.y = (Math.abs(this.velocity.y) > this.baseMaxMovespeed) ? Math.sign(this.velocity.y) * this.baseMaxMovespeed : this.velocity.y;
+//             let mag = Math.sqrt(Math.pow(this.velocity.x,2) + Math.pow(this.velocity.y,2));
+//             if (mag > this.baseMaxMovespeed) {//Circle max movespeed
+//                 this.velocity.x = this.baseMaxMovespeed * this.velocity.x / mag;
+//                 this.velocity.y = this.baseMaxMovespeed * this.velocity.y / mag;
+//             }
+
+//             //Application of velocity
+//             this.x += this.velocity.x;
+//             this.y += this.velocity.y;
+
+//             //Animation direction
+//             if (GAME_ENGINE.keyW){this.direction = "up";}
+//             else if (GAME_ENGINE.keyA){this.direction = "left";}
+//             else if (GAME_ENGINE.keyS){this.direction = "down";}
+//             else if (GAME_ENGINE.keyD){this.direction = "right";}
+
+
+
+            
+            this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
+            if (GAME_ENGINE.keyW === true) {
+                this.y -= this.actualSpeed;
+                this.runDirection = "up";
+                this.animationIdle = this.animationRunUp;
+            } else if (GAME_ENGINE.keyA === true) {
+                this.x -= this.actualSpeed;
+                this.runDirection = "left";
+                this.animationIdle = this.animationRunSide;
+            } else if (GAME_ENGINE.keyS === true) {
+                this.y += this.actualSpeed;
+                this.runDirection = "down";
+                this.animationIdle = this.animationRunDown;
+            } else if (GAME_ENGINE.keyD === true) {
+                this.x += this.actualSpeed;
+                this.runDirection = "right";
+                this.animationIdle = this.animationRunSide;
             }
 
-            //Application of velocity
-            this.x += this.velocity.x;
-            this.y += this.velocity.y;
-
-            //Animation direction
-            if (GAME_ENGINE.keyW){this.direction = "up";}
-            else if (GAME_ENGINE.keyA){this.direction = "left";}
-            else if (GAME_ENGINE.keyS){this.direction = "down";}
-            else if (GAME_ENGINE.keyD){this.direction = "right";}
-
-
-            //IF MISTAKE (or preferred) USE OLD MOVEMENT
-            // this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
-            // if (GAME_ENGINE.keyW === true) {
-            //     this.y -= this.actualSpeed;
-            //     this.direction = "up";
-            // } else if (GAME_ENGINE.keyA === true) {
-            //     this.x -= this.actualSpeed;
-            //     this.direction = "left";
-            // } else if (GAME_ENGINE.keyS === true) {
-            //     this.y += this.actualSpeed;
-            //     this.direction = "down";
-            // } else if (GAME_ENGINE.keyD === true) {
-            //     this.x += this.actualSpeed;
-            //     this.direction = "right";
-            // }
-            
-
             /* #endregion */
+
+            if (GAME_ENGINE.shoot) {
+                if (this.shootCounter >= this.maxShootCounter) {
+                    var direction = "down";
+                    if (GAME_ENGINE.keyUp === true) {
+                        var direction = "up";
+                    } else if (GAME_ENGINE.keyLeft === true) {
+                        var direction = "left";
+                    } else if (GAME_ENGINE.keyRight === true) {
+                        var direction = "right";
+                    } 
+                    this.shootDirection = direction;
+                    this.shootProjectile(direction);
+                    this.shootCounter = 0;
+                } else {
+                    this.shootCounter += GAME_ENGINE.clockTick;
+                }
+            }
+
         } else {
             this.castTime--;
         }
@@ -246,6 +298,28 @@ Player.prototype.update = function () {
             this.width, this.height);
     }
 
+}
+
+Player.prototype.shootProjectile = function (direction) {
+    var xTar = myPlayer.x;
+    var yTar = myPlayer.y;
+    if (direction === "up") {
+        xTar = myPlayer.x + (myPlayer.width / 2) + 8;
+    } else if (direction === "left") {
+        xTar = myPlayer.x - 8;
+        yTar = myPlayer.y + (myPlayer.height / 2) + 3;
+    } else if (direction === "right") {
+        xTar = myPlayer.x + myPlayer.width + 8;
+        yTar = myPlayer.y + (myPlayer.height / 2) + 3;
+    } else {
+        xTar = myPlayer.x + (myPlayer.width / 2) + 8;
+        yTar = myPlayer.y + myPlayer.height + 4;
+    }
+    var projectile = new Projectile(AM.getAsset("./img/fireball.png"),
+        myPlayer.x + 4,
+        myPlayer.y - (myPlayer.height / 2),
+         xTar, yTar, 5);
+    GAME_ENGINE.addEntity(projectile);
 }
 
 Player.prototype.changeHealth = function (amount) {
@@ -572,10 +646,12 @@ AM.queueDownload("./img/terran/marine/marine_move_right.png");
 AM.queueDownload("./img/terran/marine/marine_move_up.png");
 AM.queueDownload("./img/terran/marine/marine_move_down.png");
 AM.queueDownload("./img/terran/marine/marine_shoot_right.png");
+AM.queueDownload("./img/terran/marine/marine_shoot_up.png");
+AM.queueDownload("./img/terran/marine/marine_shoot_down.png");
 AM.queueDownload("./img/terran/marine/marine_death.png");
 
 // Sunken Spike
-AM.queueDownload("./img/zerg/extras/sunken_spike.png");
+AM.queueDownload("./img/zerg/sunken_spike.png");
 
 // Hydralisk
 AM.queueDownload("./img/zerg/hydra/hydra_move_right.png");
