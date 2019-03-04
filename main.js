@@ -483,7 +483,7 @@ Camera.prototype.getStartingRoom = function () {
     var roomNum = 0;
     for (var i = 0; i < BACKGROUND.map.length; i++) {
         for (var j = 0; j < BACKGROUND.map[i].length; j++) {
-            if (BACKGROUND.map[i][j] === 2) {
+            if (BACKGROUND.map[i][j] === 8) {
                 this.currentRoom = roomNum;
             }
 
