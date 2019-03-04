@@ -167,12 +167,16 @@ GameEngine.prototype.startInput = function () {
 
         if (e.code === "ArrowUp") {
             that.keyUp = false;
+            myPlayer.shootCounter = myPlayer.maxShootCounter;
         } else if (e.code === "ArrowLeft") {
             that.keyLeft = false;
+            myPlayer.shootCounter = myPlayer.maxShootCounter;
         } else if (e.code === "ArrowRight") {
             that.keyRight = false;
+            myPlayer.shootCounter = myPlayer.maxShootCounter;
         } else if (e.code === "ArrowDown") {
             that.keyDown = false;
+            myPlayer.shootCounter = myPlayer.maxShootCounter;
         }
 
         //Abilities
