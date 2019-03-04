@@ -94,20 +94,6 @@ Background.prototype.decorateRoom = function () {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
                         testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left"));
                 }
-                
-                if (this.drawFaceCount > 0) {
-                    if (this.map[i][j] === 4) {
-                        for (let r = 1; r < 4; r++) {
-                            for (let s = 1; s < 4; s++) {
-                                // 9 infested terrans appear in the shape of a cube spaced out.
-                                var infested = new Infested(AM.getAsset("./img/zerg/infested/infested_move_right.png"),
-                                testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
-                                testPos[1] * canvasHeight + (s * 160) + BACKGROUND.y - 10);
-                                GAME_ENGINE.addEntity(infested);
-                            }
-                        }
-                    }
-                }
 
                 // Adding a door to go back for all rooms except starting room.
                 if (this.drawFaceCount < this.facePos.length - 1) {
@@ -143,24 +129,39 @@ Background.prototype.decorateRoom = function () {
                             testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right"));
                     }
                 }
-                
-                if (this.drawFaceCount % 3 === 0) {
-                    var zergling = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                    testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
 
-                    GAME_ENGINE.addEntity(zergling);
-                } else if (this.drawFaceCount % 3 === 1) {
-                    var hydralisk = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"),
-                    testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-
-                    GAME_ENGINE.addEntity(hydralisk);
-                } else if (this.drawFaceCount % 3 === 2) {
-                    var ultralisk = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
-                    testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-
-                    GAME_ENGINE.addEntity(ultralisk);
+                // Populating rooms with infested terran traps, monsters, and puzzles
+                if (this.drawFaceCount > 0) {
+                    if (this.map[testPos[1]][testPos[0]] === 1) {
+                        if (this.drawFaceCount % 3 === 0) {
+                            var zergling = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+        
+                            GAME_ENGINE.addEntity(zergling);
+                        } else if (this.drawFaceCount % 3 === 1) {
+                            var hydralisk = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+        
+                            GAME_ENGINE.addEntity(hydralisk);
+                        } else if (this.drawFaceCount % 3 === 2) {
+                            var ultralisk = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+        
+                            GAME_ENGINE.addEntity(ultralisk);
+                        }
+                    } else if (this.map[testPos[1]][testPos[0]] === 2) {
+                        for (let r = 1; r < 4; r++) {
+                            for (let s = 1; s < 4; s++) {
+                                // 9 infested terrans appear in the shape of a cube spaced out.
+                                var infested = new Infested(AM.getAsset("./img/zerg/infested/infested_move_right.png"),
+                                testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
+                                testPos[1] * canvasHeight + (s * 160) + BACKGROUND.y - 10);
+                                GAME_ENGINE.addEntity(infested);
+                            }
+                        }
+                    }
                 }
-
+                
                 this.drawFaceCount++;
             }
         }
