@@ -25,11 +25,8 @@
 <body>
     <div class="wrapper">
         <canvas id="canvas" tabindex="1" width="640" height="640"></canvas>
-        <div id="hud">
-            <img id="hudImg" draggable="false" src="./img/utilities/hud.png" />
-            <h5 id="volumeLabel">Volume:</h5>
-            <input type="range" min="0.0" max="0.2" value="0.1" step="0.02" class="slider" id="volumeSlider">
-
+        <div id="hudInfo">
+            <img id="hudImg" draggable="false" src="./img/utilities/hud_info.png" />
             <img class ="spellImg" draggable="false" src="./img/abilities/grenade_launcher.png" style="top:13%"/>
             <h4 class="spellLabel" style="top: 5%;">1 -
                 <h5 id="spell1" class="spell" style="top: 5%;">Ready</h5>
@@ -49,36 +46,8 @@
             <h4 class="spellLabel" style="top: 53%;">4 -
                 <h5 id="spell4" class="spell" style="top: 53%;">Ready</h5>
             </h4>
-
-
-            <div id="room0" class="room" style="top:39%; left:5.5%"></div>
-            <div id="room1" class="room" style="top:39%; left:9%"></div>
-            <div id="room2" class="room" style="top:39%; left:12.5%"></div>
-            <div id="room3" class="room" style="top:39%; left:16%"></div>
-            <div id="room4" class="room" style="top:39%; left:19.5%"></div>
-            <div id="room5" class="room" style="top:50%; left:5.5%"></div>
-            <div id="room6" class="room" style="top:50%; left:9%"></div>
-            <div id="room7" class="room" style="top:50%; left:12.5%"></div>
-            <div id="room8" class="room" style="top:50%; left:16%"></div>
-            <div id="room9" class="room" style="top:50%; left:19.5%"></div>
-            <div id="room10" class="room" style="top:61%; left:5.5%"></div>
-            <div id="room11" class="room" style="top:61%; left:9%"></div>
-            <div id="room12" class="room" style="top:61%; left:12.5%"></div>
-            <div id="room13" class="room" style="top:61%; left:16%"></div>
-            <div id="room14" class="room" style="top:61%; left:19.5%"></div>
-            <div id="room15" class="room" style="top:72%; left:5.5%"></div>
-            <div id="room16" class="room" style="top:72%; left:9%"></div>
-            <div id="room17" class="room" style="top:72%; left:12.5%"></div>
-            <div id="room18" class="room" style="top:72%; left:16%"></div>
-            <div id="room19" class="room" style="top:72%; left:19.5%"></div>
-            <div id="room20" class="room" style="top:83%; left:5.5%"></div>
-            <div id="room21" class="room" style="top:83%; left:9%"></div>
-            <div id="room22" class="room" style="top:83%; left:12.5%"></div>
-            <div id="room23" class="room" style="top:83%; left:16%"></div>
-            <div id="room24" class="room" style="top:83%; left:19.5%"></div>
-
             <h6 id="healthLabel">Health
-                <h5 id ="health"></h5>
+                <h5 id ="health">1000</h5>
             </h6>
             <h4 id="levelLabel">Level:
                 <h4 id ="level">1</h4>
@@ -86,7 +55,42 @@
             <h4 id="scoreLabel">Score:
                 <h4 id ="score">0</h4>
             </h4>
+            <h4 id="ammoLabel">Ammo:</h4>
+            <img id="ammoImg" draggable="false" src="./img/utilities/ammo_count/bullet_13.png" />
             <img id="healthImg" draggable="false" src="./img/health_wireframe/green_health.png" />
+
+
+        </div>
+
+        <div id="hudMinimap">
+            <img id="hudImg" draggable="false" src="./img/utilities/hud_minimap.png" />
+            <h5 id="volumeLabel">Volume:</h5>
+            <input type="range" min="0.0" max="0.2" value="0.1" step="0.02" class="slider" id="volumeSlider">
+            <div id="room0" class="room" style="top:11%; left:24%"></div>
+            <div id="room1" class="room" style="top:11%; left:36.5%"></div>
+            <div id="room2" class="room" style="top:11%; left:49%"></div>
+            <div id="room3" class="room" style="top:11%; left:61.5%"></div>
+            <div id="room4" class="room" style="top:11%; left:74%"></div>
+            <div id="room5" class="room" style="top:20%; left:24%"></div>
+            <div id="room6" class="room" style="top:20%; left:36.5%"></div>
+            <div id="room7" class="room" style="top:20%; left:49%"></div>
+            <div id="room8" class="room" style="top:20%; left:61.5%"></div>
+            <div id="room9" class="room" style="top:20%; left:74%"></div>
+            <div id="room10" class="room" style="top:29%; left:24%"></div>
+            <div id="room11" class="room" style="top:29%; left:36.5%"></div>
+            <div id="room12" class="room" style="top:29%; left:49%"></div>
+            <div id="room13" class="room" style="top:29%; left:61.5%"></div>
+            <div id="room14" class="room" style="top:29%; left:74%"></div>
+            <div id="room15" class="room" style="top:38%; left:24%"></div>
+            <div id="room16" class="room" style="top:38%; left:36.5%"></div>
+            <div id="room17" class="room" style="top:38%; left:49%"></div>
+            <div id="room18" class="room" style="top:38%; left:61.5%"></div>
+            <div id="room19" class="room" style="top:38%; left:74%"></div>
+            <div id="room20" class="room" style="top:47%; left:24%"></div>
+            <div id="room21" class="room" style="top:47%; left:36.5%"></div>
+            <div id="room22" class="room" style="top:47%; left:49%"></div>
+            <div id="room23" class="room" style="top:47%; left:61.5%"></div>
+            <div id="room24" class="room" style="top:47%; left:74%"></div>
 
 
         </div>
