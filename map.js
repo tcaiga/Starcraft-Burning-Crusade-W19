@@ -78,8 +78,8 @@ Background.prototype.decorateRoom = function () {
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
             // Drawing doors
+            let testPos = this.facePos[this.drawFaceCount];
             if (this.drawFaceCount < this.maxRoomCount && this.map[i][j] !== 0) {
-                let testPos = this.facePos[this.drawFaceCount];
                 let forwardDoorState = "closed";
                 let backwardDoorState = "open";
                 // Adding a door to go forward for all rooms except the ending room.
@@ -166,9 +166,16 @@ Background.prototype.decorateRoom = function () {
                         }
                     }
                 }
-                
+
                 this.drawFaceCount++;
             }
+            // Adding a boss to the final room
+            // if (this.map[testPos[1]][testPos[0]] === 9) {
+            //     var zerg_boss = new Zerg_Boss(AM.getAsset("./img/buildings/gravemind.png"),
+            //     testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
+
+            //     GAME_ENGINE.addEntity(zerg_boss);
+            // }
             roomNumber++;
         }
     }

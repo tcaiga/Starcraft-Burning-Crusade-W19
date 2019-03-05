@@ -115,9 +115,8 @@ Monster.prototype.update = function () {
 
     if (this.isBoss) {
         this.bossBehavior();
-    } else {
-
     }
+
     if (this.health <= 0) {
         this.removeFromWorld = true;
         GAME_ENGINE.removeEntity(this);
@@ -138,13 +137,19 @@ Monster.prototype.update = function () {
 
 
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        this.counter += GAME_ENGINE.clockTick;
-        this.damageObj.ApplyEffects(myPlayer);
-        this.pause = true;
-        if (this.counter > .018 && myPlayer.health > 0) {
+        if (this.isInfested) {
+            // do explosion animation and damage player
+            // then die
+            this.health = 0;
+        } else {
+            this.counter += GAME_ENGINE.clockTick;
+            this.damageObj.ApplyEffects(myPlayer);
+            this.pause = true;
+            if (this.counter > .018 && myPlayer.health > 0) {
             //player.health -= 5;
+            this.counter = 0;
+            }
         }
-        this.counter = 0;
     }
 
     // based on the number of ticks since the player was last hit, we pause the monster
@@ -336,6 +341,7 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
+    this.isInfested = true;
 
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
@@ -348,6 +354,10 @@ function Infested(spriteSheet, x, y, roomNumber) {
 
     this.counter = 0;
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+}
+
+Infested.prototype.infestedBehavior = function() {
+
 }
 
 function Ultralisk(spriteSheet, x, y, roomNumber) {
