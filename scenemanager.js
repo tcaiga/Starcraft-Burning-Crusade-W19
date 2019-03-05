@@ -126,16 +126,14 @@ SceneManager.prototype.gameInit = function () {
         },
         AM.getAsset("./img/terran/marine/marine_death.png"), 0, 9);
 
-    //console.log(myPlayer);
-
     GAME_ENGINE.addEntity(myPlayer);
-    document.getElementById("health").innerHTML = myPlayer.health;
+    myPlayer.updateHealthHTML();
+    //document.getElementById("ammo").innerHTML = myPlayer.maxAmmo;
     GAME_ENGINE.addEntity(CAMERA);
 
     CAMERA.getStartingRoom();
     BACKGROUND.createWalls();
     BACKGROUND.decorateRoom();
-    document.getElementById("hud").style.display = "block";
-    console.table(BACKGROUND.map);
-    console.log(GAME_ENGINE.entities);
+    document.getElementById("hudInfo").style.display = "block";
+    document.getElementById("hudMinimap").style.display = "block";
 }

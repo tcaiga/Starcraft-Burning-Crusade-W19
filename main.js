@@ -24,7 +24,6 @@ const TILE_SIZE = 16;
 
 /* #region Player */
 function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
-    console.log(runSheets);
     // Relevant for Player box
     this.width = 32;
     this.height = 32;
@@ -61,7 +60,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
     this.runDirection = "right";
     this.shootDirection = "right";
-    this.maxAmmo = 12;
+    this.maxAmmo = 13;
     this.currentAmmo = this.maxAmmo;
     this.reloadTime = 80;
     this.reloadCounter = 0;
@@ -83,15 +82,12 @@ Player.prototype.draw = function () {
     if (this.dontdraw <= 0) {
         if (this.dead) {
             this.animationDeath.drawFrameAniThenIdle(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+            /* displays text for game over screen*/
             GAME_ENGINE.ctx.font = "50px Starcraft";
-            //console.log(GAME_ENGINE.ctx.measureText("Game Over"));
             GAME_ENGINE.ctx.fillStyle = color_red;
             GAME_ENGINE.ctx.fillText("Game Over", 135, 200);
             GAME_ENGINE.ctx.font = "30px Starcraft";
-            //console.log(GAME_ENGINE.ctx.measureText("Play Again"));
             GAME_ENGINE.ctx.fillText("Play Again", 208, 275);
-            // GAME_ENGINE.ctx.strokeStyle = color_red;
-            // GAME_ENGINE.ctx.strokeRect(205, 253, 230, 28);
         } else {
             // if statements for shooting logic
             if (GAME_ENGINE.shoot === true && this.currentAmmo > 0) {
@@ -242,7 +238,8 @@ Player.prototype.update = function () {
                     this.shootCounter += GAME_ENGINE.clockTick;
                 }
             }
-
+            //updates ammo img based on current ammo count
+            document.getElementById("ammoImg").src = "./img/utilities/ammo_count/bullet_" + this.currentAmmo + ".png";
         } else {
             this.castTime--;
         }
@@ -342,7 +339,8 @@ Player.prototype.changeHealth = function (amount) {
 
     this.health += amount;//Damage will come in as a negative value;
     this.healthPercent = Math.floor(this.health / this.maxHealth * 100);
-    document.getElementById("health").innerHTML = this.health;
+    this.updateHealthHTML(this.health);
+    //changes color of health wireframe based on health percentage
     var healthImg = document.getElementById("healthImg");
     if (this.healthPercent >= 90) {
         healthImg.src = "./img/health_wireframe/green_health.png";
@@ -352,6 +350,21 @@ Player.prototype.changeHealth = function (amount) {
         healthImg.src = "./img/health_wireframe/orange_health.png";
     } else {
         healthImg.src = "./img/health_wireframe/red_health.png";
+    }
+}
+
+//centers health in html based on number of digits
+Player.prototype.updateHealthHTML = function () {
+    var healthHTML = document.getElementById("health");
+    healthHTML.innerHTML = this.health;
+    if (this.health >= 1000) {
+        healthHTML.style.left = "9%";
+    } else if (this.health >= 100) {
+        healthHTML.style.left = "11%";
+    } else if (this.health >= 10) {
+        healthHTML.style.left = "13%";
+    } else {
+        healthHTML.style.left = "15%";
     }
 }
 /* #endregion */
@@ -644,7 +657,26 @@ function addHTMLListeners() {
     var volumeSlider = document.getElementById("volumeSlider");
     volumeSlider.addEventListener("change", function () {
         music.volume = volumeSlider.value;
+        myCurrentVolume = music.volume;
+        myIsMute = false;
+        muteButton.innerHTML = "Mute";
     }, false);
+    var muteButton = document.getElementById("muteButton");
+    muteButton.addEventListener("click", function () {
+        if (myIsMute) {
+            music.volume = myCurrentVolume;
+            volumeSlider.value = myCurrentVolume;
+            myCurrentVolume = music.volume;
+            myIsMute = false;
+            muteButton.innerHTML = "Mute";
+        } else {
+            myCurrentVolume = music.volume;
+            music.volume = 0.0;
+            muteButton.innerHTML = "Unmute";
+            volumeSlider.value = 0.0;
+            myIsMute = true;
+        }
+    });
 }
 
 /* #endregion */
@@ -710,7 +742,8 @@ AM.downloadAll(function () {
     GAME_ENGINE.start();
     GAME_ENGINE.addEntity(new Menu());
     AUDIO = new Audio();
-    document.getElementById("hud").style.display = "none";
+    document.getElementById("hudInfo").style.display = "none";
+    document.getElementById("hudMinimap").style.display = "none";
     addHTMLListeners();
     BACKGROUND = new Background();
     SCENE_MANAGER = new SceneManager();
