@@ -532,7 +532,7 @@ Camera.prototype.draw = function () {
 
 
 Camera.prototype.move = function (direction) {
-    var positionChange = TILE_SIZE * 4 + 40;
+    var positionChange = TILE_SIZE * 4 + 60;
     if (direction === "right") {
         this.x += canvasWidth;
         myPlayer.x += positionChange;
