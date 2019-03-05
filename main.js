@@ -695,6 +695,7 @@ AM.queueDownload("./img/buildings/gravemind.png");
 AM.queueDownload("./img/buildings/hive.png");
 AM.queueDownload("./img/buildings/infested_cc.png");
 AM.queueDownload("./img/buildings/ion_cannon.png");
+AM.queueDownload("./img/buildings/spawning_pool.png");
 
 // Marine
 AM.queueDownload("./img/terran/marine/marine_move_right.png");

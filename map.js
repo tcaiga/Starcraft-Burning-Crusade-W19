@@ -139,19 +139,23 @@ Background.prototype.decorateRoom = function () {
                     if (this.map[testPos[1]][testPos[0]] === 1) {
                         if (this.drawFaceCount % 3 === 0) {
                             var zergling = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-        
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+
                             GAME_ENGINE.addEntity(zergling);
                         } else if (this.drawFaceCount % 3 === 1) {
                             var hydralisk = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-        
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+
                             GAME_ENGINE.addEntity(hydralisk);
                         } else if (this.drawFaceCount % 3 === 2) {
                             var ultralisk = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
-        
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+
                             GAME_ENGINE.addEntity(ultralisk);
+
+                            var pool = new Zerg_Boss(AM.getAsset("./img/buildings/spawning_pool.png"),
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+                            GAME_ENGINE.addEntity(pool);
                         }
                     } else if (this.map[testPos[1]][testPos[0]] === 2) {
                         for (let r = 1; r < 4; r++) {
@@ -210,6 +214,7 @@ Background.prototype.generateSurvivalMap = function () {
                 let isTrapRoom = Math.floor(Math.random() * 3);
                 if (this.roomCount + 1 === this.maxRoomCount) {
                     this.map[this.row][this.col] = 9; // Ending Room
+
                 } else if (this.roomCount + 2 === this.maxRoomCount) {
                     if (isTrapRoom === 0) {
                         this.map[this.row][this.col] = 3; // Puzzle Room

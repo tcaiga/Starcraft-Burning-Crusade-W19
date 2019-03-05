@@ -26,6 +26,7 @@ function Monster(spriteSheet, x, y) {
     this.height = 56;
     this.animation = new Animation(spriteSheet, this.width, this.height,
         this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+    this.isFlippable = true;
 
     this.y = y;
     this.x = x;
@@ -66,7 +67,7 @@ Monster.prototype.draw = function () {
     // **************************************************************
     this.xScale = 1;
     var xValue = this.x;
-    if (!this.right) {
+    if (!this.right && this.isFlippable) {
         GAME_ENGINE.ctx.save();
         GAME_ENGINE.ctx.scale(-1, 1);
         this.xScale = -1;
@@ -419,11 +420,12 @@ function Zerg_Boss(spriteSheet, x, y) {
 
     // animation
     this.scale = 1.5;
-    this.width = 128;
-    this.height = 76;
+    this.width = 100;
+    this.height = 75;
     this.numOfFrames = 4;
     this.frameLength = .15;
-    this.sheetWidth = 512;
+    this.sheetWidth = 1;
+    this.isFlippable = false;
 
     // gameplay
     this.speed = 0;
