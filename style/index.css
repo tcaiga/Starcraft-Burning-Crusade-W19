@@ -7,16 +7,12 @@ canvas {
 }
 
 #hudInfo {
-    /* position: relative; */
-    /* text-align: center; */
     position: absolute;
     left: -36%;
     top: 0%;
 }
 
 #hudMinimap {
-    /* position: relative; */
-    /* text-align: center; */
     position: absolute;
     left: 101%;
     top: 0%;
@@ -25,7 +21,7 @@ canvas {
 .wrapper {
     margin: 0 auto;
     width: 640px;
-    height: 195px;
+    height: 640px;
     position: relative;
 }
 
@@ -46,9 +42,10 @@ canvas {
 }
 
 #muteButton {
+    font-family: Starcraft;
     position: absolute;
-    left: 89%;
-    top: 81%;
+    left: 5.5%;
+    top: 125%;
     z-index: 1000;
     float: bottom;
 }

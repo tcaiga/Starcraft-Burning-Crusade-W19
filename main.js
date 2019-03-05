@@ -24,7 +24,6 @@ const TILE_SIZE = 16;
 
 /* #region Player */
 function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
-    console.log(runSheets);
     // Relevant for Player box
     this.width = 32;
     this.height = 32;
@@ -83,15 +82,12 @@ Player.prototype.draw = function () {
     if (this.dontdraw <= 0) {
         if (this.dead) {
             this.animationDeath.drawFrameAniThenIdle(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+            /* displays text for game over screen*/
             GAME_ENGINE.ctx.font = "50px Starcraft";
-            //console.log(GAME_ENGINE.ctx.measureText("Game Over"));
             GAME_ENGINE.ctx.fillStyle = color_red;
             GAME_ENGINE.ctx.fillText("Game Over", 135, 200);
             GAME_ENGINE.ctx.font = "30px Starcraft";
-            //console.log(GAME_ENGINE.ctx.measureText("Play Again"));
             GAME_ENGINE.ctx.fillText("Play Again", 208, 275);
-            // GAME_ENGINE.ctx.strokeStyle = color_red;
-            // GAME_ENGINE.ctx.strokeRect(205, 253, 230, 28);
         } else {
             // if statements for shooting logic
             if (GAME_ENGINE.shoot === true && this.currentAmmo > 0) {
@@ -242,6 +238,7 @@ Player.prototype.update = function () {
                     this.shootCounter += GAME_ENGINE.clockTick;
                 }
             }
+            //updates ammo img based on current ammo count
             document.getElementById("ammoImg").src = "./img/utilities/ammo_count/bullet_" + this.currentAmmo + ".png";
         } else {
             this.castTime--;
@@ -343,6 +340,7 @@ Player.prototype.changeHealth = function (amount) {
     this.health += amount;//Damage will come in as a negative value;
     this.healthPercent = Math.floor(this.health / this.maxHealth * 100);
     this.updateHealthHTML(this.health);
+    //changes color of health wireframe based on health percentage
     var healthImg = document.getElementById("healthImg");
     if (this.healthPercent >= 90) {
         healthImg.src = "./img/health_wireframe/green_health.png";
@@ -355,6 +353,7 @@ Player.prototype.changeHealth = function (amount) {
     }
 }
 
+//centers health in html based on number of digits
 Player.prototype.updateHealthHTML = function () {
     var healthHTML = document.getElementById("health");
     healthHTML.innerHTML = this.health;
@@ -658,7 +657,26 @@ function addHTMLListeners() {
     var volumeSlider = document.getElementById("volumeSlider");
     volumeSlider.addEventListener("change", function () {
         music.volume = volumeSlider.value;
+        myCurrentVolume = music.volume;
+        myIsMute = false;
+        muteButton.innerHTML = "Mute";
     }, false);
+    var muteButton = document.getElementById("muteButton");
+    muteButton.addEventListener("click", function () {
+        if (myIsMute) {
+            music.volume = myCurrentVolume;
+            volumeSlider.value = myCurrentVolume;
+            myCurrentVolume = music.volume;
+            myIsMute = false;
+            muteButton.innerHTML = "Mute";
+        } else {
+            myCurrentVolume = music.volume;
+            music.volume = 0.0;
+            muteButton.innerHTML = "Unmute";
+            volumeSlider.value = 0.0;
+            myIsMute = true;
+        }
+    });
 }
 
 /* #endregion */
