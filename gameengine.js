@@ -89,6 +89,7 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
+        e.preventDefault();
         if (e.code === "KeyW") {
             that.keyW = true;
             that.movement = true;
@@ -197,7 +198,8 @@ GameEngine.prototype.reset = function () {
     myLevel = 1;
 
     //resetting html elements
-    document.getElementById("hud").style.display = "none";
+    document.getElementById("hudInfo").style.display = "none";
+    document.getElementById("hudMinimap").style.display = "none";
     document.getElementById("health").innerHTML = myPlayer.maxHealth;
     document.getElementById("healthImg").src = "./img/health_wireframe/green_health.png";
     for (let t = 1; t < 4; t++) {

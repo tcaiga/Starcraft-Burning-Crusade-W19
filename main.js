@@ -61,7 +61,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
     this.runDirection = "right";
     this.shootDirection = "right";
-    this.maxAmmo = 12;
+    this.maxAmmo = 13;
     this.currentAmmo = this.maxAmmo;
     this.reloadTime = 80;
     this.reloadCounter = 0;
@@ -242,7 +242,7 @@ Player.prototype.update = function () {
                     this.shootCounter += GAME_ENGINE.clockTick;
                 }
             }
-
+            document.getElementById("ammoImg").src = "./img/utilities/ammo_count/bullet_" + this.currentAmmo + ".png";
         } else {
             this.castTime--;
         }
@@ -342,7 +342,7 @@ Player.prototype.changeHealth = function (amount) {
 
     this.health += amount;//Damage will come in as a negative value;
     this.healthPercent = Math.floor(this.health / this.maxHealth * 100);
-    document.getElementById("health").innerHTML = this.health;
+    this.updateHealthHTML(this.health);
     var healthImg = document.getElementById("healthImg");
     if (this.healthPercent >= 90) {
         healthImg.src = "./img/health_wireframe/green_health.png";
@@ -352,6 +352,20 @@ Player.prototype.changeHealth = function (amount) {
         healthImg.src = "./img/health_wireframe/orange_health.png";
     } else {
         healthImg.src = "./img/health_wireframe/red_health.png";
+    }
+}
+
+Player.prototype.updateHealthHTML = function () {
+    var healthHTML = document.getElementById("health");
+    healthHTML.innerHTML = this.health;
+    if (this.health >= 1000) {
+        healthHTML.style.left = "9%";
+    } else if (this.health >= 100) {
+        healthHTML.style.left = "11%";
+    } else if (this.health >= 10) {
+        healthHTML.style.left = "13%";
+    } else {
+        healthHTML.style.left = "15%";
     }
 }
 /* #endregion */
@@ -710,7 +724,8 @@ AM.downloadAll(function () {
     GAME_ENGINE.start();
     GAME_ENGINE.addEntity(new Menu());
     AUDIO = new Audio();
-    document.getElementById("hud").style.display = "none";
+    document.getElementById("hudInfo").style.display = "none";
+    document.getElementById("hudMinimap").style.display = "none";
     addHTMLListeners();
     BACKGROUND = new Background();
     SCENE_MANAGER = new SceneManager();

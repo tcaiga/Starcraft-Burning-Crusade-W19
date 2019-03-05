@@ -6,9 +6,20 @@ canvas {
     border: 1px solid black;
 }
 
-#hud {
-    position: relative;
-    text-align: center;
+#hudInfo {
+    /* position: relative; */
+    /* text-align: center; */
+    position: absolute;
+    left: -36%;
+    top: 0%;
+}
+
+#hudMinimap {
+    /* position: relative; */
+    /* text-align: center; */
+    position: absolute;
+    left: 101%;
+    top: 0%;
 }
 
 .wrapper {
@@ -20,8 +31,8 @@ canvas {
 
 #volumeSlider {
     position: absolute;
-    left: 76%;
-    top: 83%;
+    left: 5%;
+    top: 113%;
     z-index: 1000;
     float: bottom;
 }
@@ -30,8 +41,8 @@ canvas {
     position: absolute;
     z-index: 1000;
     float: bottom;
-    left: 76.5%;
-    top: 65%;
+    left: 5%;
+    top: 95%;
 }
 
 #muteButton {
@@ -53,7 +64,7 @@ canvas {
 
 .spellImg {
     position: absolute;
-    left: 76%;
+    left: 34%;
     z-index: 1000;
     float: bottom;
 }
@@ -62,14 +73,14 @@ canvas {
     position: absolute;
     z-index: 1000;
     float: bottom;
-    left: 82%;
+    left: 49%;
 }
 
 .spell {
     position: absolute;
     z-index: 1000;
     float: bottom;
-    left: 87%;
+    left: 64%;
     color: lightgreen;
 }
 
@@ -77,7 +88,7 @@ canvas {
     position: absolute;
     z-index: 1000;
     float: bottom;
-    left: 66.5%;
+    left: 6%;
     top:37%;
 }
 
@@ -85,8 +96,36 @@ canvas {
     position: absolute;
     z-index: 1000;
     float: bottom;
-    left: 67.5%;
+    left: 9%;
     top:44%;
+    color: lightgreen;
+}
+
+#healthImg {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 8%;
+    top:62%;
+}
+
+#ammoImg {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    width:100px;
+    height:23px;
+    left: 34%;
+    top:120%;
+}
+
+
+#ammoLabel {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 0%;
+    top:110%;
 }
 
 #levelLabel {
@@ -94,15 +133,15 @@ canvas {
     z-index: 1000;
     float: bottom;
     left: 1%;
-    top:5%;
+    top:100%;
 }
 
 #level {
     position: absolute;
     z-index: 1000;
     float: bottom;
-    left: 12%;
-    top:5%;
+    left: 35%;
+    top:100%;
 }
 
 #scoreLabel {
@@ -110,24 +149,15 @@ canvas {
     z-index: 1000;
     float: bottom;
     left: 1%;
-    top:-5%;
+    top:90%;
 }
 
 #score {
     position: absolute;
     z-index: 1000;
     float: bottom;
-    left: 12%;
-    top:-5%;
-}
-
-
-#healthImg {
-    position: absolute;
-    z-index: 1000;
-    float: bottom;
-    left: 67%;
-    top:62%;
+    left: 35%;
+    top:90%;
 }
 
 .hudImg {
