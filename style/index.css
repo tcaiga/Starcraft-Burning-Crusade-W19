@@ -7,16 +7,12 @@ canvas {
 }
 
 #hudInfo {
-    /* position: relative; */
-    /* text-align: center; */
     position: absolute;
     left: -36%;
     top: 0%;
 }
 
 #hudMinimap {
-    /* position: relative; */
-    /* text-align: center; */
     position: absolute;
     left: 101%;
     top: 0%;
@@ -25,7 +21,7 @@ canvas {
 .wrapper {
     margin: 0 auto;
     width: 640px;
-    height: 195px;
+    height: 640px;
     position: relative;
 }
 
