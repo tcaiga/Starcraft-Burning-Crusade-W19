@@ -79,20 +79,24 @@ Background.prototype.decorateRoom = function () {
             // Drawing doors
             if (this.drawFaceCount < this.maxRoomCount && this.map[i][j] !== 0) {
                 let testPos = this.facePos[this.drawFaceCount];
-
+                let forwardDoorState = "open"; // ***************** DONT FORGET TO TURN THIS OFF IF YOU WANT TO TEST DOORS *****************
+                let backwardDoorState = "open";
+                if (this.map[testPos[1]][testPos[0]] === 8) {
+                    forwardDoorState = "open";
+                }
                 // Adding a door to go forward for all rooms except the ending room.
                 if (this.face[this.drawFaceCount] === 0) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                        testPos[1] * canvasHeight + BACKGROUND.y + 1, "up"));
+                        testPos[1] * canvasHeight + BACKGROUND.y + 1, "up", forwardDoorState));
                 } else if (this.face[this.drawFaceCount] === 1) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 608 + BACKGROUND.x,
-                        testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right"));
+                        testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right", forwardDoorState));
                 } else if (this.face[this.drawFaceCount] === 2) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                        testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down"));
+                        testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down", forwardDoorState));
                 } else if (this.face[this.drawFaceCount] === 3) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
-                        testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left"));
+                        testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", forwardDoorState));
                 }
 
                 // Adding a door to go back for all rooms except starting room.
@@ -100,16 +104,16 @@ Background.prototype.decorateRoom = function () {
                     let testPosReverse = this.facePos[this.drawFaceCount + 1];
                     if (this.face[this.drawFaceCount] === 0) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + 608 + BACKGROUND.y, "down"));
+                            testPosReverse[1] * canvasHeight + 608 + BACKGROUND.y, "down", backwardDoorState));
                     } else if (this.face[this.drawFaceCount] === 1) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left"));
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", backwardDoorState));
                     } else if (this.face[this.drawFaceCount] === 2) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + BACKGROUND.y + 1, "up"));
+                            testPosReverse[1] * canvasHeight + BACKGROUND.y + 1, "up", backwardDoorState));
                     } else if (this.face[this.drawFaceCount] === 3) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 608 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + 304 + BACKGROUND.y, "right"));
+                            testPosReverse[1] * canvasHeight + 304 + BACKGROUND.y, "right", backwardDoorState));
                     }
                 }
                 
@@ -117,16 +121,16 @@ Background.prototype.decorateRoom = function () {
                 if (this.drawFaceCount + 1 === this.facePos.length) {
                     if (this.face[this.drawFaceCount] === 0) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down"));
+                            testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down", backwardDoorState));
                     } else if (this.face[this.drawFaceCount] === 1) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left"));
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", backwardDoorState));
                     } else if (this.face[this.drawFaceCount] === 2) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + BACKGROUND.y + 1, "up"));
+                            testPos[1] * canvasHeight + BACKGROUND.y + 1, "up", backwardDoorState));
                     } else if (this.face[this.drawFaceCount] === 3) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 608 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right"));
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right", backwardDoorState));
                     }
                 }
 
@@ -337,23 +341,33 @@ Background.prototype.drawMiniMap = function () {
     }
 }
 
-function Door(theX, theY, theDirection) {
+function Door(theX, theY, theDirection, state) {
     this.x = theX;
     this.y = theY;
     this.direction = theDirection;
+    // State of the door
+    // "open"
+    // "closed"
+    this.state = state;
     this.image = new Image();
-    this.image.src = "./img/buildings/door_open.png";
+    this.image.src = "./img/buildings/door_" + this.state + ".png";
     this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 }
 
 Door.prototype.update = function () {
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        CAMERA.move(this.direction);
+        if (this.state === "open") {
+            CAMERA.move(this.direction);
+        }
     }
+    
+    // do some condition check to open door
 }
 
 Door.prototype.draw = function () {
     GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 32, 32);
+
+    // draw door to update if open or closed
 }
 
 function Wall(theX, theY, theDirection) {
