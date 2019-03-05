@@ -475,17 +475,17 @@ Zerg_Boss.prototype.bossBehavior = function () {
         if (myPlayer.x < 0) {
             tarX = canvasWidth - Math.abs(myPlayer.x) % canvasWidth;
         } else {
-            tarX = Math.abs(myPlayer.x) % canvasWidth;
+            tarX = myPlayer.x;
         }
 
         if (myPlayer.y < 0) {
             tarY = canvasHeight - Math.abs(myPlayer.y) % canvasHeight;
         } else {
-            tarY = Math.abs(myPlayer.y) % canvasHeight;
+            tarY = myPlayer.y;
         }
 
         for (var i = 0; i < 6; i++) {
-            new SpikeExplosion(AM.getAsset("./img/fireball.png"), CAMERA.x + getRandomInt(0, canvasWidth), CAMERA.y + getRandomInt(0, canvasHeight),
+            new SpikeExplosion(AM.getAsset("./img/zerg/sunken_spike.png"), CAMERA.x + getRandomInt(0, canvasWidth), CAMERA.y + getRandomInt(0, canvasHeight),
                 tarX, tarY, 4);
         }
 

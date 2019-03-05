@@ -374,7 +374,8 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, 
     this.origin = belongsTo;
     this.width = 13;
     this.height = 13;
-    this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
+    this.scale = .75;
+    this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, this.scale);
     this.spriteSheet = spriteSheet;
     this.targetType = 4;
     this.x = originX - CAMERA.x;

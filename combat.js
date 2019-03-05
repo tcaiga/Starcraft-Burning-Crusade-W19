@@ -358,18 +358,20 @@ function SpawnZerglings() {
 function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     this.width = 100;
     this.height = 100;
-    ss1Ani = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
+    ss1Ani = new Animation(spriteSheet, this.width, this.height, 1, .25, 6, true, .75);
     ss1 = new StillStand(ss1Ani, 90, originX, originY);
     GAME_ENGINE.addEntity(ss1);
     ss1.onDeath = function () {
-        GAME_ENGINE.addEntity(new Spike(spriteSheet, originX, originY, xTarget, yTarget, origin));
+        GAME_ENGINE.addEntity(new Spike(originX, originY, xTarget, yTarget, origin));
     }
 
 
 }
 let ctr = 0;
-function Spike(spriteSheet, originX, originY, xTarget, yTarget, origin) {
-    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin, "angle");
+function Spike(originX, originY, xTarget, yTarget, origin) {
+    this.spriteSheet = AM.getAsset("./img/terran/bullet.png");
+    Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, "angle");
+
     // Damage stuff
     this.durationBetweenHits = 50;//Adjustable
     this.totalDamage = 15;//Adjustable
