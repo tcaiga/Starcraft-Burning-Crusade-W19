@@ -46,9 +46,10 @@ canvas {
 }
 
 #muteButton {
+    font-family: Starcraft;
     position: absolute;
-    left: 89%;
-    top: 81%;
+    left: 5.5%;
+    top: 125%;
     z-index: 1000;
     float: bottom;
 }

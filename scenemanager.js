@@ -126,8 +126,6 @@ SceneManager.prototype.gameInit = function () {
         },
         AM.getAsset("./img/terran/marine/marine_death.png"), 0, 9);
 
-    //console.log(myPlayer);
-
     GAME_ENGINE.addEntity(myPlayer);
     myPlayer.updateHealthHTML();
     //document.getElementById("ammo").innerHTML = myPlayer.maxAmmo;
@@ -138,6 +136,4 @@ SceneManager.prototype.gameInit = function () {
     BACKGROUND.decorateRoom();
     document.getElementById("hudInfo").style.display = "block";
     document.getElementById("hudMinimap").style.display = "block";
-    console.table(BACKGROUND.map);
-    console.log(GAME_ENGINE.entities);
 }
