@@ -1,5 +1,8 @@
-function Monster(spriteSheet, x, y) {
+function Monster(spriteSheet, x, y, roomNumber) {
     Entity.call(this, GAME_ENGINE, 0, 350);
+
+    // Room check stuff
+    this.roomNumber = roomNumber;
 
     // behavior stuff
     this.visionWidth = 200;
@@ -61,9 +64,6 @@ function Monster(spriteSheet, x, y) {
 }
 
 Monster.prototype.draw = function () {
-    // **************************************************************
-    // BIG ISSUES HERE NEED TO FIX THIS TO FLIP MONSTER SPRITE SHEETS
-    // **************************************************************
     this.xScale = 1;
     var xValue = this.x;
     if (!this.right) {
@@ -118,7 +118,10 @@ Monster.prototype.update = function () {
     } else {
 
     }
-    if (this.health <= 0) this.removeFromWorld = true;
+    if (this.health <= 0) {
+        this.removeFromWorld = true;
+        GAME_ENGINE.removeEntity(this);
+    }
     var dirX, dirY;
     if (this.isPathing) {
         // we've reached our target so stop.
@@ -283,9 +286,8 @@ Ultralisk.prototype = Monster.prototype;
 Zergling.prototype = Monster.prototype;
 Zerg_Boss.prototype = Monster.prototype;
 
-function Hydralisk(spriteSheet, x, y) {
-
-    Monster.call(this, spriteSheet, x, y);
+function Hydralisk(spriteSheet, x, y, roomNumber) {
+    Monster.call(this, spriteSheet, x, y, roomNumber);
 
 
     // animation
@@ -301,6 +303,7 @@ function Hydralisk(spriteSheet, x, y) {
     this.health = 15;
     this.x = x;
     this.y = y;
+    this.roomNumber = roomNumber;
 
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
@@ -315,9 +318,8 @@ function Hydralisk(spriteSheet, x, y) {
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 }
 
-function Infested(spriteSheet, x, y) {
-
-    Monster.call(this, spriteSheet, x, y);
+function Infested(spriteSheet, x, y, roomNumber) {
+    Monster.call(this, spriteSheet, x, y, roomNumber);
 
 
     // animation
@@ -331,9 +333,9 @@ function Infested(spriteSheet, x, y) {
     // gameplay
     this.speed = 150;
     this.health = 15;
-
     this.x = x;
     this.y = y;
+    this.roomNumber = roomNumber;
 
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
@@ -348,9 +350,8 @@ function Infested(spriteSheet, x, y) {
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 }
 
-function Ultralisk(spriteSheet, x, y) {
-
-    Monster.call(this, spriteSheet, x, y);
+function Ultralisk(spriteSheet, x, y, roomNumber) {
+    Monster.call(this, spriteSheet, x, y, roomNumber);
 
 
     // animation
@@ -364,9 +365,9 @@ function Ultralisk(spriteSheet, x, y) {
     // gameplay
     this.speed = 150;
     this.health = 15;
-
     this.x = x;
     this.y = y;
+    this.roomNumber = roomNumber;
 
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
@@ -381,9 +382,8 @@ function Ultralisk(spriteSheet, x, y) {
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 }
 
-function Zergling(spriteSheet, x, y) {
-
-    Monster.call(this, spriteSheet, x, y);
+function Zergling(spriteSheet, x, y, roomNumber) {
+    Monster.call(this, spriteSheet, x, y, roomNumber);
 
 
     // animation
@@ -397,9 +397,9 @@ function Zergling(spriteSheet, x, y) {
     // gameplay
     this.speed = 150;
     this.health = 15;
-
     this.x = x;
     this.y = y;
+    this.roomNumber = roomNumber;
 
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
@@ -414,8 +414,8 @@ function Zergling(spriteSheet, x, y) {
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 }
 
-function Zerg_Boss(spriteSheet, x, y) {
-    Monster.call(this, spriteSheet, x, y);
+function Zerg_Boss(spriteSheet, x, y, roomNumber) {
+    Monster.call(this, spriteSheet, x, y, roomNumber);
 
     // animation
     this.scale = 1.5;
@@ -429,6 +429,7 @@ function Zerg_Boss(spriteSheet, x, y) {
     this.speed = 0;
     this.health = 1000;
     this.isRanged = true;
+    this.roomNumber = roomNumber;
 
     // boss specific stuff
     this.isBoss = true;
