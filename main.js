@@ -38,8 +38,8 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.animationShootDown = new Animation(shootSheets["down"], this.width, this.height, 1, 0.04, 2, true, this.scale);
     this.animationDeath = new Animation(deathSheet, 65, 40, 1, 0.04, 8, true, this.scale);
     this.animationIdle = this.animationRunSide;
-    this.x = 60;
-    this.y = 60;
+    this.x = 295;
+    this.y = 295;
     this.xScale = 1;    /*Used to flip the spritesheets if left */
     this.damageObjArr = [];
     this.buffObj = [];
