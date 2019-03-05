@@ -152,11 +152,13 @@ Background.prototype.decorateRoom = function () {
                     } else if (this.map[testPos[1]][testPos[0]] === 2) {
                         for (let r = 1; r < 4; r++) {
                             for (let s = 1; s < 4; s++) {
-                                // 9 infested terrans appear in the shape of a cube spaced out.
-                                var infested = new Infested(AM.getAsset("./img/zerg/infested/infested_move_right.png"),
-                                testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
-                                testPos[1] * canvasHeight + (s * 160) + BACKGROUND.y - 10);
-                                GAME_ENGINE.addEntity(infested);
+                                if (r % 2 === 1 && s % 2 === 1) {
+                                    // 9 infested terrans appear in the shape of a cube spaced out.
+                                    var infested = new Infested(AM.getAsset("./img/zerg/infested/infested_move_right.png"),
+                                    testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
+                                    testPos[1] * canvasHeight + (s * 160) + BACKGROUND.y - 10);
+                                    GAME_ENGINE.addEntity(infested);
+                                }
                             }
                         }
                     }
@@ -194,16 +196,22 @@ Background.prototype.generateSurvivalMap = function () {
                 this.row += this.directions[randomDirection][0];
                 this.col += this.directions[randomDirection][1];
                 this.facePos.push([this.col, this.row]);
-                let randomChoice = Math.floor((Math.random() * 3) + 1);
-                if (randomChoice === 3) { // 33% chance to spawn a trap room.
+                let randomChoice = Math.floor(Math.random() * 4);
+                if (randomChoice === 0) { // 25% chance to spawn a trap room.
                     this.map[this.row][this.col] = 2;
                 } else {
                     this.map[this.row][this.col] = 1;
                 }
+
+                let isTrapRoom = Math.floor(Math.random() * 3);
                 if (this.roomCount + 1 === this.maxRoomCount) {
                     this.map[this.row][this.col] = 9; // Ending Room
                 } else if (this.roomCount + 2 === this.maxRoomCount) {
-                    this.map[this.row][this.col] = 3; // Puzzle Room
+                    if (isTrapRoom === 0) {
+                        this.map[this.row][this.col] = 3; // Puzzle Room
+                    } else {
+                        this.map[this.row][this.col] = 1;
+                    }
                 }
                 this.roomCount++;
             }
