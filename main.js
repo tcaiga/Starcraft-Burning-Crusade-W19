@@ -657,15 +657,20 @@ function addHTMLListeners() {
     var volumeSlider = document.getElementById("volumeSlider");
     volumeSlider.addEventListener("change", function () {
         music.volume = volumeSlider.value;
+        myCurrentVolume = music.volume;
+        myIsMute = false;
+        muteButton.innerHTML = "Mute";
     }, false);
     var muteButton = document.getElementById("muteButton");
     muteButton.addEventListener("click", function () {
         if (myIsMute) {
             music.volume = myCurrentVolume;
-            muteButton.innerHTML = "Mute";
             volumeSlider.value = myCurrentVolume;
+            myCurrentVolume = music.volume;
             myIsMute = false;
+            muteButton.innerHTML = "Mute";
         } else {
+            myCurrentVolume = music.volume;
             music.volume = 0.0;
             muteButton.innerHTML = "Unmute";
             volumeSlider.value = 0.0;
