@@ -90,7 +90,7 @@ Player.prototype.draw = function () {
             GAME_ENGINE.ctx.fillText("Play Again", 208, 275);
         } else {
             // if statements for shooting logic
-            if (GAME_ENGINE.shoot === true && this.currentAmmo > 0) {
+            if (GAME_ENGINE.shoot === true && this.currentAmmo > 0 && !GAME_ENGINE.reload) {
                 // if statements for running logic
                 if (this.shootDirection === "left") {
                     GAME_ENGINE.ctx.save();
@@ -221,9 +221,11 @@ Player.prototype.update = function () {
             /* #endregion */
 
 
+            if (GAME_ENGINE.reload && this.currentAmmo === this.maxAmmo) {
+                GAME_ENGINE.reload = false;
+            }
             //Reload  if user presses reload button or runs out of ammo
             if ((this.currentAmmo <= 0 || GAME_ENGINE.reload) && this.reloadCounter < this.reloadTime) {
-                console.log(this.currentAmmo <= 0);
                 this.reloadCounter++;
             }else if (this.currentAmmo <= 0 || GAME_ENGINE.reload) {
                 this.currentAmmo = this.maxAmmo;
@@ -231,7 +233,7 @@ Player.prototype.update = function () {
                 GAME_ENGINE.reload = false;
             }
 
-            if (GAME_ENGINE.shoot  && this.currentAmmo > 0) {
+            if (GAME_ENGINE.shoot  && this.currentAmmo > 0 && !GAME_ENGINE.reload) {
                 var direction;
 
                 if (this.shootCounter >= this.maxShootCounter) {
