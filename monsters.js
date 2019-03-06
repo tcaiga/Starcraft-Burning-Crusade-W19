@@ -116,9 +116,8 @@ Monster.prototype.update = function () {
 
     if (this.isBoss) {
         this.bossBehavior();
-    } else {
-
     }
+
     if (this.health <= 0) {
         this.removeFromWorld = true;
         GAME_ENGINE.removeEntity(this);
@@ -139,13 +138,19 @@ Monster.prototype.update = function () {
 
 
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        this.counter += GAME_ENGINE.clockTick;
-        this.damageObj.ApplyEffects(myPlayer);
-        this.pause = true;
-        if (this.counter > .018 && myPlayer.health > 0) {
+        if (this.isInfested) {
+            // do explosion animation and damage player
+            // then die
+            this.health = 0;
+        } else {
+            this.counter += GAME_ENGINE.clockTick;
+            this.damageObj.ApplyEffects(myPlayer);
+            this.pause = true;
+            if (this.counter > .018 && myPlayer.health > 0) {
             //player.health -= 5;
+            this.counter = 0;
+            }
         }
-        this.counter = 0;
     }
 
     // based on the number of ticks since the player was last hit, we pause the monster
@@ -285,6 +290,8 @@ Hydralisk.prototype = Monster.prototype;
 Infested.prototype = Monster.prototype;
 Ultralisk.prototype = Monster.prototype;
 Zergling.prototype = Monster.prototype;
+DarkTemplar.prototype = Monster.prototype;
+Zealot.prototype = Monster.prototype;
 Zerg_Boss.prototype = Monster.prototype;
 
 function Hydralisk(spriteSheet, x, y, roomNumber) {
@@ -337,6 +344,7 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
+    this.isInfested = true;
 
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
@@ -349,6 +357,10 @@ function Infested(spriteSheet, x, y, roomNumber) {
 
     this.counter = 0;
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+}
+
+Infested.prototype.infestedBehavior = function() {
+
 }
 
 function Ultralisk(spriteSheet, x, y, roomNumber) {
@@ -392,6 +404,70 @@ function Zergling(spriteSheet, x, y, roomNumber) {
     this.width = 40;
     this.height = 40;
     this.numOfFrames = 7;
+    this.frameLength = 0.03;
+    this.sheetWidth = 1;
+
+    // gameplay
+    this.speed = 150;
+    this.health = 15;
+    this.x = x;
+    this.y = y;
+    this.roomNumber = roomNumber;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 4;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
+    this.counter = 0;
+    this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+}
+
+function Zealot(spriteSheet, x, y, roomNumber) {
+    Monster.call(this, spriteSheet, x, y, roomNumber);
+
+
+    // animation
+    this.scale = 1.5;
+    this.width = 50;
+    this.height = 50;
+    this.numOfFrames = 7;
+    this.frameLength = 0.03;
+    this.sheetWidth = 1;
+
+    // gameplay
+    this.speed = 150;
+    this.health = 15;
+    this.x = x;
+    this.y = y;
+    this.roomNumber = roomNumber;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 4;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
+    this.counter = 0;
+    this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+}
+
+function DarkTemplar(spriteSheet, x, y, roomNumber) {
+    Monster.call(this, spriteSheet, x, y, roomNumber);
+
+
+    // animation
+    this.scale = 1.5;
+    this.width = 50;
+    this.height = 50;
+    this.numOfFrames = 10;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
 
