@@ -180,38 +180,34 @@ Player.prototype.update = function () {
             this.x += this.velocity.x;
             this.y += this.velocity.y;
 
-
-            //this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
-            if (GAME_ENGINE.keyW === true) {
-                //this.y -= this.actualSpeed;
-                this.runDirection = "up";
-                this.animationIdle = this.animationRunUp;
-            }
-            if (GAME_ENGINE.keyS === true) {
-                //this.y += this.actualSpeed;
-                this.runDirection = "down";
-                this.animationIdle = this.animationRunDown;
-            }
             if (GAME_ENGINE.keyA === true) {
-               // this.x -= this.actualSpeed;
                 this.runDirection = "left";
                 this.animationIdle = this.animationRunSide;
             }
             if (GAME_ENGINE.keyD === true) {
-               // this.x += this.actualSpeed;
                 this.runDirection = "right";
                 this.animationIdle = this.animationRunSide;
+            }
+            if (GAME_ENGINE.keyW === true) {
+                this.runDirection = "up";
+                this.animationIdle = this.animationRunUp;
+            }
+            if (GAME_ENGINE.keyS === true) {
+                this.runDirection = "down";
+                this.animationIdle = this.animationRunDown;
             }
 
             /* #endregion */
 
 
-            //Reload
-            if (this.reloadCounter >= this.reloadTime && this.currentAmmo <= 0) {
+            //Reload  if user presses reload button or runs out of ammo
+            if ((this.currentAmmo <= 0 || GAME_ENGINE.reload) && this.reloadCounter < this.reloadTime) {
+                console.log(this.currentAmmo <= 0);
+                this.reloadCounter++;
+            }else if (this.currentAmmo <= 0 || GAME_ENGINE.reload) {
                 this.currentAmmo = this.maxAmmo;
                 this.reloadCounter = 0;
-            } else if (this.currentAmmo <= 0) {
-                this.reloadCounter++;
+                GAME_ENGINE.reload = false;
             }
 
             if (GAME_ENGINE.shoot  && this.currentAmmo > 0) {
@@ -239,7 +235,12 @@ Player.prototype.update = function () {
                 }
             }
             //updates ammo img based on current ammo count
-            document.getElementById("ammoImg").src = "./img/utilities/ammo_count/bullet_" + this.currentAmmo + ".png";
+            var ammoHTML = document.getElementById("ammoImg");
+            if (GAME_ENGINE.reload) {
+                ammoHTML.src = "./img/utilities/ammo_count/bullet_0.png";
+            } else {
+                ammoHTML.src = "./img/utilities/ammo_count/bullet_" + this.currentAmmo + ".png";
+            }
         } else {
             this.castTime--;
         }
