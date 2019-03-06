@@ -2,9 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\img",
-    "\\img\\zerg",
-    "\\img\\zerg\\zergling"
+    "\\img\\abilities",
+    "\\img\\zerg"
   ],
-  "SelectedNode": "\\monsters.js",
+  "SelectedNode": "\\map.js",
   "PreviewInSolutionExplorer": false
 }
