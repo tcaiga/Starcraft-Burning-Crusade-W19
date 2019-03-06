@@ -90,16 +90,16 @@ Background.prototype.decorateRoom = function () {
                 // Adding a door to go forward for all rooms except the ending room.
                 if (this.face[this.drawFaceCount] === 0) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                        testPos[1] * canvasHeight + BACKGROUND.y + 1, "up", forwardDoorState));
+                        testPos[1] * canvasHeight + BACKGROUND.y + 1, "up", forwardDoorState, roomNumber));
                 } else if (this.face[this.drawFaceCount] === 1) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 608 + BACKGROUND.x,
-                        testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right", forwardDoorState));
+                        testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right", forwardDoorState, roomNumber));
                 } else if (this.face[this.drawFaceCount] === 2) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                        testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down", forwardDoorState));
+                        testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down", forwardDoorState, roomNumber));
                 } else if (this.face[this.drawFaceCount] === 3) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
-                        testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", forwardDoorState));
+                        testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", forwardDoorState, roomNumber));
                 }
 
                 // Adding a door to go back for all rooms except starting room.
@@ -107,16 +107,16 @@ Background.prototype.decorateRoom = function () {
                     let testPosReverse = this.facePos[this.drawFaceCount + 1];
                     if (this.face[this.drawFaceCount] === 0) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + 608 + BACKGROUND.y, "down", backwardDoorState));
+                            testPosReverse[1] * canvasHeight + 608 + BACKGROUND.y, "down", backwardDoorState, roomNumber));
                     } else if (this.face[this.drawFaceCount] === 1) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", backwardDoorState));
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", backwardDoorState, roomNumber));
                     } else if (this.face[this.drawFaceCount] === 2) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + BACKGROUND.y + 1, "up", backwardDoorState));
+                            testPosReverse[1] * canvasHeight + BACKGROUND.y + 1, "up", backwardDoorState, roomNumber));
                     } else if (this.face[this.drawFaceCount] === 3) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 608 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + 304 + BACKGROUND.y, "right", backwardDoorState));
+                            testPosReverse[1] * canvasHeight + 304 + BACKGROUND.y, "right", backwardDoorState, roomNumber));
                     }
                 }
                 
@@ -124,16 +124,16 @@ Background.prototype.decorateRoom = function () {
                 if (this.drawFaceCount + 1 === this.facePos.length) {
                     if (this.face[this.drawFaceCount] === 0) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down", backwardDoorState));
+                            testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down", backwardDoorState, roomNumber));
                     } else if (this.face[this.drawFaceCount] === 1) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", backwardDoorState));
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", backwardDoorState, roomNumber));
                     } else if (this.face[this.drawFaceCount] === 2) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + BACKGROUND.y + 1, "up", backwardDoorState));
+                            testPos[1] * canvasHeight + BACKGROUND.y + 1, "up", backwardDoorState, roomNumber));
                     } else if (this.face[this.drawFaceCount] === 3) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 608 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right", backwardDoorState));
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right", backwardDoorState, roomNumber));
                     }
                 }
 
@@ -162,12 +162,12 @@ Background.prototype.decorateRoom = function () {
                             GAME_ENGINE.addEntity(darkTemplar);
                         } else if (this.drawFaceCount % 3 === 2) {
                             var ultralisk = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
 
                             GAME_ENGINE.addEntity(ultralisk);
 
                             var pool = new Zerg_Boss(AM.getAsset("./img/buildings/spawning_pool.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
                             GAME_ENGINE.addEntity(pool);
                         }
                     } else if (this.map[testPos[1]][testPos[0]] === 2) {
@@ -369,7 +369,7 @@ Background.prototype.drawMiniMap = function () {
     }
 }
 
-function Door(theX, theY, theDirection, state) {
+function Door(theX, theY, theDirection, state, roomNumber) {
     this.x = theX;
     this.y = theY;
     this.direction = theDirection;
@@ -377,6 +377,7 @@ function Door(theX, theY, theDirection, state) {
     // "open"
     // "closed"
     this.state = state;
+    this.roomNumber = roomNumber;
     this.image = new Image();
     this.image.src = "./img/buildings/door_" + this.state + ".png";
     this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
@@ -389,6 +390,18 @@ Door.prototype.update = function () {
         }
     }
     
+    let monsterRoomCheck = false;
+    for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
+        var tempMonster = GAME_ENGINE.entities[4][i];
+        if (tempMonster.roomNumber === this.roomNumber) {
+                monsterRoomCheck = true;
+        }
+    }
+    if (!monsterRoomCheck) {
+        this.state = "open";
+    }
+
+    this.image.src = "./img/buildings/door_" + this.state + ".png";
     // do some condition check to open door
 }
 
