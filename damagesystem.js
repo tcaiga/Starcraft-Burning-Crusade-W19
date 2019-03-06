@@ -136,6 +136,8 @@ const ETypes = {
     //Cooldown
     CooldownRateF: "cooldown rate f",
     CooldownRateR: "cooldown rate r",
+
+    ReloadRateR: "reload rate r",
     //MISC
     Silence: "silence",
     Stun: "stun",
@@ -284,8 +286,8 @@ EffectObj.prototype.Do = function (unit) {
                 }
                 break;
             case ETypes.CurrentHealthR:
-                if (typeof unit.currentHealth !== 'undefined') {
-                    unit.currentHealth *= this.do;
+                if (typeof unit.health !== 'undefined') {
+                    unit.health *= this.do;
                 }
                 break;
             case ETypes.MaxHealthF:
@@ -368,6 +370,11 @@ EffectObj.prototype.Do = function (unit) {
                     unit.isBlind = this.do;
                 }
                 break;
+            case ETypes.ReloadRateR:
+                if (typeof unit.reloadRatio !== 'undefined') {
+                    unit.reloadRatio *= this.do;
+                }
+                break;
             case ETypes.None:
                 break;
         }
@@ -434,8 +441,8 @@ EffectObj.prototype.Undo = function (unit) {
                 }
                 break;
             case ETypes.CurrentHealthR:
-                if (typeof unit.currentHealth !== 'undefined') {
-                    unit.currentHealth *= this.undo;
+                if (typeof unit.health !== 'undefined') {
+                    unit.health *= this.undo;
                 }
                 break;
             case ETypes.MaxHealthF:
@@ -516,6 +523,11 @@ EffectObj.prototype.Undo = function (unit) {
             case ETypes.Blind:
                 if (typeof unit.isBlind !== 'undefined') {
                     unit.isBlind = this.undo;
+                }
+                break;
+            case ETypes.ReloadRateR:
+                if (typeof unit.reloadRatio !== 'undefined') {
+                    unit.reloadRatio *= this.undo;
                 }
                 break;
             case ETypes.None:
@@ -618,7 +630,10 @@ DamageObj.prototype.ApplyBuff = function (unit) {
     let b;
     if (typeof this.buff !== 'undefined' && this.buff !== null) {
         for (b in unit.buffObj) {
-            if (unit.buffObj[b].name === this.buff.name) { return; }
+            if (unit.buffObj[b].name === this.buff.name) { 
+                unit.buffObj[b].timeLeft += this.buff.duration;
+                return;
+             }
         }
         unit.buffObj.push(this.buff);
     }

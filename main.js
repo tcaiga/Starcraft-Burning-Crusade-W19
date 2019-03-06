@@ -44,6 +44,10 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.damageObjArr = [];
     this.buffObj = [];
     this.abilityCD = [0, 0, 0, 0, 0];
+    this.abilityCharges = [0,0,0,0,0];
+    this.abilityMaxCharges = [0,2,1,2,1];
+    this.abilityBaseCoolDown = [0,80,80,80,80];
+    this.selectedAbility = 0;
     this.cooldownRate = 1;
     this.cooldownAdj = 0;
     this.castTime = 0;
@@ -63,6 +67,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.maxAmmo = 13;
     this.currentAmmo = this.maxAmmo;
     this.reloadTime = 80;
+    this.reloadRatio = 1;
     this.reloadCounter = 0;
     this.maxShootCounter = 0.2;
     this.shootCounter = this.maxShootCounter;
@@ -147,6 +152,13 @@ Player.prototype.update = function () {
     // Player movement controls
 
     if (!this.dead) {
+        let castingAbility = false;
+        for (t in GAME_ENGINE.digit) {
+            if (GAME_ENGINE.digit[t]){
+                castingAbility = true;
+            }
+        }
+
         this.velocity = (this.castTime > 0 || this.isStunned) ? { x: 0, y: 0 } : this.velocity;
         if (this.castTime <= 0 && !this.isStunned) {
             /* #region Player movement controls */
@@ -211,22 +223,21 @@ Player.prototype.update = function () {
                 this.currentAmmo = this.maxAmmo;
                 this.reloadCounter = 0;
             } else if (this.currentAmmo <= 0) {
-                this.reloadCounter++;
+                this.reloadCounter += this.reloadRatio;
             }
 
             if (GAME_ENGINE.shoot  && this.currentAmmo > 0) {
                 var direction;
-
-                if (this.shootCounter >= this.maxShootCounter) {
-                    direction = "down";
-                    if (GAME_ENGINE.keyUp === true) {
-                        direction = "up";
-                    } else if (GAME_ENGINE.keyLeft === true) {
-                        direction = "left";
-                    } else if (GAME_ENGINE.keyRight === true) {
-                        direction = "right";
-                    }
-                    this.shootDirection = direction;
+                direction = "down";
+                if (GAME_ENGINE.keyUp === true) {
+                    direction = "up";
+                } else if (GAME_ENGINE.keyLeft === true) {
+                    direction = "left";
+                } else if (GAME_ENGINE.keyRight === true) {
+                    direction = "right";
+                }
+                this.shootDirection = direction;
+                if (this.shootCounter >= this.maxShootCounter && !castingAbility) {
                     var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
                         myPlayer.x + 15,
                         myPlayer.y + 23,
@@ -260,6 +271,14 @@ Player.prototype.update = function () {
             }
         }
 
+        for (t in GAME_ENGINE.digit) {
+            if (GAME_ENGINE.shoot && GAME_ENGINE.digit[t] && !this.isStunned){
+                this.selectedAbility = t;
+                this.castAbility();
+                this.selectedAbility = -1;
+                castingAbility = false;
+            }
+        }
 
         // ****************
         // DISABLED FOR NOW
@@ -322,6 +341,60 @@ Player.prototype.update = function () {
     }
 
 }
+
+function dirInterpret (directionString){
+    //up = 0 then clockwise
+    let dir = {x:0,y:0};
+    switch (directionString){
+        case "right":
+            dir.x = 1;
+            break;
+        case "left":
+            dir.x = -1;
+            break;
+        case "up":
+            dir.y = -1;
+            break;
+        case "down":
+            dir.y = 1;
+            break;
+    }
+    return dir;
+}
+
+Player.prototype.castAbility = function () {
+    if (this.abilityCharges[this.selectedAbility] > 0){
+        switch (this.selectedAbility) {
+            case 0:
+                break;
+            case 1: //grenade
+                let aDir = dirInterpret(this.shootDirection);
+                let projectile = new Grenade(AM.getAsset("./img/terran/bullet.png")
+                        ,AM.getAsset("./img/zerg/ultra/ultra_death.png"),this.x + 15,this.y + 15,this.x + aDir.x,this.y + aDir.y,5);
+                this.abilityCharges[this.selectedAbility]--;
+                GAME_ENGINE.addEntity(projectile);
+                break;
+            case 2://Stim pack
+                let damage = 15; //15 + 5%
+                let damagePercent = 5;
+                let aBuff = DS.CreateBuffObject("stim pack",[
+                            DS.CreateEffectObject(ETypes.MoveSpeedR,1.3,1/1.3,300,0),
+                            DS.CreateEffectObject(ETypes.CurrentHealthR,(100 - damagePercent)/100,1,10,0),
+                            DS.CreateEffectObject(ETypes.CooldownRateR,2,.5,200,0),
+                            DS.CreateEffectObject(ETypes.ReloadRateR,2,.5,200,0)
+                ]);
+                let aDmg = DS.CreateDamageObject(damage,0,DTypes.True,aBuff);
+                aDmg.ApplyEffects(this);
+                this.abilityCharges[this.selectedAbility]--;
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+        }
+    }
+}
+
 
 Player.prototype.changeHealth = function (amount) {
     if (amount > 0) {
