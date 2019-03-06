@@ -66,7 +66,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.reloadCounter = 0;
     this.maxShootCounter = 0.2;
     this.shootCounter = this.maxShootCounter;
-    this.maxHealth = 1000;
+    this.maxHealth = 250;
     this.health = this.maxHealth;
     this.healthPercent = 100;
     this.dontdraw = 0;
@@ -253,6 +253,10 @@ Player.prototype.update = function () {
                     GAME_ENGINE.addEntity(projectile);
                     this.currentAmmo--;
                     this.shootCounter = 0;
+
+                    var gunShot = new Audio("./audio/marine_shoot.wav");
+                    gunShot.volume = myCurrentVolume;
+                    gunShot.play();
                 } else {
                     this.shootCounter += GAME_ENGINE.clockTick;
                 }
@@ -308,6 +312,9 @@ Player.prototype.update = function () {
 
         if (this.health <= 0) {
             this.dead = true;
+            var deathSound = new Audio("./audio/marine_death.wav");
+            deathSound.volume = myCurrentVolume;
+            deathSound.play();
         }
 
         /* #region Damage system updates */
