@@ -730,6 +730,16 @@ AM.queueDownload("./img/zerg/zergling/zergling_move_right.png");
 AM.queueDownload("./img/zerg/zergling/zergling_attack_right.png");
 AM.queueDownload("./img/zerg/zergling/zergling_death.png");
 
+// Dark Templar
+AM.queueDownload("./img/protoss/dark_templar/dark_templar_move_right.png");
+AM.queueDownload("./img/protoss/dark_templar/dark_templar_attack_right.png");
+AM.queueDownload("./img/protoss/dark_templar/dark_templar_death.png");
+
+// Zealot
+AM.queueDownload("./img/protoss/zealot/zealot_move_right.png");
+AM.queueDownload("./img/protoss/zealot/zealot_attack_right.png");
+AM.queueDownload("./img/protoss/zealot/zealot_death.png");
+
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
