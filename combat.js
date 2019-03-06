@@ -4,6 +4,7 @@ GreaterFireball.prototype = Projectile.prototype;
 FlameBreathBolt.prototype = Projectile.prototype;
 MultiArrow.prototype = Projectile.prototype;
 Spike.prototype = Projectile.prototype;
+Grenade.prototype = Projectile.prototype;
 
 function SwordBoomerang(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin/* same number assignment as the ent array*/);
@@ -16,8 +17,8 @@ function SwordBoomerang(spriteSheet, originX, originY, xTarget, yTarget, origin)
     this.durationBetweenHits = 50;//Adjustable
     this.totalDamage = 35;//Adjustable
     this.damageObjArr = [];
-    this.damageBuff = DS.CreateBuffObject("damage overtime", [DS.CreateEffectObject(ETypes.CurrentHealthF,0.4*this.totalDamage/7,0,60,10)]);
-    this.damageObj = DS.CreateDamageObject(0.6*this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageBuff = DS.CreateBuffObject("damage overtime", [DS.CreateEffectObject(ETypes.CurrentHealthF, -0.4 * this.totalDamage / 7, 0, 60, 10)]);
+    this.damageObj = DS.CreateDamageObject(0.6 * this.totalDamage, 0, DTypes.Normal, this.damageBuff);
     this.damageObj.timeLeft = this.durationBetweenHits;
     this.buffObj = [];
 
@@ -49,12 +50,12 @@ function GreaterFireball(spriteSheet, spriteSheetAoe, originX, originY, xTarget,
     this.durationBetweenHits = 50;//Adjustable
     this.totalDamage = 30;//Adjustable
     this.damageObjArr = [];
-    this.damageBuff = DS.CreateBuffObject("lesser burning", [DS.CreateEffectObject(ETypes.CurrentHealthF,0.2*this.totalDamage/6,0,20,4)]);
-    this.damageObj = DS.CreateDamageObject(0.3*this.totalDamage, 0, DTypes.Magic, this.damageBuff);
+    this.damageBuff = DS.CreateBuffObject("lesser burning", [DS.CreateEffectObject(ETypes.CurrentHealthF, 0.2 * this.totalDamage / 6, 0, 20, 4)]);
+    this.damageObj = DS.CreateDamageObject(0.3 * this.totalDamage, 0, DTypes.Magic, this.damageBuff);
     this.damageObj.timeLeft = this.durationBetweenHits;
     this.buffObj = [];
-    this.damageBuffonExplosion = DS.CreateBuffObject("lesser burning", [DS.CreateEffectObject(ETypes.CurrentHealthF,0.2*this.totalDamage/7,0,30,5)]);
-    this.damageObjonExplosion = DS.CreateDamageObject(0.3*this.totalDamage, 0, DTypes.Magic, this.damageBuffonExplosion);
+    this.damageBuffonExplosion = DS.CreateBuffObject("lesser burning", [DS.CreateEffectObject(ETypes.CurrentHealthF, 0.2 * this.totalDamage / 7, 0, 30, 5)]);
+    this.damageObjonExplosion = DS.CreateDamageObject(0.3 * this.totalDamage, 0, DTypes.Magic, this.damageBuffonExplosion);
     this.damageObjonExplosion.timeLeft = this.durationBetweenHits;
 
 
@@ -89,7 +90,7 @@ function FlameBreathBolt(spriteSheet, originX, originY, xTarget, yTarget, origin
     this.totalDamage = 50;//Assuming 30 projectiles 50/30 damage per projectile
     this.damageObjArr = [];
     this.damageBuff = null;
-    this.damageObj = DS.CreateDamageObject(0.033*this.totalDamage, 0, DTypes.Magic, this.damageBuff);
+    this.damageObj = DS.CreateDamageObject(0.033 * this.totalDamage, 0, DTypes.Magic, this.damageBuff);
     this.damageObj.timeLeft = this.durationBetweenHits;
     this.buffObj = [];
 
@@ -126,6 +127,73 @@ function MultiArrow(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     this.aniX += 34;
     this.aniY += 38;
 }
+
+function Grenade(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget, origin) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
+    if (xTarget !== 0){
+        this.angle = Math.PI/2 - xTarget * Math.PI/2;
+    }
+    if (yTarget !== 0){
+        this.angle = yTarget * Math.PI/2;
+    }
+    this.projectileSpeed = 8;
+    this.penetrative = false;
+    this.aoe = 100;//square
+    this.animation = new Animation(spriteSheet, 16, 16, 1, .085, 4, true, 2);
+    this.aniX += 23;
+    this.aniY += 23;
+    this.origin = origin;
+    this.animationAoe = new Animation(spriteSheetAoe, 32, 32, 1, .025, 10, false, 3);
+    this.direction = "angle";
+
+    // Damage stuff
+    this.totalDamage = 3;//Adjustable
+    this.knockBackDuration = 15;//Adjustable
+    this.damageObjArr = [];
+    let aX = this.x;
+    let aY = this.y;
+    this.knockBackFunc = function (unit) {//buff obj calls this
+        let angle = Math.atan2(unit.y - aY, unit.x - aX);
+        let knockBackAmount = 6;
+        unit.x += Math.cos(angle) * knockBackAmount;
+        unit.y += Math.sin(angle) * knockBackAmount;
+    }
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(0, 0, DTypes.None, this.damageBuff);
+    this.damageObj.timeLeft = 10;
+    this.buffObj = [];
+    this.damageBuffonExplosion = DS.CreateBuffObject("knock back", 
+                                [DS.CreateEffectObject(ETypes.None,0,0,this.knockBackDuration,0,this.knockBackFunc)
+                                ,DS.CreateEffectObject(ETypes.Stun,true,false,this.knockBackDuration,0)]);;
+    this.damageObjonExplosion = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Bludgeoning, this.damageBuffonExplosion);
+    this.damageObjonExplosion.timeLeft = 10;
+
+    this.childUpdate = function () {
+        //this.projectileSpeed *= .99999
+    }
+
+    this.childCollide = function (unit) {
+        let xPos, yPos, width = height = this.aoe;
+        xPos = this.x - 25;
+        yPos = this.y - 25;
+        let aBox = new BoundingBox(xPos, yPos, width, height);
+        let aCrow = new StillStand(this.animationAoe, 10, this.x, this.y);
+        aCrow.onCollide = function (unit) {
+            //console.log(unit);
+        }
+        aCrow.aniX = -30;
+        aCrow.aniY = -20;
+        let aHit = this.damageObjonExplosion;
+        aCrow.boundingbox = aBox;
+        aCrow.penetrative = true;
+        aCrow.entityHitType = EntityTypes.enemies;
+        aCrow.damageObj = aHit;
+        GAME_ENGINE.addEntity(aCrow);
+
+    }
+
+}
+
 /* #endregion */
 
 /* #region Trap */
@@ -235,8 +303,8 @@ function RootTrap(spriteSheetUp, spriteSheetDown) {
     this.damageObjArr = [];
     this.damageBuff = DS.CreateBuffObject("ranger root", [
         DS.CreateEffectObject(ETypes.Stun, true, false, this.rootDuration, 0),
-        DS.CreateEffectObject(ETypes.CurrentHealthF, this.totalDamage/16, 0, 45, 3)]);
-    this.damageObj = DS.CreateDamageObject(0*this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+        DS.CreateEffectObject(ETypes.CurrentHealthF, this.totalDamage / 16, 0, 45, 3)]);
+    this.damageObj = DS.CreateDamageObject(0 * this.totalDamage, 0, DTypes.Normal, this.damageBuff);
     this.damageObj.timeLeft = this.durationBetweenHits;
     this.buffObj = [];
 
@@ -255,7 +323,7 @@ function RootTrap(spriteSheetUp, spriteSheetDown) {
                 if (GAME_ENGINE.entities[4][i].health > 0) {
                     this.doAnimation = true;
                     this.activated = true;
-                    (this.hitOnce) ? null : this.lifeTime = this.durationBetweenHits-5;
+                    (this.hitOnce) ? null : this.lifeTime = this.durationBetweenHits - 5;
                     this.hitOnce = true;
                     (typeof this.childCollide === 'function') ? this.childCollide(entityCollide) : null;
                     this.damageObj.ApplyEffects(GAME_ENGINE.entities[4][i]);
@@ -390,6 +458,6 @@ function Spike(originX, originY, xTarget, yTarget, origin) {
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min; 
+    return Math.floor(Math.random() * (max - min)) + min;
 }
 /* #endregion */
