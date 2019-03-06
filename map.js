@@ -165,10 +165,6 @@ Background.prototype.decorateRoom = function () {
                                 testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
 
                             GAME_ENGINE.addEntity(ultralisk);
-
-                            var pool = new Zerg_Boss(AM.getAsset("./img/buildings/spawning_pool.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
-                            GAME_ENGINE.addEntity(pool);
                         }
                     } else if (this.map[testPos[1]][testPos[0]] === 2) {
                         for (let r = 1; r < 4; r++) {
@@ -189,12 +185,11 @@ Background.prototype.decorateRoom = function () {
             }
 
             // Adding a boss to the final room
-            // if (this.map[testPos[1]][testPos[0]] === 9) {
-            //     var zerg_boss = new Zerg_Boss(AM.getAsset("./img/buildings/gravemind.png"),
-            //     testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
-
-            //     GAME_ENGINE.addEntity(zerg_boss);
-            // }
+            if (this.map[testPos[1]][testPos[0]] === 9) {
+                var pool = new Zerg_Boss(AM.getAsset("./img/buildings/spawning_pool.png"),
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
+                GAME_ENGINE.addEntity(pool);
+            }
             roomNumber++;
 
         }
