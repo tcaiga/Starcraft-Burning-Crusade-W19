@@ -324,8 +324,8 @@ StillStand.prototype.draw = function () {
 
 /* #region Spawn Pool abilities */
 function SpawnZerglings() {
-    ss1Ani = new Animation(AM.getAsset("./img/ability/flame_ring_32x160.png"), 32, 32, 1, 0.13, 5, true, 1.5);
-    ss2Ani = new Animation(AM.getAsset("./img/ability/flame_explosion_32x320.png"), 32, 32, 1, 0.04, 10, false, 2);
+    ss1Ani = new Animation(AM.getAsset("./img/fireball.png"), 32, 32, 1, 0.13, 5, true, 1.5);
+    ss2Ani = new Animation(AM.getAsset("./img/fireball.png"), 32, 32, 1, 0.04, 10, false, 2);
     ss1 = new StillStand(ss1Ani, 60, myPlayer.x, myPlayer.y);
     ss1.ssAni = ss2Ani;
     ss1.width = 50;
@@ -340,26 +340,11 @@ function SpawnZerglings() {
     ss1.onDeath = function () {
         // create 5 zerglings at a random area within 50px of the player
         // after a 2s delay from a graphic being placed.
-        let zergling1 = new TinyZombie({
-            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-        }, x + getRandomInt(0, 40), y - getRandomInt(0, 50));
-        let zergling2 = new TinyZombie({
-            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-        }, x + getRandomInt(0, 40), y + getRandomInt(0, 40));
-        let zergling3 = new TinyZombie({
-            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-        }, x + getRandomInt(0, 40), y + getRandomInt(10, 20));
-        let zergling4 = new TinyZombie({
-            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-        }, x + getRandomInt(0, 40), y + getRandomInt(0, 40));
-        let zergling5 = new TinyZombie({
-            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-        }, x + getRandomInt(0, 40), y + getRandomInt(0, 40));
+        let zergling1 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
+        let zergling2 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
+        let zergling3 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
+        let zergling4 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
+        let zergling5 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
 
         GAME_ENGINE.addEntity(zergling1);
         GAME_ENGINE.addEntity(zergling2);
@@ -373,18 +358,20 @@ function SpawnZerglings() {
 function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     this.width = 100;
     this.height = 100;
-    ss1Ani = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
+    ss1Ani = new Animation(spriteSheet, this.width, this.height, 1, .25, 6, true, .75);
     ss1 = new StillStand(ss1Ani, 90, originX, originY);
     GAME_ENGINE.addEntity(ss1);
     ss1.onDeath = function () {
-        GAME_ENGINE.addEntity(new Spike(spriteSheet, originX, originY, xTarget, yTarget, origin));
+        GAME_ENGINE.addEntity(new Spike(originX, originY, xTarget, yTarget, origin));
     }
 
 
 }
 let ctr = 0;
-function Spike(spriteSheet, originX, originY, xTarget, yTarget, origin) {
-    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
+function Spike(originX, originY, xTarget, yTarget, origin) {
+    this.spriteSheet = AM.getAsset("./img/terran/bullet.png");
+    Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, "angle");
+
     // Damage stuff
     this.durationBetweenHits = 50;//Adjustable
     this.totalDamage = 15;//Adjustable
