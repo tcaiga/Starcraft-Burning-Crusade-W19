@@ -37,6 +37,7 @@ function GameEngine() {
     this.keyRight = false;
     this.keyDown = false;
 
+    this.reload = false;
     this.digit = [false, false, false, false, false, false, false, false, false, false];
     this.shoot = false;
     this.mouseX = 0;
@@ -116,6 +117,10 @@ GameEngine.prototype.startInput = function () {
         } else if (e.code === "ArrowDown") {
             that.shoot = true;
             that.keyDown = true;
+        }
+
+        if (e.code === "KeyR") {
+            that.reload = true;
         }
 
         //Abilities
