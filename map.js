@@ -171,7 +171,6 @@ Background.prototype.decorateRoom = function () {
                         }
                     }
                 }
-                
                 this.drawFaceCount++;
             }
         }
