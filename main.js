@@ -255,7 +255,7 @@ Player.prototype.update = function () {
                     this.shootCounter = 0;
 
                     var gunShot = new Audio("./audio/marine_shoot.wav");
-                    gunShot.volume = .1;
+                    gunShot.volume = myCurrentVolume;
                     gunShot.play();
                 } else {
                     this.shootCounter += GAME_ENGINE.clockTick;
@@ -313,7 +313,7 @@ Player.prototype.update = function () {
         if (this.health <= 0) {
             this.dead = true;
             var deathSound = new Audio("./audio/marine_death.wav");
-            deathSound.volume = .1;
+            deathSound.volume = myCurrentVolume;
             deathSound.play();
         }
 
