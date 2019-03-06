@@ -375,7 +375,8 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, 
     this.origin = belongsTo;
     this.width = 13;
     this.height = 13;
-    this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
+    this.scale = .75;
+    this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, this.scale);
     this.spriteSheet = spriteSheet;
     this.targetType = 4;
     this.x = originX - CAMERA.x;
@@ -696,6 +697,7 @@ AM.queueDownload("./img/buildings/gravemind.png");
 AM.queueDownload("./img/buildings/hive.png");
 AM.queueDownload("./img/buildings/infested_cc.png");
 AM.queueDownload("./img/buildings/ion_cannon.png");
+AM.queueDownload("./img/buildings/spawning_pool.png");
 
 // Marine
 AM.queueDownload("./img/terran/marine/marine_move_right.png");
