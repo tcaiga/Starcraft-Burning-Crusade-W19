@@ -1,10 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\img",
-    "\\img\\zerg",
-    "\\img\\zerg\\zergling"
+    "\\img"
   ],
-  "SelectedNode": "\\monsters.js",
+  "SelectedNode": "\\main.js",
   "PreviewInSolutionExplorer": false
 }

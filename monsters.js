@@ -29,7 +29,6 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.height = 56;
     this.animation = new Animation(spriteSheet, this.width, this.height,
         this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
-    this.isFlippable = true;
 
     this.y = y;
     this.x = x;
@@ -67,7 +66,7 @@ function Monster(spriteSheet, x, y, roomNumber) {
 Monster.prototype.draw = function () {
     this.xScale = 1;
     var xValue = this.x;
-    if (!this.right && this.isFlippable) {
+    if (!this.right) {
         GAME_ENGINE.ctx.save();
         GAME_ENGINE.ctx.scale(-1, 1);
         this.xScale = -1;
@@ -496,12 +495,11 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
 
     // animation
     this.scale = 1.5;
-    this.width = 100;
-    this.height = 75;
+    this.width = 128;
+    this.height = 76;
     this.numOfFrames = 4;
     this.frameLength = .15;
-    this.sheetWidth = 1;
-    this.isFlippable = false;
+    this.sheetWidth = 512;
 
     // gameplay
     this.speed = 0;
@@ -552,17 +550,17 @@ Zerg_Boss.prototype.bossBehavior = function () {
         if (myPlayer.x < 0) {
             tarX = canvasWidth - Math.abs(myPlayer.x) % canvasWidth;
         } else {
-            tarX = myPlayer.x;
+            tarX = Math.abs(myPlayer.x) % canvasWidth;
         }
 
         if (myPlayer.y < 0) {
             tarY = canvasHeight - Math.abs(myPlayer.y) % canvasHeight;
         } else {
-            tarY = myPlayer.y;
+            tarY = Math.abs(myPlayer.y) % canvasHeight;
         }
 
         for (var i = 0; i < 6; i++) {
-            new SpikeExplosion(AM.getAsset("./img/zerg/sunken_spike.png"), CAMERA.x + getRandomInt(0, canvasWidth), CAMERA.y + getRandomInt(0, canvasHeight),
+            new SpikeExplosion(AM.getAsset("./img/fireball.png"), CAMERA.x + getRandomInt(0, canvasWidth), CAMERA.y + getRandomInt(0, canvasHeight),
                 tarX, tarY, 4);
         }
 
