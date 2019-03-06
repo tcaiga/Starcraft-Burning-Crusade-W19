@@ -196,42 +196,34 @@ Player.prototype.update = function () {
             //this.x += this.velocity.x;
             //this.y += this.velocity.y;
 
-
-            this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
-            if (GAME_ENGINE.keyW === true) {
-                //this.y -= this.actualSpeed;
-                this.runDirection = "up";
-                this.animationIdle = this.animationRunUp;
-                this.y -= this.actualSpeed;
-            }
-            if (GAME_ENGINE.keyS === true) {
-                //this.y += this.actualSpeed;
-                this.runDirection = "down";
-                this.animationIdle = this.animationRunDown;
-                this.y += this.actualSpeed;
-            }
             if (GAME_ENGINE.keyA === true) {
-               // this.x -= this.actualSpeed;
                 this.runDirection = "left";
                 this.animationIdle = this.animationRunSide;
-                this.x -= this.actualSpeed;
             }
             if (GAME_ENGINE.keyD === true) {
-               // this.x += this.actualSpeed;
                 this.runDirection = "right";
                 this.animationIdle = this.animationRunSide;
-                this.x += this.actualSpeed;
+            }
+            if (GAME_ENGINE.keyW === true) {
+                this.runDirection = "up";
+                this.animationIdle = this.animationRunUp;
+            }
+            if (GAME_ENGINE.keyS === true) {
+                this.runDirection = "down";
+                this.animationIdle = this.animationRunDown;
             }
 
             /* #endregion */
 
 
-            //Reload
-            if (this.reloadCounter >= this.reloadTime && this.currentAmmo <= 0) {
+            //Reload  if user presses reload button or runs out of ammo
+            if ((this.currentAmmo <= 0 || GAME_ENGINE.reload) && this.reloadCounter < this.reloadTime) {
+                 this.reloadCounter += this.reloadRatio;
+            }else if (this.currentAmmo <= 0 || GAME_ENGINE.reload) {
                 this.currentAmmo = this.maxAmmo;
                 this.reloadCounter = 0;
-            } else if (this.currentAmmo <= 0) {
-                this.reloadCounter += this.reloadRatio;
+                GAME_ENGINE.reload = false;
+
             }
 
             if (GAME_ENGINE.shoot  && this.currentAmmo > 0) {
@@ -258,7 +250,12 @@ Player.prototype.update = function () {
                 }
             }
             //updates ammo img based on current ammo count
-            document.getElementById("ammoImg").src = "./img/utilities/ammo_count/bullet_" + this.currentAmmo + ".png";
+            var ammoHTML = document.getElementById("ammoImg");
+            if (GAME_ENGINE.reload) {
+                ammoHTML.src = "./img/utilities/ammo_count/bullet_0.png";
+            } else {
+                ammoHTML.src = "./img/utilities/ammo_count/bullet_" + this.currentAmmo + ".png";
+            }
         } else {
             this.castTime--;
         }
@@ -472,7 +469,8 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, 
     this.origin = belongsTo;
     this.width = 13;
     this.height = 13;
-    this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
+    this.scale = .75;
+    this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, this.scale);
     this.spriteSheet = spriteSheet;
     this.targetType = 4;
     this.x = originX - CAMERA.x;
@@ -793,6 +791,7 @@ AM.queueDownload("./img/buildings/gravemind.png");
 AM.queueDownload("./img/buildings/hive.png");
 AM.queueDownload("./img/buildings/infested_cc.png");
 AM.queueDownload("./img/buildings/ion_cannon.png");
+AM.queueDownload("./img/buildings/spawning_pool.png");
 
 // Marine
 AM.queueDownload("./img/terran/marine/marine_move_right.png");
@@ -826,6 +825,16 @@ AM.queueDownload("./img/zerg/ultra/ultra_death.png");
 AM.queueDownload("./img/zerg/zergling/zergling_move_right.png");
 AM.queueDownload("./img/zerg/zergling/zergling_attack_right.png");
 AM.queueDownload("./img/zerg/zergling/zergling_death.png");
+
+// Dark Templar
+AM.queueDownload("./img/protoss/dark_templar/dark_templar_move_right.png");
+AM.queueDownload("./img/protoss/dark_templar/dark_templar_attack_right.png");
+AM.queueDownload("./img/protoss/dark_templar/dark_templar_death.png");
+
+// Zealot
+AM.queueDownload("./img/protoss/zealot/zealot_move_right.png");
+AM.queueDownload("./img/protoss/zealot/zealot_attack_right.png");
+AM.queueDownload("./img/protoss/zealot/zealot_death.png");
 
 
 AM.downloadAll(function () {

@@ -29,6 +29,7 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.height = 56;
     this.animation = new Animation(spriteSheet, this.width, this.height,
         this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+    this.isFlippable = true;
 
     this.y = y;
     this.x = x;
@@ -66,7 +67,7 @@ function Monster(spriteSheet, x, y, roomNumber) {
 Monster.prototype.draw = function () {
     this.xScale = 1;
     var xValue = this.x;
-    if (!this.right) {
+    if (!this.right && this.isFlippable) {
         GAME_ENGINE.ctx.save();
         GAME_ENGINE.ctx.scale(-1, 1);
         this.xScale = -1;
@@ -115,9 +116,8 @@ Monster.prototype.update = function () {
 
     if (this.isBoss) {
         this.bossBehavior();
-    } else {
-
     }
+
     if (this.health <= 0) {
         this.removeFromWorld = true;
         GAME_ENGINE.removeEntity(this);
@@ -138,13 +138,19 @@ Monster.prototype.update = function () {
 
 
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        this.counter += GAME_ENGINE.clockTick;
-        this.damageObj.ApplyEffects(myPlayer);
-        this.pause = true;
-        if (this.counter > .018 && myPlayer.health > 0) {
+        if (this.isInfested) {
+            // do explosion animation and damage player
+            // then die
+            this.health = 0;
+        } else {
+            this.counter += GAME_ENGINE.clockTick;
+            this.damageObj.ApplyEffects(myPlayer);
+            this.pause = true;
+            if (this.counter > .018 && myPlayer.health > 0) {
             //player.health -= 5;
+            this.counter = 0;
+            }
         }
-        this.counter = 0;
     }
 
     // based on the number of ticks since the player was last hit, we pause the monster
@@ -284,6 +290,8 @@ Hydralisk.prototype = Monster.prototype;
 Infested.prototype = Monster.prototype;
 Ultralisk.prototype = Monster.prototype;
 Zergling.prototype = Monster.prototype;
+DarkTemplar.prototype = Monster.prototype;
+Zealot.prototype = Monster.prototype;
 Zerg_Boss.prototype = Monster.prototype;
 
 function Hydralisk(spriteSheet, x, y, roomNumber) {
@@ -336,6 +344,7 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
+    this.isInfested = true;
 
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
@@ -348,6 +357,10 @@ function Infested(spriteSheet, x, y, roomNumber) {
 
     this.counter = 0;
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+}
+
+Infested.prototype.infestedBehavior = function() {
+
 }
 
 function Ultralisk(spriteSheet, x, y, roomNumber) {
@@ -414,16 +427,81 @@ function Zergling(spriteSheet, x, y, roomNumber) {
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 }
 
+function Zealot(spriteSheet, x, y, roomNumber) {
+    Monster.call(this, spriteSheet, x, y, roomNumber);
+
+
+    // animation
+    this.scale = 1.5;
+    this.width = 50;
+    this.height = 50;
+    this.numOfFrames = 7;
+    this.frameLength = 0.03;
+    this.sheetWidth = 1;
+
+    // gameplay
+    this.speed = 150;
+    this.health = 15;
+    this.x = x;
+    this.y = y;
+    this.roomNumber = roomNumber;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 4;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
+    this.counter = 0;
+    this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+}
+
+function DarkTemplar(spriteSheet, x, y, roomNumber) {
+    Monster.call(this, spriteSheet, x, y, roomNumber);
+
+
+    // animation
+    this.scale = 1.5;
+    this.width = 50;
+    this.height = 50;
+    this.numOfFrames = 10;
+    this.frameLength = 0.03;
+    this.sheetWidth = 1;
+
+    // gameplay
+    this.speed = 150;
+    this.health = 15;
+    this.x = x;
+    this.y = y;
+    this.roomNumber = roomNumber;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 4;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
+    this.counter = 0;
+    this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+}
+
 function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     Monster.call(this, spriteSheet, x, y, roomNumber);
 
     // animation
     this.scale = 1.5;
-    this.width = 128;
-    this.height = 76;
+    this.width = 100;
+    this.height = 75;
     this.numOfFrames = 4;
     this.frameLength = .15;
-    this.sheetWidth = 512;
+    this.sheetWidth = 1;
+    this.isFlippable = false;
 
     // gameplay
     this.speed = 0;
@@ -474,17 +552,17 @@ Zerg_Boss.prototype.bossBehavior = function () {
         if (myPlayer.x < 0) {
             tarX = canvasWidth - Math.abs(myPlayer.x) % canvasWidth;
         } else {
-            tarX = Math.abs(myPlayer.x) % canvasWidth;
+            tarX = myPlayer.x;
         }
 
         if (myPlayer.y < 0) {
             tarY = canvasHeight - Math.abs(myPlayer.y) % canvasHeight;
         } else {
-            tarY = Math.abs(myPlayer.y) % canvasHeight;
+            tarY = myPlayer.y;
         }
 
         for (var i = 0; i < 6; i++) {
-            new SpikeExplosion(AM.getAsset("./img/fireball.png"), CAMERA.x + getRandomInt(0, canvasWidth), CAMERA.y + getRandomInt(0, canvasHeight),
+            new SpikeExplosion(AM.getAsset("./img/zerg/sunken_spike.png"), CAMERA.x + getRandomInt(0, canvasWidth), CAMERA.y + getRandomInt(0, canvasHeight),
                 tarX, tarY, 4);
         }
 
