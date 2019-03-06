@@ -198,6 +198,16 @@ Player.prototype.update = function () {
             // }
 
             this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
+            if (GAME_ENGINE.keyA === true) {
+                this.x -= this.actualSpeed;
+                this.runDirection = "left";
+                this.animationIdle = this.animationRunSide;
+            }
+            if (GAME_ENGINE.keyD === true) {
+                this.x += this.actualSpeed;
+                this.runDirection = "right";
+                this.animationIdle = this.animationRunSide;
+            }
             if (GAME_ENGINE.keyW === true) {
                 this.y -= this.actualSpeed;
                  this.runDirection = "up";
@@ -208,17 +218,6 @@ Player.prototype.update = function () {
                   this.runDirection = "down";
                   this.animationIdle = this.animationRunDown;
               } 
-             if (GAME_ENGINE.keyA === true) {
-                 this.x -= this.actualSpeed;
-                 this.runDirection = "left";
-                 this.animationIdle = this.animationRunSide;
-             }
-             if (GAME_ENGINE.keyD === true) {
-                 this.x += this.actualSpeed;
-                 this.runDirection = "right";
-                 this.animationIdle = this.animationRunSide;
-             }
-
             /* #endregion */
 
 
