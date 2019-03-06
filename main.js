@@ -44,10 +44,12 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.damageObjArr = [];
     this.buffObj = [];
     this.abilityCD = [0, 0, 0, 0, 0];
-    this.abilityCharges = [0,0,0,0,0];
+    this.abilityCharges = [0,2,1,2,1];
     this.abilityMaxCharges = [0,2,1,2,1];
     this.abilityBaseCoolDown = [0,80,80,80,80];
     this.selectedAbility = 0;
+    this.internalCD = 7;
+    this.internalCurrent = 0;
     this.cooldownRate = 1;
     this.cooldownAdj = 0;
     this.castTime = 0;
@@ -70,6 +72,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.reloadRatio = 1;
     this.reloadCounter = 0;
     this.maxShootCounter = 0.2;
+    this.maxShootRatio = 1;
     this.shootCounter = this.maxShootCounter;
     this.maxHealth = 1000;
     this.health = this.maxHealth;
@@ -150,7 +153,8 @@ Player.prototype.draw = function () {
 
 Player.prototype.update = function () {
     // Player movement controls
-
+    this.health = Math.floor(this.health);
+    let t;
     if (!this.dead) {
         let castingAbility = false;
         for (t in GAME_ENGINE.digit) {
@@ -180,39 +184,43 @@ Player.prototype.update = function () {
             this.velocity.y += (GAME_ENGINE.keyS) ? speedShift.y : 0;
 
             //Check max
-            this.velocity.x = (Math.abs(this.velocity.x) > this.baseMaxMovespeed) ? Math.sign(this.velocity.x) * this.baseMaxMovespeed : this.velocity.x;
-            this.velocity.y = (Math.abs(this.velocity.y) > this.baseMaxMovespeed) ? Math.sign(this.velocity.y) * this.baseMaxMovespeed : this.velocity.y;
+            this.velocity.x = (Math.abs(this.velocity.x) > this.maxMovespeedRatio * this.baseMaxMovespeed) ? Math.sign(this.velocity.x) * this.maxMovespeedRatio * this.baseMaxMovespeed : this.velocity.x;
+            this.velocity.y = (Math.abs(this.velocity.y) > this.maxMovespeedRatio * this.baseMaxMovespeed) ? Math.sign(this.velocity.y) * this.maxMovespeedRatio * this.baseMaxMovespeed : this.velocity.y;
             let mag = Math.sqrt(Math.pow(this.velocity.x, 2) + Math.pow(this.velocity.y, 2));
             if (mag > this.baseMaxMovespeed) {//Circle max movespeed
-                this.velocity.x = this.baseMaxMovespeed * this.velocity.x / mag;
-                this.velocity.y = this.baseMaxMovespeed * this.velocity.y / mag;
+                this.velocity.x = this.maxMovespeedRatio * this.baseMaxMovespeed * this.velocity.x / mag;
+                this.velocity.y = this.maxMovespeedRatio * this.baseMaxMovespeed * this.velocity.y / mag;
             }
 
             //Application of velocity
-            this.x += this.velocity.x;
-            this.y += this.velocity.y;
+            //this.x += this.velocity.x;
+            //this.y += this.velocity.y;
 
 
-            //this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
+            this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
             if (GAME_ENGINE.keyW === true) {
                 //this.y -= this.actualSpeed;
                 this.runDirection = "up";
                 this.animationIdle = this.animationRunUp;
+                this.y -= this.actualSpeed;
             }
             if (GAME_ENGINE.keyS === true) {
                 //this.y += this.actualSpeed;
                 this.runDirection = "down";
                 this.animationIdle = this.animationRunDown;
+                this.y += this.actualSpeed;
             }
             if (GAME_ENGINE.keyA === true) {
                // this.x -= this.actualSpeed;
                 this.runDirection = "left";
                 this.animationIdle = this.animationRunSide;
+                this.x -= this.actualSpeed;
             }
             if (GAME_ENGINE.keyD === true) {
                // this.x += this.actualSpeed;
                 this.runDirection = "right";
                 this.animationIdle = this.animationRunSide;
+                this.x += this.actualSpeed;
             }
 
             /* #endregion */
@@ -246,7 +254,7 @@ Player.prototype.update = function () {
                     this.currentAmmo--;
                     this.shootCounter = 0;
                 } else {
-                    this.shootCounter += GAME_ENGINE.clockTick;
+                    this.shootCounter += GAME_ENGINE.clockTick * this.maxShootRatio;
                 }
             }
             //updates ammo img based on current ammo count
@@ -255,9 +263,16 @@ Player.prototype.update = function () {
             this.castTime--;
         }
         /* #region Abilities */
-        let t;
         for (t in this.abilityCD) {
             this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
+            if(this.abilityCharges[t] < this.abilityMaxCharges[t] && this.abilityCD[t] <= 0){
+                if (this.abilityCharges[t] < this.abilityMaxCharges[t]) {
+                    this.abilityCD[t] = this.abilityBaseCoolDown[t]
+                }
+                if (this.abilityCharges[t] < this.abilityMaxCharges[t]) {
+                    this.abilityCharges[t] ++;
+                }
+            }
             if (t > 0) {
                 var spellHTML = document.getElementById("spell" + t);
                 //display if spell is ready to use or not
@@ -272,8 +287,9 @@ Player.prototype.update = function () {
         }
 
         for (t in GAME_ENGINE.digit) {
-            if (GAME_ENGINE.shoot && GAME_ENGINE.digit[t] && !this.isStunned){
-                this.selectedAbility = t;
+            if (GAME_ENGINE.digit[t] && !this.isStunned && this.internalCurrent-- <= 0){
+                this.internalCurrent = this.internalCD;
+                this.selectedAbility = parseInt(t);
                 this.castAbility();
                 this.selectedAbility = -1;
                 castingAbility = false;
@@ -365,29 +381,38 @@ function dirInterpret (directionString){
 Player.prototype.castAbility = function () {
     if (this.abilityCharges[this.selectedAbility] > 0){
         switch (this.selectedAbility) {
-            case 0:
-                break;
             case 1: //grenade
                 let aDir = dirInterpret(this.shootDirection);
                 let projectile = new Grenade(AM.getAsset("./img/terran/bullet.png")
-                        ,AM.getAsset("./img/zerg/ultra/ultra_death.png"),this.x + 15,this.y + 15,this.x + aDir.x,this.y + aDir.y,5);
-                this.abilityCharges[this.selectedAbility]--;
+                        ,AM.getAsset("./img/zerg/ultra/ultra_death.png"),this.x + 15,this.y + 15,aDir.x,aDir.y,5);
+                this.abilityCharges[1]--;
+                this.abilityCD[1] = this.abilityBaseCoolDown[1];
                 GAME_ENGINE.addEntity(projectile);
                 break;
             case 2://Stim pack
                 let damage = 15; //15 + 5%
                 let damagePercent = 5;
                 let aBuff = DS.CreateBuffObject("stim pack",[
-                            DS.CreateEffectObject(ETypes.MoveSpeedR,1.3,1/1.3,300,0),
-                            DS.CreateEffectObject(ETypes.CurrentHealthR,(100 - damagePercent)/100,1,10,0),
+                            DS.CreateEffectObject(ETypes.MoveSpeedR,2,1/2,200,0),
                             DS.CreateEffectObject(ETypes.CooldownRateR,2,.5,200,0),
-                            DS.CreateEffectObject(ETypes.ReloadRateR,2,.5,200,0)
+                            DS.CreateEffectObject(ETypes.ReloadRateR,2.5,1/2.5,200,0),
+                            DS.CreateEffectObject(ETypes.ShootCountR, 2, .5,200,0)
                 ]);
-                let aDmg = DS.CreateDamageObject(damage,0,DTypes.True,aBuff);
-                aDmg.ApplyEffects(this);
-                this.abilityCharges[this.selectedAbility]--;
+                let aDmg = DS.CreateDamageObject(damage + this.health*(damagePercent/100),0,DTypes.True,aBuff);
+                if (this.health > 25){
+                    aDmg.ApplyEffects(this);
+                    this.abilityCharges[2]--;
+                    this.abilityCD[2] = this.abilityBaseCoolDown[2];
+                }
                 break;
-            case 3:
+            case 3://self heal
+                if (this.health < this.maxHealth){
+                    let healAmount = 75;
+                    let aHeal = DS.CreateDamageObject(-healAmount,0,DTypes.None);
+                    aHeal.ApplyEffects(this);
+                    this.abilityCharges[3]--;
+                    this.abilityCD[3] = this.abilityBaseCoolDown[3];
+                }
                 break;
             case 4:
                 break;
@@ -410,7 +435,7 @@ Player.prototype.changeHealth = function (amount) {
         //to actually have it display
     }
 
-    this.health += amount;//Damage will come in as a negative value;
+    this.health += Math.floor(amount);//Damage will come in as a negative value;
     this.healthPercent = Math.floor(this.health / this.maxHealth * 100);
     this.updateHealthHTML(this.health);
     //changes color of health wireframe based on health percentage
