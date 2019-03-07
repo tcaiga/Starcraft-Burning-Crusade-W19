@@ -399,6 +399,10 @@ function shootDirectionToVec (dir) {
 Player.prototype.castSpell = function (number) {
     let totalDamage, cooldDown, speed, aoe, origin, dir
     ,msInc, reloadInc, shootspeedInc, totalHeal, duration;
+    // AM.getAsset("./img/terran/abilities/rocket/rocket_explosion.png");
+    // AM.getAsset("./img/terran/abilities/incendiary_shot.png");
+    // AM.getAsset("./img/terran/abilities/self_heal.png");
+    // AM.getAsset("./img/terran/abilities/stimpack.png");
     dir = shootDirectionToVec(this.lastShootDirection);
     if (this.abilityCD[number] <= 0) {
         switch(number) {
@@ -418,14 +422,29 @@ Player.prototype.castSpell = function (number) {
             case 2://Stimpack
                 let selfDamage = 20;
                 cooldDown = 400;
+                duration = 200;
                 msInc = 2;
                 shootspeedInc = 2;
                 reloadInc = 2;
                 let tempObj = []
-                tempObj.push(DS.CreateEffectObject(ETypes.ReloadR,reloadInc,1/reloadInc,200,0));
-                tempObj.push(DS.CreateEffectObject(ETypes.MoveSpeedR,msInc,1/msInc,200,0));
-                tempObj.push(DS.CreateEffectObject(ETypes.ShootSpeedR,shootspeedInc,1/shootspeedInc,200,0));
+                tempObj.push(DS.CreateEffectObject(ETypes.ReloadR,reloadInc,1/reloadInc,duration,0));
+                tempObj.push(DS.CreateEffectObject(ETypes.MoveSpeedR,msInc,1/msInc,duration,0));
+                tempObj.push(DS.CreateEffectObject(ETypes.ShootSpeedR,shootspeedInc,1/shootspeedInc,duration,0));
                 DS.CreateDamageObject(selfDamage,0,DTypes.True,DS.CreateBuffObject("Stimpack",tempObj)).ApplyEffects(this);
+
+                let ani2 = new Animation(AM.getAsset("./img/terran/abilities/stimpack.png"),16, 16, 1, .085, 4, true, 2);
+                let ss2 = new StillStand(ani2,duration,this.x,this.y);
+                ss2.player = this;
+                ss2.onUpdate = function () {
+                    if (this.player.xScale < 0){
+                        this.x = this.player.x -14;
+                    } else {
+                        this.x = this.player.x + 2;
+                    }
+                    this.y = this.player.y -26;
+                }
+                GAME_ENGINE.addEntity(ss2);
+
                 this.abilityCD[number] = cooldDown;
             break;
             case 3://Selfheal
@@ -437,6 +456,19 @@ Player.prototype.castSpell = function (number) {
                     DS.CreateDamageObject(Math.ceil(-totalHeal/(1 + duration/interval)),0,DTypes.None,null).ApplyEffects(unit);
                 });
                 DS.CreateDamageObject(0,0,DTypes.None,DS.CreateBuffObject("Self heal",[tempB])).ApplyEffects(this);
+
+                let ani = new Animation(AM.getAsset("./img/terran/abilities/self_heal.png"),16, 16, 1, .085, 4, true, 2);
+                let ss1 = new StillStand(ani,duration,this.x,this.y);
+                ss1.player = this;
+                ss1.onUpdate = function () {
+                    if (this.player.xScale < 0){
+                        this.x = this.player.x -14;
+                    } else {
+                        this.x = this.player.x + 2;
+                    }
+                    this.y = this.player.y -26;
+                }
+                GAME_ENGINE.addEntity(ss1);
                 this.abilityCD[number] = cooldDown;
             break;
             case 4://FireRound?
@@ -829,6 +861,10 @@ AM.queueDownload("./img/terran/marine/marine_shoot_up.png");
 AM.queueDownload("./img/terran/marine/marine_shoot_down.png");
 AM.queueDownload("./img/terran/marine/marine_death.png");
 AM.queueDownload("./img/terran/bullet.png");
+AM.queueDownload("./img/terran/abilities/rocket/rocket_explosion.png");
+AM.queueDownload("./img/terran/abilities/incendiary_shot.png");
+AM.queueDownload("./img/terran/abilities/self_heal.png");
+AM.queueDownload("./img/terran/abilities/stimpack.png");
 
 // Sunken Spike
 AM.queueDownload("./img/zerg/sunken_spike.png");
