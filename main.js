@@ -918,6 +918,9 @@ AM.queueDownload("./img/protoss/zealot/zealot_move_right.png");
 AM.queueDownload("./img/protoss/zealot/zealot_attack_right.png");
 AM.queueDownload("./img/protoss/zealot/zealot_death.png");
 
+//shadow test
+AM.queueDownload("./img/utilities/Shadow1.png")
+
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");

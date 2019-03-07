@@ -486,8 +486,8 @@ StillStand.prototype.draw = function () {
 
 /* #region Spawn Pool abilities */
 function SpawnZerglings() {
-    ss1Ani = new Animation(AM.getAsset("./img/fireball.png"), 32, 32, 1, 0.13, 5, true, 1.5);
-    ss2Ani = new Animation(AM.getAsset("./img/fireball.png"), 32, 32, 1, 0.04, 10, false, 2);
+    ss1Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.13, 5, true, .25);
+    ss2Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.04, 10, true, .175);
     ss1 = new StillStand(ss1Ani, 60, myPlayer.x, myPlayer.y);
     ss1.ssAni = ss2Ani;
     ss1.width = 50;

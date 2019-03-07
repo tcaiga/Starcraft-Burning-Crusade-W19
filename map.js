@@ -189,6 +189,7 @@ Background.prototype.decorateRoom = function () {
                 var pool = new Zerg_Boss(AM.getAsset("./img/buildings/spawning_pool.png"),
                                 testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
                 GAME_ENGINE.addEntity(pool);
+                console.log("I made a boss");
             }
             roomNumber++;
 
