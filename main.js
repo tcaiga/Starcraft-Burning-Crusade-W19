@@ -398,7 +398,7 @@ function shootDirectionToVec (dir) {
 
 Player.prototype.castSpell = function (number) {
     let totalDamage, cooldDown, speed, aoe, origin, dir
-    ,msInc, reloadInc, shootspeedInc, totalHeal, duration;
+    ,msInc, reloadInc, shootspeedInc, totalHeal, duration, interval;
     // AM.getAsset("./img/terran/abilities/rocket/rocket_explosion.png");
     // AM.getAsset("./img/terran/abilities/incendiary_shot.png");
     // AM.getAsset("./img/terran/abilities/self_heal.png");
@@ -446,12 +446,12 @@ Player.prototype.castSpell = function (number) {
                 GAME_ENGINE.addEntity(ss2);
 
                 this.abilityCD[number] = cooldDown;
-            break;
+                break;
             case 3://Selfheal
                 totalHeal = this.maxHealth*0.65;
                 cooldDown = 600;
                 duration = 140;
-                let interval = 7;
+                interval = 7;
                 let tempB = DS.CreateEffectObject(ETypes.None,0,0,duration,interval, function (unit) {
                     DS.CreateDamageObject(Math.ceil(-totalHeal/(1 + duration/interval)),0,DTypes.None,null).ApplyEffects(unit);
                 });
@@ -470,9 +470,28 @@ Player.prototype.castSpell = function (number) {
                 }
                 GAME_ENGINE.addEntity(ss1);
                 this.abilityCD[number] = cooldDown;
-            break;
+                break;
             case 4://FireRound?
-            break;
+                totalDamage = 60;//Numbers are rounded so it is a bit iffy
+                cooldDown = 200;
+                speed = 11;
+                aoe = 33;
+                origin = 5;
+                interval = 5;
+                duration = 150;
+                let adamageBuffonExplosion = DS.CreateBuffObject("burn", [DS.CreateEffectObject(ETypes.None,0,0,duration,interval,function (unit) {
+                    DS.CreateDamageObject(totalDamage/(1 + duration/interval),0,DTypes.Magic,null).ApplyEffects(unit);
+                })]);
+                let adamageObjonExplosion = DS.CreateDamageObject(0, 0, DTypes.None, adamageBuffonExplosion);
+                adamageObjonExplosion.timeLeft = 10;
+
+                let tempPro2 = new FireRound(AM.getAsset("./img/terran/abilities/incendiary_shot.png"),AM.getAsset("./img/terran/abilities/incendiary_shot.png"),this.x + 13, this.y + 13,dir.x,dir.y,origin);
+                tempPro2.damageObjonExplosion = adamageObjonExplosion;
+                tempPro2.projectileSpeed = speed;
+                tempPro2.aoe = aoe;
+                GAME_ENGINE.addEntity(tempPro2);
+                this.abilityCD[number] = cooldDown;
+                break;
         }
     }
 }
