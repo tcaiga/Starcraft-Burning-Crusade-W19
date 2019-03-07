@@ -139,11 +139,21 @@ function Grenade(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget
     this.projectileSpeed = 8;
     this.penetrative = false;
     this.aoe = 100;//square
-    this.animation = new Animation(spriteSheet, 16, 16, 1, .085, 4, true, 2);
+    if (spriteSheet !== null){
+        this.animation = new Animation(spriteSheet, 16, 16, 1, .085, 4, true, 2);
+        this.spriteSheet = spriteSheet;
+    } else {
+        this.spriteSheet = AM.getAsset("./img/terran/bullet.png");
+        this.animation = new Animation(AM.getAsset("./img/terran/bullet.png"), 13, 13, 1, .085, 8, true, 1.5);
+    }
     this.aniX += 23;
     this.aniY += 23;
     this.origin = origin;
-    this.animationAoe = new Animation(spriteSheetAoe, 32, 32, 1, .025, 10, false, 3);
+    if (spriteSheetAoe !== null){
+        this.animationAoe = new Animation(spriteSheetAoe, 32, 32, 1, .025, 10, false, 3);
+    } else {
+        this.animationAoe = new Animation(AM.getAsset("./img/zerg/ultra/ultra_death.png"), 100, 100, 1, .03, 9, false, 1);
+    }
     this.direction = "angle";
 
     // Damage stuff
@@ -153,10 +163,14 @@ function Grenade(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget
     let aX = this.x;
     let aY = this.y;
     this.knockBackFunc = function (unit) {//buff obj calls this
-        let angle = Math.atan2(unit.y - aY, unit.x - aX);
-        let knockBackAmount = 6;
-        unit.x += Math.cos(angle) * knockBackAmount;
-        unit.y += Math.sin(angle) * knockBackAmount;
+        if (unit.isBoss){
+
+        } else {
+            let angle = Math.atan2(unit.y - aY, unit.x - aX);
+            let knockBackAmount = 6;
+            unit.x += Math.cos(angle) * knockBackAmount;
+            unit.y += Math.sin(angle) * knockBackAmount;
+        }
     }
     this.damageBuff = null;
     this.damageObj = DS.CreateDamageObject(0, 0, DTypes.None, this.damageBuff);
@@ -168,10 +182,14 @@ function Grenade(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget
             , DS.CreateEffectObject(ETypes.Stun, true, false, this.knockBackDuration, 0)]);;
     this.damageObjonExplosion = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Bludgeoning, this.damageBuffonExplosion);
     this.damageObjonExplosion.timeLeft = 10;
-
+    this.direction = "angle";
     this.childUpdate = function () {
         this.counters++;
-        this.y += Math.sin(this.counters/10);
+        if (this.angle === Math.PI || this.angle === 0){
+            this.y += 3*Math.sin(this.counters/3);
+        } else {
+            this.x += 3*Math.sin(this.counters/3);
+        }
     }
 
     this.childCollide = function (unit) {

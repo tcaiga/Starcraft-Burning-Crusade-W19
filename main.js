@@ -60,6 +60,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
     this.runDirection = "right";
     this.shootDirection = "right";
+    this.lastShootDirection = "right";
     this.maxAmmo = 13;
     this.currentAmmo = this.maxAmmo;
     this.reloadTime = 80;
@@ -235,10 +236,14 @@ Player.prototype.update = function () {
 
                 /* #endregion */
             }
+            let spellCast = false,q,selectSpell;
+            for (q in GAME_ENGINE.digit){
+                if (GAME_ENGINE.digit[q]) {selectSpell = parseInt(q);
+                    spellCast = true;}}
 
-            if (GAME_ENGINE.shoot && this.currentAmmo > 0 && !GAME_ENGINE.reload) {
+            if (GAME_ENGINE.shoot && this.currentAmmo > 0 && !GAME_ENGINE.reload || (spellCast && this.abilityCD[selectSpell] <= 0)) {
                 var direction;
-                let spellCast = false,q,selectSpell;
+                
                 if (this.shootCounter >= this.maxShootCounter) {
                     direction = "down";
                     if (GAME_ENGINE.keyUp === true) {
@@ -249,10 +254,10 @@ Player.prototype.update = function () {
                         direction = "right";
                     }
                     this.shootDirection = direction;
-                    for (q in GAME_ENGINE.digit){
-                        if (q != null) {selectSpell = parseInt(q);
-                            spellCast = true;}}
-                    if (!spellCast) {
+                    if (GAME_ENGINE.keyUp || GAME_ENGINE.keyDown || GAME_ENGINE.keyLeft || GAME_ENGINE.keyRight){
+                        this.lastShootDirection = this.shootDirection;
+                    }
+                    if (!spellCast || this.abilityCD[selectSpell] > 0) {
                         var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
                             myPlayer.x + 15,
                             myPlayer.y + 23,
@@ -366,11 +371,43 @@ Player.prototype.update = function () {
 
 }
 
+function shootDirectionToVec (dir) {
+    let result = {x:0,y:0};
+    switch (dir) {
+        case "up":
+        result.y--;
+        break;
+        case "down":
+        result.y++;
+        break;
+        case "left":
+        result.x--;
+        break;
+        case "right":
+        result.x++;
+        break;
+    }
+    return result;
+}
+
 Player.prototype.castSpell = function (number) {
+    let totalDamage, cooldDown, speed, aoe, origin, dir;
+    dir = shootDirectionToVec(this.lastShootDirection);
     if (this.abilityCD[number] <= 0) {
         switch(number) {
             case 1://Grenade
-            break;
+                totalDamage = 10;
+                cooldDown = 120;
+                speed = 8;
+                aoe = 125;
+                origin = 5;
+                let tempPro = new Grenade(null,null,this.x + 13, this.y + 13,dir.x,dir.y,origin);
+                tempPro.damageObjonExplosion.damage = totalDamage;
+                tempPro.projectileSpeed = speed;
+                tempPro.aoe = aoe;
+                GAME_ENGINE.addEntity(tempPro);
+                this.abilityCD[number] = cooldDown;
+                break;
             case 2://Stimpack
             break;
             case 3://Selfheal
