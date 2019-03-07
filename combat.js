@@ -150,9 +150,9 @@ function Grenade(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget
     this.aniY += 23;
     this.origin = origin;
     if (spriteSheetAoe !== null){
-        this.animationAoe = new Animation(spriteSheetAoe, 32, 32, 1, .025, 10, false, 3);
+        this.animationAoe = new Animation(spriteSheetAoe, 35, 33, 1, .025, 10, false, 3);
     } else {
-        this.animationAoe = new Animation(AM.getAsset("./img/zerg/ultra/ultra_death.png"), 100, 100, 1, .03, 9, false, 1);
+        this.animationAoe = new Animation(AM.getAsset("./img/zerg/ultra/ultra_death.png"), 100, 100, 1, .01, 9, false, 1);
     }
     this.direction = "angle";
 
