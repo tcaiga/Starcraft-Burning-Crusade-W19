@@ -116,7 +116,7 @@ Monster.prototype.update = function () {
 
     if (this.isBoss) {
         this.bossBehavior();
-    }
+    } 
 
     if (this.health <= 0) {
         this.removeFromWorld = true;
@@ -143,15 +143,15 @@ Monster.prototype.update = function () {
             // then die
             this.health = 0;
         } else {
-            this.counter += GAME_ENGINE.clockTick;
-            this.damageObj.ApplyEffects(myPlayer);
-            this.pause = true;
-            if (this.counter > .018 && myPlayer.health > 0) {
+        this.counter += GAME_ENGINE.clockTick;
+        this.damageObj.ApplyEffects(myPlayer);
+        this.pause = true;
+        if (this.counter > .018 && myPlayer.health > 0) {
             //player.health -= 5;
-            this.counter = 0;
-            }
+        this.counter = 0;
         }
     }
+}
 
     // based on the number of ticks since the player was last hit, we pause the monster
     if (this.pause == false && !this.isStunned) {
