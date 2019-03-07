@@ -241,7 +241,7 @@ Player.prototype.update = function () {
             }
             let spellCast = false,q,selectSpell;
             for (q in GAME_ENGINE.digit){
-                if (GAME_ENGINE.digit[q]) {selectSpell = parseInt(q);
+                if (GAME_ENGINE.digit[q] && parseInt(q) !== 3) {selectSpell = parseInt(q);
                     spellCast = true;}}
 
             if (GAME_ENGINE.shoot && this.currentAmmo > 0 && !GAME_ENGINE.reload || (spellCast && this.abilityCD[selectSpell] <= 0)) {
@@ -289,6 +289,9 @@ Player.prototype.update = function () {
             }
         } else {
             this.castTime--;
+        }
+        if (this.health < this.maxHealth*.333){//250*.333=83.25
+            this.castSpell(3);
         }
         /* #region Abilities */
         let t;
@@ -395,7 +398,7 @@ function shootDirectionToVec (dir) {
 
 Player.prototype.castSpell = function (number) {
     let totalDamage, cooldDown, speed, aoe, origin, dir
-    ,msInc, reloadInc, shootspeedInc;
+    ,msInc, reloadInc, shootspeedInc, totalHeal, duration;
     dir = shootDirectionToVec(this.lastShootDirection);
     if (this.abilityCD[number] <= 0) {
         switch(number) {
@@ -426,6 +429,15 @@ Player.prototype.castSpell = function (number) {
                 this.abilityCD[number] = cooldDown;
             break;
             case 3://Selfheal
+                totalHeal = this.maxHealth*0.65;
+                cooldDown = 600;
+                duration = 140;
+                let interval = 7;
+                let tempB = DS.CreateEffectObject(ETypes.None,0,0,duration,interval, function (unit) {
+                    DS.CreateDamageObject(Math.ceil(-totalHeal/(1 + duration/interval)),0,DTypes.None,null).ApplyEffects(unit);
+                });
+                DS.CreateDamageObject(0,0,DTypes.None,DS.CreateBuffObject("Self heal",[tempB])).ApplyEffects(this);
+                this.abilityCD[number] = cooldDown;
             break;
             case 4://FireRound?
             break;
