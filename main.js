@@ -72,6 +72,9 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.healthPercent = 100;
     this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x, this.y, this.width, this.height);
+
+    this.reloadRatio = 1;
+    this.shootSpeedRatio = 1;
 }
 
 Player.prototype.draw = function () {
@@ -228,7 +231,7 @@ Player.prototype.update = function () {
             }
             //Reload  if user presses reload button or runs out of ammo
             if ((this.currentAmmo <= 0 || GAME_ENGINE.reload) && this.reloadCounter < this.reloadTime) {
-                this.reloadCounter++;
+                this.reloadCounter += this.reloadRatio;
             } else if (this.currentAmmo <= 0 || GAME_ENGINE.reload) {
                 this.currentAmmo = this.maxAmmo;
                 this.reloadCounter = 0;
@@ -273,7 +276,7 @@ Player.prototype.update = function () {
                         this.castSpell(selectSpell);
                     }
                 } else {
-                    this.shootCounter += GAME_ENGINE.clockTick;
+                    this.shootCounter += GAME_ENGINE.clockTick * this.shootSpeedRatio;
                 }
             }
             /* #region  */
@@ -391,7 +394,8 @@ function shootDirectionToVec (dir) {
 }
 
 Player.prototype.castSpell = function (number) {
-    let totalDamage, cooldDown, speed, aoe, origin, dir;
+    let totalDamage, cooldDown, speed, aoe, origin, dir
+    ,msInc, reloadInc, shootspeedInc;
     dir = shootDirectionToVec(this.lastShootDirection);
     if (this.abilityCD[number] <= 0) {
         switch(number) {
@@ -409,6 +413,17 @@ Player.prototype.castSpell = function (number) {
                 this.abilityCD[number] = cooldDown;
                 break;
             case 2://Stimpack
+                let selfDamage = 20;
+                cooldDown = 400;
+                msInc = 2;
+                shootspeedInc = 2;
+                reloadInc = 2;
+                let tempObj = []
+                tempObj.push(DS.CreateEffectObject(ETypes.ReloadR,reloadInc,1/reloadInc,200,0));
+                tempObj.push(DS.CreateEffectObject(ETypes.MoveSpeedR,msInc,1/msInc,200,0));
+                tempObj.push(DS.CreateEffectObject(ETypes.ShootSpeedR,shootspeedInc,1/shootspeedInc,200,0));
+                DS.CreateDamageObject(selfDamage,0,DTypes.True,DS.CreateBuffObject("Stimpack",tempObj)).ApplyEffects(this);
+                this.abilityCD[number] = cooldDown;
             break;
             case 3://Selfheal
             break;
