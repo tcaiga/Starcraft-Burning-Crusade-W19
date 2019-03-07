@@ -541,7 +541,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
 Zerg_Boss.prototype.bossBehavior = function () {
     if (this.lastInfestedPod == 0) {
         new SpawnZerglings();
-        this.lastInfestedPod = 420;
+        this.lastInfestedPod = 600;
     }
 
 

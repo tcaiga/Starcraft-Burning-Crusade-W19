@@ -74,6 +74,7 @@ Background.prototype.createWalls = function () {
 }
 
 Background.prototype.decorateRoom = function () {
+    var roomNumber = 0;
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
             // Drawing doors
