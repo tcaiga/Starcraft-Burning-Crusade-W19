@@ -60,6 +60,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
     this.runDirection = "right";
     this.shootDirection = "right";
+    this.lastShootDirection = "right";
     this.maxAmmo = 13;
     this.currentAmmo = this.maxAmmo;
     this.reloadTime = 80;
@@ -149,6 +150,7 @@ Player.prototype.update = function () {
     if (!this.dead) {
         this.velocity = (this.castTime > 0 || this.isStunned) ? { x: 0, y: 0 } : this.velocity;
         if (this.castTime <= 0 && !this.isStunned) {
+            /* #region  */
             /* #region Player movement controls */
 
             // //Speed shift calculation
@@ -210,14 +212,14 @@ Player.prototype.update = function () {
             }
             if (GAME_ENGINE.keyW === true) {
                 this.y -= this.actualSpeed;
-                 this.runDirection = "up";
-                 this.animationIdle = this.animationRunUp;
-             }
-             if (GAME_ENGINE.keyS === true) {
-                 this.y += this.actualSpeed;
-                  this.runDirection = "down";
-                  this.animationIdle = this.animationRunDown;
-              } 
+                this.runDirection = "up";
+                this.animationIdle = this.animationRunUp;
+            }
+            if (GAME_ENGINE.keyS === true) {
+                this.y += this.actualSpeed;
+                this.runDirection = "down";
+                this.animationIdle = this.animationRunDown;
+            }
             /* #endregion */
 
 
@@ -227,15 +229,21 @@ Player.prototype.update = function () {
             //Reload  if user presses reload button or runs out of ammo
             if ((this.currentAmmo <= 0 || GAME_ENGINE.reload) && this.reloadCounter < this.reloadTime) {
                 this.reloadCounter++;
-            }else if (this.currentAmmo <= 0 || GAME_ENGINE.reload) {
+            } else if (this.currentAmmo <= 0 || GAME_ENGINE.reload) {
                 this.currentAmmo = this.maxAmmo;
                 this.reloadCounter = 0;
                 GAME_ENGINE.reload = false;
+
+                /* #endregion */
             }
+            let spellCast = false,q,selectSpell;
+            for (q in GAME_ENGINE.digit){
+                if (GAME_ENGINE.digit[q]) {selectSpell = parseInt(q);
+                    spellCast = true;}}
 
-            if (GAME_ENGINE.shoot  && this.currentAmmo > 0 && !GAME_ENGINE.reload) {
+            if (GAME_ENGINE.shoot && this.currentAmmo > 0 && !GAME_ENGINE.reload || (spellCast && this.abilityCD[selectSpell] <= 0)) {
                 var direction;
-
+                
                 if (this.shootCounter >= this.maxShootCounter) {
                     direction = "down";
                     if (GAME_ENGINE.keyUp === true) {
@@ -246,21 +254,29 @@ Player.prototype.update = function () {
                         direction = "right";
                     }
                     this.shootDirection = direction;
-                    var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
-                        myPlayer.x + 15,
-                        myPlayer.y + 23,
-                        0, 0, 5, direction);
-                    GAME_ENGINE.addEntity(projectile);
-                    this.currentAmmo--;
-                    this.shootCounter = 0;
+                    if (GAME_ENGINE.keyUp || GAME_ENGINE.keyDown || GAME_ENGINE.keyLeft || GAME_ENGINE.keyRight){
+                        this.lastShootDirection = this.shootDirection;
+                    }
+                    if (!spellCast || this.abilityCD[selectSpell] > 0) {
+                        var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
+                            myPlayer.x + 15,
+                            myPlayer.y + 23,
+                            0, 0, 5, direction);
+                        GAME_ENGINE.addEntity(projectile);
+                        this.currentAmmo--;
+                        this.shootCounter = 0;
 
-                    var gunShot = new Audio("./audio/marine_shoot.wav");
-                    gunShot.volume = myCurrentVolume;
-                    gunShot.play();
+                        var gunShot = new Audio("./audio/marine_shoot.wav");
+                        gunShot.volume = myCurrentVolume;
+                        gunShot.play();
+                    } else {
+                        this.castSpell(selectSpell);
+                    }
                 } else {
                     this.shootCounter += GAME_ENGINE.clockTick;
                 }
             }
+            /* #region  */
             //updates ammo img based on current ammo count
             var ammoHTML = document.getElementById("ammoImg");
             if (GAME_ENGINE.reload) {
@@ -350,8 +366,56 @@ Player.prototype.update = function () {
 
         this.boundingbox = new BoundingBox(this.x + (this.xScale * 8), this.y + 2,
             this.width, this.height + 11); /*offsets for x, y and height are for this specific spritesheet*/
+        /* #endregion */
     }
 
+}
+
+function shootDirectionToVec (dir) {
+    let result = {x:0,y:0};
+    switch (dir) {
+        case "up":
+        result.y--;
+        break;
+        case "down":
+        result.y++;
+        break;
+        case "left":
+        result.x--;
+        break;
+        case "right":
+        result.x++;
+        break;
+    }
+    return result;
+}
+
+Player.prototype.castSpell = function (number) {
+    let totalDamage, cooldDown, speed, aoe, origin, dir;
+    dir = shootDirectionToVec(this.lastShootDirection);
+    if (this.abilityCD[number] <= 0) {
+        switch(number) {
+            case 1://Grenade
+                totalDamage = 10;
+                cooldDown = 120;
+                speed = 8;
+                aoe = 125;
+                origin = 5;
+                let tempPro = new Grenade(null,null,this.x + 13, this.y + 13,dir.x,dir.y,origin);
+                tempPro.damageObjonExplosion.damage = totalDamage;
+                tempPro.projectileSpeed = speed;
+                tempPro.aoe = aoe;
+                GAME_ENGINE.addEntity(tempPro);
+                this.abilityCD[number] = cooldDown;
+                break;
+            case 2://Stimpack
+            break;
+            case 3://Selfheal
+            break;
+            case 4://FireRound?
+            break;
+        }
+    }
 }
 
 Player.prototype.changeHealth = function (amount) {
