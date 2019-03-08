@@ -67,7 +67,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.reloadCounter = 0;
     this.maxShootCounter = 0.1;
     this.shootCounter = this.maxShootCounter;
-    this.maxHealth = 250;
+    this.maxHealth = 2500;
     this.health = this.maxHealth;
     this.healthPercent = 100;
     this.dontdraw = 0;
@@ -111,7 +111,7 @@ Player.prototype.draw = function () {
                 }
             } else if (!GAME_ENGINE.movement) {
                 // if statements for running logic
-                if (this.runDirection === "left") {
+                if (this.shootDirection === "left") {
                     GAME_ENGINE.ctx.save();
                     GAME_ENGINE.ctx.scale(-1, 1);
                     this.xScale = -1;
@@ -206,26 +206,22 @@ Player.prototype.update = function () {
             if (GAME_ENGINE.keyA === true) {
                 this.x -= this.actualSpeed;
                 this.runDirection = "left";
-                this.animationIdle = this.animationRunSide;
             }
             if (GAME_ENGINE.keyD === true) {
                 this.x += this.actualSpeed;
                 this.runDirection = "right";
-                this.animationIdle = this.animationRunSide;
             }
             if (GAME_ENGINE.keyW === true) {
                 this.y -= this.actualSpeed;
                 this.runDirection = "up";
-                this.animationIdle = this.animationRunUp;
             }
             if (GAME_ENGINE.keyS === true) {
                 this.y += this.actualSpeed;
                 this.runDirection = "down";
-                this.animationIdle = this.animationRunDown;
             }
             /* #endregion */
 
-
+            //stop player from reloading when at full ammo
             if (GAME_ENGINE.reload && this.currentAmmo === this.maxAmmo) {
                 GAME_ENGINE.reload = false;
             }
@@ -239,42 +235,50 @@ Player.prototype.update = function () {
 
                 /* #endregion */
             }
-            let spellCast = false,q,selectSpell;
-            for (q in GAME_ENGINE.digit){
-                if (GAME_ENGINE.digit[q] && parseInt(q) !== 3) {selectSpell = parseInt(q);
-                    spellCast = true;}}
+            let spellCast = false, q, selectSpell;
+            for (q in GAME_ENGINE.digit) {
+                if (GAME_ENGINE.digit[q] && parseInt(q) !== 3) {
+                    selectSpell = parseInt(q);
+                    spellCast = true;
+                }
+            }
 
-            if (GAME_ENGINE.shoot && this.currentAmmo > 0 && !GAME_ENGINE.reload || (spellCast && this.abilityCD[selectSpell] <= 0)) {
-                var direction;
-                
+            //casts the selected spell if it is off cooldown
+            if (spellCast || this.abilityCD[selectSpell] <= 0) {
+                this.castSpell(selectSpell);
+            }
+
+            if (GAME_ENGINE.shoot && this.currentAmmo > 0 && !GAME_ENGINE.reload) {
                 if (this.shootCounter >= this.maxShootCounter) {
-                    direction = "down";
                     if (GAME_ENGINE.keyUp === true) {
-                        direction = "up";
+                        //changes the direction to shoot the projectile
+                        this.shootDirection = "up";
+                        //changes the idle animation to last direction shot
+                        this.animationIdle = this.animationRunUp;
                     } else if (GAME_ENGINE.keyLeft === true) {
-                        direction = "left";
+                        this.shootDirection = "left";
+                        this.animationIdle = this.animationRunSide;
                     } else if (GAME_ENGINE.keyRight === true) {
-                        direction = "right";
-                    }
-                    this.shootDirection = direction;
-                    if (GAME_ENGINE.keyUp || GAME_ENGINE.keyDown || GAME_ENGINE.keyLeft || GAME_ENGINE.keyRight){
-                        this.lastShootDirection = this.shootDirection;
-                    }
-                    if (!spellCast || this.abilityCD[selectSpell] > 0) {
-                        var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
-                            myPlayer.x + 15,
-                            myPlayer.y + 23,
-                            0, 0, 5, direction);
-                        GAME_ENGINE.addEntity(projectile);
-                        this.currentAmmo--;
-                        this.shootCounter = 0;
-
-                        var gunShot = new Audio("./audio/marine_shoot.wav");
-                        gunShot.volume = myCurrentVolume;
-                        gunShot.play();
+                        this.shootDirection = "right";
+                        this.animationIdle = this.animationRunSide;
                     } else {
-                        this.castSpell(selectSpell);
+                        this.shootDirection = "down";
+                        this.animationIdle = this.animationRunDown;
                     }
+                    this.lastShootDirection = this.shootDirection;
+
+                    var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
+                        myPlayer.x + 15,
+                        myPlayer.y + 23,
+                        0, 0, 5, this.shootDirection);
+                    GAME_ENGINE.addEntity(projectile);
+                    this.currentAmmo--;
+                    this.shootCounter = 0;
+
+                    //audio for gunshot
+                    var gunShot = new Audio("./audio/marine_shoot.wav");
+                    gunShot.volume = myCurrentVolume;
+                    gunShot.play();
                 } else {
                     this.shootCounter += GAME_ENGINE.clockTick * this.shootSpeedRatio;
                 }
@@ -290,7 +294,7 @@ Player.prototype.update = function () {
         } else {
             this.castTime--;
         }
-        if (this.health < this.maxHealth*.333){//250*.333=83.25
+        if (this.health < this.maxHealth * .333) {//250*.333=83.25
             this.castSpell(3);
         }
         /* #region Abilities */
@@ -309,28 +313,6 @@ Player.prototype.update = function () {
                 }
             }
         }
-
-
-        // ****************
-        // DISABLED FOR NOW
-        // ****************
-        // for (t in GAME_ENGINE.digit) {
-        //     if (GAME_ENGINE.digit[t] && !this.isStunned) {
-        //         switch (GAME_ENGINE.playerPick) {
-        //             case 0:
-        //                 this.mageAbilities(t);
-        //                 break;
-        //             case 1:
-        //                 this.rangerAbilities(t);
-        //                 break;
-        //             case 2:
-        //                 this.knightAbilities(t);
-        //                 break;
-        //         }
-        //     }
-        // }
-        /* #endregion */
-
 
         if (this.health <= 0) {
             this.dead = true;
@@ -377,42 +359,42 @@ Player.prototype.update = function () {
 
 }
 
-function shootDirectionToVec (dir) {
-    let result = {x:0,y:0};
+function shootDirectionToVec(dir) {
+    let result = { x: 0, y: 0 };
     switch (dir) {
         case "up":
-        result.y--;
-        break;
+            result.y--;
+            break;
         case "down":
-        result.y++;
-        break;
+            result.y++;
+            break;
         case "left":
-        result.x--;
-        break;
+            result.x--;
+            break;
         case "right":
-        result.x++;
-        break;
+            result.x++;
+            break;
     }
     return result;
 }
 
 Player.prototype.castSpell = function (number) {
     let totalDamage, cooldDown, speed, aoe, origin, dir
-    ,msInc, reloadInc, shootspeedInc, totalHeal, duration;
+        , msInc, reloadInc, shootspeedInc, totalHeal, duration, interval;
     // AM.getAsset("./img/terran/abilities/rocket/rocket_explosion.png");
     // AM.getAsset("./img/terran/abilities/incendiary_shot.png");
     // AM.getAsset("./img/terran/abilities/self_heal.png");
     // AM.getAsset("./img/terran/abilities/stimpack.png");
     dir = shootDirectionToVec(this.lastShootDirection);
     if (this.abilityCD[number] <= 0) {
-        switch(number) {
+        switch (number) {
             case 1://Grenade
                 totalDamage = 10;
                 cooldDown = 120;
                 speed = 8;
                 aoe = 125;
                 origin = 5;
-                let tempPro = new Grenade(null,AM.getAsset("./img/terran/abilities/rocket/rocket_explosion.png"),this.x + 13, this.y + 13,dir.x,dir.y,origin);
+                let tempPro = new Grenade(null, AM.getAsset("./img/terran/abilities/rocket/rocket_explosion.png"), this.x + 13, this.y + 13, dir.x, dir.y, origin);
                 tempPro.damageObjonExplosion.damage = totalDamage;
                 tempPro.projectileSpeed = speed;
                 tempPro.aoe = aoe;
@@ -427,52 +409,71 @@ Player.prototype.castSpell = function (number) {
                 shootspeedInc = 2;
                 reloadInc = 2;
                 let tempObj = []
-                tempObj.push(DS.CreateEffectObject(ETypes.ReloadR,reloadInc,1/reloadInc,duration,0));
-                tempObj.push(DS.CreateEffectObject(ETypes.MoveSpeedR,msInc,1/msInc,duration,0));
-                tempObj.push(DS.CreateEffectObject(ETypes.ShootSpeedR,shootspeedInc,1/shootspeedInc,duration,0));
-                DS.CreateDamageObject(selfDamage,0,DTypes.True,DS.CreateBuffObject("Stimpack",tempObj)).ApplyEffects(this);
+                tempObj.push(DS.CreateEffectObject(ETypes.ReloadR, reloadInc, 1 / reloadInc, duration, 0));
+                tempObj.push(DS.CreateEffectObject(ETypes.MoveSpeedR, msInc, 1 / msInc, duration, 0));
+                tempObj.push(DS.CreateEffectObject(ETypes.ShootSpeedR, shootspeedInc, 1 / shootspeedInc, duration, 0));
+                DS.CreateDamageObject(selfDamage, 0, DTypes.True, DS.CreateBuffObject("Stimpack", tempObj)).ApplyEffects(this);
 
-                let ani2 = new Animation(AM.getAsset("./img/terran/abilities/stimpack.png"),25, 25, 1, .085, 4, true, 2);
-                let ss2 = new StillStand(ani2,duration,this.x,this.y);
+                let ani2 = new Animation(AM.getAsset("./img/terran/abilities/stimpack.png"), 25, 25, 1, .085, 4, true, 2);
+                let ss2 = new StillStand(ani2, duration, this.x, this.y);
                 ss2.player = this;
                 ss2.onUpdate = function () {
-                    if (this.player.xScale < 0){
-                        this.x = this.player.x -14;
+                    if (this.player.xScale < 0) {
+                        this.x = this.player.x - 14;
                     } else {
                         this.x = this.player.x + 2;
                     }
-                    this.y = this.player.y -26;
+                    this.y = this.player.y - 26;
                 }
                 GAME_ENGINE.addEntity(ss2);
 
                 this.abilityCD[number] = cooldDown;
-            break;
+                break;
             case 3://Selfheal
-                totalHeal = this.maxHealth*0.65;
+                totalHeal = this.maxHealth * 0.65;
                 cooldDown = 600;
                 duration = 140;
-                let interval = 7;
-                let tempB = DS.CreateEffectObject(ETypes.None,0,0,duration,interval, function (unit) {
-                    DS.CreateDamageObject(Math.ceil(-totalHeal/(1 + duration/interval)),0,DTypes.None,null).ApplyEffects(unit);
+                interval = 7;
+                let tempB = DS.CreateEffectObject(ETypes.None, 0, 0, duration, interval, function (unit) {
+                    DS.CreateDamageObject(Math.ceil(-totalHeal / (1 + duration / interval)), 0, DTypes.None, null).ApplyEffects(unit);
                 });
-                DS.CreateDamageObject(0,0,DTypes.None,DS.CreateBuffObject("Self heal",[tempB])).ApplyEffects(this);
+                DS.CreateDamageObject(0, 0, DTypes.None, DS.CreateBuffObject("Self heal", [tempB])).ApplyEffects(this);
 
-                let ani = new Animation(AM.getAsset("./img/terran/abilities/self_heal.png"),25, 25, 1, .085, 4, true, 2);
-                let ss1 = new StillStand(ani,duration,this.x,this.y);
+                let ani = new Animation(AM.getAsset("./img/terran/abilities/self_heal.png"), 25, 25, 1, .085, 4, true, 2);
+                let ss1 = new StillStand(ani, duration, this.x, this.y);
                 ss1.player = this;
                 ss1.onUpdate = function () {
-                    if (this.player.xScale < 0){
-                        this.x = this.player.x -14;
+                    if (this.player.xScale < 0) {
+                        this.x = this.player.x - 14;
                     } else {
                         this.x = this.player.x + 2;
                     }
-                    this.y = this.player.y -26;
+                    this.y = this.player.y - 26;
                 }
                 GAME_ENGINE.addEntity(ss1);
                 this.abilityCD[number] = cooldDown;
-            break;
+                break;
             case 4://FireRound?
-            break;
+                totalDamage = 60;//Numbers are rounded so it is a bit iffy
+                cooldDown = 200;
+                speed = 11;
+                aoe = 33;
+                origin = 5;
+                interval = 5;
+                duration = 150;
+                let adamageBuffonExplosion = DS.CreateBuffObject("burn", [DS.CreateEffectObject(ETypes.None, 0, 0, duration, interval, function (unit) {
+                    DS.CreateDamageObject(totalDamage / (1 + duration / interval), 0, DTypes.Magic, null).ApplyEffects(unit);
+                })]);
+                let adamageObjonExplosion = DS.CreateDamageObject(0, 0, DTypes.None, adamageBuffonExplosion);
+                adamageObjonExplosion.timeLeft = 10;
+
+                let tempPro2 = new FireRound(AM.getAsset("./img/terran/abilities/incendiary_shot.png"), AM.getAsset("./img/terran/abilities/incendiary_shot.png"), this.x + 13, this.y + 13, dir.x, dir.y, origin);
+                tempPro2.damageObjonExplosion = adamageObjonExplosion;
+                tempPro2.projectileSpeed = speed;
+                tempPro2.aoe = aoe;
+                GAME_ENGINE.addEntity(tempPro2);
+                this.abilityCD[number] = cooldDown;
+                break;
         }
     }
 }
@@ -511,11 +512,12 @@ Player.prototype.changeHealth = function (amount) {
 Player.prototype.updateHealthHTML = function () {
     var healthHTML = document.getElementById("health");
     healthHTML.innerHTML = this.health;
-    if (this.health >= 1000) {
+    var health = Math.abs(this.health);
+    if (health >= 1000) {
         healthHTML.style.left = "9%";
-    } else if (this.health >= 100) {
+    } else if (health >= 100) {
         healthHTML.style.left = "11%";
-    } else if (this.health >= 10) {
+    } else if (health >= 10) {
         healthHTML.style.left = "13%";
     } else {
         healthHTML.style.left = "15%";
@@ -813,6 +815,7 @@ Animation.prototype.isDone = function () {
 }
 
 function addHTMLListeners() {
+    //adds slider functionality
     var volumeSlider = document.getElementById("volumeSlider");
     volumeSlider.addEventListener("change", function () {
         music.volume = volumeSlider.value;
@@ -820,6 +823,8 @@ function addHTMLListeners() {
         myIsMute = false;
         muteButton.innerHTML = "Mute";
     }, false);
+
+    //adds mute/unmute functionality
     var muteButton = document.getElementById("muteButton");
     muteButton.addEventListener("click", function () {
         if (myIsMute) {
@@ -902,6 +907,9 @@ AM.queueDownload("./img/protoss/dark_templar/dark_templar_death.png");
 AM.queueDownload("./img/protoss/zealot/zealot_move_right.png");
 AM.queueDownload("./img/protoss/zealot/zealot_attack_right.png");
 AM.queueDownload("./img/protoss/zealot/zealot_death.png");
+
+//shadow test
+AM.queueDownload("./img/utilities/Shadow1.png")
 
 
 AM.downloadAll(function () {
