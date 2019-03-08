@@ -17,6 +17,7 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.pathX = 0;
     this.pathY = 0;
     this.isBoss = false;
+    this.tickCount = 0;
 
     // animation stuff
     this.xScale = 1;
@@ -116,7 +117,7 @@ Monster.prototype.update = function () {
 
     if (this.isBoss) {
         this.bossBehavior();
-    } 
+    }
 
     if (this.health <= 0) {
         this.removeFromWorld = true;
@@ -139,16 +140,20 @@ Monster.prototype.update = function () {
 
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         if (this.isInfested) {
-            // do explosion animation and damage player
-            // then die
-            this.health = 0;
+            this.animation = this.deathAnimation;
+            if (this.tickCount > .4) {
+                this.health = 0;
+                this.tickCount = 0;
+                this.damageObj.ApplyEffects(myPlayer);
+            }
+            this.tickCount += GAME_ENGINE.clockTick;
         } else {
-        this.counter += GAME_ENGINE.clockTick;
-        this.damageObj.ApplyEffects(myPlayer);
-        this.pause = true;
-        if (this.counter > .018 && myPlayer.health > 0) {
-            //player.health -= 5;
-        this.counter = 0;
+            this.counter += GAME_ENGINE.clockTick;
+            this.damageObj.ApplyEffects(myPlayer);
+            this.pause = true;
+            if (this.counter > .018 && myPlayer.health > 0) {
+                //player.health -= 5;
+            this.counter = 0;
         }
     }
 }
@@ -337,6 +342,7 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 8;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
+    this.deathAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_boom.png"), 85, 65, 1, .03, 10, true, this.scale);
 
     // gameplay
     this.speed = 300;
