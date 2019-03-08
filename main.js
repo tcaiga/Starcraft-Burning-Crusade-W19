@@ -270,7 +270,7 @@ Player.prototype.update = function () {
                     var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
                         myPlayer.x + 15,
                         myPlayer.y + 23,
-                        0, 0, 5, direction);
+                        0, 0, 5, this.shootDirection);
                     GAME_ENGINE.addEntity(projectile);
                     this.currentAmmo--;
                     this.shootCounter = 0;
