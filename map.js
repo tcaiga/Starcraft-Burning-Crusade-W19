@@ -75,6 +75,7 @@ Background.prototype.createWalls = function () {
 
 Background.prototype.decorateRoom = function () {
     var roomNumber = 0;
+    var addBoss = true;
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
             // Drawing doors
@@ -180,16 +181,18 @@ Background.prototype.decorateRoom = function () {
                         }
                     }
                 }
-
+                
                 this.drawFaceCount++;
             }
 
             // Adding a boss to the final room
-            if (this.map[testPos[1]][testPos[0]] === 9) {
+            if (this.map[testPos[1]][testPos[0]] === 9 && addBoss) {
+                addBoss = false;
                 var pool = new Zerg_Boss(AM.getAsset("./img/buildings/spawning_pool.png"),
                                 testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
                 GAME_ENGINE.addEntity(pool);
             }
+
             roomNumber++;
 
         }
