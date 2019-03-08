@@ -29,17 +29,16 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.height = 56;
     this.animation = new Animation(spriteSheet, this.width, this.height,
         this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
-    this.isFlippable = true;
 
     this.y = y;
     this.x = x;
     this.speed = 100;
     this.health = 100;
-
+    this.scoreIncrease = 1;
     //Movement
-    this.velocity = {x:0,y:0};
+    this.velocity = { x: 0, y: 0 };
     this.friction = .5;
-    this.baseAcceleration = {x:1,y:1};
+    this.baseAcceleration = { x: 1, y: 1 };
     this.accelerationRatio = 1;
     this.accelerationAdj = 0;
 
@@ -67,25 +66,24 @@ function Monster(spriteSheet, x, y, roomNumber) {
 Monster.prototype.draw = function () {
     this.xScale = 1;
     var xValue = this.x;
-    if (!this.right && this.isFlippable) {
+    
+    if (!this.right) {
         GAME_ENGINE.ctx.save();
         GAME_ENGINE.ctx.scale(-1, 1);
         this.xScale = -1;
         xValue = -this.x - this.width;
     }
 
+    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+    GAME_ENGINE.ctx.restore();
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = "red";
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-            this.boundingbox.width, this.boundingbox.height);
+             this.boundingbox.width, this.boundingbox.height);
         GAME_ENGINE.ctx.strokeStyle = "purple";
         GAME_ENGINE.ctx.strokeRect(this.visionBox.x, this.visionBox.y,
             this.visionBox.width, this.visionBox.height);
     }
-
-
-    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
-    GAME_ENGINE.ctx.restore();
 
     // Displaying Monster health
     GAME_ENGINE.ctx.font = "15px Starcraft";
@@ -97,11 +95,11 @@ function pathTo(x, y) {
     this.isPathing = true;
     this.pathX = x;
     this.pathY = y;
-} 
+}
 
 function distance(monster) {
     var dx = myPlayer.x - monster.x;
-    var dy = myPlayer.x- monster.y;
+    var dy = myPlayer.x - monster.y;
     return Math.sqrt(dx * dx, dy * dy);
 }
 
@@ -109,14 +107,16 @@ Monster.prototype.update = function () {
     // Flipping sprite sheet for monsters depending on if the player is to the left or right.
     if (myPlayer.x > this.x) {
         this.right = true;
+        this.xBoundingboxOffset = 0;
     } else {
         this.right = false;
+        this.xBoundingboxOffset = this.width / 2;
     }
 
 
     if (this.isBoss) {
         this.bossBehavior();
-    } 
+    }
 
     if (this.health <= 0) {
         this.removeFromWorld = true;
@@ -143,15 +143,15 @@ Monster.prototype.update = function () {
             // then die
             this.health = 0;
         } else {
-        this.counter += GAME_ENGINE.clockTick;
-        this.damageObj.ApplyEffects(myPlayer);
-        this.pause = true;
-        if (this.counter > .018 && myPlayer.health > 0) {
-            //player.health -= 5;
-        this.counter = 0;
+            this.counter += GAME_ENGINE.clockTick;
+            this.damageObj.ApplyEffects(myPlayer);
+            this.pause = true;
+            if (this.counter > .018 && myPlayer.health > 0) {
+                //player.health -= 5;
+                this.counter = 0;
+            }
         }
     }
-}
 
     // based on the number of ticks since the player was last hit, we pause the monster
     if (this.pause == false && !this.isStunned) {
@@ -163,25 +163,27 @@ Monster.prototype.update = function () {
 
         //New movement with acceleration/velocity
         //Speed shift calculation
-        let speedShift = {x:this.baseAcceleration.x * this.accelerationRatio + this.accelerationAdj
-                        ,y:this.baseAcceleration.y * this.accelerationRatio + this.accelerationAdj};
+        let speedShift = {
+            x: this.baseAcceleration.x * this.accelerationRatio + this.accelerationAdj
+            , y: this.baseAcceleration.y * this.accelerationRatio + this.accelerationAdj
+        };
 
         //Friction
-        this.velocity.x = (this.velocity.x < .1 && this.velocity.x > -.1) ? 0 : this.velocity.x - Math.sign(this.velocity.x)*this.friction;
-        this.velocity.y = (this.velocity.y < .1 && this.velocity.y > -.1) ? 0 : this.velocity.y - Math.sign(this.velocity.y)*this.friction;
+        this.velocity.x = (this.velocity.x < .1 && this.velocity.x > -.1) ? 0 : this.velocity.x - Math.sign(this.velocity.x) * this.friction;
+        this.velocity.y = (this.velocity.y < .1 && this.velocity.y > -.1) ? 0 : this.velocity.y - Math.sign(this.velocity.y) * this.friction;
 
         //Application of acceleration
         this.velocity.x += dirX * (speedShift.x);
         this.velocity.y += dirY * (speedShift.y);
 
         //Check max
-        this.velocity.x = (Math.abs(this.velocity.x) > this.speed/100) ? Math.sign(this.velocity.x) * this.speed/100 : this.velocity.x;
-        this.velocity.y = (Math.abs(this.velocity.y) > this.speed/100) ? Math.sign(this.velocity.y) * this.speed/100 : this.velocity.y;
-        let mag = Math.sqrt(Math.pow(this.velocity.x,2) + Math.pow(this.velocity.y,2));
-            if (mag > (this.speed / 100)) {//Circle max movespeed
-                this.velocity.x = (this.speed / 100) * this.velocity.x / mag;
-                this.velocity.y = (this.speed / 100) * this.velocity.y / mag;
-            }
+        this.velocity.x = (Math.abs(this.velocity.x) > this.speed / 100) ? Math.sign(this.velocity.x) * this.speed / 100 : this.velocity.x;
+        this.velocity.y = (Math.abs(this.velocity.y) > this.speed / 100) ? Math.sign(this.velocity.y) * this.speed / 100 : this.velocity.y;
+        let mag = Math.sqrt(Math.pow(this.velocity.x, 2) + Math.pow(this.velocity.y, 2));
+        if (mag > (this.speed / 100)) {//Circle max movespeed
+            this.velocity.x = (this.speed / 100) * this.velocity.x / mag;
+            this.velocity.y = (this.speed / 100) * this.velocity.y / mag;
+        }
 
         //Application of velocity
         this.x += this.velocity.x;
@@ -199,14 +201,6 @@ Monster.prototype.update = function () {
     }
 
     Entity.prototype.update.call(this);
-
-    this.boundingbox = new BoundingBox(this.x, this.y,
-        this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
-
-
-    this.visionBox = new BoundingBox(this.boundingbox.x + .5 * (this.width * this.scale - this.visionWidth),
-        this.boundingbox.y + .5 * (this.height * this.scale - this.visionWidth),
-        this.visionWidth, this.visionHeight);
 
     if (this.isRanged) {
 
@@ -235,8 +229,6 @@ Monster.prototype.update = function () {
             }
         }
     }
-
-
 
     /* #region Damage system updates */
     let dmgObj;
@@ -269,6 +261,13 @@ Monster.prototype.update = function () {
     /* #endregion */
     /* #endregion */
 
+    this.boundingbox = new BoundingBox(this.x - this.xBoundingboxOffset, this.y,
+        this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
+
+
+    this.visionBox = new BoundingBox(this.boundingbox.x + .5 * (this.width * this.scale - this.visionWidth),
+        this.boundingbox.y + .5 * (this.height * this.scale - this.visionWidth),
+        this.visionWidth, this.visionHeight);
 }
 
 Monster.prototype.changeHealth = function (amount) {
@@ -276,12 +275,16 @@ Monster.prototype.changeHealth = function (amount) {
         //display healing animation
         //maybe have a health change threshold 
         //to actually have it display
-    } else if (amount < 0) {
+    } else if (amount <= 0) {
         //display damage animation
         //maybe have a health change threshold 
         //to actually have it display
     }
     this.health += amount;//Healing will come in as a positive number
+    if (this.health <= 0) {
+        myScore += this.scoreIncrease;
+        document.getElementById("score").innerHTML = myScore;
+    }
 }
 /* #endregion */
 
@@ -309,10 +312,12 @@ function Hydralisk(spriteSheet, x, y, roomNumber) {
     // gameplay
     this.speed = 200;
     this.health = 45;
+
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
-
+    this.xBoundingboxOffset = 0;
+    this.scoreIncrease = 200;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
     this.totalDamage = 15;//Adjustable
@@ -337,7 +342,7 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 8;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-
+    this.xBoundingboxOffset = 0;
     // gameplay
     this.speed = 300;
     this.health = 15;
@@ -345,7 +350,7 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.y = y;
     this.roomNumber = roomNumber;
     this.isInfested = true;
-
+    this.scoreIncrease = 50;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
     this.totalDamage = 15;//Adjustable
@@ -359,7 +364,7 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 }
 
-Infested.prototype.infestedBehavior = function() {
+Infested.prototype.infestedBehavior = function () {
 
 }
 
@@ -374,14 +379,14 @@ function Ultralisk(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 9;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-
+    this.xBoundingboxOffset = 0;
+    this.scoreIncrease = 700;
     // gameplay
     this.speed = 175;
     this.health = 150;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
-
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
     this.totalDamage = 30;//Adjustable
@@ -406,14 +411,14 @@ function Zergling(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 7;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-
+    this.xBoundingboxOffset = 0;
     // gameplay
     this.speed = 200;
     this.health = 30;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
-
+    this.scoreIncrease = 30;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
     this.totalDamage = 4;//Adjustable
@@ -438,14 +443,14 @@ function Zealot(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 7;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-
+    this.xBoundingboxOffset = 0;
     // gameplay
     this.speed = 200;
     this.health = 45;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
-
+    this.scoreIncrease = 100;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
     this.totalDamage = 4;//Adjustable
@@ -470,14 +475,14 @@ function DarkTemplar(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 10;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-
     // gameplay
     this.speed = 200;
     this.health = 90;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
-
+    this.scoreIncrease = 350;
+    this.xBoundingboxOffset = 0;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
     this.totalDamage = 4;//Adjustable
@@ -501,21 +506,19 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 4;
     this.frameLength = .15;
     this.sheetWidth = 1;
-    this.isFlippable = false;
-
+    this.xBoundingboxOffset = 0;
     // gameplay
     this.speed = 0;
     this.health = 600;
     this.isRanged = true;
     this.roomNumber = roomNumber;
-
     // boss specific stuff
     this.isBoss = true;
     this.mobArr = [];
     this.mobCount = 0;
     this.lastInfestedPod = 50;
     this.lastSpikeExplosion = 150;
-
+    this.scoreIncrease = 2000;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
     this.totalDamage = 10;//Adjustable
@@ -530,7 +533,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
         this.frameLength, this.numOfFrames, true, this.scale);
 
     this.boundingbox = new BoundingBox(this.x + 30, this.y + 50,
-        this.width * this.scale + 60, this.height * this.scale - 30 ); // **Temporary** Hard coded offset values.
+        this.width * this.scale + 60, this.height * this.scale - 30); // **Temporary** Hard coded offset values.
     //abilities
     // spawn zerglings
     // spawn ultralisk
@@ -541,7 +544,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
 Zerg_Boss.prototype.bossBehavior = function () {
     if (this.lastInfestedPod == 0) {
         new SpawnZerglings();
-        this.lastInfestedPod = 420;
+        this.lastInfestedPod = 600;
     }
 
     if (this.health <= 0) {
