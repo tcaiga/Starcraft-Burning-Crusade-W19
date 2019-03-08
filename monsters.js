@@ -139,9 +139,9 @@ Monster.prototype.update = function () {
 
 
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
+        this.animation = this.attackAnimation;
         if (this.isInfested) {
-            this.animation = this.deathAnimation;
-            if (this.tickCount > .4) {
+            if (this.animation.animationDone) {
                 this.health = 0;
                 this.tickCount = 0;
                 this.damageObj.ApplyEffects(myPlayer);
@@ -153,10 +153,12 @@ Monster.prototype.update = function () {
             this.pause = true;
             if (this.counter > .018 && myPlayer.health > 0) {
                 //player.health -= 5;
-            this.counter = 0;
+                this.counter = 0;
+            }
         }
+    } else if (this.animation.animationDone) {
+        this.animation = this.moveAnimation
     }
-}
 
     // based on the number of ticks since the player was last hit, we pause the monster
     if (this.pause == false && !this.isStunned) {
@@ -302,7 +304,6 @@ Zerg_Boss.prototype = Monster.prototype;
 function Hydralisk(spriteSheet, x, y, roomNumber) {
     Monster.call(this, spriteSheet, x, y, roomNumber);
 
-
     // animation
     this.scale = 1.5;
     this.width = 50;
@@ -310,6 +311,8 @@ function Hydralisk(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 7;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"), 50, 50, 1, .03, 7, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_attack_right.png"), 100, 50, 1, .05, 11, true, this.scale);
 
     // gameplay
     this.speed = 200;
@@ -342,7 +345,8 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 8;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-    this.deathAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_boom.png"), 85, 65, 1, .03, 10, true, this.scale);
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_move_right.png"), 40, 40, 1, .03, 8, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_boom.png"), 85, 65, 1, .03, 10, true, this.scale);
 
     // gameplay
     this.speed = 300;
@@ -380,6 +384,8 @@ function Ultralisk(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 9;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"), 100, 100, 1, .03, 9, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/ultra/ultra_attack_right.png"), 100, 100, 1, .1, 6, true, this.scale);
 
     // gameplay
     this.speed = 175;
@@ -412,6 +418,8 @@ function Zergling(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 7;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), 40, 40, 1, .03, 7, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/zergling/zergling_attack_right.png"), 40, 40, 1, .05, 5, true, this.scale);
 
     // gameplay
     this.speed = 200;
@@ -444,6 +452,8 @@ function Zealot(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 7;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
+    this.moveAnimation = new Animation(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"), 50, 50, 1, .03, 7, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/protoss/zealot/zealot_attack_right.png"), 50, 50, 1, .06, 5, true, this.scale);
 
     // gameplay
     this.speed = 200;
@@ -476,6 +486,8 @@ function DarkTemplar(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 10;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
+    this.moveAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"), 50, 50, 1, .03, 10, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_attack_right.png"), 50, 60, 1, .07, 7, true, this.scale);
 
     // gameplay
     this.speed = 200;
@@ -534,6 +546,8 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
 
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth,
         this.frameLength, this.numOfFrames, true, this.scale);
+    this.moveAnimation = this.animation;
+    this.attackAnimation = this.animation;
 
     this.boundingbox = new BoundingBox(this.x + 30, this.y + 50,
         this.width * this.scale + 60, this.height * this.scale - 30 ); // **Temporary** Hard coded offset values.
