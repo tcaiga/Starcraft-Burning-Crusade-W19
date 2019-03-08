@@ -4,6 +4,8 @@ GreaterFireball.prototype = Projectile.prototype;
 FlameBreathBolt.prototype = Projectile.prototype;
 MultiArrow.prototype = Projectile.prototype;
 Spike.prototype = Projectile.prototype;
+Grenade.prototype = Projectile.prototype;
+FireRound.prototype = Projectile.prototype;
 
 function SwordBoomerang(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin/* same number assignment as the ent array*/);
@@ -126,6 +128,166 @@ function MultiArrow(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     this.aniX += 34;
     this.aniY += 38;
 }
+
+function Grenade(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget, origin) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
+    if (xTarget !== 0) {
+        this.angle = Math.PI / 2 - xTarget * Math.PI / 2;
+    }
+    if (yTarget !== 0) {
+        this.angle = yTarget * Math.PI / 2;
+    }
+    this.projectileSpeed = 8;
+    this.penetrative = false;
+    this.aoe = 100;//square
+    if (spriteSheet !== null){
+        this.animation = new Animation(spriteSheet, 16, 16, 1, .085, 4, true, 2);
+        this.spriteSheet = spriteSheet;
+    } else {
+        this.spriteSheet = AM.getAsset("./img/terran/bullet.png");
+        this.animation = new Animation(AM.getAsset("./img/terran/bullet.png"), 13, 13, 1, .085, 8, true, 1.5);
+    }
+    this.aniX += 23;
+    this.aniY += 23;
+    this.origin = origin;
+    if (spriteSheetAoe !== null){
+        this.animationAoe = new Animation(spriteSheetAoe, 35, 33, 1, .025, 10, false, 3);
+    } else {
+        this.animationAoe = new Animation(AM.getAsset("./img/zerg/ultra/ultra_death.png"), 100, 100, 1, .01, 9, false, 1);
+    }
+    this.direction = "angle";
+
+    // Damage stuff
+    this.totalDamage = 3;//Adjustable
+    this.knockBackDuration = 15;//Adjustable
+    this.damageObjArr = [];
+    let aX = this.x;
+    let aY = this.y;
+    this.knockBackFunc = function (unit) {//buff obj calls this
+        if (unit.isBoss){
+
+        } else {
+            let angle = Math.atan2(unit.y - aY, unit.x - aX);
+            let knockBackAmount = 6;
+            unit.x += Math.cos(angle) * knockBackAmount;
+            unit.y += Math.sin(angle) * knockBackAmount;
+        }
+    }
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(0, 0, DTypes.None, this.damageBuff);
+    this.damageObj.timeLeft = 10;
+    this.buffObj = [];
+    this.counters = 0;
+    this.damageBuffonExplosion = DS.CreateBuffObject("knock back",
+        [DS.CreateEffectObject(ETypes.None, 0, 0, this.knockBackDuration, 0, this.knockBackFunc)
+            , DS.CreateEffectObject(ETypes.Stun, true, false, this.knockBackDuration, 0)]);;
+    this.damageObjonExplosion = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Bludgeoning, this.damageBuffonExplosion);
+    this.damageObjonExplosion.timeLeft = 10;
+    this.direction = "angle";
+    this.childUpdate = function () {
+        this.counters++;
+        if (this.angle === Math.PI || this.angle === 0){
+            this.y += 3*Math.sin(this.counters/3);
+        } else {
+            this.x += 3*Math.sin(this.counters/3);
+        }
+    }
+
+    this.childCollide = function (unit) {
+        let xPos, yPos, width = height = this.aoe;
+        xPos = this.x - 25;
+        yPos = this.y - 25;
+        let aBox = new BoundingBox(xPos, yPos, width, height);
+        let aCrow = new StillStand(this.animationAoe, 10, this.x, this.y);
+        aCrow.onCollide = function (unit) {
+            //console.log(unit);
+        }
+        aCrow.aniX = -30;
+        aCrow.aniY = -20;
+        let aHit = this.damageObjonExplosion;
+        aCrow.boundingbox = aBox;
+        aCrow.penetrative = true;
+        aCrow.entityHitType = EntityTypes.enemies;
+        aCrow.damageObj = aHit;
+        GAME_ENGINE.addEntity(aCrow);
+
+    }
+
+}
+
+function FireRound(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget, origin) {
+    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
+    if (xTarget !== 0) {
+        this.angle = Math.PI / 2 - xTarget * Math.PI / 2;
+    }
+    if (yTarget !== 0) {
+        this.angle = yTarget * Math.PI / 2;
+    }
+    this.projectileSpeed = 8;
+    this.penetrative = false;
+    this.aoe = 100;//square
+    if (spriteSheet !== null){
+        this.animation = new Animation(spriteSheet, 16, 16, 1, .085, 4, true, 4);
+        this.spriteSheet = spriteSheet;
+    } else {
+        this.spriteSheet = AM.getAsset("./img/terran/bullet.png");
+        this.animation = new Animation(AM.getAsset("./img/terran/bullet.png"), 13, 13, 1, .085, 8, true, 1.5);
+    }
+    this.aniX += 23;
+    this.aniY += 23;
+    this.origin = origin;
+    if (spriteSheetAoe !== null){
+        this.animationAoe = new Animation(spriteSheetAoe, 55, 60, 1, .025, 10, false, 1);
+    } else {
+        this.animationAoe = new Animation(AM.getAsset("./img/zerg/ultra/ultra_death.png"), 100, 100, 1, .01, 9, false, 1);
+    }
+    this.direction = "angle";
+
+    // Damage stuff
+    this.totalDamage = 0; //Adjusted at spell locations
+    this.damageObjArr = [];
+    let aX = this.x;
+    let aY = this.y;
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(0, 0, DTypes.None, this.damageBuff);
+    this.damageObj.timeLeft = 10;
+    this.buffObj = [];
+    this.counters = 0;
+    this.damageBuffonExplosion = null;//done in spells
+    this.damageObjonExplosion = null;
+    //this.damageObjonExplosion.timeLeft = 10;
+    this.direction = "angle";
+    this.childUpdate = function () {
+        this.counters++;
+        if (this.angle === Math.PI || this.angle === 0){
+            //this.y += 3*Math.sin(this.counters/3);
+        } else {
+            //this.x += 3*Math.sin(this.counters/3);
+        }
+    }
+
+    this.childCollide = function (unit) {
+        let xPos, yPos, width = height = this.aoe;
+        xPos = this.x - 25;
+        yPos = this.y - 25;
+        let aBox = new BoundingBox(xPos, yPos, width, height);
+        let aCrow = new StillStand(this.animationAoe, 10, this.x, this.y);
+        aCrow.onCollide = function (unit) {
+            //console.log(unit);
+        }
+        aCrow.aniX = -30;
+        aCrow.aniY = -20;
+        let aHit = this.damageObjonExplosion;
+        aCrow.boundingbox = aBox;
+        aCrow.penetrative = true;
+        aCrow.entityHitType = EntityTypes.enemies;
+        aCrow.damageObj = aHit;
+        GAME_ENGINE.addEntity(aCrow);
+
+    }
+
+}
+
 /* #endregion */
 
 /* #region Trap */
@@ -324,8 +486,8 @@ StillStand.prototype.draw = function () {
 
 /* #region Spawn Pool abilities */
 function SpawnZerglings() {
-    ss1Ani = new Animation(AM.getAsset("./img/ability/flame_ring_32x160.png"), 32, 32, 1, 0.13, 5, true, 1.5);
-    ss2Ani = new Animation(AM.getAsset("./img/ability/flame_explosion_32x320.png"), 32, 32, 1, 0.04, 10, false, 2);
+    ss1Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.13, 5, true, .25);
+    ss2Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.04, 10, true, .175);
     ss1 = new StillStand(ss1Ani, 60, myPlayer.x, myPlayer.y);
     ss1.ssAni = ss2Ani;
     ss1.width = 50;
@@ -340,27 +502,12 @@ function SpawnZerglings() {
     ss1.onDeath = function () {
         // create 5 zerglings at a random area within 50px of the player
         // after a 2s delay from a graphic being placed.
-        let zergling1 = new TinyZombie({
-            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-        }, x + getRandomInt(0, 40), y - getRandomInt(0, 50));
-        let zergling2 = new TinyZombie({
-            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-        }, x + getRandomInt(0, 40), y + getRandomInt(0, 40));
-        let zergling3 = new TinyZombie({
-            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-        }, x + getRandomInt(0, 40), y + getRandomInt(10, 20));
-        let zergling4 = new TinyZombie({
-            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-        }, x + getRandomInt(0, 40), y + getRandomInt(0, 40));
-        let zergling5 = new TinyZombie({
-            'r': AM.getAsset("./img/monsters/tiny_zombie_run.png"),
-            'l': AM.getAsset("./img/monsters/tiny_zombie_run_left.png")
-        }, x + getRandomInt(0, 40), y + getRandomInt(0, 40));
-
+        let zergling1 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
+        let zergling2 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
+        let zergling3 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
+        let zergling4 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
+        let zergling5 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
+        
         GAME_ENGINE.addEntity(zergling1);
         GAME_ENGINE.addEntity(zergling2);
         GAME_ENGINE.addEntity(zergling3);
@@ -373,18 +520,20 @@ function SpawnZerglings() {
 function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     this.width = 100;
     this.height = 100;
-    ss1Ani = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, .75);
+    ss1Ani = new Animation(spriteSheet, this.width, this.height, 1, .25, 6, true, .75);
     ss1 = new StillStand(ss1Ani, 90, originX, originY);
     GAME_ENGINE.addEntity(ss1);
     ss1.onDeath = function () {
-        GAME_ENGINE.addEntity(new Spike(spriteSheet, originX, originY, xTarget, yTarget, origin));
+        GAME_ENGINE.addEntity(new Spike(originX, originY, xTarget, yTarget, origin));
     }
 
 
 }
 let ctr = 0;
-function Spike(spriteSheet, originX, originY, xTarget, yTarget, origin) {
-    Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
+function Spike(originX, originY, xTarget, yTarget, origin) {
+    this.spriteSheet = AM.getAsset("./img/terran/bullet.png");
+    Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, "angle");
+
     // Damage stuff
     this.durationBetweenHits = 50;//Adjustable
     this.totalDamage = 15;//Adjustable
@@ -403,6 +552,6 @@ function Spike(spriteSheet, originX, originY, xTarget, yTarget, origin) {
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min; 
+    return Math.floor(Math.random() * (max - min)) + min;
 }
 /* #endregion */

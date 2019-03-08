@@ -1,8 +1,10 @@
 {
   "ExpandedNodes": [
     "",
-    "\\img"
+    "\\img",
+    "\\img\\abilities",
+    "\\img\\zerg"
   ],
-  "SelectedNode": "\\main.js",
+  "SelectedNode": "\\index.html",
   "PreviewInSolutionExplorer": false
 }

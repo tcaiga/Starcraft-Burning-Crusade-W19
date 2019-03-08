@@ -136,6 +136,9 @@ const ETypes = {
     //Cooldown
     CooldownRateF: "cooldown rate f",
     CooldownRateR: "cooldown rate r",
+
+    ReloadR: "reload r",
+    ShootSpeedR: "shoot speed r",
     //MISC
     Silence: "silence",
     Stun: "stun",
@@ -368,6 +371,16 @@ EffectObj.prototype.Do = function (unit) {
                     unit.isBlind = this.do;
                 }
                 break;
+            case ETypes.ReloadR:
+                if (typeof unit.reloadRatio !== 'undefined') {
+                    unit.reloadRatio *= this.do;
+                }
+                break;
+            case ETypes.ShootSpeedR:
+                if (typeof unit.shootSpeedRatio !== 'undefined') {
+                    unit.shootSpeedRatio *= this.do;
+                }
+                break;
             case ETypes.None:
                 break;
         }
@@ -516,6 +529,16 @@ EffectObj.prototype.Undo = function (unit) {
             case ETypes.Blind:
                 if (typeof unit.isBlind !== 'undefined') {
                     unit.isBlind = this.undo;
+                }
+                break;
+            case ETypes.ReloadR:
+                if (typeof unit.reloadRatio !== 'undefined') {
+                    unit.reloadRatio *= this.undo;
+                }
+                break;
+            case ETypes.ShootSpeedR:
+                if (typeof unit.shootSpeedRatio !== 'undefined') {
+                    unit.shootSpeedRatio *= this.undo;
                 }
                 break;
             case ETypes.None:
