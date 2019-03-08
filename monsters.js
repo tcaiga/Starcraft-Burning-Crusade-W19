@@ -310,8 +310,9 @@ function Hydralisk(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
 
     // gameplay
-    this.speed = 150;
-    this.health = 150;
+    this.speed = 200;
+    this.health = 45;
+
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
@@ -343,7 +344,7 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
     this.xBoundingboxOffset = 0;
     // gameplay
-    this.speed = 150;
+    this.speed = 300;
     this.health = 15;
     this.x = x;
     this.y = y;
@@ -381,8 +382,8 @@ function Ultralisk(spriteSheet, x, y, roomNumber) {
     this.xBoundingboxOffset = 0;
     this.scoreIncrease = 700;
     // gameplay
-    this.speed = 150;
-    this.health = 15;
+    this.speed = 175;
+    this.health = 150;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
@@ -412,8 +413,8 @@ function Zergling(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
     this.xBoundingboxOffset = 0;
     // gameplay
-    this.speed = 150;
-    this.health = 15;
+    this.speed = 200;
+    this.health = 30;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
@@ -444,8 +445,8 @@ function Zealot(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
     this.xBoundingboxOffset = 0;
     // gameplay
-    this.speed = 150;
-    this.health = 15;
+    this.speed = 200;
+    this.health = 45;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
@@ -475,8 +476,8 @@ function DarkTemplar(spriteSheet, x, y, roomNumber) {
     this.frameLength = 0.03;
     this.sheetWidth = 1;
     // gameplay
-    this.speed = 150;
-    this.health = 15;
+    this.speed = 200;
+    this.health = 90;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
@@ -508,7 +509,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     this.xBoundingboxOffset = 0;
     // gameplay
     this.speed = 0;
-    this.health = 1000;
+    this.health = 600;
     this.isRanged = true;
     this.roomNumber = roomNumber;
     // boss specific stuff
@@ -546,7 +547,9 @@ Zerg_Boss.prototype.bossBehavior = function () {
         this.lastInfestedPod = 600;
     }
 
-
+    if (this.health <= 0) {
+        // do something when boss is dead
+    }
 
     if (this.lastSpikeExplosion == 0) {
         let tarX;
