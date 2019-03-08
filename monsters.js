@@ -307,8 +307,8 @@ function Hydralisk(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
 
     // gameplay
-    this.speed = 150;
-    this.health = 15;
+    this.speed = 200;
+    this.health = 45;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
@@ -339,7 +339,7 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
 
     // gameplay
-    this.speed = 150;
+    this.speed = 300;
     this.health = 15;
     this.x = x;
     this.y = y;
@@ -376,8 +376,8 @@ function Ultralisk(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
 
     // gameplay
-    this.speed = 150;
-    this.health = 15;
+    this.speed = 175;
+    this.health = 150;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
@@ -408,8 +408,8 @@ function Zergling(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
 
     // gameplay
-    this.speed = 150;
-    this.health = 15;
+    this.speed = 200;
+    this.health = 30;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
@@ -440,8 +440,8 @@ function Zealot(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
 
     // gameplay
-    this.speed = 150;
-    this.health = 15;
+    this.speed = 200;
+    this.health = 45;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
@@ -472,8 +472,8 @@ function DarkTemplar(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
 
     // gameplay
-    this.speed = 150;
-    this.health = 15;
+    this.speed = 200;
+    this.health = 90;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
@@ -505,7 +505,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
 
     // gameplay
     this.speed = 0;
-    this.health = 300;
+    this.health = 600;
     this.isRanged = true;
     this.roomNumber = roomNumber;
 
