@@ -399,10 +399,17 @@ Door.prototype.update = function () {
 
     this.image.src = "./img/buildings/door_" + this.state + ".png";
     // do some condition check to open door
+
+    this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 }
 
 Door.prototype.draw = function () {
     GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 32, 32);
+    if (GAME_ENGINE.debug) {
+        GAME_ENGINE.ctx.strokeStyle = "red";
+        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+            this.boundingbox.width, this.boundingbox.height);
+    }
 
     // draw door to update if open or closed
 }
@@ -444,6 +451,8 @@ Wall.prototype.update = function () {
             }
         }
     }
+
+    this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 
 }
 
