@@ -505,7 +505,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
 
     // gameplay
     this.speed = 0;
-    this.health = 1000;
+    this.health = 300;
     this.isRanged = true;
     this.roomNumber = roomNumber;
 
@@ -544,7 +544,9 @@ Zerg_Boss.prototype.bossBehavior = function () {
         this.lastInfestedPod = 420;
     }
 
-
+    if (this.health <= 0) {
+        // do something when boss is dead
+    }
 
     if (this.lastSpikeExplosion == 0) {
         let tarX;
