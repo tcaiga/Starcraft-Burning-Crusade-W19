@@ -2,9 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\img",
-    "\\img\\abilities",
-    "\\img\\zerg"
+    "\\img\\protoss",
+    "\\img\\protoss\\archon",
+    "\\img\\protoss\\dark_templar",
+    "\\img\\protoss\\high_templar"
   ],
-  "SelectedNode": "\\index.html",
+  "SelectedNode": "\\monsters.js",
   "PreviewInSolutionExplorer": false
 }

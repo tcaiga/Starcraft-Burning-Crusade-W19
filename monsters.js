@@ -93,7 +93,7 @@ Monster.prototype.draw = function () {
     GAME_ENGINE.ctx.fillText("Health: " + Math.floor(this.health), this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
 }
 
-function pathTo(x, y) {
+Monster.prototype.pathTo = function (x, y) {
     this.isPathing = true;
     this.pathX = x;
     this.pathY = y;
@@ -564,7 +564,10 @@ Zerg_Boss.prototype.bossBehavior = function () {
         for (var i = 0; i < 6; i++) {
             new SpikeExplosion(AM.getAsset("./img/zerg/sunken_spike.png"), CAMERA.x + getRandomInt(0, canvasWidth), CAMERA.y + getRandomInt(0, canvasHeight),
                 tarX, tarY, 4);
+            console.log("Canvas stuff:" + canvasWidth / 2 + ", " + canvasHeight / 2);
         }
+
+        new ballStorm(CAMERA.x + canvasWidth / 2, CAMERA.y + canvasHeight / 2);
 
         this.lastSpikeExplosion = 300;
     }
@@ -572,3 +575,54 @@ Zerg_Boss.prototype.bossBehavior = function () {
     this.lastSpikeExplosion--;
 }
 
+function Templar(spriteSheet, x, y, roomNumber) {
+    Monster.call(this, spriteSheet, x, y, roomNumber);
+
+    // animation
+    this.scale = 1.5;
+    this.width = 100;
+    this.height = 75;
+    this.numOfFrames = 4;
+    this.frameLength = .15;
+    this.sheetWidth = 1;
+
+    // gameplay
+    this.speed = 400;
+    this.health = 2500;
+    this.isRanged = true;
+    this.roomNumber = roomNumber;
+
+    // boss specific stuff
+    this.isBoss = true;
+    this.lastBallStorm = 600;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 10;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
+
+    this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth,
+        this.frameLength, this.numOfFrames, true, this.scale);
+
+    this.boundingbox = new BoundingBox(this.x + 30, this.y + 50,
+        this.width * this.scale + 60, this.height * this.scale - 30); // **Temporary** Hard coded offset values.
+}
+
+Templar.prototype.bossBehavior = function () {
+
+    // when flagged templars will merge into archon
+    if (this.mergeTogether == true) {
+
+        // go to the middle of the room
+        this.pathTo(1.5 * canvasWidth, 1.5 * canvasHeight);
+    }
+    if (this.lastBallStorm == 0) {
+        new BallStorm();
+    }
+    
+}
