@@ -75,6 +75,7 @@ Background.prototype.createWalls = function () {
 
 Background.prototype.decorateRoom = function () {
     var roomNumber = 0;
+    var addBoss = true;
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
             // Drawing doors
@@ -141,30 +142,61 @@ Background.prototype.decorateRoom = function () {
                 if (this.drawFaceCount > 0) {
                     if (this.map[testPos[1]][testPos[0]] === 1) {
                         if (this.drawFaceCount % 3 === 0) {
-                            var zergling = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
+                            var ultralisk1 = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
 
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
-                            var zealot = new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 64, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
-        
+                            var ultralisk2 = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 160, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
 
-                            GAME_ENGINE.addEntity(zergling);
-                            GAME_ENGINE.addEntity(zealot);
+                            GAME_ENGINE.addEntity(ultralisk1);
+                            GAME_ENGINE.addEntity(ultralisk2);
                         } else if (this.drawFaceCount % 3 === 1) {
                             var hydralisk = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 80, roomNumber);
 
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
-                            var darkTemplar = new DarkTemplar(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 64, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
+                            var zergling1 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
+                            var zergling2 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
+                            var zergling3 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 160, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
+                            var zergling4 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 80, roomNumber);
+                            var zergling5 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 160, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 80, roomNumber);
+                            var zergling6 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 160, roomNumber);
+                            var zergling7 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 160, roomNumber);
+                            var zergling8 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 160, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 160, roomNumber);
         
-
                             GAME_ENGINE.addEntity(hydralisk);
-                            GAME_ENGINE.addEntity(darkTemplar);
+                            GAME_ENGINE.addEntity(zergling1);
+                            GAME_ENGINE.addEntity(zergling2);
+                            GAME_ENGINE.addEntity(zergling3);
+                            GAME_ENGINE.addEntity(zergling4);
+                            GAME_ENGINE.addEntity(zergling5);
+                            GAME_ENGINE.addEntity(zergling6);
+                            GAME_ENGINE.addEntity(zergling7);
+                            GAME_ENGINE.addEntity(zergling8);
                         } else if (this.drawFaceCount % 3 === 2) {
-                            var ultralisk = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
+                            var darkTemplar = new DarkTemplar(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 80, roomNumber);
+                            var zealot1 = new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
+                            var zealot2 = new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 160, roomNumber);
+                            var zealot3 = new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 80, roomNumber);
+                            var zealot4 = new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
+                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 160, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 80, roomNumber);
 
-                            GAME_ENGINE.addEntity(ultralisk);
+                            GAME_ENGINE.addEntity(darkTemplar);
+                            GAME_ENGINE.addEntity(zealot1);
+                            GAME_ENGINE.addEntity(zealot2);
+                            GAME_ENGINE.addEntity(zealot3);
+                            GAME_ENGINE.addEntity(zealot4);
                         }
                     } else if (this.map[testPos[1]][testPos[0]] === 2) {
                         for (let r = 1; r < 4; r++) {
@@ -180,17 +212,19 @@ Background.prototype.decorateRoom = function () {
                         }
                     }
                 }
-
+                
                 this.drawFaceCount++;
             }
 
             // Adding a boss to the final room
-            if (this.map[testPos[1]][testPos[0]] === 9) {
+            if (this.map[testPos[1]][testPos[0]] === 9 && addBoss) {
+                addBoss = false;
                 var pool = new Zerg_Boss(AM.getAsset("./img/buildings/spawning_pool.png"),
                                 testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
                 GAME_ENGINE.addEntity(pool);
                 console.log("I made a boss");
             }
+
             roomNumber++;
 
         }
@@ -399,10 +433,17 @@ Door.prototype.update = function () {
 
     this.image.src = "./img/buildings/door_" + this.state + ".png";
     // do some condition check to open door
+
+    this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 }
 
 Door.prototype.draw = function () {
     GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 32, 32);
+    if (GAME_ENGINE.debug) {
+        GAME_ENGINE.ctx.strokeStyle = "red";
+        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+            this.boundingbox.width, this.boundingbox.height);
+    }
 
     // draw door to update if open or closed
 }
@@ -444,6 +485,8 @@ Wall.prototype.update = function () {
             }
         }
     }
+
+    this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 
 }
 
