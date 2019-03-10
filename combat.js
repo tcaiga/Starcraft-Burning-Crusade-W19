@@ -4,6 +4,7 @@ GreaterFireball.prototype = Projectile.prototype;
 FlameBreathBolt.prototype = Projectile.prototype;
 MultiArrow.prototype = Projectile.prototype;
 Spike.prototype = Projectile.prototype;
+energyBall.prototype = Projectile.prototype;
 Grenade.prototype = Projectile.prototype;
 FireRound.prototype = Projectile.prototype;
 
@@ -529,7 +530,7 @@ function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin)
 
 
 }
-let ctr = 0;
+
 function Spike(originX, originY, xTarget, yTarget, origin) {
     this.spriteSheet = AM.getAsset("./img/terran/bullet.png");
     Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, "angle");
@@ -544,7 +545,37 @@ function Spike(originX, originY, xTarget, yTarget, origin) {
     this.buffObj = [];
     this.projectileSpeed = 5;
     this.penetrative = false;
-    ctr++;
+}
+
+function ballStorm(originX, originY) {
+    let xt, yt, eb;
+    let numOfBalls = 20;
+    for (var i = 0; i < numOfBalls; i++) {
+        xt = getRandomInt(0, canvasWidth);
+        yt = getRandomInt(0, canvasHeight);
+        GAME_ENGINE.addEntity(new energyBall(originX, originY, CAMERA.x + xt, CAMERA.y + yt, 4, "angle"));
+    }
+}
+
+function energyBall(originX, originY, xTarget, yTarget, origin, direction) {
+    this.spriteSheet = AM.getAsset("./img/protoss/energy_ball.png");
+    Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, direction);
+    this.width = 51;
+    this.height = 51
+
+
+    // Damage stuff
+    this.durationBetweenHits = 50;//Adjustable
+    this.totalDamage = 10;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Piercing, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+    this.projectileSpeed = 4;
+    this.penetrative = false;
+
+    console.log(this);
 }
 
 
