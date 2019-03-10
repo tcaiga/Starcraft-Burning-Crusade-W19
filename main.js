@@ -753,12 +753,16 @@ function Animation(spriteSheet, frameWidth, frameHeight,
     this.elapsedTime = 0;
     this.loop = loop;
     this.scale = scale;
+    this.animationDone = false;
 }
 
 Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     this.elapsedTime += tick;
     if (this.isDone()) {
         if (this.loop) this.elapsedTime = 0;
+        this.animationDone = true;
+    } else {
+        this.animationDone = false;
     }
     var frame = this.currentFrame();
     var xindex = 0;
