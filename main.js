@@ -276,7 +276,7 @@ Player.prototype.update = function () {
                     this.shootCounter = 0;
 
                     //audio for gunshot
-                    var gunShot = new Audio("./audio/marine_shoot.wav");
+                    var gunShot = new Audio("./audio/marine/marine_shoot.wav");
                     gunShot.volume = myCurrentVolume;
                     gunShot.play();
                 } else {
@@ -313,7 +313,7 @@ Player.prototype.update = function () {
 
         if (this.health <= 0) {
             this.dead = true;
-            var deathSound = new Audio("./audio/marine_death.wav");
+            var deathSound = new Audio("./audio/marine/marine_death.wav");
             deathSound.volume = myCurrentVolume;
             deathSound.play();
         }
