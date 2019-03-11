@@ -753,12 +753,16 @@ function Animation(spriteSheet, frameWidth, frameHeight,
     this.elapsedTime = 0;
     this.loop = loop;
     this.scale = scale;
+    this.animationDone = false;
 }
 
 Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     this.elapsedTime += tick;
     if (this.isDone()) {
         if (this.loop) this.elapsedTime = 0;
+        this.animationDone = true;
+    } else {
+        this.animationDone = false;
     }
     var frame = this.currentFrame();
     var xindex = 0;
@@ -898,6 +902,9 @@ AM.queueDownload("./img/zerg/zergling/zergling_death.png");
 AM.queueDownload("./img/protoss/dark_templar/dark_templar_move_right.png");
 AM.queueDownload("./img/protoss/dark_templar/dark_templar_attack_right.png");
 AM.queueDownload("./img/protoss/dark_templar/dark_templar_death.png");
+
+// Protoss attacks
+AM.queueDownload("./img/protoss/energy_ball.png");
 
 // Zealot
 AM.queueDownload("./img/protoss/zealot/zealot_move_right.png");

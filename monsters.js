@@ -17,6 +17,7 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.pathX = 0;
     this.pathY = 0;
     this.isBoss = false;
+    this.tickCount = 0;
 
     // animation stuff
     this.xScale = 1;
@@ -91,7 +92,7 @@ Monster.prototype.draw = function () {
     GAME_ENGINE.ctx.fillText("Health: " + Math.floor(this.health), this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
 }
 
-function pathTo(x, y) {
+Monster.prototype.pathTo = function (x, y) {
     this.isPathing = true;
     this.pathX = x;
     this.pathY = y;
@@ -138,10 +139,14 @@ Monster.prototype.update = function () {
 
 
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
+        this.animation = this.attackAnimation;
         if (this.isInfested) {
-            // do explosion animation and damage player
-            // then die
-            this.health = 0;
+            if (this.animation.animationDone) {
+                this.health = 0;
+                this.tickCount = 0;
+                this.damageObj.ApplyEffects(myPlayer);
+            }
+            this.tickCount += GAME_ENGINE.clockTick;
         } else {
             this.counter += GAME_ENGINE.clockTick;
             this.damageObj.ApplyEffects(myPlayer);
@@ -151,6 +156,8 @@ Monster.prototype.update = function () {
                 this.counter = 0;
             }
         }
+    } else if (this.animation.animationDone) {
+        this.animation = this.moveAnimation
     }
 
     // based on the number of ticks since the player was last hit, we pause the monster
@@ -300,7 +307,6 @@ Zerg_Boss.prototype = Monster.prototype;
 function Hydralisk(spriteSheet, x, y, roomNumber) {
     Monster.call(this, spriteSheet, x, y, roomNumber);
 
-
     // animation
     this.scale = 1.5;
     this.width = 50;
@@ -308,6 +314,8 @@ function Hydralisk(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 7;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"), 50, 50, 1, .03, 7, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_attack_right.png"), 100, 50, 1, .05, 11, true, this.scale);
 
     // gameplay
     this.speed = 200;
@@ -342,7 +350,9 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 8;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-    this.xBoundingboxOffset = 0;
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_move_right.png"), 40, 40, 1, .03, 8, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_boom.png"), 85, 65, 1, .03, 10, true, this.scale);
+
     // gameplay
     this.speed = 300;
     this.health = 15;
@@ -379,8 +389,9 @@ function Ultralisk(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 9;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-    this.xBoundingboxOffset = 0;
-    this.scoreIncrease = 700;
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"), 100, 100, 1, .03, 9, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/ultra/ultra_attack_right.png"), 100, 100, 1, .1, 6, true, this.scale);
+
     // gameplay
     this.speed = 175;
     this.health = 150;
@@ -411,7 +422,9 @@ function Zergling(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 7;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-    this.xBoundingboxOffset = 0;
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), 40, 40, 1, .03, 7, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/zergling/zergling_attack_right.png"), 40, 40, 1, .05, 5, true, this.scale);
+
     // gameplay
     this.speed = 200;
     this.health = 30;
@@ -443,7 +456,9 @@ function Zealot(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 7;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-    this.xBoundingboxOffset = 0;
+    this.moveAnimation = new Animation(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"), 50, 50, 1, .03, 7, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/protoss/zealot/zealot_attack_right.png"), 50, 50, 1, .06, 5, true, this.scale);
+
     // gameplay
     this.speed = 200;
     this.health = 45;
@@ -475,6 +490,9 @@ function DarkTemplar(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 10;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
+    this.moveAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"), 50, 50, 1, .03, 10, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_attack_right.png"), 50, 60, 1, .07, 7, true, this.scale);
+
     // gameplay
     this.speed = 200;
     this.health = 90;
@@ -531,6 +549,8 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
 
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth,
         this.frameLength, this.numOfFrames, true, this.scale);
+    this.moveAnimation = this.animation;
+    this.attackAnimation = this.animation;
 
     this.boundingbox = new BoundingBox(this.x + 30, this.y + 50,
         this.width * this.scale + 60, this.height * this.scale - 30); // **Temporary** Hard coded offset values.
@@ -569,7 +589,10 @@ Zerg_Boss.prototype.bossBehavior = function () {
         for (var i = 0; i < 6; i++) {
             new SpikeExplosion(AM.getAsset("./img/zerg/sunken_spike.png"), CAMERA.x + getRandomInt(0, canvasWidth), CAMERA.y + getRandomInt(0, canvasHeight),
                 tarX, tarY, 4);
+            console.log("Canvas stuff:" + canvasWidth / 2 + ", " + canvasHeight / 2);
         }
+
+        new ballStorm(CAMERA.x + canvasWidth / 2, CAMERA.y + canvasHeight / 2);
 
         this.lastSpikeExplosion = 300;
     }
@@ -577,3 +600,54 @@ Zerg_Boss.prototype.bossBehavior = function () {
     this.lastSpikeExplosion--;
 }
 
+function Templar(spriteSheet, x, y, roomNumber) {
+    Monster.call(this, spriteSheet, x, y, roomNumber);
+
+    // animation
+    this.scale = 1.5;
+    this.width = 100;
+    this.height = 75;
+    this.numOfFrames = 4;
+    this.frameLength = .15;
+    this.sheetWidth = 1;
+
+    // gameplay
+    this.speed = 400;
+    this.health = 2500;
+    this.isRanged = true;
+    this.roomNumber = roomNumber;
+
+    // boss specific stuff
+    this.isBoss = true;
+    this.lastBallStorm = 600;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 10;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
+
+    this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth,
+        this.frameLength, this.numOfFrames, true, this.scale);
+
+    this.boundingbox = new BoundingBox(this.x + 30, this.y + 50,
+        this.width * this.scale + 60, this.height * this.scale - 30); // **Temporary** Hard coded offset values.
+}
+
+Templar.prototype.bossBehavior = function () {
+
+    // when flagged templars will merge into archon
+    if (this.mergeTogether == true) {
+
+        // go to the middle of the room
+        this.pathTo(1.5 * canvasWidth, 1.5 * canvasHeight);
+    }
+    if (this.lastBallStorm == 0) {
+        new BallStorm();
+    }
+    
+}
