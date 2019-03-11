@@ -67,7 +67,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.reloadCounter = 0;
     this.maxShootCounter = 0.1;
     this.shootCounter = this.maxShootCounter;
-    this.maxHealth = 2500;
+    this.maxHealth = 250;
     this.health = this.maxHealth;
     this.healthPercent = 100;
     this.dontdraw = 0;
@@ -237,7 +237,7 @@ Player.prototype.update = function () {
             }
             let spellCast = false, q, selectSpell;
             for (q in GAME_ENGINE.digit) {
-                if (GAME_ENGINE.digit[q] && parseInt(q) !== 3) {
+                if (GAME_ENGINE.digit[q]) {
                     selectSpell = parseInt(q);
                     spellCast = true;
                 }
@@ -293,9 +293,6 @@ Player.prototype.update = function () {
             }
         } else {
             this.castTime--;
-        }
-        if (this.health < this.maxHealth * .333) {//250*.333=83.25
-            this.castSpell(3);
         }
         /* #region Abilities */
         let t;
@@ -430,8 +427,8 @@ Player.prototype.castSpell = function (number) {
                 this.abilityCD[number] = cooldDown;
                 break;
             case 3://Selfheal
-                totalHeal = this.maxHealth * 0.65;
-                cooldDown = 600;
+                totalHeal = this.maxHealth * 0.2;
+                cooldDown = 800;
                 duration = 140;
                 interval = 7;
                 let tempB = DS.CreateEffectObject(ETypes.None, 0, 0, duration, interval, function (unit) {
