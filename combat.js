@@ -144,8 +144,16 @@ function Grenade(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget
         this.animation = new Animation(spriteSheet, 16, 16, 1, .085, 4, true, 2);
         this.spriteSheet = spriteSheet;
     } else {
-        this.spriteSheet = AM.getAsset("./img/terran/bullet.png");
-        this.animation = new Animation(AM.getAsset("./img/terran/bullet.png"), 13, 13, 1, .085, 8, true, 1.5);
+        // if () {
+        //     this.spriteSheet = ;
+        // } else if () {
+        //     this.spriteSheet = ;
+        // } else if () {
+        //     this.spriteSheet = ;
+        // } else if () {
+        //     this.spriteSheet = ;
+        // }
+        this.animation = new Animation(this.spriteSheet, 13, 13, 1, .085, 8, true, 1.5);
     }
     this.aniX += 23;
     this.aniY += 23;
