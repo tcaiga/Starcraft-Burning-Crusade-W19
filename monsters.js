@@ -1,3 +1,13 @@
+Hydralisk.prototype = Monster.prototype;
+Infested.prototype = Monster.prototype;
+Ultralisk.prototype = Monster.prototype;
+Zergling.prototype = Monster.prototype;
+DarkTemplar.prototype = Monster.prototype;
+Zealot.prototype = Monster.prototype;
+Zerg_Boss.prototype = Monster.prototype;
+Templar_Boss.prototype = Monster.prototype;
+Archon_Boss.prototype = Monster.prototype;
+
 function Monster(spriteSheet, x, y, roomNumber) {
     Entity.call(this, GAME_ENGINE, 0, 350);
 
@@ -121,8 +131,12 @@ Monster.prototype.update = function () {
     }
 
 
-    if (this.isBoss) {
-        this.bossBehavior();
+    if (this.isZergBoss) {
+        this.zergBossBehavior();
+    } else if (this.isArchonBoss) {
+        this.archonBossBehavior();
+    } else if (this.isTemplarBoss) {
+        this.templarBossBehavior();
     }
 
     if (this.health <= 0) {
@@ -346,13 +360,6 @@ Monster.prototype.changeHealth = function (amount) {
 /* #endregion */
 
 /* #region Monster Types */
-Hydralisk.prototype = Monster.prototype;
-Infested.prototype = Monster.prototype;
-Ultralisk.prototype = Monster.prototype;
-Zergling.prototype = Monster.prototype;
-DarkTemplar.prototype = Monster.prototype;
-Zealot.prototype = Monster.prototype;
-Zerg_Boss.prototype = Monster.prototype;
 
 function Hydralisk(spriteSheet, x, y, roomNumber) {
     Monster.call(this, spriteSheet, x, y, roomNumber);
@@ -580,7 +587,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     this.isRanged = true;
     this.roomNumber = roomNumber;
     // boss specific stuff
-    this.isBoss = true;
+    this.isZergBoss = true;
     this.mobArr = [];
     this.mobCount = 0;
     this.lastInfestedPod = 50;
@@ -610,7 +617,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     // aoe burst
 }
 
-Zerg_Boss.prototype.bossBehavior = function () {
+Zerg_Boss.prototype.zergBossBehavior = function () {
     if (this.lastInfestedPod == 0) {
         new SpawnZerglings();
         this.lastInfestedPod = 600;
@@ -620,6 +627,7 @@ Zerg_Boss.prototype.bossBehavior = function () {
         // do something when boss is dead
     }
 
+    console.log("I'm doing something");
     if (this.lastSpikeExplosion == 0) {
         let tarX;
         let tarY;
@@ -650,12 +658,12 @@ Zerg_Boss.prototype.bossBehavior = function () {
 }
 
 function Templar_Boss(x, y, roomNumber, otherTemplar) {
-    
-    Monster.call(this, spriteSheet, x, y, roomNumber);
+    this.spriteSheet = AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png");
+
+    Monster.call(this, this.spriteSheet, x, y, roomNumber);
     if (otherTemplar != null && otherTemplar instanceof Monster) {
         this.otherTemplar = otherTemplar;
     }
-    this.spriteSheet = AM.getAsset("./img/protss/high_templar/high_templar_attack_left.png");
     this.x = x;
     this.y = y;
 
@@ -674,7 +682,7 @@ function Templar_Boss(x, y, roomNumber, otherTemplar) {
     this.roomNumber = roomNumber;
 
     // boss specific stuff
-    this.isBoss = true;
+    this.isTemplarBoss = true;
     this.lastBallStorm = 600;
 
     // Damage stuff
@@ -694,7 +702,7 @@ function Templar_Boss(x, y, roomNumber, otherTemplar) {
         this.width * this.scale + 60, this.height * this.scale - 30); // **Temporary** Hard coded offset values.
 }
 
-Templar_Boss.prototype.bossBehavior = function () {
+Templar_Boss.prototype.templarBossBehavior = function () {
 
     // check the hp and then determine if it's time for intermission
     if (this.otherTemplar instanceof Monster) {
@@ -734,12 +742,12 @@ Templar_Boss.prototype.bossBehavior = function () {
 }
 
 function Archon_Boss(x, y, roomNumber) {
-
+    this.spriteSheet = AM.getAsset("./img/protss/high_templar/high_templar_attack_left.png");
     Monster.call(this, spriteSheet, x, y, roomNumber);
     if (otherTemplar != null && otherTemplar instanceof Monster) {
         this.otherTemplar = otherTemplar;
     }
-    this.spriteSheet = AM.getAsset("./img/protss/high_templar/high_templar_attack_left.png");
+
     this.x = x;
     this.y = y;
 
@@ -758,7 +766,7 @@ function Archon_Boss(x, y, roomNumber) {
     this.roomNumber = roomNumber;
 
     // boss specific stuff
-    this.isBoss = true;
+    this.isArchonBoss = true;
     this.lastIonBlast = 500;
     this.lastPsiStorm = 600;
     this.lastBallStorm = 150;
@@ -782,7 +790,7 @@ function Archon_Boss(x, y, roomNumber) {
 
 }
 
-Archon_Boss.prototype.bossBehavior = function () {
+Archon_Boss.prototype.archonBossBehavior = function () {
 
     if (this.ionBlastFlag) {
         // make an energy ball to mimic a thick ion beam every 5 ticks
