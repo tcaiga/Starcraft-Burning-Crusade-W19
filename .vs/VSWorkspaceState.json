@@ -1,7 +1,15 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\audio",
+    "\\audio\\protoss",
+    "\\audio\\protoss\\dark_templar",
+    "\\img",
+    "\\img\\buildings",
+    "\\img\\protoss\\archon",
+    "\\img\\zerg",
+    "\\img\\zerg\\hydra"
   ],
-  "SelectedNode": "\\main.js",
+  "SelectedNode": "\\img\\zerg\\heavy_shot.png",
   "PreviewInSolutionExplorer": false
 }

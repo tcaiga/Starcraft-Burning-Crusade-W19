@@ -37,6 +37,7 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.scale = 1;
     this.width = 40;
     this.height = 56;
+    this.isFlippable = true;
     this.animation = new Animation(spriteSheet, this.width, this.height,
         this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 
@@ -113,15 +114,9 @@ Monster.prototype.pathTo = function (x, y) {
     this.isPathing = true;
 }
 
-function distance(monster) {
-    var dx = myPlayer.x - monster.x;
-    var dy = myPlayer.x - monster.y;
-    return Math.sqrt(dx * dx, dy * dy);
-}
-
 Monster.prototype.update = function () {
     // Flipping sprite sheet for monsters depending on if the player is to the left or right.
-    if (myPlayer.x > this.x) {
+    if (myPlayer.x > this.x && this.isFlippable) {
         this.right = true;
         this.xBoundingboxOffset = 0;
     } else {
@@ -179,6 +174,33 @@ Monster.prototype.update = function () {
         this.animation = this.moveAnimation
     }
 
+
+    if (this.isRanged) {
+        // if we're in range of a player, we can continue to cast at them (based on a cooldown)
+        // otherwise we'd just cast when a player's bounding box collides with their vision box.
+        if (distance(this) <= 150) {
+            // keep track of time since the last cast
+            this.pause = true;
+            this.animation = this.attackAnimation;
+
+            // reset after 45 ticks and then cast again
+            if (this.castCooldown > 45) {
+                let plLoc = getPlayerLocation();
+                this.castCooldown = 0;
+                var projectile = new Projectile(AM.getAsset("./img/zerg/heavy_shot.png"),
+                    this.x, this.y, plLoc.x, plLoc.y, 4, "angle");
+                projectile.speed = 4;
+                GAME_ENGINE.addEntity(projectile);
+                projectile.penetrative = true;
+            }
+            this.ticksSinceLastHit++;
+            this.castCooldown += 1
+        }
+    } else if (this.animation.animationDone) {
+        this.animation = this.moveAnimation;
+        this.pause = false;
+    }
+
     // based on the number of ticks since the player was last hit, we pause the monster
     if (this.pause == false && !this.isStunned) {
         // get the distance from the player
@@ -227,34 +249,6 @@ Monster.prototype.update = function () {
     }
 
     Entity.prototype.update.call(this);
-
-    if (this.isRanged) {
-
-        // if we're in range of the player, fire a projectile at them
-        if (this.visionBox.collide(myPlayer.boundingbox)) {
-            // flag that we're in range (or not)
-            this.inRange = !this.inRange;
-            // pause to cast at the player
-            this.pause = true;
-            // get the player's coordiantes
-            var tarX = myPlayer.x;
-            var tarY = myPlayer.y;
-        }
-        // if we're in range of a player, we can continue to cast at them (based on a cooldown)
-        // otherwise we'd just cast when a player's bounding box collides with their vision box.
-        if (this.inRange) {
-            // keep track of time since the last cast
-            this.castCooldown += 1
-            // reset after 45 ticks and then cast again
-            if (this.castCooldown > 45) {
-                this.castCooldown = 0;
-                var projectile = new Projectile(AM.getAsset("./img/fireball.png", 4),
-                    this.x - (this.width / 2), this.y - (this.height / 2), tarX, tarY);
-                GAME_ENGINE.addEntity(projectile);
-                projectile.penetrative = true;
-            }
-        }
-    }
 
     /* #region Damage system updates */
     let dmgObj;
@@ -327,11 +321,12 @@ function Hydralisk(spriteSheet, x, y, roomNumber) {
     this.frameLength = 0.03;
     this.sheetWidth = 1;
     this.moveAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"), 50, 50, 1, .03, 7, true, this.scale);
-    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_attack_right.png"), 100, 50, 1, .05, 11, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_attack_right.png"), 100, 50, 1, .09, 11, true, this.scale);
 
     // gameplay
-    this.speed = 200;
-    this.health = 45;
+    this.speed = 120;
+    this.health = 70;
+    this.isRanged = true;
 
     this.x = x;
     this.y = y;
@@ -536,10 +531,11 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     this.frameLength = .15;
     this.sheetWidth = 1;
     this.xBoundingboxOffset = 0;
+    this.isFlippable = false;
     // gameplay
     this.speed = 0;
-    this.health = 1350;
-    this.isRanged = true;
+    this.health = 1100;
+    this.isRanged = false;
     this.roomNumber = roomNumber;
     // boss specific stuff
     this.isZergBoss = true;
@@ -595,19 +591,9 @@ Zerg_Boss.prototype.zergBossBehavior = function () {
     }
 
     if (this.lastSpikeExplosion == 0) {
-        let tarX;
-        let tarY;
-        if (myPlayer.x < 0) {
-            tarX = canvasWidth - Math.abs(myPlayer.x) % canvasWidth;
-        } else {
-            tarX = myPlayer.x;
-        }
-
-        if (myPlayer.y < 0) {
-            tarY = canvasHeight - Math.abs(myPlayer.y) % canvasHeight;
-        } else {
-            tarY = myPlayer.y;
-        }
+        let coords = getPlayerLocation();
+        let tarX = coords.x;
+        let tarY = coords.y;
 
         for (var i = 0; i < 6; i++) {
             new SpikeExplosion(AM.getAsset("./img/zerg/sunken_spike.png"), CAMERA.x + getRandomInt(25, canvasWidth - 25), CAMERA.y + getRandomInt(25, canvasHeight - 25),
@@ -650,8 +636,7 @@ function Templar_Boss(x, y, roomNumber, otherTemplar) {
     // gameplay
     this.speed = 100;
     this.health = 1250;
-    this.totalHealth = this.health;
-    this.isRanged = true;
+    this.totalHealth = this.health;;
     this.roomNumber = roomNumber;
 
     // boss specific stuff
@@ -733,7 +718,6 @@ function Archon_Boss(x, y, roomNumber) {
     // gameplay
     this.speed = 0;
     this.health = 2500
-    this.isRanged = true;
     this.roomNumber = roomNumber;
 
     // boss specific stuff
@@ -791,6 +775,7 @@ Archon_Boss.prototype.archonBossBehavior = function () {
     }
 
     if (this.lastPsiStorm == 0) {
+        new psionicStorm();
         this.lastPsiStorm = getRandomInt(450, 700);
     }
 
@@ -833,4 +818,11 @@ function getPlayerLocation (){
         x: tarX,
         y: tarY
     };
+}
+
+
+function distance(monster) {
+    var dx = myPlayer.x - monster.x;
+    var dy = myPlayer.x - monster.y;
+    return Math.sqrt(dx * dx, dy * dy);
 }
