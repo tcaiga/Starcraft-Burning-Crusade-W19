@@ -1,4 +1,4 @@
-function Background() {
+function Background(level) {
     this.x = 0;
     this.y = 0;
 
@@ -24,7 +24,7 @@ function Background() {
     this.roomCount = 0;
     this.maxRoomCount = 5;
     this.drawFaceCount = 0;
-
+    this.level = level;
     // **********************
     // * Key for room types *
     // **********************
@@ -36,6 +36,15 @@ function Background() {
 }
 
 Background.prototype.draw = function () {
+    if (this.level === 1) {
+
+    } else if (this.level === 2) {
+
+    } else if (this.level === 3) {
+
+    } else if (this.level === "survival") {
+
+    }
     GAME_ENGINE.ctx.drawImage(AM.getAsset("./img/utilities/floor_level1.png"), this.floorX, this.floorY, 640, 640);
 }
 

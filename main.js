@@ -849,9 +849,6 @@ function addHTMLListeners() {
 
 /* #region Download queue and download */
 
-// Harrison's Fireball
-AM.queueDownload("./img/fireball.png");
-
 // Map
 AM.queueDownload("./img/utilities/floor_level1.png");
 AM.queueDownload("./img/utilities/floor_level2.png");
