@@ -149,7 +149,6 @@ Player.prototype.draw = function () {
 
 Player.prototype.update = function () {
     // Player movement controls
-
     if (!this.dead) {
         this.velocity = (this.castTime > 0 || this.isStunned) ? { x: 0, y: 0 } : this.velocity;
         if (this.castTime <= 0 && !this.isStunned) {
@@ -528,11 +527,17 @@ Player.prototype.updateHealthHTML = function () {
 /* #region Base Projectile */
 function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, direction) {
     this.origin = belongsTo;
+
+    // animation
     this.width = 13;
-    this.height = 13;
+    this.height = 14;
     this.scale = .75;
-    this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, this.scale);
+    this.numOfFrames = 1;
+    this.frameLength = .085;
+    this.sheetWidth = 1;
     this.spriteSheet = spriteSheet;
+    this.animation = new Animation(spriteSheet, this.width , this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+    
     this.targetType = 4;
     this.x = originX - CAMERA.x;
     this.y = originY - CAMERA.y;
@@ -563,14 +568,14 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, 
     this.aniY = -5;
     Entity.call(this, GAME_ENGINE, originX, originY);
 
-    this.boundingbox = new BoundingBox(this.x, this.y, this.width, this.height);
+    this.boundingbox = new BoundingBox(this.x - .25 * this.scale * this.width, this.y - this.scale * .25 * this.height, this.scale * this.width, this.scale * this.height);
 
 }
 
 Projectile.prototype.draw = function () {
     (typeof this.childDraw === 'function') ? this.childDraw() : null;
-    //this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x + this.aniX, this.y + this.aniY);
-    GAME_ENGINE.ctx.drawImage(this.spriteSheet, this.x - CAMERA.x, this.y - CAMERA.y, this.width, this.height);
+    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
+  //  GAME_ENGINE.ctx.drawImage(this.spriteSheet, this.x - CAMERA.x, this.y - CAMERA.y, this.width, this.height);
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = color_yellow;
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
@@ -579,7 +584,6 @@ Projectile.prototype.draw = function () {
 }
 
 Projectile.prototype.update = function () {
-    //var projectileSpeed = 7.5;
     (typeof this.childUpdate === 'function') ? this.childUpdate() : null;
     // Moving the actual projectile.
 
@@ -635,7 +639,7 @@ Projectile.prototype.update = function () {
         }
     }
 
-    this.boundingbox = new BoundingBox(this.x, this.y, this.width, this.height);
+    this.boundingbox = new BoundingBox(this.x - .25 * this.width, this.y - .25 * this.height , this.width, this.height);
 }
 /* #endregion */
 

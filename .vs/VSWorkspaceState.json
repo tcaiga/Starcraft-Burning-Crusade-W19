@@ -1,12 +1,7 @@
 {
   "ExpandedNodes": [
-    "",
-    "\\img",
-    "\\img\\protoss",
-    "\\img\\protoss\\archon",
-    "\\img\\protoss\\dark_templar",
-    "\\img\\protoss\\high_templar"
+    ""
   ],
-  "SelectedNode": "\\monsters.js",
+  "SelectedNode": "\\main.js",
   "PreviewInSolutionExplorer": false
 }

@@ -487,14 +487,13 @@ StillStand.prototype.draw = function () {
 
 /* #region Spawn Pool abilities */
 function SpawnZerglings() {
-    ss1Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.13, 5, true, .25);
+    ss1Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.13, 1, true, .25);
     ss2Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.04, 10, true, .175);
     ss1 = new StillStand(ss1Ani, 60, myPlayer.x, myPlayer.y);
     ss1.ssAni = ss2Ani;
     ss1.width = 50;
     ss1.height = 50;
-    ss1.aniX = -32 * 1.5 / 2 + 12;
-    ss1.aniY = -32 * 1.5 / 2 + 22;
+
     let x = myPlayer.x;
     let y = myPlayer.y;
 
@@ -521,7 +520,7 @@ function SpawnZerglings() {
 function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     this.width = 100;
     this.height = 100;
-    ss1Ani = new Animation(spriteSheet, this.width, this.height, 1, .25, 6, true, .75);
+    ss1Ani = new Animation(spriteSheet, this.width, this.height, 1, .25, 6, true, 1.25);
     ss1 = new StillStand(ss1Ani, 90, originX, originY);
     GAME_ENGINE.addEntity(ss1);
     ss1.onDeath = function () {
@@ -534,6 +533,8 @@ function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin)
 function Spike(originX, originY, xTarget, yTarget, origin) {
     this.spriteSheet = AM.getAsset("./img/terran/bullet.png");
     Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, "angle");
+
+    this.projectileSpeed = 6;
 
     // Damage stuff
     this.durationBetweenHits = 50;//Adjustable
@@ -561,7 +562,14 @@ function energyBall(originX, originY, xTarget, yTarget, origin, direction) {
     this.spriteSheet = AM.getAsset("./img/protoss/energy_ball.png");
     Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, direction);
     this.width = 51;
-    this.height = 51
+    this.height = 51;
+    this.sheetWidth = 1;
+    this.frameLength = .09;
+    this.numOfFrames = 6;
+    this.scale = .75;
+    this.animation = new Animation(this.spriteSheet, this.width, this.height,
+        this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+    this.boundingbox = new BoundingBox(this.x - .5 * this.width, this.y - .5 * this.height, this.width, this.height);
 
 
     // Damage stuff
