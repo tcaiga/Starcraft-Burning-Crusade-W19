@@ -572,7 +572,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     this.xBoundingboxOffset = 0;
     // gameplay
     this.speed = 0;
-    this.health = 1350;
+    this.health = 999;
     this.isRanged = true;
     this.roomNumber = roomNumber;
     // boss specific stuff
