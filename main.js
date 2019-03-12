@@ -527,10 +527,8 @@ Player.prototype.updateHealthHTML = function () {
 /* #region Base Projectile */
 function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, direction) {
     this.origin = belongsTo;
-
     // animation
     this.width = 13;
-
     this.height = 13;
     this.scale = 1;
     this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 1, true, this.scale);
@@ -566,7 +564,7 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, 
     Entity.call(this, GAME_ENGINE, originX, originY);
 
 
-    this.boundingbox = new BoundingBox(this.x, this.y, this.width, this.height);
+    this.boundingbox = new BoundingBox(this.x, this.y, this.width * this.scale, this.height * this.scale);
 
 }
 
@@ -637,7 +635,7 @@ Projectile.prototype.update = function () {
         }
     }
 
-    this.boundingbox = new BoundingBox(this.x - .25 * this.width, this.y - .25 * this.height , this.width, this.height);
+    this.boundingbox = new BoundingBox(this.x, this.y, this.width * this.scale, this.height * this.scale);
 }
 /* #endregion */
 

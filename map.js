@@ -222,6 +222,10 @@ Background.prototype.decorateRoom = function () {
                 var pool = new Zerg_Boss(AM.getAsset("./img/buildings/spawning_pool.png"),
                                 testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
                 GAME_ENGINE.addEntity(pool);
+               /* var temp2 = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber, null);
+                var temp = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber, temp2);
+                GAME_ENGINE.addEntity(temp2);
+                GAME_ENGINE.addEntity(temp);*/
                 console.log("I made a boss");
             }
 

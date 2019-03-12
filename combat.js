@@ -1,6 +1,9 @@
 /* #region Projetile Types */
 Grenade.prototype = Projectile.prototype;
 FireRound.prototype = Projectile.prototype;
+energyBall.prototype = Projectile.prototype;
+Spike.prototype = Projectile.prototype;
+
 
 function Grenade(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget, origin) {
     Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
@@ -347,7 +350,6 @@ function energyBall(originX, originY, xTarget, yTarget, origin, direction) {
     this.projectileSpeed = 4;
     this.penetrative = false;
 
-    console.log(this);
 }
 
 
