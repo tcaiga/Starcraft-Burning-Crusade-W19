@@ -568,7 +568,7 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, 
     this.aniY = -5;
     Entity.call(this, GAME_ENGINE, originX, originY);
 
-    this.boundingbox = new BoundingBox(this.x - .25 * this.scale * this.width, this.y - this.scale * .25 * this.height, this.scale * this.width, this.scale * this.height);
+    this.boundingbox = new BoundingBox(this.x, this.y, this.width * this.scale, this.height * this.scale);
 
 }
 
@@ -639,7 +639,7 @@ Projectile.prototype.update = function () {
         }
     }
 
-    this.boundingbox = new BoundingBox(this.x - .25 * this.width, this.y - .25 * this.height , this.width, this.height);
+    this.boundingbox = new BoundingBox(this.x, this.y, this.width * this.scale, this.height * this.scale);
 }
 /* #endregion */
 

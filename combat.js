@@ -569,7 +569,6 @@ function energyBall(originX, originY, xTarget, yTarget, origin, direction) {
     this.scale = .75;
     this.animation = new Animation(this.spriteSheet, this.width, this.height,
         this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
-    this.boundingbox = new BoundingBox(this.x - .5 * this.width, this.y - .5 * this.height, this.width, this.height);
 
 
     // Damage stuff
