@@ -14,7 +14,7 @@ function Grenade(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget
     this.penetrative = false;
     this.aoe = 100;//square
     if (spriteSheet !== null){
-        this.animation = new Animation(spriteSheet, 16, 16, 1, .085, 4, true, 2);
+        this.animation = new Animation(spriteSheet, 20, 20, 1, .085, 1, true, 1.5);
         this.spriteSheet = spriteSheet;
     } else {
         if (myPlayer.shootDirection === "up") {
@@ -108,17 +108,17 @@ function FireRound(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarg
     this.penetrative = false;
     this.aoe = 100;//square
     if (spriteSheet !== null){
-        this.animation = new Animation(spriteSheet, 16, 16, 1, .085, 4, true, 4);
+        this.animation = new Animation(spriteSheet, 50, 60, 1, .085, 1, true, 1.5);
         this.spriteSheet = spriteSheet;
     } else {
-        this.spriteSheet = AM.getAsset("./img/terran/bullet.png");
-        this.animation = new Animation(AM.getAsset("./img/terran/bullet.png"), 13, 13, 1, .085, 8, true, 1.5);
+        this.spriteSheet = AM.getAsset("./img/terran/abilities/incendiary_shot.png");
+        this.animation = new Animation(AM.getAsset("./img/terran/abilities/incendiary_shot.png"), 50, 60, 1, .085, 1, true, 1.5);
     }
     this.aniX += 23;
     this.aniY += 23;
     this.origin = origin;
     if (spriteSheetAoe !== null){
-        this.animationAoe = new Animation(spriteSheetAoe, 55, 60, 1, .025, 10, false, 1);
+        this.animationAoe = new Animation(spriteSheetAoe, 50, 60, 1, .025, 10, false, 1.5);
     } else {
         this.animationAoe = new Animation(AM.getAsset("./img/zerg/ultra/ultra_death.png"), 100, 100, 1, .01, 9, false, 1);
     }
