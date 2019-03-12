@@ -59,6 +59,9 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 
+    // this.innerBoundingbox = new BoundingBox(this.x + (this.width / 4), this.y + (this.height / 4),
+    //     (this.width - (this.width / 4)) * this.scale, (this.height - (this.height / 4)) * this.scale);
+
     this.visionBox = new BoundingBox(this.boundingbox.x - .5 * (this.width * this.scale - this.visionWidth),
         this.boundingbox.y - .5 * (this.height * this.scale - this.visionWidth),
         this.visionWidth, this.visionHeight);
@@ -67,7 +70,7 @@ function Monster(spriteSheet, x, y, roomNumber) {
 Monster.prototype.draw = function () {
     this.xScale = 1;
     var xValue = this.x;
-    
+
     if (!this.right) {
         GAME_ENGINE.ctx.save();
         GAME_ENGINE.ctx.scale(-1, 1);
@@ -80,10 +83,13 @@ Monster.prototype.draw = function () {
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = "red";
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-             this.boundingbox.width, this.boundingbox.height);
+            this.boundingbox.width, this.boundingbox.height);
         GAME_ENGINE.ctx.strokeStyle = "purple";
         GAME_ENGINE.ctx.strokeRect(this.visionBox.x, this.visionBox.y,
             this.visionBox.width, this.visionBox.height);
+        // GAME_ENGINE.ctx.strokeStyle = "blue";
+        // GAME_ENGINE.ctx.strokeRect(this.innerBoundingbox.x, this.innerBoundingbox.y,
+        //     this.innerBoundingbox.width, this.innerBoundingbox.height);
     }
 
     // Displaying Monster health
@@ -106,7 +112,7 @@ function distance(monster) {
 
 Monster.prototype.update = function () {
     // Flipping sprite sheet for monsters depending on if the player is to the left or right.
-    if (myPlayer.x > this.x) {
+    if (myPlayer.x > this.x || this.speed <= 0) {
         this.right = true;
         this.xBoundingboxOffset = 0;
     } else {
@@ -135,29 +141,6 @@ Monster.prototype.update = function () {
         // get the direction vector pointing towards player
         dirX = myPlayer.x - this.x;
         dirY = myPlayer.y - this.y;
-    }
-
-
-    if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        this.animation = this.attackAnimation;
-        if (this.isInfested) {
-            if (this.animation.animationDone) {
-                this.health = 0;
-                this.tickCount = 0;
-                this.damageObj.ApplyEffects(myPlayer);
-            }
-            this.tickCount += GAME_ENGINE.clockTick;
-        } else {
-            this.counter += GAME_ENGINE.clockTick;
-            this.damageObj.ApplyEffects(myPlayer);
-            this.pause = true;
-            if (this.counter > .018 && myPlayer.health > 0) {
-                //player.health -= 5;
-                this.counter = 0;
-            }
-        }
-    } else if (this.animation.animationDone) {
-        this.animation = this.moveAnimation
     }
 
     // based on the number of ticks since the player was last hit, we pause the monster
@@ -237,6 +220,48 @@ Monster.prototype.update = function () {
         }
     }
 
+    if (this.boundingbox.collide(myPlayer.boundingbox)) {
+        if (this.isInfested) {
+            // do explosion animation and damage player
+            // then die
+            this.health = 0;
+        } else {
+            this.counter += GAME_ENGINE.clockTick;
+            this.damageObj.ApplyEffects(myPlayer);
+            this.pause = true;
+            if (this.counter > .018 && myPlayer.health > 0) {
+                //player.health -= 5;
+                this.counter = 0;
+            }
+        }
+    }
+    // for (let i = 0; i < GAME_ENGINE.entities[4].length; i++) {
+    //     var entity = GAME_ENGINE.entities[4][i];
+    //     if (entity.x - CAMERA.x >= 0 && entity.x - CAMERA.x <= canvasWidth &&
+    //         entity.y - CAMERA.y >= 0 && entity.y - CAMERA.y <= canvasHeight && entity !== this) {
+    //         if (this.innerBoundingbox.x < entity.innerBoundingbox.right) {
+    //             this.x += entity.innerBoundingbox.right - this.innerBoundingbox.x;
+    //             //console.log("left");
+    //            // this.x += 10;
+    //         }
+    //         else if (this.innerBoundingbox.right > entity.innerBoundingbox.x) {
+    //             this.x -= entity.innerBoundingbox.right - this.innerBoundingbox.x;
+    //             //console.log("right");
+    //            // this.x -= 10;
+    //         }
+    //         if (this.innerBoundingbox.y < entity.innerBoundingbox.bottom) {
+    //             this.y += entity.innerBoundingbox.bottom - this.innerBoundingbox.y;
+    //             //console.log("up");
+    //             //this.y += 10;
+    //         }
+    //         else if (this.innerBoundingbox.bottom > entity.innerBoundingbox.y) {
+    //             this.y -= entity.innerBoundingbox.bottom - this.innerBoundingbox.y;
+    //             //console.log("down");
+    //             //this.y -= 10;
+    //         }
+    //     }
+    // }
+
     /* #region Damage system updates */
     let dmgObj;
     let dmgRemove = [];
@@ -271,6 +296,8 @@ Monster.prototype.update = function () {
     this.boundingbox = new BoundingBox(this.x - this.xBoundingboxOffset, this.y,
         this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
 
+    // this.innerBoundingbox = new BoundingBox(this.x + (this.width / 4) - this.xBoundingboxOffset, this.y + (this.height / 4),
+    //     (this.width - (this.width / 4)) * this.scale, (this.height - (this.height / 4)) * this.scale);
 
     this.visionBox = new BoundingBox(this.boundingbox.x + .5 * (this.width * this.scale - this.visionWidth),
         this.boundingbox.y + .5 * (this.height * this.scale - this.visionWidth),
