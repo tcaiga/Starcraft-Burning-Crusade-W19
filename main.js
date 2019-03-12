@@ -859,6 +859,7 @@ AM.queueDownload("./img/buildings/hive.png");
 AM.queueDownload("./img/buildings/infested_cc.png");
 AM.queueDownload("./img/buildings/ion_cannon.png");
 AM.queueDownload("./img/buildings/spawning_pool.png");
+AM.queueDownload("./img/buildings/canal_on.png");
 
 // Marine
 AM.queueDownload("./img/terran/marine/marine_move_right.png");
