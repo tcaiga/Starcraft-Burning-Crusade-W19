@@ -3,7 +3,6 @@ function Monster(spriteSheet, x, y, roomNumber) {
 
     // Room check stuff
     this.roomNumber = roomNumber;
-
     // behavior stuff
     this.visionWidth = 200;
     this.visionHeight = 200;
@@ -17,6 +16,7 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.pathX = 0;
     this.pathY = 0;
     this.isBoss = false;
+    this.tickCount = 0;
 
     // animation stuff
     this.xScale = 1;
@@ -33,6 +33,7 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.y = y;
     this.x = x;
     this.speed = 100;
+    this.totalHealth = this.health;
     this.health = 100;
     this.scoreIncrease = 1;
     //Movement
@@ -97,7 +98,7 @@ Monster.prototype.draw = function () {
     GAME_ENGINE.ctx.fillText("Health: " + Math.floor(this.health), this.x - 5 - CAMERA.x, this.y - 5 - CAMERA.y);
 }
 
-function pathTo(x, y) {
+Monster.prototype.pathTo = function (x, y) {
     this.isPathing = true;
     this.pathX = x;
     this.pathY = y;
@@ -333,7 +334,6 @@ Zerg_Boss.prototype = Monster.prototype;
 function Hydralisk(spriteSheet, x, y, roomNumber) {
     Monster.call(this, spriteSheet, x, y, roomNumber);
 
-
     // animation
     this.scale = 1.5;
     this.width = 50;
@@ -341,9 +341,11 @@ function Hydralisk(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 7;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"), 50, 50, 1, .03, 7, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_attack_right.png"), 100, 50, 1, .05, 11, true, this.scale);
 
     // gameplay
-    this.speed = 200;
+    this.speed = 250;
     this.health = 45;
 
     this.x = x;
@@ -375,18 +377,19 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 8;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-    this.xBoundingboxOffset = 0;
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_move_right.png"), 40, 40, 1, .03, 8, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_boom.png"), 85, 65, 1, .03, 10, true, this.scale);
+
     // gameplay
     this.speed = 300;
     this.health = 15;
     this.x = x;
     this.y = y;
-    this.roomNumber = roomNumber;
     this.isInfested = true;
     this.scoreIncrease = 50;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
-    this.totalDamage = 15;//Adjustable
+    this.totalDamage = 30;//Adjustable
     this.damageObjArr = [];
     this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
     this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
@@ -412,11 +415,12 @@ function Ultralisk(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 9;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-    this.xBoundingboxOffset = 0;
-    this.scoreIncrease = 700;
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"), 100, 100, 1, .03, 9, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/ultra/ultra_attack_right.png"), 100, 100, 1, .1, 6, true, this.scale);
+
     // gameplay
-    this.speed = 175;
-    this.health = 150;
+    this.speed = 250;
+    this.health = 250;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
@@ -444,9 +448,11 @@ function Zergling(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 7;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-    this.xBoundingboxOffset = 0;
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), 40, 40, 1, .03, 7, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/zergling/zergling_attack_right.png"), 40, 40, 1, .05, 5, true, this.scale);
+
     // gameplay
-    this.speed = 200;
+    this.speed = 250;
     this.health = 30;
     this.x = x;
     this.y = y;
@@ -454,7 +460,7 @@ function Zergling(spriteSheet, x, y, roomNumber) {
     this.scoreIncrease = 30;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
-    this.totalDamage = 4;//Adjustable
+    this.totalDamage = 5;//Adjustable
     this.damageObjArr = [];
     this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
     this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
@@ -476,9 +482,11 @@ function Zealot(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 7;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-    this.xBoundingboxOffset = 0;
+    this.moveAnimation = new Animation(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"), 50, 50, 1, .03, 7, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/protoss/zealot/zealot_attack_right.png"), 50, 50, 1, .06, 5, true, this.scale);
+
     // gameplay
-    this.speed = 200;
+    this.speed = 250;
     this.health = 45;
     this.x = x;
     this.y = y;
@@ -486,7 +494,7 @@ function Zealot(spriteSheet, x, y, roomNumber) {
     this.scoreIncrease = 100;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
-    this.totalDamage = 4;//Adjustable
+    this.totalDamage = 10;//Adjustable
     this.damageObjArr = [];
     this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
     this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
@@ -508,8 +516,11 @@ function DarkTemplar(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 10;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
+    this.moveAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"), 50, 50, 1, .03, 10, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_attack_right.png"), 50, 60, 1, .07, 7, true, this.scale);
+
     // gameplay
-    this.speed = 200;
+    this.speed = 250;
     this.health = 90;
     this.x = x;
     this.y = y;
@@ -518,7 +529,7 @@ function DarkTemplar(spriteSheet, x, y, roomNumber) {
     this.xBoundingboxOffset = 0;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
-    this.totalDamage = 4;//Adjustable
+    this.totalDamage = 25;//Adjustable
     this.damageObjArr = [];
     this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
     this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
@@ -564,6 +575,8 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
 
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth,
         this.frameLength, this.numOfFrames, true, this.scale);
+    this.moveAnimation = this.animation;
+    this.attackAnimation = this.animation;
 
     this.boundingbox = new BoundingBox(this.x + 30, this.y + 50,
         this.width * this.scale + 60, this.height * this.scale - 30); // **Temporary** Hard coded offset values.
@@ -600,9 +613,12 @@ Zerg_Boss.prototype.bossBehavior = function () {
         }
 
         for (var i = 0; i < 6; i++) {
-            new SpikeExplosion(AM.getAsset("./img/zerg/sunken_spike.png"), CAMERA.x + getRandomInt(0, canvasWidth), CAMERA.y + getRandomInt(0, canvasHeight),
+            new SpikeExplosion(AM.getAsset("./img/zerg/sunken_spike.png"), CAMERA.x + getRandomInt(25, canvasWidth - 25), CAMERA.y + getRandomInt(25, canvasHeight - 25),
                 tarX, tarY, 4);
         }
+
+        // <TEST>
+        new ballStorm(CAMERA.x + canvasWidth / 2, CAMERA.y + canvasHeight / 2);
 
         this.lastSpikeExplosion = 300;
     }
@@ -610,3 +626,189 @@ Zerg_Boss.prototype.bossBehavior = function () {
     this.lastSpikeExplosion--;
 }
 
+function Templar_Boss(x, y, roomNumber, otherTemplar) {
+    
+    Monster.call(this, spriteSheet, x, y, roomNumber);
+    if (otherTemplar != null && otherTemplar instanceof Monster) {
+        this.otherTemplar = otherTemplar;
+    }
+    this.spriteSheet = AM.getAsset("./img/protss/high_templar/high_templar_attack_left.png");
+    this.x = x;
+    this.y = y;
+
+    // animation
+    this.scale = 1.5;
+    this.width = 47;
+    this.height = 56;
+    this.numOfFrames = 5;
+    this.frameLength = .15;
+    this.sheetWidth = 1;
+
+    // gameplay
+    this.speed = 400;
+    this.health = 1250;
+    this.isRanged = true;
+    this.roomNumber = roomNumber;
+
+    // boss specific stuff
+    this.isBoss = true;
+    this.lastBallStorm = 600;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 10;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
+
+    this.animation = new Animation(this.spriteSheet, this.width, this.height, this.sheetWidth,
+        this.frameLength, this.numOfFrames, true, this.scale);
+
+    this.boundingbox = new BoundingBox(this.x + 30, this.y + 50,
+        this.width * this.scale + 60, this.height * this.scale - 30); // **Temporary** Hard coded offset values.
+}
+
+Templar_Boss.prototype.bossBehavior = function () {
+
+    // check the hp and then determine if it's time for intermission
+    if (this.otherTemplar instanceof Monster) {
+        // if either of the templars hp % is <= 20, initiate merge
+        if (getHealthPercentage(this.otherTemplar) <= 20 || getHealthPercentage(this) <= 20) {
+            this.mergeTogether = true;
+            this.archonHP = this.health + this.otherTemplar.health;
+            this.phase = 2;
+        }
+    }
+
+    if (this.phase == 1) {
+        if (this.lastBallStorm == 0) {
+            new BallStorm();
+        }
+        // intermission
+    } else if (this.phase == 2) {
+        if (!this.isPathing) {
+            this.pathTo(CAMERA.x + .5 * CAMERA.x, CAMERA.y + .5 * CAMERA.y);
+        }
+
+        if (this.otherTemplar instanceof Monster) {
+            if (!this.otherTemplar.isPathing) {
+                this.otherTemplar.pathTo(CAMERA.x + .5 * CAMERA.x, CAMERA.y + .5 * CAMERA.y);
+            }
+        }
+
+        if (!this.isPathing && this.otherTemplar instanceof Monster && !this.otherTemplar.isPathing) {
+            let mergedArchon = new Archon_Boss(this.x, this.y, this.roomNumber);
+            GAME_ENGINE.addEntity(mergedArchon);
+            mergedArchon.health = this.health;
+            GAME_ENGINE.removeEntity(this.otherTemplar);
+            GAME_ENGINE.removeEntity(this);
+
+        }
+    }
+}
+
+function Archon_Boss(x, y, roomNumber) {
+
+    Monster.call(this, spriteSheet, x, y, roomNumber);
+    if (otherTemplar != null && otherTemplar instanceof Monster) {
+        this.otherTemplar = otherTemplar;
+    }
+    this.spriteSheet = AM.getAsset("./img/protss/high_templar/high_templar_attack_left.png");
+    this.x = x;
+    this.y = y;
+
+    // animation
+    this.scale = 1.5;
+    this.width = 82;
+    this.height = 89;
+    this.numOfFrames = 15;
+    this.frameLength = .09;
+    this.sheetWidth = 1;
+
+    // gameplay
+    this.speed = 0;
+    this.health = 2500
+    this.isRanged = true;
+    this.roomNumber = roomNumber;
+
+    // boss specific stuff
+    this.isBoss = true;
+    this.lastIonBlast = 500;
+    this.lastPsiStorm = 600;
+    this.lastBallStorm = 150;
+    this.ionBlastFlag = false;
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 10;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
+
+    this.animation = new Animation(this.spriteSheet, this.width, this.height, this.sheetWidth,
+        this.frameLength, this.numOfFrames, true, this.scale);
+
+    this.boundingbox = new BoundingBox(this.x + 30, this.y + 50,
+        this.width * this.scale + 60, this.height * this.scale - 30); // **Temporary** Hard coded offset values.
+
+}
+
+Archon_Boss.prototype.bossBehavior = function () {
+
+    if (this.ionBlastFlag) {
+        // make an energy ball to mimic a thick ion beam every 5 ticks
+        if (GAME_ENGINE.tick % 5 == 0) {
+            let playerLoc = getPlayerLocation();
+            let eb = new energyBall(this.x, this.y, playerLoc.x, playerLoc.y, 4, "angle");
+            eb.projectileSpeed = 4.5;
+            GAME_ENGINE.addEntity(eb);
+        }
+    }
+    if (this.lastBallStorm == 0) {
+        this.lastBallStorm = getRandomInt(350, 700);
+        new ballStorm(this.x, this.y);
+    }
+
+    if (this.lastPsiStorm == 0) {
+        this.lastPsiStorm = getRandomInt(450, 700);
+    }
+
+    if (this.lastIonBlast == 0) {
+        this.lastIonBlast = 1000;
+        this.ionBlastFlag = true;
+    }
+}
+
+function getHealthPercentage(entity) {
+    if (entity instanceof Player || entity instanceof Monster) {
+        return (entity.hp / entity.totalHealth) * 100;
+    }
+    // not a correct type
+    return -1;
+}
+
+function getPlayerLocation (){
+    let tarX;
+    let tarY;
+    if (myPlayer.x < 0) {
+        tarX = canvasWidth - Math.abs(myPlayer.x) % canvasWidth;
+    } else {
+        tarX = myPlayer.x;
+    }
+
+    if (myPlayer.y < 0) {
+        tarY = canvasHeight - Math.abs(myPlayer.y) % canvasHeight;
+    } else {
+        tarY = myPlayer.y;
+    }
+    return {
+        x: tarX,
+        y: tarY
+    };
+}

@@ -67,7 +67,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.reloadCounter = 0;
     this.maxShootCounter = 0.1;
     this.shootCounter = this.maxShootCounter;
-    this.maxHealth = 2500;
+    this.maxHealth = 250;
     this.health = this.maxHealth;
     this.healthPercent = 100;
     this.dontdraw = 0;
@@ -149,7 +149,6 @@ Player.prototype.draw = function () {
 
 Player.prototype.update = function () {
     // Player movement controls
-
     if (!this.dead) {
         this.velocity = (this.castTime > 0 || this.isStunned) ? { x: 0, y: 0 } : this.velocity;
         if (this.castTime <= 0 && !this.isStunned) {
@@ -237,7 +236,7 @@ Player.prototype.update = function () {
             }
             let spellCast = false, q, selectSpell;
             for (q in GAME_ENGINE.digit) {
-                if (GAME_ENGINE.digit[q] && parseInt(q) !== 3) {
+                if (GAME_ENGINE.digit[q]) {
                     selectSpell = parseInt(q);
                     spellCast = true;
                 }
@@ -276,7 +275,7 @@ Player.prototype.update = function () {
                     this.shootCounter = 0;
 
                     //audio for gunshot
-                    var gunShot = new Audio("./audio/marine_shoot.wav");
+                    var gunShot = new Audio("./audio/marine/marine_shoot.wav");
                     gunShot.volume = myCurrentVolume;
                     gunShot.play();
                 } else {
@@ -293,9 +292,6 @@ Player.prototype.update = function () {
             }
         } else {
             this.castTime--;
-        }
-        if (this.health < this.maxHealth * .333) {//250*.333=83.25
-            this.castSpell(3);
         }
         /* #region Abilities */
         let t;
@@ -316,7 +312,7 @@ Player.prototype.update = function () {
 
         if (this.health <= 0) {
             this.dead = true;
-            var deathSound = new Audio("./audio/marine_death.wav");
+            var deathSound = new Audio("./audio/marine/marine_death.wav");
             deathSound.volume = myCurrentVolume;
             deathSound.play();
         }
@@ -405,8 +401,8 @@ Player.prototype.castSpell = function (number) {
                 let selfDamage = 20;
                 cooldDown = 400;
                 duration = 200;
-                msInc = 2;
-                shootspeedInc = 2;
+                msInc = 1.5;
+                shootspeedInc = 1.25;
                 reloadInc = 2;
                 let tempObj = []
                 tempObj.push(DS.CreateEffectObject(ETypes.ReloadR, reloadInc, 1 / reloadInc, duration, 0));
@@ -430,7 +426,7 @@ Player.prototype.castSpell = function (number) {
                 this.abilityCD[number] = cooldDown;
                 break;
             case 3://Selfheal
-                totalHeal = this.maxHealth * 0.65;
+                totalHeal = this.maxHealth * 0.4;
                 cooldDown = 600;
                 duration = 140;
                 interval = 7;
@@ -467,7 +463,10 @@ Player.prototype.castSpell = function (number) {
                 let adamageObjonExplosion = DS.CreateDamageObject(0, 0, DTypes.None, adamageBuffonExplosion);
                 adamageObjonExplosion.timeLeft = 10;
 
-                let tempPro2 = new FireRound(AM.getAsset("./img/terran/abilities/incendiary_shot.png"), AM.getAsset("./img/terran/abilities/incendiary_shot.png"), this.x + 13, this.y + 13, dir.x, dir.y, origin);
+                let tempPro2 = new FireRound(AM.getAsset("./img/terran/abilities/incendiary_shot_still.png"),
+                AM.getAsset("./img/terran/abilities/incendiary_shot.png"),
+                this.x + 15, this.y + 23, dir.x, dir.y, origin);
+                
                 tempPro2.damageObjonExplosion = adamageObjonExplosion;
                 tempPro2.projectileSpeed = speed;
                 tempPro2.aoe = aoe;
@@ -528,11 +527,14 @@ Player.prototype.updateHealthHTML = function () {
 /* #region Base Projectile */
 function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, direction) {
     this.origin = belongsTo;
+
+    // animation
     this.width = 13;
+
     this.height = 13;
-    this.scale = .75;
-    this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 8, true, this.scale);
-    this.spriteSheet = spriteSheet;
+    this.scale = 1;
+    this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 1, true, this.scale);
+    
     this.targetType = 4;
     this.x = originX - CAMERA.x;
     this.y = originY - CAMERA.y;
@@ -563,14 +565,15 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, 
     this.aniY = -5;
     Entity.call(this, GAME_ENGINE, originX, originY);
 
+
     this.boundingbox = new BoundingBox(this.x, this.y, this.width, this.height);
 
 }
 
 Projectile.prototype.draw = function () {
     (typeof this.childDraw === 'function') ? this.childDraw() : null;
-    //this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x + this.aniX, this.y + this.aniY);
-    GAME_ENGINE.ctx.drawImage(this.spriteSheet, this.x - CAMERA.x, this.y - CAMERA.y, this.width, this.height);
+    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
+
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = color_yellow;
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
@@ -579,7 +582,6 @@ Projectile.prototype.draw = function () {
 }
 
 Projectile.prototype.update = function () {
-    //var projectileSpeed = 7.5;
     (typeof this.childUpdate === 'function') ? this.childUpdate() : null;
     // Moving the actual projectile.
 
@@ -635,7 +637,7 @@ Projectile.prototype.update = function () {
         }
     }
 
-    this.boundingbox = new BoundingBox(this.x, this.y, this.width, this.height);
+    this.boundingbox = new BoundingBox(this.x - .25 * this.width, this.y - .25 * this.height , this.width, this.height);
 }
 /* #endregion */
 
@@ -753,12 +755,16 @@ function Animation(spriteSheet, frameWidth, frameHeight,
     this.elapsedTime = 0;
     this.loop = loop;
     this.scale = scale;
+    this.animationDone = false;
 }
 
 Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     this.elapsedTime += tick;
     if (this.isDone()) {
         if (this.loop) this.elapsedTime = 0;
+        this.animationDone = true;
+    } else {
+        this.animationDone = false;
     }
     var frame = this.currentFrame();
     var xindex = 0;
@@ -866,7 +872,12 @@ AM.queueDownload("./img/terran/marine/marine_shoot_up.png");
 AM.queueDownload("./img/terran/marine/marine_shoot_down.png");
 AM.queueDownload("./img/terran/marine/marine_death.png");
 AM.queueDownload("./img/terran/bullet.png");
+AM.queueDownload("./img/terran/abilities/rocket/rocket_up.png");
+AM.queueDownload("./img/terran/abilities/rocket/rocket_down.png");
+AM.queueDownload("./img/terran/abilities/rocket/rocket_left.png");
+AM.queueDownload("./img/terran/abilities/rocket/rocket_right.png");
 AM.queueDownload("./img/terran/abilities/rocket/rocket_explosion.png");
+AM.queueDownload("./img/terran/abilities/incendiary_shot_still.png");
 AM.queueDownload("./img/terran/abilities/incendiary_shot.png");
 AM.queueDownload("./img/terran/abilities/self_heal.png");
 AM.queueDownload("./img/terran/abilities/stimpack.png");
@@ -898,6 +909,9 @@ AM.queueDownload("./img/zerg/zergling/zergling_death.png");
 AM.queueDownload("./img/protoss/dark_templar/dark_templar_move_right.png");
 AM.queueDownload("./img/protoss/dark_templar/dark_templar_attack_right.png");
 AM.queueDownload("./img/protoss/dark_templar/dark_templar_death.png");
+
+// Protoss attacks
+AM.queueDownload("./img/protoss/energy_ball.png");
 
 // Zealot
 AM.queueDownload("./img/protoss/zealot/zealot_move_right.png");
