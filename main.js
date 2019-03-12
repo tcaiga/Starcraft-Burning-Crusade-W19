@@ -402,8 +402,8 @@ Player.prototype.castSpell = function (number) {
                 let selfDamage = 20;
                 cooldDown = 400;
                 duration = 200;
-                msInc = 2;
-                shootspeedInc = 2;
+                msInc = 1.5;
+                shootspeedInc = 1.25;
                 reloadInc = 2;
                 let tempObj = []
                 tempObj.push(DS.CreateEffectObject(ETypes.ReloadR, reloadInc, 1 / reloadInc, duration, 0));
@@ -427,8 +427,8 @@ Player.prototype.castSpell = function (number) {
                 this.abilityCD[number] = cooldDown;
                 break;
             case 3://Selfheal
-                totalHeal = this.maxHealth * 0.2;
-                cooldDown = 800;
+                totalHeal = this.maxHealth * 0.4;
+                cooldDown = 600;
                 duration = 140;
                 interval = 7;
                 let tempB = DS.CreateEffectObject(ETypes.None, 0, 0, duration, interval, function (unit) {
@@ -464,7 +464,10 @@ Player.prototype.castSpell = function (number) {
                 let adamageObjonExplosion = DS.CreateDamageObject(0, 0, DTypes.None, adamageBuffonExplosion);
                 adamageObjonExplosion.timeLeft = 10;
 
-                let tempPro2 = new FireRound(AM.getAsset("./img/terran/abilities/incendiary_shot.png"), AM.getAsset("./img/terran/abilities/incendiary_shot.png"), this.x + 13, this.y + 13, dir.x, dir.y, origin);
+                let tempPro2 = new FireRound(AM.getAsset("./img/terran/abilities/incendiary_shot_still.png"),
+                AM.getAsset("./img/terran/abilities/incendiary_shot.png"),
+                this.x + 15, this.y + 23, dir.x, dir.y, origin);
+                
                 tempPro2.damageObjonExplosion = adamageObjonExplosion;
                 tempPro2.projectileSpeed = speed;
                 tempPro2.aoe = aoe;
@@ -561,12 +564,11 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, 
     Entity.call(this, GAME_ENGINE, originX, originY);
 
     this.boundingbox = new BoundingBox(this.x, this.y, this.width, this.height);
-
 }
 
 Projectile.prototype.draw = function () {
     (typeof this.childDraw === 'function') ? this.childDraw() : null;
-    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x - CAMERA.x, this.y - CAMERA.y);
+    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = color_yellow;
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
@@ -871,6 +873,7 @@ AM.queueDownload("./img/terran/abilities/rocket/rocket_down.png");
 AM.queueDownload("./img/terran/abilities/rocket/rocket_left.png");
 AM.queueDownload("./img/terran/abilities/rocket/rocket_right.png");
 AM.queueDownload("./img/terran/abilities/rocket/rocket_explosion.png");
+AM.queueDownload("./img/terran/abilities/incendiary_shot_still.png");
 AM.queueDownload("./img/terran/abilities/incendiary_shot.png");
 AM.queueDownload("./img/terran/abilities/self_heal.png");
 AM.queueDownload("./img/terran/abilities/stimpack.png");

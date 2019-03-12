@@ -111,8 +111,8 @@ function FireRound(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarg
         this.animation = new Animation(spriteSheet, 50, 60, 1, .085, 1, true, 1.5);
         this.spriteSheet = spriteSheet;
     } else {
-        this.spriteSheet = AM.getAsset("./img/terran/abilities/incendiary_shot.png");
-        this.animation = new Animation(AM.getAsset("./img/terran/abilities/incendiary_shot.png"), 50, 60, 1, .085, 1, true, 1.5);
+        this.spriteSheet = AM.getAsset("./img/terran/abilities/incendiary_shot_still.png");
+        this.animation = new Animation(AM.getAsset("./img/terran/abilities/incendiary_shot_still.png"), 50, 60, 1, .085, 1, true, 1.5);
     }
     this.aniX += 23;
     this.aniY += 23;
