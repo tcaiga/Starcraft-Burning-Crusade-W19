@@ -3,6 +3,9 @@ Grenade.prototype = Projectile.prototype;
 FireRound.prototype = Projectile.prototype;
 energyBall.prototype = Projectile.prototype;
 
+Spike.prototype = Projectile.prototype;
+
+
 function Grenade(spriteSheet, spriteSheetAoe, originX, originY, xTarget, yTarget, origin) {
     Projectile.call(this, spriteSheet, originX, originY, xTarget, yTarget, origin);
     if (xTarget !== 0) {
@@ -335,7 +338,6 @@ function energyBall(originX, originY, xTarget, yTarget, origin, direction) {
     this.scale = .75;
     this.animation = new Animation(this.spriteSheet, this.width, this.height,
         this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
-    this.boundingbox = new BoundingBox(this.x - .5 * this.width, this.y - .5 * this.height, this.width, this.height);
 
 
     // Damage stuff
@@ -348,6 +350,7 @@ function energyBall(originX, originY, xTarget, yTarget, origin, direction) {
     this.buffObj = [];
     this.projectileSpeed = 4;
     this.penetrative = false;
+
 }
 
 
