@@ -29,7 +29,7 @@ function Background() {
     this.canalX = 0;
     this.canalY = 0;
 
-    this.maxRoomCount = 1;
+    this.maxRoomCount = 5;
     this.drawFaceCount = 0;
     this.level = 1;
     this.floorImg = "./img/utilities/floor_level1.png";
