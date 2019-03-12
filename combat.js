@@ -316,7 +316,10 @@ function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin)
     ss1 = new StillStand(ss1Ani, 90, originX, originY);
     GAME_ENGINE.addEntity(ss1);
     ss1.onDeath = function () {
-        GAME_ENGINE.addEntity(new Spike(originX, originY, xTarget, yTarget, origin));
+        let spike = new Spike(originX, originY, xTarget, yTarget, origin);
+        spike.projectileSpeed = 4;
+
+        GAME_ENGINE.addEntity(spike);
     }
 
 
@@ -392,7 +395,10 @@ function spikeStorm(originX, originY) {
     for (var i = 0; i < numOfBalls; i++) {
         xt = getRandomInt(0, canvasWidth);
         yt = getRandomInt(0, canvasHeight);
-        GAME_ENGINE.addEntity(new Spike(originX, originY, CAMERA.x + xt, CAMERA.y + yt, 4, "angle"));
+        let spike = new Spike(originX, originY, CAMERA.x + xt, CAMERA.y + yt, 4, "angle");
+        spike.totalDamage = 5;
+        spike.projectileSpeed = 4;
+        GAME_ENGINE.addEntity(spike);
     }
 }
 

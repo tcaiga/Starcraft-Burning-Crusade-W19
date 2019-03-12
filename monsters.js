@@ -178,7 +178,7 @@ Monster.prototype.update = function () {
     if (this.isRanged) {
         // if we're in range of a player, we can continue to cast at them (based on a cooldown)
         // otherwise we'd just cast when a player's bounding box collides with their vision box.
-        if (distance(this) <= 150) {
+        if (distance(this) <= 175) {
             // keep track of time since the last cast
             this.pause = true;
             this.animation = this.attackAnimation;
@@ -187,11 +187,16 @@ Monster.prototype.update = function () {
             if (this.castCooldown > 45) {
                 let plLoc = getPlayerLocation();
                 this.castCooldown = 0;
-                var projectile = new Projectile(AM.getAsset("./img/zerg/heavy_shot.png"),
-                    this.x, this.y, plLoc.x, plLoc.y, 4, "angle");
-                projectile.speed = 4;
-                GAME_ENGINE.addEntity(projectile);
-                projectile.penetrative = true;
+                if (this.isZerg) {
+                    var projectile = new Projectile(AM.getAsset("./img/zerg/heavy_shot.png"),
+                        this.x, this.y, plLoc.x, plLoc.y, 4, "angle");
+                    projectile.speed = 4;
+                    GAME_ENGINE.addEntity(projectile);
+                    projectile.penetrative = true;
+                } else if (this.isProtoss) {
+                    GAME_ENGINE.addEntity(new energyBall(this.x, this.y, plLoc.x, plLoc.y, 4, "angle"));
+                }
+
             }
             this.ticksSinceLastHit++;
             this.castCooldown += 1
@@ -320,6 +325,7 @@ function Hydralisk(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 7;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
+    this.isZerg = true;
     this.moveAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"), 50, 50, 1, .03, 7, true, this.scale);
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_attack_right.png"), 100, 50, 1, .09, 11, true, this.scale);
 
@@ -495,18 +501,21 @@ function DarkTemplar(spriteSheet, x, y, roomNumber) {
     this.height = 50;
     this.numOfFrames = 10;
     this.frameLength = 0.03;
+    this.isRanged = true;
     this.sheetWidth = 1;
     this.moveAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"), 50, 50, 1, .03, 10, true, this.scale);
     this.attackAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_attack_right.png"), 50, 60, 1, .07, 7, true, this.scale);
 
     // gameplay
-    this.speed = 200;
+    this.speed = 150;
     this.health = 90;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
     this.scoreIncrease = 350;
     this.xBoundingboxOffset = 0;
+    this.isProtoss = true;
+
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
     this.totalDamage = 4;//Adjustable
