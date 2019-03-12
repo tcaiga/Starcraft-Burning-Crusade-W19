@@ -1,4 +1,4 @@
-var music = new Audio("./audio/young_blood.mp3");
+var music = new Audio("./audio/level1_song.mp3");
 
 music.volume = .1;
 var myCurrentVolume = music.volume;
