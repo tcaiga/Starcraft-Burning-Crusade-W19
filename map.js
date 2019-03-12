@@ -22,9 +22,11 @@ function Background(level) {
     this.row = 0;
     this.col = 0;
     this.roomCount = 0;
+    this.bossRoomNum = 0;
     this.maxRoomCount = 5;
     this.drawFaceCount = 0;
     this.level = level;
+    this.floorImg = "./img/utilities/floor_level1.png";
     // **********************
     // * Key for room types *
     // **********************
@@ -36,19 +38,34 @@ function Background(level) {
 }
 
 Background.prototype.draw = function () {
-    if (this.level === 1) {
-
-    } else if (this.level === 2) {
-
-    } else if (this.level === 3) {
-
-    } else if (this.level === "survival") {
-
-    }
-    GAME_ENGINE.ctx.drawImage(AM.getAsset("./img/utilities/floor_level1.png"), this.floorX, this.floorY, 640, 640);
+    GAME_ENGINE.ctx.drawImage(AM.getAsset(this.floorImg), this.floorX, this.floorY, 640, 640);
 }
 
 Background.prototype.update = function () {
+    let monsterRoomCheck = false;
+    for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
+        var tempMonster = GAME_ENGINE.entities[4][i];
+        if (tempMonster.roomNumber === this.bossRoomNum) {
+                monsterRoomCheck = true;
+        }
+    }
+
+    if (!monsterRoomCheck) {
+        this.state = "open";
+    }
+};
+
+Background.prototype.changeLevel = function () {
+    this.level++;
+    if (this.level === 1) {
+        console.log("level 1");
+    } else if (this.level === 2) {
+        console.log("level 2");
+    } else if (this.level === 3) {
+        console.log("level 3");
+    } else if (this.level.startsWith("survival")) {
+        console.log("survival");
+    }
 };
 
 Background.prototype.createWalls = function () {
@@ -223,11 +240,11 @@ Background.prototype.decorateRoom = function () {
 
             // Adding a boss to the final room
             if (this.map[testPos[1]][testPos[0]] === 9 && addBoss) {
+                this.bossRoomNum = roomNumber;
                 addBoss = false;
                 var pool = new Zerg_Boss(AM.getAsset("./img/buildings/spawning_pool.png"),
                                 testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber);
                 GAME_ENGINE.addEntity(pool);
-                console.log("I made a boss");
             }
 
             roomNumber++;
