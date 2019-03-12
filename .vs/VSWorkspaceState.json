@@ -6,10 +6,11 @@
     "\\audio\\protoss\\dark_templar",
     "\\img",
     "\\img\\buildings",
+    "\\img\\protoss",
     "\\img\\protoss\\archon",
     "\\img\\zerg",
     "\\img\\zerg\\hydra"
   ],
-  "SelectedNode": "\\img\\zerg\\heavy_shot.png",
+  "SelectedNode": "\\monsters.js",
   "PreviewInSolutionExplorer": false
 }
