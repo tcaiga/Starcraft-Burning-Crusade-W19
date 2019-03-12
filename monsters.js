@@ -318,7 +318,7 @@ function Hydralisk(spriteSheet, x, y, roomNumber) {
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_attack_right.png"), 100, 50, 1, .05, 11, true, this.scale);
 
     // gameplay
-    this.speed = 200;
+    this.speed = 250;
     this.health = 45;
 
     this.x = x;
@@ -362,7 +362,7 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.scoreIncrease = 50;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
-    this.totalDamage = 15;//Adjustable
+    this.totalDamage = 30;//Adjustable
     this.damageObjArr = [];
     this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
     this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
@@ -392,8 +392,8 @@ function Ultralisk(spriteSheet, x, y, roomNumber) {
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/ultra/ultra_attack_right.png"), 100, 100, 1, .1, 6, true, this.scale);
 
     // gameplay
-    this.speed = 175;
-    this.health = 150;
+    this.speed = 250;
+    this.health = 250;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
@@ -425,7 +425,7 @@ function Zergling(spriteSheet, x, y, roomNumber) {
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/zergling/zergling_attack_right.png"), 40, 40, 1, .05, 5, true, this.scale);
 
     // gameplay
-    this.speed = 200;
+    this.speed = 250;
     this.health = 30;
     this.x = x;
     this.y = y;
@@ -433,7 +433,7 @@ function Zergling(spriteSheet, x, y, roomNumber) {
     this.scoreIncrease = 30;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
-    this.totalDamage = 4;//Adjustable
+    this.totalDamage = 5;//Adjustable
     this.damageObjArr = [];
     this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
     this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
@@ -459,7 +459,7 @@ function Zealot(spriteSheet, x, y, roomNumber) {
     this.attackAnimation = new Animation(AM.getAsset("./img/protoss/zealot/zealot_attack_right.png"), 50, 50, 1, .06, 5, true, this.scale);
 
     // gameplay
-    this.speed = 200;
+    this.speed = 250;
     this.health = 45;
     this.x = x;
     this.y = y;
@@ -467,7 +467,7 @@ function Zealot(spriteSheet, x, y, roomNumber) {
     this.scoreIncrease = 100;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
-    this.totalDamage = 4;//Adjustable
+    this.totalDamage = 10;//Adjustable
     this.damageObjArr = [];
     this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
     this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
@@ -493,7 +493,7 @@ function DarkTemplar(spriteSheet, x, y, roomNumber) {
     this.attackAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_attack_right.png"), 50, 60, 1, .07, 7, true, this.scale);
 
     // gameplay
-    this.speed = 200;
+    this.speed = 250;
     this.health = 90;
     this.x = x;
     this.y = y;
@@ -502,7 +502,7 @@ function DarkTemplar(spriteSheet, x, y, roomNumber) {
     this.xBoundingboxOffset = 0;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
-    this.totalDamage = 4;//Adjustable
+    this.totalDamage = 25;//Adjustable
     this.damageObjArr = [];
     this.damageBuff = DS.CloneBuffObject(PremadeBuffs.HasteWeak/*Adjustable*/);//Slow or haste or null w/e
     this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
