@@ -911,6 +911,10 @@ AM.queueDownload("./img/protoss/dark_templar/dark_templar_death.png");
 // Protoss attacks
 AM.queueDownload("./img/protoss/energy_ball.png");
 
+// archon
+AM.queueDownload("./img/protoss/archon/archon_attack.png");
+AM.queueDownload("./img/protoss/archon/archon_move_right.png");
+
 // Zealot
 AM.queueDownload("./img/protoss/zealot/zealot_move_right.png");
 AM.queueDownload("./img/protoss/zealot/zealot_attack_right.png");
