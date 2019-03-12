@@ -249,18 +249,18 @@ Background.prototype.decorateRoom = function () {
                 this.canalX = BACKGROUND.x;
                 this.canalY = BACKGROUND.y;
                 addBoss = false;
-                var pool = new Zerg_Boss(AM.getAsset("./img/buildings/gravemind.png"),
-                                testPos[0] * canvasWidth + 220 + BACKGROUND.x, testPos[1] * canvasHeight + 250 + BACKGROUND.y, roomNumber);
-                GAME_ENGINE.addEntity(pool);
+                // var pool = new Zerg_Boss(AM.getAsset("./img/buildings/gravemind.png"),
+                //                 testPos[0] * canvasWidth + 220 + BACKGROUND.x, testPos[1] * canvasHeight + 250 + BACKGROUND.y, roomNumber);
+                // GAME_ENGINE.addEntity(pool);
 
 
                 // <BOSS> -- THIS IS HOW YOU ADD TEMPLAR BOSSES
-                /*var temp2 = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber, null);
+                var temp2 = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber, null);
                 var temp = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32 + 100, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 100, roomNumber, temp2);
 
 
                 GAME_ENGINE.addEntity(temp2);
-                GAME_ENGINE.addEntity(temp);*/
+                GAME_ENGINE.addEntity(temp);
                 console.log("I made a boss");
 
             }

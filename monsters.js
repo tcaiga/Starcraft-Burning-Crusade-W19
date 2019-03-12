@@ -642,7 +642,6 @@ function Templar_Boss(x, y, roomNumber, otherTemplar) {
 
     // boss specific stuff
     this.isTemplarBoss = true;
-    this.isBoss = true;
     this.lastBallStorm = 600;
     this.mergeTogether = false;
 
