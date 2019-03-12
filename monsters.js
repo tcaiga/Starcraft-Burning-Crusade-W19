@@ -119,7 +119,7 @@ Monster.prototype.update = function () {
     if (myPlayer.x > this.x && this.isFlippable) {
         this.right = true;
         this.xBoundingboxOffset = 0;
-    } else {
+    } else if (this.isFlippable) {
         this.right = false;
         this.xBoundingboxOffset = this.width / 2;
     }
@@ -282,7 +282,7 @@ Monster.prototype.update = function () {
     /* #endregion */
 
     this.boundingbox = new BoundingBox(this.x - this.xBoundingboxOffset, this.y,
-        this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
+        this.width * this.scale, this.height * this.scale);
 
 
     this.visionBox = new BoundingBox(this.boundingbox.x + .5 * (this.width * this.scale - this.visionWidth),
@@ -524,14 +524,15 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     Monster.call(this, spriteSheet, x, y, roomNumber);
 
     // animation
-    this.scale = 1.5;
-    this.width = 100;
-    this.height = 75;
+    this.scale = 1;
+    this.width = 210;
+    this.height = 140;
     this.numOfFrames = 4;
     this.frameLength = .15;
     this.sheetWidth = 1;
-    this.xBoundingboxOffset = 0;
     this.isFlippable = false;
+    this.xBoundingboxOffset = 0;
+
     // gameplay
     this.speed = 0;
     this.health = 1100;
@@ -561,8 +562,8 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     this.moveAnimation = this.animation;
     this.attackAnimation = this.animation;
 
-    this.boundingbox = new BoundingBox(this.x + 30, this.y + 50,
-        this.width * this.scale + 60, this.height * this.scale - 30); // **Temporary** Hard coded offset values.
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width * this.scale, this.height * this.scale); // **Temporary** Hard coded offset values.
     //abilities
     // spawn zerglings
     // spawn hydra
@@ -599,9 +600,7 @@ Zerg_Boss.prototype.zergBossBehavior = function () {
             new SpikeExplosion(AM.getAsset("./img/zerg/sunken_spike.png"), CAMERA.x + getRandomInt(25, canvasWidth - 25), CAMERA.y + getRandomInt(25, canvasHeight - 25),
                 tarX, tarY, 4);
         }
-
-        // <TEST>
-        new spikeStorm(this.x, this.y);
+        new spikeStorm(this.x + .5 * this.width, this.y + .5 * this.height);
 
         this.lastSpikeExplosion = 300;
     }
