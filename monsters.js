@@ -535,8 +535,9 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
 
     // gameplay
     this.speed = 0;
-    this.health = 1100;
-    this.isRanged = false;
+    this.health = 999;
+    this.isRanged = true;
+
     this.roomNumber = roomNumber;
     // boss specific stuff
     this.isZergBoss = true;
