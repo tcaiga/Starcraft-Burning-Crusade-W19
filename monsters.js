@@ -391,8 +391,8 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.numOfFrames = 8;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
-    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_move_right.png"), 40, 40, 1, .03, 8, true, this.scale);
-    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_boom.png"), 85, 65, 1, .03, 10, true, this.scale);
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_move_right.png"), 40, 40, 1, .05, 8, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_boom.png"), 85, 65, 1, .05, 10, true, this.scale);
 
     // gameplay
     this.speed = 300;
@@ -558,9 +558,9 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     Monster.call(this, spriteSheet, x, y, roomNumber);
 
     // animation
-    this.scale = 1.5;
-    this.width = 100;
-    this.height = 75;
+    this.scale = 1;
+    this.width = 210;
+    this.height = 140;
     this.numOfFrames = 4;
     this.frameLength = .15;
     this.sheetWidth = 1;
@@ -577,6 +577,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     this.lastInfestedPod = 50;
     this.lastSpikeExplosion = 150;
     this.scoreIncrease = 2000;
+    this.isBoss = true;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
     this.totalDamage = 10;//Adjustable
@@ -668,6 +669,7 @@ function Templar_Boss(x, y, roomNumber, otherTemplar) {
     // boss specific stuff
     this.isTemplarBoss = true;
     this.lastBallStorm = 600;
+    this.isBoss = true;
 
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
@@ -748,6 +750,7 @@ function Archon_Boss(x, y, roomNumber) {
     this.health = 2500
     this.isRanged = true;
     this.roomNumber = roomNumber;
+    this.isBoss = true;
 
     // boss specific stuff
     this.isArchonBoss = true;
