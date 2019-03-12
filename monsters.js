@@ -143,6 +143,29 @@ Monster.prototype.update = function () {
         dirY = myPlayer.y - this.y;
     }
 
+    // Deciding whether to play attack or moving animation
+    if (this.boundingbox.collide(myPlayer.boundingbox)) {
+        this.animation = this.attackAnimation;
+        if (this.isInfested) {
+            if (this.animation.animationDone) {
+                this.health = 0;
+                this.tickCount = 0;
+                this.damageObj.ApplyEffects(myPlayer);
+            }
+            this.tickCount += GAME_ENGINE.clockTick;
+        } else {
+            this.counter += GAME_ENGINE.clockTick;
+            this.damageObj.ApplyEffects(myPlayer);
+            this.pause = true;
+            if (this.counter > .018 && myPlayer.health > 0) {
+                //player.health -= 5;
+                this.counter = 0;
+            }
+        }
+    } else if (this.animation.animationDone) {
+        this.animation = this.moveAnimation
+    }
+
     // based on the number of ticks since the player was last hit, we pause the monster
     if (this.pause == false && !this.isStunned) {
         // get the distance from the player
