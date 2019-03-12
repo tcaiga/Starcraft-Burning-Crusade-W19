@@ -910,6 +910,7 @@ AM.queueDownload("./img/protoss/dark_templar/dark_templar_death.png");
 
 // Protoss attacks
 AM.queueDownload("./img/protoss/energy_ball.png");
+AM.queueDownload("./img/protoss/psionic_storm.png");
 
 // archon
 AM.queueDownload("./img/protoss/archon/archon_attack.png");

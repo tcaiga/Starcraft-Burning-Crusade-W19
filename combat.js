@@ -396,6 +396,33 @@ function spikeStorm(originX, originY) {
     }
 }
 
+function psionicStorm() {
+    this.width = 185;
+    this.height = 150;
+    this.scale = .6;
+    ss1Ani = new Animation(AM.getAsset("./img/protoss/psionic_storm.png"), 185, 150, 1, 0.05, 7, true, .6);
+    let tarX = CAMERA.x + getRandomInt(TILE_SIZE, canvasWidth - TILE_SIZE - 185);
+    let tarY = CAMERA.y + getRandomInt(TILE_SIZE, canvasHeight - TILE_SIZE - 150);
+    ss1 = new StillStand(ss1Ani, 50, tarX, tarY);
+    GAME_ENGINE.addEntity(ss1);
+    ss1.onDeath = function () {
+        psionicStormDmg(tarX, tarY);
+    }
+    
+   
+}
+
+function psionicStormDmg(tarX, tarY) {
+    this.width = 185;
+    this.height = 150;
+    this.scale = .6;
+    ss2Ani = new Animation(AM.getAsset("./img/protoss/psionic_storm.png"), 185, 150, 1, 0.05, 7, true, .6);
+    ss2 = new StillStand(ss2Ani, 120, tarX, tarY);
+    console.log("ss2 made");
+    ss2.boundingbox = new BoundingBox(tarX, tarY, this.width * this.scale, this.height * this.scale);
+    GAME_ENGINE.addEntity(ss2);
+}
+
 function energyBall(originX, originY, xTarget, yTarget, origin, direction) {
     this.spriteSheet = AM.getAsset("./img/protoss/energy_ball.png");
     Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, direction);
