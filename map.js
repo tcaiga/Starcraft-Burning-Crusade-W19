@@ -29,7 +29,7 @@ function Background() {
     this.canalX = 0;
     this.canalY = 0;
 
-    this.maxRoomCount = 5;
+    this.maxRoomCount = 1;
     this.drawFaceCount = 0;
     this.level = 1;
     this.floorImg = "./img/utilities/floor_level1.png";
@@ -64,7 +64,13 @@ Background.prototype.update = function () {
 };
 
 Background.prototype.changeLevel = function () {
-    
+    if (this.level === "survival") {
+        var choice = Math.floor((Math.random() * 3) + 1);
+        this.floorImg = "./img/utilities/floor_level" + choice + ".png";
+    } else {
+        this.level++;
+        this.floorImg = "./img/utilities/floor_level" + this.level + ".png";
+    }
 };
 
 Background.prototype.createWalls = function () {
@@ -262,6 +268,7 @@ Background.prototype.decorateRoom = function () {
 }
 
 Background.prototype.generateSurvivalMap = function () {
+    this.level = "survival";
     this.x = -1280;
     this.y = -1280;
     this.row = 2;
@@ -279,9 +286,7 @@ Background.prototype.generateSurvivalMap = function () {
             || randomDirection === 3 && this.face[this.face.length - 1] === 1) {
             randomDirection = Math.floor(Math.random() * Math.floor(4));
         } else {
-
             if (tempRow < this.map.length && tempRow > 0 && tempCol < this.map.length && tempCol > 0
-
                 && this.map[tempRow][tempCol] === 0) {
                 this.face.push(randomDirection);
                 this.row += this.directions[randomDirection][0];
@@ -536,13 +541,15 @@ Wall.prototype.draw = function () {
 function Canal(theX, theY) {
     this.x = theX;
     this.y = theY;
+    this.collideOnce = false;
     this.animation = new Animation(AM.getAsset("./img/buildings/canal_on.png"), 75, 75, 1, 0.15, 2, true, 1);
     this.boundingbox = new BoundingBox(this.x, this.y, 75, 75);
 }
 
 Canal.prototype.update = function () {
-    if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        console.log("lets go to the next level");
+    if (this.boundingbox.collide(myPlayer.boundingbox) && !this.collideOnce) {
+        BACKGROUND.changeLevel();
+        this.collideOnce = true;
     }
 
     this.boundingbox = new BoundingBox(this.x, this.y, 75, 75);
