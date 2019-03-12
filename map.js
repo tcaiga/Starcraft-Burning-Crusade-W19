@@ -22,8 +22,13 @@ function Background() {
     this.row = 0;
     this.col = 0;
     this.roomCount = 0;
+    // For Canal
     this.bossRoomNum = 0;
     this.bossRoomIndex = [0, 0];
+    this.isBossDead = false;
+    this.canalX = 0;
+    this.canalY = 0;
+
     this.maxRoomCount = 5;
     this.drawFaceCount = 0;
     this.level = 1;
@@ -51,10 +56,10 @@ Background.prototype.update = function () {
         }
     }
 
-    if (!monsterRoomCheck) {
-        console.log("boss dead");
-        GAME_ENGINE.addEntity(new Canal(BACKGROUND.bossRoomIndex[0] * canvasWidth + 230 + BACKGROUND.x,
-            BACKGROUND.bossRoomIndex[1] * canvasHeight + 250 + BACKGROUND.y));
+    if (!monsterRoomCheck && !this.isBossDead) {
+        GAME_ENGINE.addEntity(new Canal(this.bossRoomIndex[0] * canvasWidth + 285 + this.canalX,
+            this.bossRoomIndex[1] * canvasHeight + 285 + this.canalY));
+        this.isBossDead = true;
     }
 };
 
@@ -103,7 +108,6 @@ Background.prototype.decorateRoom = function () {
             if (this.drawFaceCount < this.maxRoomCount && this.map[i][j] !== 0) {
 
                 let forwardDoorState = "closed";
-
                 let backwardDoorState = "open";
                 if (this.map[testPos[1]][testPos[0]] === 8) {
                     forwardDoorState = "open";
@@ -235,10 +239,12 @@ Background.prototype.decorateRoom = function () {
             // Adding a boss to the final room
             if (this.map[testPos[1]][testPos[0]] === 9 && addBoss) {
                 this.bossRoomNum = roomNumber;
-                this.bossRoomIndex = [testPos[1], testPos[0]];
+                this.bossRoomIndex = [testPos[0], testPos[1]];
+                this.canalX = BACKGROUND.x;
+                this.canalY = BACKGROUND.y;
                 addBoss = false;
                 var pool = new Zerg_Boss(AM.getAsset("./img/buildings/gravemind.png"),
-                                testPos[0] * canvasWidth + 230 + BACKGROUND.x, testPos[1] * canvasHeight + 250 + BACKGROUND.y, roomNumber);
+                                testPos[0] * canvasWidth + 220 + BACKGROUND.x, testPos[1] * canvasHeight + 250 + BACKGROUND.y, roomNumber);
                 GAME_ENGINE.addEntity(pool);
 
                /* var temp2 = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber, null);
@@ -530,26 +536,23 @@ Wall.prototype.draw = function () {
 function Canal(theX, theY) {
     this.x = theX;
     this.y = theY;
-    this.image = new Image();
-    this.image.src = "./img/buildings/canal_on.png";
+    this.animation = new Animation(AM.getAsset("./img/buildings/canal_on.png"), 75, 75, 1, 0.15, 2, true, 1);
     this.boundingbox = new BoundingBox(this.x, this.y, 75, 75);
 }
 
 Canal.prototype.update = function () {
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        console.log("level 2 time");
+        console.log("lets go to the next level");
     }
 
     this.boundingbox = new BoundingBox(this.x, this.y, 75, 75);
 }
 
 Canal.prototype.draw = function () {
-    GAME_ENGINE.ctx.drawImage(this.image, this.x - CAMERA.x, this.y - CAMERA.y, 75, 75);
+    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = "red";
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
             this.boundingbox.width, this.boundingbox.height);
     }
-
-    // draw door to update if open or closed
 }
