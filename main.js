@@ -920,6 +920,10 @@ AM.queueDownload("./img/protoss/zealot/zealot_move_right.png");
 AM.queueDownload("./img/protoss/zealot/zealot_attack_right.png");
 AM.queueDownload("./img/protoss/zealot/zealot_death.png");
 
+// Zerg Projectiles
+AM.queueDownload("./img/zerg/heavy_shot.png");
+AM.queueDownload("./img/zerg/light_shot.png");
+
 //shadow test
 AM.queueDownload("./img/utilities/Shadow1.png")
 

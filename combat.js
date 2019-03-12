@@ -285,6 +285,65 @@ function SpawnZerglings() {
 
 }
 
+function SpawnUltra() {
+    ss1Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.13, 1, true, 1.25);
+    ss2Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.04, 10, true, .175);
+    ss1 = new StillStand(ss1Ani, 90, myPlayer.x, myPlayer.y);
+    ss1.ssAni = ss2Ani;
+    ss1.width = 50;
+    ss1.height = 50;
+
+    let x = myPlayer.x;
+    let y = myPlayer.y;
+
+    GAME_ENGINE.addEntity(ss1);
+
+    ss1.onDeath = function () {
+        // create 5 zerglings at a random area within 50px of the player
+        // after a 2s delay from a graphic being placed.
+        let ultra = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"), x, y);
+
+        GAME_ENGINE.addEntity(ultra);
+    }
+
+}
+
+function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin) {
+    this.width = 100;
+    this.height = 100;
+    ss1Ani = new Animation(spriteSheet, this.width, this.height, 1, .25, 6, true, 1.25);
+    ss1 = new StillStand(ss1Ani, 90, originX, originY);
+    GAME_ENGINE.addEntity(ss1);
+    ss1.onDeath = function () {
+        GAME_ENGINE.addEntity(new Spike(originX, originY, xTarget, yTarget, origin));
+    }
+
+
+}
+
+function SpawnHydra() {
+    ss1Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.13, 1, true, .5);
+    ss2Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.04, 10, true, .175);
+    ss1 = new StillStand(ss1Ani, 90, myPlayer.x, myPlayer.y);
+    ss1.ssAni = ss2Ani;
+    ss1.width = 50;
+    ss1.height = 50;
+
+    let x = myPlayer.x;
+    let y = myPlayer.y;
+
+    GAME_ENGINE.addEntity(ss1);
+
+    ss1.onDeath = function () {
+        // create 5 zerglings at a random area within 50px of the player
+        // after a 2s delay from a graphic being placed.
+        let hydra = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"), x, y);
+
+        GAME_ENGINE.addEntity(hydra);
+    }
+
+}
+
 function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin) {
     this.width = 100;
     this.height = 100;
@@ -299,7 +358,7 @@ function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin)
 }
 
 function Spike(originX, originY, xTarget, yTarget, origin) {
-    this.spriteSheet = AM.getAsset("./img/terran/bullet.png");
+    this.spriteSheet = AM.getAsset("./img/zerg/heavy_shot.png");
     Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, "angle");
 
     this.projectileSpeed = 6;
@@ -323,6 +382,16 @@ function ballStorm(originX, originY) {
         xt = getRandomInt(0, canvasWidth);
         yt = getRandomInt(0, canvasHeight);
         GAME_ENGINE.addEntity(new energyBall(originX, originY, CAMERA.x + xt, CAMERA.y + yt, 4, "angle"));
+    }
+}
+
+function spikeStorm(originX, originY) {
+    let xt, yt, eb;
+    let numOfBalls = 18;
+    for (var i = 0; i < numOfBalls; i++) {
+        xt = getRandomInt(0, canvasWidth);
+        yt = getRandomInt(0, canvasHeight);
+        GAME_ENGINE.addEntity(new Spike(originX, originY, CAMERA.x + xt, CAMERA.y + yt, 4, "angle"));
     }
 }
 

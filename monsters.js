@@ -538,7 +538,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     this.xBoundingboxOffset = 0;
     // gameplay
     this.speed = 0;
-    this.health = 600;
+    this.health = 1350;
     this.isRanged = true;
     this.roomNumber = roomNumber;
     // boss specific stuff
@@ -548,6 +548,8 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     this.lastInfestedPod = 50;
     this.lastSpikeExplosion = 150;
     this.scoreIncrease = 2000;
+    this.lastHydraSpawn = 350;
+    this.lastUltraSpawn = 600;
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
     this.totalDamage = 10;//Adjustable
@@ -567,7 +569,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
         this.width * this.scale + 60, this.height * this.scale - 30); // **Temporary** Hard coded offset values.
     //abilities
     // spawn zerglings
-    // spawn ultralisk
+    // spawn hydra
     // spawn ...
     // aoe burst
 }
@@ -578,11 +580,20 @@ Zerg_Boss.prototype.zergBossBehavior = function () {
         this.lastInfestedPod = 600;
     }
 
+    if (this.lastHydraSpawn == 0) {
+        new SpawnHydra();
+        this.lastHydraSpawn = 450;
+    }
+
+    if (this.lastUltraSpawn == 0) {
+        new SpawnUltra();
+        this.lastUltraSpawn = 1000;
+    }
+
     if (this.health <= 0) {
         // do something when boss is dead
     }
 
-    console.log("I'm doing something");
     if (this.lastSpikeExplosion == 0) {
         let tarX;
         let tarY;
@@ -604,12 +615,15 @@ Zerg_Boss.prototype.zergBossBehavior = function () {
         }
 
         // <TEST>
-        new ballStorm(CAMERA.x + canvasWidth / 2, CAMERA.y + canvasHeight / 2);
+        new spikeStorm(this.x, this.y);
 
         this.lastSpikeExplosion = 300;
     }
+
+    this.lastHydraSpawn--;
     this.lastInfestedPod--;
     this.lastSpikeExplosion--;
+    this.lastUltraSpawn--;
 }
 
 function Templar_Boss(x, y, roomNumber, otherTemplar) {
@@ -677,7 +691,6 @@ Templar_Boss.prototype.templarBossBehavior = function () {
 
     if (this.phase == 1) {
         if (this.lastBallStorm == 0) {
-            console.log("ballstorm fired");
             new ballStorm(this.x, this.y);
             this.lastBallStorm = 300;
         }
@@ -697,7 +710,6 @@ Templar_Boss.prototype.templarBossBehavior = function () {
             GAME_ENGINE.removeEntity(this);
         }
     }
-    console.log("phase " + this.phase);
     this.lastBallStorm--;
 }
 
@@ -755,7 +767,6 @@ Archon_Boss.prototype.archonBossBehavior = function () {
 
     if (this.ionBlastFlag) {
         // make an energy ball to mimic a thick ion beam every 3 ticks
-        console.log(this.aniFlag);
         if (this.aniFlag == false) {
             this.animation = new Animation(AM.getAsset("./img/protoss/archon/archon_attack.png"), 82, 89, 1, .1, 10, true, this.scale);
             this.aniFlag = true;
@@ -784,7 +795,6 @@ Archon_Boss.prototype.archonBossBehavior = function () {
     }
 
     if (this.lastIonBlast == 0) {
-        console.log("pew pew");
         this.lastIonBlast = getRandomInt(250, 400);
         this.ionBlastFlag = true;
     }
