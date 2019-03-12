@@ -853,7 +853,9 @@ function addHTMLListeners() {
 AM.queueDownload("./img/fireball.png");
 
 // Map
-AM.queueDownload("./img/utilities/floor.png");
+AM.queueDownload("./img/utilities/floor_level1.png");
+AM.queueDownload("./img/utilities/floor_level2.png");
+AM.queueDownload("./img/utilities/floor_level3.png");
 
 // Buildings
 AM.queueDownload("./img/buildings/crashed_cruiser.png");
