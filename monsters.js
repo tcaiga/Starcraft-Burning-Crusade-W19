@@ -109,9 +109,14 @@ Monster.prototype.draw = function () {
 }
 
 Monster.prototype.pathTo = function (x, y) {
-    this.isPathing = true;
     this.pathX = x;
     this.pathY = y;
+    // we've reached our target so stop.
+    if (Math.floor(this.x - this.pathX) == 0 && Math.floor(this.y - this.pathY) == 0) {
+        this.isPathing = false;
+        return;
+    }
+    this.isPathing = true;
 }
 
 function distance(monster) {
@@ -146,7 +151,7 @@ Monster.prototype.update = function () {
     var dirX, dirY;
     if (this.isPathing) {
         // we've reached our target so stop.
-        if (this.x == this.pathX && this.y == this.pathY) {
+        if (Math.floor(this.x - this.pathX) == 0 && Math.floor(this.y - this.pathY) == 0 ) {
             this.isPathing = false;
         }
         dirX = this.pathX - this.x;
@@ -567,7 +572,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     this.xBoundingboxOffset = 0;
     // gameplay
     this.speed = 0;
-    this.health = 600;
+    this.health = 1350;
     this.isRanged = true;
     this.roomNumber = roomNumber;
     // boss specific stuff
@@ -577,7 +582,12 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     this.lastInfestedPod = 50;
     this.lastSpikeExplosion = 150;
     this.scoreIncrease = 2000;
+
+    this.lastHydraSpawn = 350;
+    this.lastUltraSpawn = 600;
+
     this.isBoss = true;
+
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
     this.totalDamage = 10;//Adjustable
@@ -597,7 +607,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
         this.width * this.scale + 60, this.height * this.scale - 30); // **Temporary** Hard coded offset values.
     //abilities
     // spawn zerglings
-    // spawn ultralisk
+    // spawn hydra
     // spawn ...
     // aoe burst
 }
@@ -608,11 +618,20 @@ Zerg_Boss.prototype.zergBossBehavior = function () {
         this.lastInfestedPod = 600;
     }
 
+    if (this.lastHydraSpawn == 0) {
+        new SpawnHydra();
+        this.lastHydraSpawn = 450;
+    }
+
+    if (this.lastUltraSpawn == 0) {
+        new SpawnUltra();
+        this.lastUltraSpawn = 1000;
+    }
+
     if (this.health <= 0) {
         // do something when boss is dead
     }
 
-    console.log("I'm doing something");
     if (this.lastSpikeExplosion == 0) {
         let tarX;
         let tarY;
@@ -634,42 +653,53 @@ Zerg_Boss.prototype.zergBossBehavior = function () {
         }
 
         // <TEST>
-        new ballStorm(CAMERA.x + canvasWidth / 2, CAMERA.y + canvasHeight / 2);
+        new spikeStorm(this.x, this.y);
 
         this.lastSpikeExplosion = 300;
     }
+
+    this.lastHydraSpawn--;
     this.lastInfestedPod--;
     this.lastSpikeExplosion--;
+    this.lastUltraSpawn--;
 }
 
 function Templar_Boss(x, y, roomNumber, otherTemplar) {
     this.spriteSheet = AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png");
-
     Monster.call(this, this.spriteSheet, x, y, roomNumber);
     if (otherTemplar != null && otherTemplar instanceof Monster) {
         this.otherTemplar = otherTemplar;
     }
+
+
     this.x = x;
     this.y = y;
 
-    // animation
+    this.phase = 1;
     this.scale = 1.5;
-    this.width = 47;
-    this.height = 56;
-    this.numOfFrames = 5;
-    this.frameLength = .15;
+    this.width = 50;
+    this.height = 50;
+    this.numOfFrames = 10;
+    this.frameLength = 0.03;
     this.sheetWidth = 1;
+    this.moveAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"), 50, 50, 1, .03, 10, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_attack_right.png"), 50, 60, 1, .07, 7, true, this.scale);
 
     // gameplay
-    this.speed = 400;
+    this.speed = 100;
     this.health = 1250;
+    this.totalHealth = this.health;
     this.isRanged = true;
     this.roomNumber = roomNumber;
 
     // boss specific stuff
     this.isTemplarBoss = true;
     this.lastBallStorm = 600;
+
+    this.mergeTogether = false;
+
     this.isBoss = true;
+
 
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
@@ -681,11 +711,10 @@ function Templar_Boss(x, y, roomNumber, otherTemplar) {
     this.buffObj = [];
 
 
-    this.animation = new Animation(this.spriteSheet, this.width, this.height, this.sheetWidth,
-        this.frameLength, this.numOfFrames, true, this.scale);
+    this.animation = this.moveAnimation;
 
-    this.boundingbox = new BoundingBox(this.x + 30, this.y + 50,
-        this.width * this.scale + 60, this.height * this.scale - 30); // **Temporary** Hard coded offset values.
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width * this.scale, this.height * this.scale);
 }
 
 Templar_Boss.prototype.templarBossBehavior = function () {
@@ -693,57 +722,55 @@ Templar_Boss.prototype.templarBossBehavior = function () {
     // check the hp and then determine if it's time for intermission
     if (this.otherTemplar instanceof Monster) {
         // if either of the templars hp % is <= 20, initiate merge
-        if (getHealthPercentage(this.otherTemplar) <= 20 || getHealthPercentage(this) <= 20) {
+        if ((getHealthPercentage(this.otherTemplar) <= 20 || getHealthPercentage(this) <= 20) && this.mergeTogether == false) {
             this.mergeTogether = true;
-            this.archonHP = this.health + this.otherTemplar.health;
+            this.otherTemplar.mergeTogether = true;
+            this.archonHP = 2 * (this.health + this.otherTemplar.health);
             this.phase = 2;
+            this.otherTemplar.phase = 2;
         }
     }
 
     if (this.phase == 1) {
         if (this.lastBallStorm == 0) {
-            new BallStorm();
+            new ballStorm(this.x, this.y);
+            this.lastBallStorm = 300;
         }
         // intermission
     } else if (this.phase == 2) {
-        if (!this.isPathing) {
-            this.pathTo(CAMERA.x + .5 * CAMERA.x, CAMERA.y + .5 * CAMERA.y);
+        this.pathTo(CAMERA.x + .5 * canvasWidth, CAMERA.y + .5 * canvasHeight);
+        if (Math.floor(this.x - (CAMERA.x + .5 * canvasWidth)) <= 2 && Math.floor(this.y - (CAMERA.y + .5 * canvasHeight)) <= 2) {
+            this.phase = 3;
+            this.isPathing = false;
         }
-
+    } else if (this.phase == 3) {
         if (this.otherTemplar instanceof Monster) {
-            if (!this.otherTemplar.isPathing) {
-                this.otherTemplar.pathTo(CAMERA.x + .5 * CAMERA.x, CAMERA.y + .5 * CAMERA.y);
-            }
-        }
-
-        if (!this.isPathing && this.otherTemplar instanceof Monster && !this.otherTemplar.isPathing) {
             let mergedArchon = new Archon_Boss(this.x, this.y, this.roomNumber);
             GAME_ENGINE.addEntity(mergedArchon);
-            mergedArchon.health = this.health;
+            mergedArchon.health = this.archonHP;
             GAME_ENGINE.removeEntity(this.otherTemplar);
             GAME_ENGINE.removeEntity(this);
-
         }
     }
+    this.lastBallStorm--;
 }
 
 function Archon_Boss(x, y, roomNumber) {
+    console.log("I have arrived");
     this.spriteSheet = AM.getAsset("./img/protss/high_templar/high_templar_attack_left.png");
-    Monster.call(this, spriteSheet, x, y, roomNumber);
-    if (otherTemplar != null && otherTemplar instanceof Monster) {
-        this.otherTemplar = otherTemplar;
-    }
+    Monster.call(this, this.spriteSheet, x, y, roomNumber);
 
     this.x = x;
     this.y = y;
 
-    // animation
-    this.scale = 1.5;
+    this.scale = 1.75;
     this.width = 82;
     this.height = 89;
-    this.numOfFrames = 15;
-    this.frameLength = .09;
+    this.numOfFrames = 10;
+    this.frameLength = 0.03;
     this.sheetWidth = 1;
+    this.moveAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_move_right.png"), 82, 89, 1, .03, 15, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_attack.png"), 82, 89, 1, .1, 10, true, this.scale);
 
     // gameplay
     this.speed = 0;
@@ -753,11 +780,14 @@ function Archon_Boss(x, y, roomNumber) {
     this.isBoss = true;
 
     // boss specific stuff
+    this.bosstimer = 0;
     this.isArchonBoss = true;
     this.lastIonBlast = 500;
     this.lastPsiStorm = 600;
     this.lastBallStorm = 150;
     this.ionBlastFlag = false;
+    this.ebCount = 0;
+    this.aniFlag = false;
 
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
@@ -769,27 +799,37 @@ function Archon_Boss(x, y, roomNumber) {
     this.buffObj = [];
 
 
-    this.animation = new Animation(this.spriteSheet, this.width, this.height, this.sheetWidth,
-        this.frameLength, this.numOfFrames, true, this.scale);
+    this.animation = this.moveAnimation;
 
-    this.boundingbox = new BoundingBox(this.x + 30, this.y + 50,
-        this.width * this.scale + 60, this.height * this.scale - 30); // **Temporary** Hard coded offset values.
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width * this.scale, this.height * this.scale);
 
 }
 
 Archon_Boss.prototype.archonBossBehavior = function () {
 
     if (this.ionBlastFlag) {
-        // make an energy ball to mimic a thick ion beam every 5 ticks
-        if (GAME_ENGINE.tick % 5 == 0) {
+        // make an energy ball to mimic a thick ion beam every 3 ticks
+        if (this.aniFlag == false) {
+            this.animation = new Animation(AM.getAsset("./img/protoss/archon/archon_attack.png"), 82, 89, 1, .1, 10, true, this.scale);
+            this.aniFlag = true;
+        }
+        if (this.bosstimer % 5 == 0) {
             let playerLoc = getPlayerLocation();
-            let eb = new energyBall(this.x, this.y, playerLoc.x, playerLoc.y, 4, "angle");
-            eb.projectileSpeed = 4.5;
+            let eb = new energyBall(this.x, this.y + 40, playerLoc.x, playerLoc.y, 4, "angle");
+            eb.projectileSpeed = 6;
             GAME_ENGINE.addEntity(eb);
+            this.ebCount++;
+        }
+
+        if (this.ebCount > 14) {
+            this.ionBlastFlag = false;
+            this.ebCount = 0;
+            this.aniFlag = false;
         }
     }
     if (this.lastBallStorm == 0) {
-        this.lastBallStorm = getRandomInt(350, 700);
+        this.lastBallStorm = getRandomInt(250, 400);
         new ballStorm(this.x, this.y);
     }
 
@@ -798,14 +838,18 @@ Archon_Boss.prototype.archonBossBehavior = function () {
     }
 
     if (this.lastIonBlast == 0) {
-        this.lastIonBlast = 1000;
+        this.lastIonBlast = getRandomInt(250, 400);
         this.ionBlastFlag = true;
     }
+    this.lastBallStorm--;
+    this.lastIonBlast--;
+    this.lastPsiStorm--;
+    this.bosstimer++;
 }
 
 function getHealthPercentage(entity) {
     if (entity instanceof Player || entity instanceof Monster) {
-        return (entity.hp / entity.totalHealth) * 100;
+        return (entity.health / entity.totalHealth) * 100;
     }
     // not a correct type
     return -1;
@@ -814,17 +858,20 @@ function getHealthPercentage(entity) {
 function getPlayerLocation (){
     let tarX;
     let tarY;
-    if (myPlayer.x < 0) {
-        tarX = canvasWidth - Math.abs(myPlayer.x) % canvasWidth;
-    } else {
-        tarX = myPlayer.x;
-    }
 
-    if (myPlayer.y < 0) {
-        tarY = canvasHeight - Math.abs(myPlayer.y) % canvasHeight;
-    } else {
-        tarY = myPlayer.y;
-    }
+    tarY = myPlayer.y;
+    tarX = myPlayer.x;
+
+    //if (myPlayer.x < 0) {
+    //    tarX = canvasWidth - Math.abs(myPlayer.x) % canvasWidth;
+    //} else {
+        
+    //}
+
+    //if (myPlayer.y < 0) {
+    //    tarY = canvasHeight - Math.abs(myPlayer.y) % canvasHeight;
+    //} else {
+    //}
     return {
         x: tarX,
         y: tarY
