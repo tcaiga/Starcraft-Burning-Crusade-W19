@@ -162,9 +162,9 @@ Monster.prototype.update = function () {
         this.animation = this.attackAnimation;
         if (this.isInfested) {
             if (this.animation.animationDone) {
-                this.health = 0;
                 this.tickCount = 0;
                 this.damageObj.ApplyEffects(myPlayer);
+                this.health = 0;
             }
             this.tickCount += GAME_ENGINE.clockTick;
         } else {
@@ -249,26 +249,10 @@ Monster.prototype.update = function () {
             // reset after 45 ticks and then cast again
             if (this.castCooldown > 45) {
                 this.castCooldown = 0;
-                var projectile = new Projectile(AM.getAsset("./img/fireball.png", 4),
+                var projectile = new Projectile(AM.getAsset("./img/zerg/light_shot.png", 4),
                     this.x - (this.width / 2), this.y - (this.height / 2), tarX, tarY);
                 GAME_ENGINE.addEntity(projectile);
                 projectile.penetrative = true;
-            }
-        }
-    }
-
-    if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        if (this.isInfested) {
-            // do explosion animation and damage player
-            // then die
-            this.health = 0;
-        } else {
-            this.counter += GAME_ENGINE.clockTick;
-            this.damageObj.ApplyEffects(myPlayer);
-            this.pause = true;
-            if (this.counter > .018 && myPlayer.health > 0) {
-                //player.health -= 5;
-                this.counter = 0;
             }
         }
     }

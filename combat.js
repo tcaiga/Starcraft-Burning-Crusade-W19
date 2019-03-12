@@ -2,6 +2,7 @@
 Grenade.prototype = Projectile.prototype;
 FireRound.prototype = Projectile.prototype;
 energyBall.prototype = Projectile.prototype;
+
 Spike.prototype = Projectile.prototype;
 
 
