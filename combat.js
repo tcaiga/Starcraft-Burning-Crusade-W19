@@ -2,6 +2,7 @@
 Grenade.prototype = Projectile.prototype;
 FireRound.prototype = Projectile.prototype;
 energyBall.prototype = Projectile.prototype;
+
 Spike.prototype = Projectile.prototype;
 
 
@@ -270,11 +271,11 @@ function SpawnZerglings() {
     ss1.onDeath = function () {
         // create 5 zerglings at a random area within 50px of the player
         // after a 2s delay from a graphic being placed.
-        let zergling1 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
-        let zergling2 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
-        let zergling3 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
-        let zergling4 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
-        let zergling5 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + getRandomInt(0, 40), y - getRandomInt(0, 50));
+        let zergling1 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y);
+        let zergling2 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + 30, y);
+        let zergling3 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y + 30);
+        let zergling4 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x - 30, y);
+        let zergling5 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y - 30);
         
         GAME_ENGINE.addEntity(zergling1);
         GAME_ENGINE.addEntity(zergling2);

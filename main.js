@@ -67,7 +67,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.reloadCounter = 0;
     this.maxShootCounter = 0.1;
     this.shootCounter = this.maxShootCounter;
-    this.maxHealth = 250;
+    this.maxHealth = 150;
     this.health = this.maxHealth;
     this.healthPercent = 100;
     this.dontdraw = 0;
@@ -847,11 +847,10 @@ function addHTMLListeners() {
 
 /* #region Download queue and download */
 
-// Harrison's Fireball
-AM.queueDownload("./img/fireball.png");
-
 // Map
-AM.queueDownload("./img/utilities/floor.png");
+AM.queueDownload("./img/utilities/floor_level1.png");
+AM.queueDownload("./img/utilities/floor_level2.png");
+AM.queueDownload("./img/utilities/floor_level3.png");
 
 // Buildings
 AM.queueDownload("./img/buildings/crashed_cruiser.png");
