@@ -106,6 +106,7 @@ Background.prototype.createWalls = function () {
 
 Background.prototype.decorateRoom = function () {
     var roomNumber = 0;
+    var backRoomNumber = 1;
     var addBoss = true;
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
@@ -114,7 +115,7 @@ Background.prototype.decorateRoom = function () {
             if (this.drawFaceCount < this.maxRoomCount && this.map[i][j] !== 0) {
 
                 let forwardDoorState = "closed";
-                let backwardDoorState = "open";
+                let backwardDoorState = "closed";
                 if (this.map[testPos[1]][testPos[0]] === 8) {
                     forwardDoorState = "open";
                 }
@@ -138,16 +139,16 @@ Background.prototype.decorateRoom = function () {
                     let testPosReverse = this.facePos[this.drawFaceCount + 1];
                     if (this.face[this.drawFaceCount] === 0) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + 608 + BACKGROUND.y, "down", backwardDoorState, roomNumber));
+                            testPosReverse[1] * canvasHeight + 608 + BACKGROUND.y, "down", backwardDoorState, backRoomNumber));
                     } else if (this.face[this.drawFaceCount] === 1) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", backwardDoorState, roomNumber));
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", backwardDoorState, backRoomNumber));
                     } else if (this.face[this.drawFaceCount] === 2) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + BACKGROUND.y + 1, "up", backwardDoorState, roomNumber));
+                            testPosReverse[1] * canvasHeight + BACKGROUND.y + 1, "up", backwardDoorState, backRoomNumber));
                     } else if (this.face[this.drawFaceCount] === 3) {
                         GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 608 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + 304 + BACKGROUND.y, "right", backwardDoorState, roomNumber));
+                            testPosReverse[1] * canvasHeight + 304 + BACKGROUND.y, "right", backwardDoorState, backRoomNumber));
                     }
                 }
                 
@@ -155,16 +156,16 @@ Background.prototype.decorateRoom = function () {
                 if (this.drawFaceCount + 1 === this.facePos.length) {
                     if (this.face[this.drawFaceCount] === 0) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down", backwardDoorState, roomNumber));
+                            testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down", backwardDoorState, backRoomNumber));
                     } else if (this.face[this.drawFaceCount] === 1) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", backwardDoorState, roomNumber));
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", backwardDoorState, backRoomNumber));
                     } else if (this.face[this.drawFaceCount] === 2) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + BACKGROUND.y + 1, "up", backwardDoorState, roomNumber));
+                            testPos[1] * canvasHeight + BACKGROUND.y + 1, "up", backwardDoorState, backRoomNumber));
                     } else if (this.face[this.drawFaceCount] === 3) {
                         GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 608 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right", backwardDoorState, roomNumber));
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right", backwardDoorState, backRoomNumber));
                     }
                 }
 
@@ -249,26 +250,27 @@ Background.prototype.decorateRoom = function () {
                 this.canalX = BACKGROUND.x;
                 this.canalY = BACKGROUND.y;
                 addBoss = false;
-                // var pool = new Zerg_Boss(AM.getAsset("./img/buildings/gravemind.png"),
-                //                 testPos[0] * canvasWidth + 220 + BACKGROUND.x, testPos[1] * canvasHeight + 250 + BACKGROUND.y, roomNumber);
-                // GAME_ENGINE.addEntity(pool);
+                var pool = new Zerg_Boss(AM.getAsset("./img/buildings/gravemind.png"),
+                                testPos[0] * canvasWidth + 220 + BACKGROUND.x, testPos[1] * canvasHeight + 250 + BACKGROUND.y, roomNumber);
+                GAME_ENGINE.addEntity(pool);
 
 
                 // <BOSS> -- THIS IS HOW YOU ADD TEMPLAR BOSSES
-                var temp2 = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber, null);
+                /*var temp2 = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber, null);
                 var temp = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32 + 100, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 100, roomNumber, temp2);
 
 
                 GAME_ENGINE.addEntity(temp2);
-                GAME_ENGINE.addEntity(temp);
+                GAME_ENGINE.addEntity(temp);*/
                 console.log("I made a boss");
 
             }
 
             roomNumber++;
-
+            backRoomNumber++;
         }
     }
+    console.table(this.map);
 }
 
 Background.prototype.generateSurvivalMap = function () {
@@ -466,7 +468,10 @@ Door.prototype.update = function () {
                 monsterRoomCheck = true;
         }
     }
-    if (!monsterRoomCheck) {
+
+    if (monsterRoomCheck) {
+        this.state = "closed";
+    } else {
         this.state = "open";
     }
 
