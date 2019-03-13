@@ -550,6 +550,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     this.roomNumber = roomNumber;
     // boss specific stuff
     this.isZergBoss = true;
+    this.isBoss = true;
     this.mobArr = [];
     this.mobCount = 0;
     this.lastInfestedPod = 50;
@@ -732,6 +733,7 @@ function Archon_Boss(x, y, roomNumber) {
     // boss specific stuff
     this.bosstimer = 0;
     this.isArchonBoss = true;
+    this.isBoss = true;
     this.lastIonBlast = 500;
     this.lastPsiStorm = 600;
     this.lastBallStorm = 150;
