@@ -152,8 +152,6 @@ Background.prototype.decorateRoom = function () {
                                 testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y + 80, roomNumber);
                             var zergling8 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
                                 testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y - 80, roomNumber);
-
-                            GAME_ENGINE.addEntity(kerri);
                             GAME_ENGINE.addEntity(hydralisk);
                             GAME_ENGINE.addEntity(zergling1);
                             GAME_ENGINE.addEntity(zergling2);
