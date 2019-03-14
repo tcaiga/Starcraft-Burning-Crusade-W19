@@ -316,7 +316,7 @@ function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin)
     ss1 = new StillStand(ss1Ani, 90, originX, originY);
     GAME_ENGINE.addEntity(ss1);
     ss1.onDeath = function () {
-        let spike = new Spike(originX, originY, xTarget, yTarget, origin, "angle");
+        let spike = new Spike(originX, originY, xTarget, yTarget, origin);
         spike.projectileSpeed = 4;
 
         GAME_ENGINE.addEntity(spike);
@@ -355,15 +355,15 @@ function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin)
     ss1 = new StillStand(ss1Ani, 90, originX, originY);
     GAME_ENGINE.addEntity(ss1);
     ss1.onDeath = function () {
-        GAME_ENGINE.addEntity(new Spike(originX, originY, xTarget, yTarget, origin, "angle"));
+        GAME_ENGINE.addEntity(new Spike(originX, originY, xTarget, yTarget, origin));
     }
 
 
 }
 
-function Spike(originX, originY, xTarget, yTarget, origin, direction) {
+function Spike(originX, originY, xTarget, yTarget, origin) {
     this.spriteSheet = AM.getAsset("./img/zerg/heavy_shot.png");
-    Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, direction);
+    Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, "angle");
 
     this.projectileSpeed = 6;
 
@@ -402,25 +402,6 @@ function spikeStorm(originX, originY) {
         spike.projectileSpeed = 4;
         GAME_ENGINE.addEntity(spike);
     }
-}
-
-function KerriganCross(originX, originY) {
-    let xt, yt;
-    let numOfBalls = 20;
-    // upper part
-    let spike1 = new Spike(xt, yt, CAMERA.x + xt, CAMERA.y + yt, 4, "up");
-    let spike2 = new Spike(xt, yt, CAMERA.x + xt, CAMERA.y + yt, 4, "down");
-    let spike3 = new Spike(xt, yt, CAMERA.x + xt, CAMERA.y + yt, 4, "left");
-    let spike4 = new Spike(xt, yt, CAMERA.x + xt, CAMERA.y + yt, 4, "right");
-
-    GAME_ENGINE.addEntity(spike1);
-    GAME_ENGINE.addEntity(spike2);
-    GAME_ENGINE.addEntity(spike3);
-    GAME_ENGINE.addEntity(spike4);
-
-
-
-    // right part;
 }
 
 function psionicStorm() {
