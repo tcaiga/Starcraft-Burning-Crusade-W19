@@ -529,3 +529,4 @@ Canal.prototype.update = function () {
                 this.boundingbox.width, this.boundingbox.height);
         }
     }
+}
