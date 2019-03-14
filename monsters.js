@@ -209,10 +209,6 @@ Monster.prototype.update = function () {
             }
             this.ticksSinceLastHit++;
         }
-    } else  {
-
-        this.animation = this.moveAnimation;
-        this.pause = false;
     }
 
     // based on the number of ticks since the player was last hit, we pause the monster
@@ -882,6 +878,7 @@ function Kerrigan(x, y, roomNumber) {
 
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale);
+}
 
 function TrainingDummy(theX, theY) {
     this.x = theX;
