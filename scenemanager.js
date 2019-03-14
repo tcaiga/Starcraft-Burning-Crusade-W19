@@ -183,9 +183,11 @@ SceneManager.prototype.nextLevel = function () {
     var floorImg = "./img/utilities/floor_level" + myLevel + ".png";
     BACKGROUND = new Background(myLevel, floorImg);
     GAME_ENGINE.addEntity(BACKGROUND);
-    if (myLevel === 1) {
-        BACKGROUND.generateLevelOne();
-    } else if (myLevel === 2) {
+    music.pause();
+    music = new Audio("./audio/level" + myLevel + "_song.mp3");
+    music.volume = myCurrentVolume;
+    music.play();
+    if (myLevel === 2) {
         BACKGROUND.generateLevelTwo();
     } else if (myLevel === 3) {
         BACKGROUND.generateLevelThree();
