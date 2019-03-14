@@ -177,15 +177,15 @@ SceneManager.prototype.nextLevel = function () {
     }
     CAMERA = new Camera();
     GAME_ENGINE.addEntity(CAMERA);
-    var floorImg;
+    var floorImg = "./img/utilities/floor_level" + myLevel + ".png";
     BACKGROUND = new Background(myLevel, floorImg);
     GAME_ENGINE.addEntity(BACKGROUND);
-    if (myLevel === 3) {
-        BACKGROUND.generateLevelThree();
+    if (myLevel === 1) {
+        BACKGROUND.generateLevelOne();
     } else if (myLevel === 2) {
         BACKGROUND.generateLevelTwo();
-    } else {
-        BACKGROUND.generateLevelOne();
+    } else if (myLevel === 3) {
+        BACKGROUND.generateLevelThree();
     }
     CAMERA.getStartingRoom();
     BACKGROUND.createWalls();

@@ -29,7 +29,7 @@ function Background(theLevel, theFloorImg) {
     this.canalX = 0;
     this.canalY = 0;
     this.backRoomNumbers = [];
-    this.maxRoomCount = 5;
+    this.maxRoomCount = 0;
     this.drawFaceCount = 0;
     this.level = theLevel;
     this.background = new Image();
