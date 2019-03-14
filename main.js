@@ -17,6 +17,9 @@ var canvasWidth;
 var canvasHeight;
 var myScore = 0;
 var myLevel = 1;
+var myGodMode = 1;
+var myVictoryScreen = new Image();
+myVictoryScreen.src = "./img/utilities/victory_screen.png";
 
 // Constant variable for tile size
 const TILE_SIZE = 16;
@@ -72,286 +75,301 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.healthPercent = 100;
     this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x, this.y, this.width, this.height);
-
     this.reloadRatio = 1;
     this.shootSpeedRatio = 1;
 }
 
 Player.prototype.draw = function () {
-    GAME_ENGINE.clockTick.strokeStyle = "red";
-    GAME_ENGINE.ctx.strokeRect(CAMERA.x, CAMERA.y, canvasWidth - 1, canvasHeight - 1);
-    this.xScale = 1;
-    var xValue = this.x;
-    //draw player character with no animation if player is not currently moving
-    if (this.dontdraw <= 0) {
-        if (this.dead) {
-            this.animationDeath.drawFrameAniThenIdle(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
-            /* displays text for game over screen*/
-            GAME_ENGINE.ctx.font = "50px Starcraft";
-            GAME_ENGINE.ctx.fillStyle = color_red;
-            GAME_ENGINE.ctx.fillText("Game Over", 135, 200);
-            GAME_ENGINE.ctx.font = "30px Starcraft";
-            GAME_ENGINE.ctx.fillText("Play Again", 208, 275);
-        } else {
-            // if statements for shooting logic
-            if (GAME_ENGINE.shoot === true && this.currentAmmo > 0 && !GAME_ENGINE.reload) {
-                // if statements for running logic
-                if (this.shootDirection === "left") {
-                    GAME_ENGINE.ctx.save();
-                    GAME_ENGINE.ctx.scale(-1, 1);
-                    this.xScale = -1;
-                    xValue = -this.x - this.width;
-                }
-                if (this.shootDirection === "left" || this.shootDirection === "right") {
-                    this.animationShootSide.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
-                } else if (this.shootDirection === "up") {
-                    this.animationShootUp.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
-                } else {
-                    this.animationShootDown.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
-                }
-            } else if (!GAME_ENGINE.movement) {
-                // if statements for running logic
-                if (this.shootDirection === "left") {
-                    GAME_ENGINE.ctx.save();
-                    GAME_ENGINE.ctx.scale(-1, 1);
-                    this.xScale = -1;
-                    xValue = -this.x - this.width;
-                }
-                //animation for when player is not moving or shooting
-                this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
+    if (SCENE_MANAGER.levelTransition) {
+        GAME_ENGINE.ctx.fillStyle = "black";
+        GAME_ENGINE.ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+        GAME_ENGINE.ctx.fillStyle = color_white;
+        GAME_ENGINE.ctx.font = "30px Starcraft";
+        GAME_ENGINE.ctx.fillText("Level: " + myLevel, 208, 260);
+        GAME_ENGINE.ctx.fillText("Score: " + myScore, 208, 300);
+        GAME_ENGINE.ctx.font = "20px Starcraft";
+        GAME_ENGINE.ctx.fillText("Click here to Continue", 170, 375);
+    } else if (SCENE_MANAGER.victory) {
+        GAME_ENGINE.ctx.drawImage(myVictoryScreen, 0, 0);
+        GAME_ENGINE.ctx.fillStyle = "white";
+        GAME_ENGINE.ctx.font = "30px Starcraft";
+        GAME_ENGINE.ctx.fillText("Score: " + myScore, 208, 450);
+    } else {
+        this.xScale = 1;
+        var xValue = this.x;
+        //draw player character with no animation if player is not currently moving
+        if (this.dontdraw <= 0) {
+            if (this.dead) {
+                this.animationDeath.drawFrameAniThenIdle(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                /* displays text for game over screen*/
+                GAME_ENGINE.ctx.font = "50px Starcraft";
+                GAME_ENGINE.ctx.fillStyle = color_red;
+                GAME_ENGINE.ctx.fillText("Game Over", 135, 200);
+                GAME_ENGINE.ctx.font = "30px Starcraft";
+                GAME_ENGINE.ctx.fillText("Play Again", 208, 275);
             } else {
-                // if statements for running logic
-                if (this.runDirection === "left") {
-                    GAME_ENGINE.ctx.save();
-                    GAME_ENGINE.ctx.scale(-1, 1);
-                    this.xScale = -1;
-                    xValue = -this.x - this.width;
-                }
-                if (this.runDirection === "left" || this.runDirection === "right") {
-                    this.animationRunSide.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
-                } else if (this.runDirection === "up") {
-                    this.animationRunUp.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                // if statements for shooting logic
+                if (GAME_ENGINE.shoot === true && this.currentAmmo > 0 && !GAME_ENGINE.reload) {
+                    // if statements for running logic
+                    if (this.shootDirection === "left") {
+                        GAME_ENGINE.ctx.save();
+                        GAME_ENGINE.ctx.scale(-1, 1);
+                        this.xScale = -1;
+                        xValue = -this.x - this.width;
+                    }
+                    if (this.shootDirection === "left" || this.shootDirection === "right") {
+                        this.animationShootSide.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                    } else if (this.shootDirection === "up") {
+                        this.animationShootUp.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                    } else {
+                        this.animationShootDown.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                    }
+                } else if (!GAME_ENGINE.movement) {
+                    // if statements for running logic
+                    if (this.shootDirection === "left") {
+                        GAME_ENGINE.ctx.save();
+                        GAME_ENGINE.ctx.scale(-1, 1);
+                        this.xScale = -1;
+                        xValue = -this.x - this.width;
+                    }
+                    //animation for when player is not moving or shooting
+                    this.animationIdle.drawFrameIdle(GAME_ENGINE.ctx, xValue, this.y);
                 } else {
-                    this.animationRunDown.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                    // if statements for running logic
+                    if (this.runDirection === "left") {
+                        GAME_ENGINE.ctx.save();
+                        GAME_ENGINE.ctx.scale(-1, 1);
+                        this.xScale = -1;
+                        xValue = -this.x - this.width;
+                    }
+                    if (this.runDirection === "left" || this.runDirection === "right") {
+                        this.animationRunSide.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                    } else if (this.runDirection === "up") {
+                        this.animationRunUp.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                    } else {
+                        this.animationRunDown.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
+                    }
                 }
             }
+            GAME_ENGINE.ctx.restore();
+            if (GAME_ENGINE.debug) {
+                GAME_ENGINE.ctx.strokeStyle = "blue";
+                GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+                    this.boundingbox.width, this.boundingbox.height);
+            }
+        } else {
+            this.dontdraw--;
         }
-        GAME_ENGINE.ctx.restore();
-        if (GAME_ENGINE.debug) {
-            GAME_ENGINE.ctx.strokeStyle = "blue";
-            GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-                this.boundingbox.width, this.boundingbox.height);
-        }
-    } else {
-        this.dontdraw--;
     }
 }
 
 Player.prototype.update = function () {
     // Player movement controls
-    if (!this.dead) {
-        this.velocity = (this.castTime > 0 || this.isStunned) ? { x: 0, y: 0 } : this.velocity;
-        if (this.castTime <= 0 && !this.isStunned) {
-            /* #region  */
-            /* #region Player movement controls */
-
-            // //Speed shift calculation
-            // let speedShift = {
-            //     x: this.baseAcceleration.x * this.accelerationRatio + this.accelerationAdj
-            //     , y: this.baseAcceleration.y * this.accelerationRatio + this.accelerationAdj
-            // };
-            // //I love lambda...
-            // //Friction
-            // this.velocity.x = (this.velocity.x < 1 && this.velocity.x > -1) ? 0 : this.velocity.x - Math.sign(this.velocity.x) * this.friction;
-            // this.velocity.y = (this.velocity.y < 1 && this.velocity.y > -1) ? 0 : this.velocity.y - Math.sign(this.velocity.y) * this.friction;
-
-            // //Application of acceleration
-            // this.velocity.x += (GAME_ENGINE.keyD) ? speedShift.x : 0;
-            // this.velocity.x -= (GAME_ENGINE.keyA) ? speedShift.x : 0;
-            // this.velocity.y -= (GAME_ENGINE.keyW) ? speedShift.y : 0;
-            // this.velocity.y += (GAME_ENGINE.keyS) ? speedShift.y : 0;
-
-            // //Check max
-            // this.velocity.x = (Math.abs(this.velocity.x) > this.baseMaxMovespeed) ? Math.sign(this.velocity.x) * this.baseMaxMovespeed : this.velocity.x;
-            // this.velocity.y = (Math.abs(this.velocity.y) > this.baseMaxMovespeed) ? Math.sign(this.velocity.y) * this.baseMaxMovespeed : this.velocity.y;
-            // let mag = Math.sqrt(Math.pow(this.velocity.x, 2) + Math.pow(this.velocity.y, 2));
-            // if (mag > this.baseMaxMovespeed) {//Circle max movespeed
-            //     this.velocity.x = this.baseMaxMovespeed * this.velocity.x / mag;
-            //     this.velocity.y = this.baseMaxMovespeed * this.velocity.y / mag;
-            // }
-
-            // //Application of velocity
-            // this.x += this.velocity.x;
-            // this.y += this.velocity.y;
-
-            // if (GAME_ENGINE.keyA === true) {
-            //     this.runDirection = "left";
-            //     this.animationIdle = this.animationRunSide;
-            // }
-            // if (GAME_ENGINE.keyD === true) {
-            //     this.runDirection = "right";
-            //     this.animationIdle = this.animationRunSide;
-            // }
-            // if (GAME_ENGINE.keyW === true) {
-            //     this.runDirection = "up";
-            //     this.animationIdle = this.animationRunUp;
-            // }
-            // if (GAME_ENGINE.keyS === true) {
-            //     this.runDirection = "down";
-            //     this.animationIdle = this.animationRunDown;
-            // }
-
-            this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
-            if (GAME_ENGINE.keyA === true) {
-                this.x -= this.actualSpeed;
-                this.runDirection = "left";
-            }
-            if (GAME_ENGINE.keyD === true) {
-                this.x += this.actualSpeed;
-                this.runDirection = "right";
-            }
-            if (GAME_ENGINE.keyW === true) {
-                this.y -= this.actualSpeed;
-                this.runDirection = "up";
-            }
-            if (GAME_ENGINE.keyS === true) {
-                this.y += this.actualSpeed;
-                this.runDirection = "down";
-            }
-            /* #endregion */
-
-            //stop player from reloading when at full ammo
-            if (GAME_ENGINE.reload && this.currentAmmo === this.maxAmmo) {
-                GAME_ENGINE.reload = false;
-            }
-            //Reload  if user presses reload button or runs out of ammo
-            if ((this.currentAmmo <= 0 || GAME_ENGINE.reload) && this.reloadCounter < this.reloadTime) {
-                this.reloadCounter += this.reloadRatio;
-            } else if (this.currentAmmo <= 0 || GAME_ENGINE.reload) {
-                this.currentAmmo = this.maxAmmo;
-                this.reloadCounter = 0;
-                GAME_ENGINE.reload = false;
-
-                /* #endregion */
-            }
-            let spellCast = false, q, selectSpell;
-            for (q in GAME_ENGINE.digit) {
-                if (GAME_ENGINE.digit[q]) {
-                    selectSpell = parseInt(q);
-                    spellCast = true;
-                }
-            }
-
-            //casts the selected spell if it is off cooldown
-            if (spellCast || this.abilityCD[selectSpell] <= 0) {
-                this.castSpell(selectSpell);
-            }
-
-            if (GAME_ENGINE.shoot && this.currentAmmo > 0 && !GAME_ENGINE.reload) {
-                if (this.shootCounter >= this.maxShootCounter) {
-                    if (GAME_ENGINE.keyUp === true) {
-                        //changes the direction to shoot the projectile
-                        this.shootDirection = "up";
-                        //changes the idle animation to last direction shot
-                        this.animationIdle = this.animationRunUp;
-                    } else if (GAME_ENGINE.keyLeft === true) {
-                        this.shootDirection = "left";
-                        this.animationIdle = this.animationRunSide;
-                    } else if (GAME_ENGINE.keyRight === true) {
-                        this.shootDirection = "right";
-                        this.animationIdle = this.animationRunSide;
-                    } else {
-                        this.shootDirection = "down";
-                        this.animationIdle = this.animationRunDown;
-                    }
-                    this.lastShootDirection = this.shootDirection;
-
-                    var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
-                        myPlayer.x + 15,
-                        myPlayer.y + 23,
-                        0, 0, 5, this.shootDirection);
-                    GAME_ENGINE.addEntity(projectile);
-                    this.currentAmmo--;
-                    this.shootCounter = 0;
-
-                    //audio for gunshot
-                    var gunShot = new Audio("./audio/marine/marine_shoot.wav");
-                    gunShot.volume = myCurrentVolume;
-                    gunShot.play();
-                } else {
-                    this.shootCounter += GAME_ENGINE.clockTick * this.shootSpeedRatio;
-                }
-            }
-            /* #region  */
-            //updates ammo img based on current ammo count
-            var ammoHTML = document.getElementById("ammoImg");
-            if (GAME_ENGINE.reload) {
-                ammoHTML.src = "./img/utilities/ammo_count/bullet_0.png";
-            } else {
-                ammoHTML.src = "./img/utilities/ammo_count/bullet_" + this.currentAmmo + ".png";
-            }
-        } else {
-            this.castTime--;
-        }
-        /* #region Abilities */
-        let t;
-        for (t in this.abilityCD) {
-            this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
-            if (t > 0) {
-                var spellHTML = document.getElementById("spell" + t);
-                //display if spell is ready to use or not
-                if (this.abilityCD[t] > 0) {
-                    spellHTML.innerHTML = this.abilityCD[t] / 10;
-                    spellHTML.style.color = color_red;
-                } else {
-                    spellHTML.innerHTML = "Ready";
-                    spellHTML.style.color = color_green;
-                }
-            }
-        }
-
-        if (this.health <= 0) {
-            this.dead = true;
-            var deathSound = new Audio("./audio/marine/marine_death.wav");
-            deathSound.volume = myCurrentVolume;
-            deathSound.play();
-        }
-
-        /* #region Damage system updates */
-        let dmgObj;
-        let dmgRemove = [];
-        let dmgFlag;
-        let buff;
-        let buffRemove = [];
-        let buffFlag;
-        /* #region Updates */
-        for (dmgObj in this.damageObjArr) {//Updates damage objects
-            this.damageObjArr[dmgObj].update();
-            if (this.damageObjArr[dmgObj].timeLeft <= 0) {
-                dmgRemove.push(dmgObj);//Adds to trash system
-            }
-        }
-        for (buff in this.buffObj) {//Updates buff objects
-            this.buffObj[buff].update(this);
-            if (this.buffObj[buff].timeLeft <= 0) {
-                buffRemove.push(buff);//Adds to trash system
-            }
-        }
-        /* #endregion */
-        /* #region Removal */
-        for (dmgFlag in dmgRemove) {//Removes flagged damage objects
-            this.damageObjArr.splice(dmgRemove[dmgFlag], 1);
-        }
-        for (buffFlag in buffRemove) {//Removes flagged buff objects
-            this.buffObj.splice(buffRemove[buffFlag], 1);
-        }
-        /* #endregion */
-        /* #endregion */
-
-        this.boundingbox = new BoundingBox(this.x + (this.xScale * 8), this.y + 2,
-            this.width, this.height + 11); /*offsets for x, y and height are for this specific spritesheet*/
-        /* #endregion */
+    if (this.dead || SCENE_MANAGER.levelTransition || SCENE_MANAGER.victory) {
+        return;
     }
+    this.velocity = (this.castTime > 0 || this.isStunned) ? { x: 0, y: 0 } : this.velocity;
+    if (this.castTime <= 0 && !this.isStunned) {
+        /* #region  */
+        /* #region Player movement controls */
+
+        // //Speed shift calculation
+        // let speedShift = {
+        //     x: this.baseAcceleration.x * this.accelerationRatio + this.accelerationAdj
+        //     , y: this.baseAcceleration.y * this.accelerationRatio + this.accelerationAdj
+        // };
+        // //I love lambda...
+        // //Friction
+        // this.velocity.x = (this.velocity.x < 1 && this.velocity.x > -1) ? 0 : this.velocity.x - Math.sign(this.velocity.x) * this.friction;
+        // this.velocity.y = (this.velocity.y < 1 && this.velocity.y > -1) ? 0 : this.velocity.y - Math.sign(this.velocity.y) * this.friction;
+
+        // //Application of acceleration
+        // this.velocity.x += (GAME_ENGINE.keyD) ? speedShift.x : 0;
+        // this.velocity.x -= (GAME_ENGINE.keyA) ? speedShift.x : 0;
+        // this.velocity.y -= (GAME_ENGINE.keyW) ? speedShift.y : 0;
+        // this.velocity.y += (GAME_ENGINE.keyS) ? speedShift.y : 0;
+
+        // //Check max
+        // this.velocity.x = (Math.abs(this.velocity.x) > this.baseMaxMovespeed) ? Math.sign(this.velocity.x) * this.baseMaxMovespeed : this.velocity.x;
+        // this.velocity.y = (Math.abs(this.velocity.y) > this.baseMaxMovespeed) ? Math.sign(this.velocity.y) * this.baseMaxMovespeed : this.velocity.y;
+        // let mag = Math.sqrt(Math.pow(this.velocity.x, 2) + Math.pow(this.velocity.y, 2));
+        // if (mag > this.baseMaxMovespeed) {//Circle max movespeed
+        //     this.velocity.x = this.baseMaxMovespeed * this.velocity.x / mag;
+        //     this.velocity.y = this.baseMaxMovespeed * this.velocity.y / mag;
+        // }
+
+        // //Application of velocity
+        // this.x += this.velocity.x;
+        // this.y += this.velocity.y;
+
+        // if (GAME_ENGINE.keyA === true) {
+        //     this.runDirection = "left";
+        //     this.animationIdle = this.animationRunSide;
+        // }
+        // if (GAME_ENGINE.keyD === true) {
+        //     this.runDirection = "right";
+        //     this.animationIdle = this.animationRunSide;
+        // }
+        // if (GAME_ENGINE.keyW === true) {
+        //     this.runDirection = "up";
+        //     this.animationIdle = this.animationRunUp;
+        // }
+        // if (GAME_ENGINE.keyS === true) {
+        //     this.runDirection = "down";
+        //     this.animationIdle = this.animationRunDown;
+        // }
+
+        this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
+        if (GAME_ENGINE.keyA === true) {
+            this.x -= this.actualSpeed;
+            this.runDirection = "left";
+        }
+        if (GAME_ENGINE.keyD === true) {
+            this.x += this.actualSpeed;
+            this.runDirection = "right";
+        }
+        if (GAME_ENGINE.keyW === true) {
+            this.y -= this.actualSpeed;
+            this.runDirection = "up";
+        }
+        if (GAME_ENGINE.keyS === true) {
+            this.y += this.actualSpeed;
+            this.runDirection = "down";
+        }
+        /* #endregion */
+
+        //stop player from reloading when at full ammo
+        if (GAME_ENGINE.reload && this.currentAmmo === this.maxAmmo) {
+            GAME_ENGINE.reload = false;
+        }
+        //Reload  if user presses reload button or runs out of ammo
+        if ((this.currentAmmo <= 0 || GAME_ENGINE.reload) && this.reloadCounter < this.reloadTime) {
+            this.reloadCounter += this.reloadRatio;
+        } else if (this.currentAmmo <= 0 || GAME_ENGINE.reload) {
+            this.currentAmmo = this.maxAmmo;
+            this.reloadCounter = 0;
+            GAME_ENGINE.reload = false;
+
+            /* #endregion */
+        }
+        let spellCast = false, q, selectSpell;
+        for (q in GAME_ENGINE.digit) {
+            if (GAME_ENGINE.digit[q]) {
+                selectSpell = parseInt(q);
+                spellCast = true;
+            }
+        }
+
+        //casts the selected spell if it is off cooldown
+        if (spellCast || this.abilityCD[selectSpell] <= 0) {
+            this.castSpell(selectSpell);
+        }
+
+        if (GAME_ENGINE.shoot && this.currentAmmo > 0 && !GAME_ENGINE.reload) {
+            if (this.shootCounter >= this.maxShootCounter) {
+                if (GAME_ENGINE.keyUp === true) {
+                    //changes the direction to shoot the projectile
+                    this.shootDirection = "up";
+                    //changes the idle animation to last direction shot
+                    this.animationIdle = this.animationRunUp;
+                } else if (GAME_ENGINE.keyLeft === true) {
+                    this.shootDirection = "left";
+                    this.animationIdle = this.animationRunSide;
+                } else if (GAME_ENGINE.keyRight === true) {
+                    this.shootDirection = "right";
+                    this.animationIdle = this.animationRunSide;
+                } else {
+                    this.shootDirection = "down";
+                    this.animationIdle = this.animationRunDown;
+                }
+                this.lastShootDirection = this.shootDirection;
+
+                var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
+                    myPlayer.x + 15,
+                    myPlayer.y + 23,
+                    0, 0, 5, this.shootDirection);
+                GAME_ENGINE.addEntity(projectile);
+                this.currentAmmo--;
+                this.shootCounter = 0;
+
+                //audio for gunshot
+                var gunShot = new Audio("./audio/marine/marine_shoot.wav");
+                gunShot.volume = myCurrentVolume;
+                gunShot.play();
+            } else {
+                this.shootCounter += GAME_ENGINE.clockTick * this.shootSpeedRatio;
+            }
+        }
+        /* #region  */
+        //updates ammo img based on current ammo count
+        var ammoHTML = document.getElementById("ammoImg");
+        if (GAME_ENGINE.reload) {
+            ammoHTML.src = "./img/utilities/ammo_count/bullet_0.png";
+        } else {
+            ammoHTML.src = "./img/utilities/ammo_count/bullet_" + this.currentAmmo + ".png";
+        }
+    } else {
+        this.castTime--;
+    }
+    /* #region Abilities */
+    let t;
+    for (t in this.abilityCD) {
+        this.abilityCD[t] += (this.abilityCD[t] > 0) ? -1 : 0;
+        if (t > 0) {
+            var spellHTML = document.getElementById("spell" + t);
+            //display if spell is ready to use or not
+            if (this.abilityCD[t] > 0) {
+                spellHTML.innerHTML = this.abilityCD[t] / 10;
+                spellHTML.style.color = color_red;
+            } else {
+                spellHTML.innerHTML = "Ready";
+                spellHTML.style.color = color_green;
+            }
+        }
+    }
+
+    if (this.health <= 0) {
+        this.dead = true;
+        var deathSound = new Audio("./audio/marine/marine_death.wav");
+        deathSound.volume = myCurrentVolume;
+        deathSound.play();
+    }
+
+    /* #region Damage system updates */
+    let dmgObj;
+    let dmgRemove = [];
+    let dmgFlag;
+    let buff;
+    let buffRemove = [];
+    let buffFlag;
+    /* #region Updates */
+    for (dmgObj in this.damageObjArr) {//Updates damage objects
+        this.damageObjArr[dmgObj].update();
+        if (this.damageObjArr[dmgObj].timeLeft <= 0) {
+            dmgRemove.push(dmgObj);//Adds to trash system
+        }
+    }
+    for (buff in this.buffObj) {//Updates buff objects
+        this.buffObj[buff].update(this);
+        if (this.buffObj[buff].timeLeft <= 0) {
+            buffRemove.push(buff);//Adds to trash system
+        }
+    }
+    /* #endregion */
+    /* #region Removal */
+    for (dmgFlag in dmgRemove) {//Removes flagged damage objects
+        this.damageObjArr.splice(dmgRemove[dmgFlag], 1);
+    }
+    for (buffFlag in buffRemove) {//Removes flagged buff objects
+        this.buffObj.splice(buffRemove[buffFlag], 1);
+    }
+    /* #endregion */
+    /* #endregion */
+
+    this.boundingbox = new BoundingBox(this.x + (this.xScale * 8), this.y + 2,
+        this.width, this.height + 11); /*offsets for x, y and height are for this specific spritesheet*/
+    /* #endregion */
+
 
 }
 
@@ -464,9 +482,9 @@ Player.prototype.castSpell = function (number) {
                 adamageObjonExplosion.timeLeft = 10;
 
                 let tempPro2 = new FireRound(AM.getAsset("./img/terran/abilities/incendiary_shot_still.png"),
-                AM.getAsset("./img/terran/abilities/incendiary_shot.png"),
-                this.x + 15, this.y + 23, dir.x, dir.y, origin);
-                
+                    AM.getAsset("./img/terran/abilities/incendiary_shot.png"),
+                    this.x + 15, this.y + 23, dir.x, dir.y, origin);
+
                 tempPro2.damageObjonExplosion = adamageObjonExplosion;
                 tempPro2.projectileSpeed = speed;
                 tempPro2.aoe = aoe;
@@ -532,7 +550,7 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, 
     this.height = 13;
     this.scale = 1;
     this.animation = new Animation(spriteSheet, this.width, this.height, 1, .085, 1, true, this.scale);
-    
+
     this.targetType = 4;
     this.x = originX - CAMERA.x;
     this.y = originY - CAMERA.y;
@@ -551,7 +569,11 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, 
 
     // Damage stuff
     this.durationBetweenHits = 50;//Adjustable
-    this.totalDamage = 15;//Adjustable
+    this.playerDamage = 15 * myGodMode;
+    this.enemyDamage = 15;
+    this.totalDamage;
+    this.totalDamage = (this.origin === 5) ? this.playerDamage : this.enemyDamage;
+
     this.damageObjArr = [];
     this.damageBuff = null;
     this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Piercing, this.damageBuff);
@@ -718,13 +740,10 @@ Camera.prototype.move = function (direction) {
 function Menu() {
     this.button = { x: 406, width: 221, height: 39 };
     this.storyY = 263;
-    this.controlsY = 409;
-    this.survivalY = 336;
+    this.controlsY = 336;
     this.back = { x: 62, y: 30, width: 59, height: 16 };
     this.controls = false;
-    this.credits = false;
     this.story = false;
-    this.survival = false;
     this.background = new Image();
     this.background.src = "./img/utilities/menu.png";
 }
@@ -833,15 +852,30 @@ function addHTMLListeners() {
             myCurrentVolume = music.volume;
             myIsMute = false;
             muteButton.innerHTML = "Mute";
+            clickOutsideOfCanvas()
         } else {
             myCurrentVolume = music.volume;
             music.volume = 0.0;
             muteButton.innerHTML = "Unmute";
             volumeSlider.value = 0.0;
             myIsMute = true;
+            clickOutsideOfCanvas()
         }
     });
 }
+function clickOutsideOfCanvas() {
+    document.getElementById("canvas").focus();
+    GAME_ENGINE.keyW = false;
+    GAME_ENGINE.keyA = false;
+    GAME_ENGINE.keyS = false;
+    GAME_ENGINE.keyD = false;
+    GAME_ENGINE.keyDown = false;
+    GAME_ENGINE.keyLeft = false;
+    GAME_ENGINE.keyUp = false;
+    GAME_ENGINE.keyRight = false;
+    GAME_ENGINE.shoot = false;
+}
+
 
 /* #endregion */
 
@@ -916,7 +950,9 @@ AM.queueDownload("./img/protoss/psionic_storm.png");
 AM.queueDownload("./img/protoss/archon/archon_attack.png");
 AM.queueDownload("./img/protoss/archon/archon_move_right.png");
 AM.queueDownload("./img/protoss/archon/archon_death.png");
+
 AM.queueDownload("./img/protoss/archon/archon_fusion.png")
+
 
 // Zealot
 AM.queueDownload("./img/protoss/zealot/zealot_move_right.png");

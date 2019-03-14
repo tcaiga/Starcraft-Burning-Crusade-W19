@@ -81,7 +81,7 @@ function Monster(spriteSheet, x, y, roomNumber) {
 Monster.prototype.draw = function () {
     this.xScale = 1;
     var xValue = this.x;
-    
+
     if (!this.right) {
         GAME_ENGINE.ctx.save();
         GAME_ENGINE.ctx.scale(-1, 1);
@@ -94,7 +94,7 @@ Monster.prototype.draw = function () {
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = "red";
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-             this.boundingbox.width, this.boundingbox.height);
+            this.boundingbox.width, this.boundingbox.height);
         GAME_ENGINE.ctx.strokeStyle = "purple";
         GAME_ENGINE.ctx.strokeRect(this.visionBox.x, this.visionBox.y,
             this.visionBox.width, this.visionBox.height);
@@ -122,7 +122,7 @@ Monster.prototype.update = function () {
     if (myPlayer.x > this.x && this.isFlippable) {
         this.right = true;
         this.xBoundingboxOffset = 0;
-    } else if (this.isFlippable) {
+    } else if (this.isFlippable && !this.isBoss) {
         this.right = false;
         this.xBoundingboxOffset = this.width / 2;
     }
@@ -146,7 +146,7 @@ Monster.prototype.update = function () {
     var dirX, dirY;
     if (this.isPathing) {
         // we've reached our target so stop.
-        if (Math.floor(this.x - this.pathX) == 0 && Math.floor(this.y - this.pathY) == 0 ) {
+        if (Math.floor(this.x - this.pathX) == 0 && Math.floor(this.y - this.pathY) == 0) {
             this.isPathing = false;
         }
         dirX = this.pathX - this.x;
@@ -209,6 +209,11 @@ Monster.prototype.update = function () {
             }
             this.ticksSinceLastHit++;
         }
+    } else {
+
+        this.animation = this.moveAnimation;
+        this.pause = false;
+
     }
 
     // based on the number of ticks since the player was last hit, we pause the monster
@@ -883,14 +888,14 @@ function Kerrigan(x, y, roomNumber) {
 function TrainingDummy(theX, theY) {
     this.x = theX;
     this.y = theY;
-    
-}
-
-TrainingDummy.prototype.draw = function() {
 
 }
 
-TrainingDummy.prototype.update = function() {
+TrainingDummy.prototype.draw = function () {
+
+}
+
+TrainingDummy.prototype.update = function () {
 
 
 }
@@ -903,7 +908,7 @@ function getHealthPercentage(entity) {
     return -1;
 }
 
-function getPlayerLocation (){
+function getPlayerLocation() {
     let tarX;
     let tarY;
 
@@ -913,7 +918,7 @@ function getPlayerLocation (){
     //if (myPlayer.x < 0) {
     //    tarX = canvasWidth - Math.abs(myPlayer.x) % canvasWidth;
     //} else {
-        
+
     //}
 
     //if (myPlayer.y < 0) {
