@@ -170,7 +170,6 @@ Monster.prototype.update = function () {
         }
         if (!myIsMute) {
             this.deathAudio.volume = myCurrentVolume - 0.02;
-            console.log(myCurrentVolume - 0.02);
             this.deathAudio.play();
         }
     }
@@ -791,8 +790,6 @@ Templar_Boss.prototype.templarBossBehavior = function () {
                     GAME_ENGINE.addEntity(mergedArchon);
                     that.otherTemplar.removeFromWorld = true;
                     that.removeFromWorld = true;
-                    //GAME_ENGINE.removeEntity(that.otherTemplar);
-                    //GAME_ENGINE.removeEntity(that);
                 }
             }
             this.ssFusionFlag = true;
