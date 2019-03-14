@@ -837,6 +837,7 @@ function Archon_Boss(x, y, roomNumber, temp1, temp2) {
     this.lastPsiStorm = 600;
     this.lastBallStorm = 150;
     this.ionBlastFlag = false;
+    this.scoreIncrease = 3000;
     this.ebCount = 0;
     this.aniFlag = false;
 
@@ -935,6 +936,7 @@ function Kerrigan(x, y, roomNumber) {
     this.speed = 150;
     this.health = 2500
     this.roomNumber = roomNumber;
+    this.scoreIncrease = 4000;
 
     // boss stuff
     this.isKerrigan = true;
