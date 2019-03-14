@@ -154,7 +154,8 @@ Monster.prototype.update = function () {
         this.removeFromWorld = true;
         GAME_ENGINE.removeEntity(this);
         if (!myIsMute) {
-            this.deathAudio.volume = 0.08;
+            this.deathAudio.volume = myCurrentVolume - 0.02;
+            console.log(myCurrentVolume - 0.02);
             this.deathAudio.play();
         }
     }
@@ -192,7 +193,7 @@ Monster.prototype.update = function () {
             }
         }
         if (!myIsMute) {
-            this.attackAudio.volume = 0.08;
+            this.attackAudio.volume = myCurrentVolume - 0.02;
             this.attackAudio.play();
         }
     } else if (this.animation.animationDone) {
@@ -209,7 +210,7 @@ Monster.prototype.update = function () {
             this.animation = this.attackAnimation;
 
             if (!myIsMute) {
-                this.attackAudio.volume = 0.08;
+                this.attackAudio.volume = myCurrentVolume - 0.02;
                 this.attackAudio.play();
             }
             if (this.animation.animationDone && this.animation == this.attackAnimation) {
