@@ -132,7 +132,7 @@ GameEngine.prototype.startInput = function () {
            myPlayer.health = Infinity;
            myPlayer.baseMaxMovespeed = 4;
            myPlayer.changeHealth(0);
-           document.getElementById("godmode").innerHTML = "GOD MODE ENABLED FOR DEBUGGING. CANNOT UNDO!"
+           document.getElementById("godmode").innerHTML = "GOD MODE ENABLED FOR DEBUGGING. CANNOT UNDO!";
         }
 
         //Abilities
