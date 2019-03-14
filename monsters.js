@@ -801,6 +801,20 @@ Archon_Boss.prototype.archonBossBehavior = function () {
     this.bosstimer++;
 }
 
+function TrainingDummy(theX, theY) {
+    this.x = theX;
+    this.y = theY;
+    
+}
+
+TrainingDummy.prototype.draw = function() {
+
+}
+
+TrainingDummy.prototype.update = function() {
+
+}
+
 function getHealthPercentage(entity) {
     if (entity instanceof Player || entity instanceof Monster) {
         return (entity.health / entity.totalHealth) * 100;

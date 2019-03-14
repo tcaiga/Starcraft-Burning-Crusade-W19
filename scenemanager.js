@@ -52,6 +52,7 @@ var ROOMS = [
 function SceneManager() {
     this.insideMenu = true;
     this.menu = GAME_ENGINE.entities[0][0];
+    this.isSurvival = false;
 }
 
 SceneManager.prototype.menuSelection = function (x, y) {
@@ -89,6 +90,7 @@ SceneManager.prototype.menuSelection = function (x, y) {
         this.insideMenu = false;
         this.menu.removeFromWorld = true;
         if (this.menu.survival) {
+            this.isSurvival = true;
             BACKGROUND.generateSurvivalMap();
         } else if (this.menu.story) {
             BACKGROUND.generateLevelThree();
@@ -103,7 +105,7 @@ SceneManager.prototype.playAgain = function (x, y) {
         music.pause();
         music.currentTime = 0;
         GAME_ENGINE.reset();
-        BACKGROUND = new Background();
+        BACKGROUND = new Background(myLevel, "./img/utilities/floor_level1png");
     }
 }
 

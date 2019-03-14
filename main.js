@@ -67,7 +67,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.reloadCounter = 0;
     this.maxShootCounter = 0.1;
     this.shootCounter = this.maxShootCounter;
-    this.maxHealth = 150;
+    this.maxHealth = 1500;
     this.health = this.maxHealth;
     this.healthPercent = 100;
     this.dontdraw = 0;
@@ -944,7 +944,7 @@ AM.downloadAll(function () {
     document.getElementById("hudInfo").style.display = "none";
     document.getElementById("hudMinimap").style.display = "none";
     addHTMLListeners();
-    BACKGROUND = new Background();
+    BACKGROUND = new Background(1, "./img/utilities/floor_level1.png");
     SCENE_MANAGER = new SceneManager();
 });
 /* #endregion */

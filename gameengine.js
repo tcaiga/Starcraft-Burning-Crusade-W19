@@ -217,6 +217,37 @@ GameEngine.prototype.reset = function () {
     }
 }
 
+GameEngine.prototype.nextLevel = function () {
+    for (let i = 0; i < this.entities.length; i++) {
+        for (let j = this.entities[i].length - 2; j >= 0; j--) {
+            var entity = this.entities[i][j];
+            entity.removeFromWorld = true;
+            this.entities[i].pop();
+        }
+    }
+    CAMERA = new Camera();
+    GAME_ENGINE.addEntity(CAMERA);
+    var floorImg;
+    if (SCENE_MANAGER.isSurvival) {
+        var choice = Math.floor((Math.random() * 3) + 1);
+        floorImg = "./img/utilities/floor_level" + choice + ".png";
+    } else {
+        floorImg = "./img/utilities/floor_level" + myLevel + ".png";
+    }
+    BACKGROUND = new Background(myLevel, floorImg);
+    GAME_ENGINE.addEntity(BACKGROUND);
+    if (myLevel === 3) {
+        BACKGROUND.generateLevelThree();
+    } else if (myLevel === 2) {
+        BACKGROUND.generateLevelTwo();
+    } else {
+        BACKGROUND.generateLevelOne();
+    }
+    CAMERA.getStartingRoom();
+    BACKGROUND.createWalls();
+    BACKGROUND.decorateRoom();
+}
+
 GameEngine.prototype.addEntity = function (entity) {
     if (entity instanceof Player) {
         this.entities[5].push(entity);

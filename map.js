@@ -1,4 +1,4 @@
-function Background() {
+function Background(theLevel, theFloorImg) {
     this.x = 0;
     this.y = 0;
 
@@ -31,8 +31,9 @@ function Background() {
     this.backRoomNumbers = [];
     this.maxRoomCount = 5;
     this.drawFaceCount = 0;
-    this.level = 1;
-    this.floorImg = "./img/utilities/floor_level1.png";
+    this.level = theLevel;
+    this.background = new Image();
+    this.background.src = theFloorImg;
     // **********************
     // * Key for room types *
     // **********************
@@ -44,7 +45,7 @@ function Background() {
 }
 
 Background.prototype.draw = function () {
-    GAME_ENGINE.ctx.drawImage(AM.getAsset(this.floorImg), this.floorX, this.floorY, 640, 640);
+    GAME_ENGINE.ctx.drawImage(this.background, this.floorX, this.floorY, 640, 640);
 }
 
 Background.prototype.update = function () {
@@ -52,7 +53,7 @@ Background.prototype.update = function () {
     for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
         var tempMonster = GAME_ENGINE.entities[4][i];
         if (tempMonster.roomNumber === this.bossRoomNum) {
-                monsterRoomCheck = true;
+            monsterRoomCheck = true;
         }
     }
 
@@ -60,16 +61,6 @@ Background.prototype.update = function () {
         GAME_ENGINE.addEntity(new Canal(this.bossRoomIndex[0] * canvasWidth + 285 + this.canalX,
             this.bossRoomIndex[1] * canvasHeight + 285 + this.canalY));
         this.isBossDead = true;
-    }
-};
-
-Background.prototype.changeLevel = function () {
-    if (this.level === "survival") {
-        var choice = Math.floor((Math.random() * 3) + 1);
-        this.floorImg = "./img/utilities/floor_level" + choice + ".png";
-    } else {
-        this.level++;
-        this.floorImg = "./img/utilities/floor_level" + this.level + ".png";
     }
 };
 
@@ -140,7 +131,9 @@ Background.prototype.decorateRoom = function () {
                         testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", forwardDoorState, roomNumber));
                     backRoomNumber -= 1;
                 }
+
                 this.backRoomNumbers.push(backRoomNumber);
+
 
                 // Populating rooms with infested terran traps, monsters, and puzzles
                 if (this.drawFaceCount > 0) {
@@ -152,25 +145,25 @@ Background.prototype.decorateRoom = function () {
                             GAME_ENGINE.addEntity(ultralisk);
                         } else if (this.drawFaceCount % 3 === 1) {
                             var hydralisk = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
 
                             var zergling1 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y + 80, roomNumber);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y + 80, roomNumber);
                             var zergling2 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
                             var zergling3 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y + 80, roomNumber);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y + 80, roomNumber);
                             var zergling4 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
                             var zergling5 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y - 80, roomNumber);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y - 80, roomNumber);
                             var zergling6 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y - 80, roomNumber);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y - 80, roomNumber);
                             var zergling7 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y + 80, roomNumber);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y + 80, roomNumber);
                             var zergling8 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y - 80, roomNumber);
-        
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y - 80, roomNumber);
+
                             GAME_ENGINE.addEntity(hydralisk);
                             GAME_ENGINE.addEntity(zergling1);
                             GAME_ENGINE.addEntity(zergling2);
@@ -182,15 +175,15 @@ Background.prototype.decorateRoom = function () {
                             GAME_ENGINE.addEntity(zergling8);
                         } else if (this.drawFaceCount % 3 === 2) {
                             var darkTemplar = new DarkTemplar(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
                             var zealot1 = new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
                             var zealot2 = new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
                             var zealot3 = new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y + 80, roomNumber);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y + 80, roomNumber);
                             var zealot4 = new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
-                            testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y - 80, roomNumber);
+                                testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y - 80, roomNumber);
 
                             GAME_ENGINE.addEntity(darkTemplar);
                             GAME_ENGINE.addEntity(zealot1);
@@ -204,15 +197,17 @@ Background.prototype.decorateRoom = function () {
                                 if (r % 2 === 1 && s % 2 === 1) {
                                     // 9 infested terrans appear in the shape of a cube spaced out.
                                     var infested = new Infested(AM.getAsset("./img/zerg/infested/infested_move_right.png"),
+
                                     testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
                                     testPos[1] * canvasHeight + (s * 160) + BACKGROUND.y - 10, roomNumber);
+
                                     GAME_ENGINE.addEntity(infested);
                                 }
                             }
                         }
                     }
                 }
-                
+
                 this.drawFaceCount++;
             }
 
@@ -223,10 +218,25 @@ Background.prototype.decorateRoom = function () {
                 this.canalX = BACKGROUND.x;
                 this.canalY = BACKGROUND.y;
                 addBoss = false;
-                var pool = new Zerg_Boss(AM.getAsset("./img/buildings/gravemind.png"),
-                                testPos[0] * canvasWidth + 220 + BACKGROUND.x, testPos[1] * canvasHeight + 250 + BACKGROUND.y, roomNumber);
-                GAME_ENGINE.addEntity(pool);
+                if (myLevel === 1) {
+                    var pool = new Zerg_Boss(AM.getAsset("./img/buildings/gravemind.png"),
+                        testPos[0] * canvasWidth + 220 + BACKGROUND.x, testPos[1] * canvasHeight + 250 + BACKGROUND.y, roomNumber);
+                    GAME_ENGINE.addEntity(pool);
+                } else if (myLevel === 2) {
+                    var temp2 = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber, null);
+                    var temp = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32 + 100, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 100, roomNumber, temp2);
+                    GAME_ENGINE.addEntity(temp2);
+                    GAME_ENGINE.addEntity(temp);
+                } else {
+                    var temp2 = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber, null);
+                    var temp = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32 + 100, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 100, roomNumber, temp2);
+                    GAME_ENGINE.addEntity(temp2);
+                    GAME_ENGINE.addEntity(temp);
+                }
 
+
+                var temp2 = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber, null);
+                var temp = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32 + 100, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 100, roomNumber, temp2);
 
                 // <BOSS> -- THIS IS HOW YOU ADD TEMPLAR BOSSES
                 /*var temp2 = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber, null);
@@ -481,7 +491,7 @@ Door.prototype.update = function () {
             CAMERA.move(this.direction);
         }
     }
-    
+
     let monsterRoomCheck = false;
     for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
         var tempMonster = GAME_ENGINE.entities[4][i];
@@ -564,7 +574,7 @@ Wall.prototype.draw = function () {
     if (GAME_ENGINE.debug) {
         GAME_ENGINE.ctx.strokeStyle = color_red;
         GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-             this.boundingbox.width, this.boundingbox.height);
+            this.boundingbox.width, this.boundingbox.height);
     }
 }
 
@@ -578,8 +588,14 @@ function Canal(theX, theY) {
 
 Canal.prototype.update = function () {
     if (this.boundingbox.collide(myPlayer.boundingbox) && !this.collideOnce) {
-        BACKGROUND.changeLevel();
+        //BACKGROUND.changeLevel();
         this.collideOnce = true;
+        myPlayer.x = 295;
+        myPlayer.y = 295;
+        myLevel++;
+        GAME_ENGINE.nextLevel();
+
+        document.getElementById("level").innerHTML = myLevel;
     }
 
     this.boundingbox = new BoundingBox(this.x, this.y, 75, 75);
