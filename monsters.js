@@ -153,6 +153,11 @@ Monster.prototype.update = function () {
         handleDeathAnimations(this.deathAnimation, this.gore, this.x - this.deathOffset, this.y);
         this.removeFromWorld = true;
         GAME_ENGINE.removeEntity(this);
+        if (this instanceof Archon_Boss) {
+            GAME_ENGINE.removeEntity(this.temp1);
+            GAME_ENGINE.removeEntity(this.temp2);
+
+        }
         if (!myIsMute) {
             this.deathAudio.volume = myCurrentVolume - 0.02;
             console.log(myCurrentVolume - 0.02);
@@ -772,11 +777,13 @@ Templar_Boss.prototype.templarBossBehavior = function () {
                 GAME_ENGINE.addEntity(fusionAni);
                 fusionAni.onDeath = function () {
                     console.log("fusion done")
-                    let mergedArchon = new Archon_Boss(this.x, this.y, this.roomNumber);
+                    let mergedArchon = new Archon_Boss(this.x, this.y, this.roomNumber, that, that.otherTemplar);
                     mergedArchon.health = that.archonHP;
                     GAME_ENGINE.addEntity(mergedArchon);
-                    GAME_ENGINE.removeEntity(that.otherTemplar);
-                    GAME_ENGINE.removeEntity(that);
+                    that.otherTemplar.removeFromWorld = true;
+                    that.removeFromWorld = true;
+                    //GAME_ENGINE.removeEntity(that.otherTemplar);
+                    //GAME_ENGINE.removeEntity(that);
                 }
             }
             this.ssFusionFlag = true;
@@ -787,13 +794,16 @@ Templar_Boss.prototype.templarBossBehavior = function () {
     this.lastBallStorm--;
 }
 
-function Archon_Boss(x, y, roomNumber) {
+function Archon_Boss(x, y, roomNumber, temp1, temp2) {
     console.log("I have arrived");
     this.spriteSheet = AM.getAsset("./img/protss/high_templar/high_templar_attack_left.png");
     Monster.call(this, this.spriteSheet, x, y, roomNumber);
 
     this.x = x;
     this.y = y;
+
+    this.temp1 = temp1;
+    this.temp2 = temp2;
 
     this.scale = 1.75;
     this.width = 82;
