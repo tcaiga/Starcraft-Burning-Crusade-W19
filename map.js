@@ -540,20 +540,29 @@ Wall.prototype.update = function () {
         var entity = GAME_ENGINE.entities[4][i];
         if (this.boundingbox.collide(entity.boundingbox)) {
             var distance = entity.speed / 100;
-            if (this.direction === "up") {
-                entity.y += distance;
-            } else if (this.direction === "down") {
-                entity.y -= distance;
-            } else if (this.direction === "left") {
+            if (entity.x > this.x) {
                 entity.x += distance;
-            } else {
+            }
+            if (entity.x < this.x) {
                 entity.x -= distance;
+            }
+            if (entity.y > this.y) {
+                entity.y += distance;
+            }
+            if (entity.y < this.y) {
+                entity.y -= distance;
             }
         }
     }
 
-    this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
+    for (var p = 0; p < GAME_ENGINE.entities[3].length; p++) {
+        var proj = GAME_ENGINE.entities[3][p];
+        if (this.boundingbox.collide(proj.boundingbox)) {
+            GAME_ENGINE.removeEntity(proj);
+        }
+    }
 
+    this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 }
 
 Wall.prototype.draw = function () {
