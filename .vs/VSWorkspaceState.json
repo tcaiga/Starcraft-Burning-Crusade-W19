@@ -1,15 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\audio",
-    "\\audio\\protoss",
-    "\\audio\\protoss\\dark_templar",
     "\\img",
-    "\\img\\buildings",
-    "\\img\\protoss",
     "\\img\\protoss\\archon",
-    "\\img\\zerg",
-    "\\img\\zerg\\hydra"
+    "\\img\\protoss\\dark_templar"
   ],
   "SelectedNode": "\\monsters.js",
   "PreviewInSolutionExplorer": false
