@@ -64,7 +64,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.runDirection = "right";
     this.shootDirection = "right";
     this.lastShootDirection = "right";
-    this.maxAmmo = 13;
+    this.maxAmmo = 30;
     this.currentAmmo = this.maxAmmo;
     this.reloadTime = 80;
     this.reloadCounter = 0;
@@ -243,10 +243,12 @@ Player.prototype.update = function () {
                 this.currentAmmo--;
                 this.shootCounter = 0;
 
-                //audio for gunshot
-                var gunShot = new Audio("./audio/marine/marine_shoot.wav");
-                gunShot.volume = myCurrentVolume;
-                gunShot.play();
+                if (!myIsMute) {
+                    //audio for gunshot
+                    var gunShot = new Audio("./audio/marine/marine_shoot.wav");
+                    gunShot.volume = myCurrentVolume;
+                    gunShot.play();
+                }
             } else {
                 this.shootCounter += GAME_ENGINE.clockTick * this.shootSpeedRatio;
             }
@@ -257,7 +259,7 @@ Player.prototype.update = function () {
         if (GAME_ENGINE.reload) {
             ammoHTML.src = "./img/utilities/ammo_count/bullet_0.png";
         } else {
-            ammoHTML.src = "./img/utilities/ammo_count/bullet_" + this.currentAmmo + ".png";
+            ammoHTML.src = "./img/utilities/ammo_count/bullet_" + Math.ceil(this.currentAmmo / 3) + ".png";
         }
     } else {
         this.castTime--;
@@ -281,11 +283,13 @@ Player.prototype.update = function () {
 
     if (this.health <= 0) {
         this.dead = true;
-        var deathSound = new Audio("./audio/marine/marine_death.wav");
-        deathSound.volume = myCurrentVolume;
-        deathSound.play();
-        var loseAudio = new Audio("./audio/lose.wav");
-        loseAudio.play();
+        if (!myIsMute) {
+            var deathSound = new Audio("./audio/marine/marine_death.wav");
+            deathSound.volume = myCurrentVolume;
+            deathSound.play();
+            var loseAudio = new Audio("./audio/lose.wav");
+            loseAudio.play();
+        }
     }
 
     /* #region Damage system updates */
@@ -789,18 +793,25 @@ Animation.prototype.isDone = function () {
 function addHTMLListeners() {
     //adds slider functionality
     var volumeSlider = document.getElementById("volumeSlider");
+    var muteButton = document.getElementById("muteButton");
     volumeSlider.addEventListener("change", function () {
         music.volume = volumeSlider.value;
         myCurrentVolume = music.volume;
         myIsMute = false;
         muteButton.innerHTML = "Mute";
+        if (volumeSlider.value === "0") {
+            myIsMute = true;
+            muteButton.innerHTML = "Unmute";
+        }
         clickOutsideOfCanvas();
     }, false);
 
     //adds mute/unmute functionality
-    var muteButton = document.getElementById("muteButton");
     muteButton.addEventListener("click", function () {
         if (myIsMute) {
+            if (volumeSlider.value === "0") {
+                myCurrentVolume = .1;
+            }
             music.volume = myCurrentVolume;
             volumeSlider.value = myCurrentVolume;
             myCurrentVolume = music.volume;

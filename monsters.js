@@ -153,8 +153,10 @@ Monster.prototype.update = function () {
         handleDeathAnimations(this.deathAnimation, this.gore, this.x - this.deathOffset, this.y);
         this.removeFromWorld = true;
         GAME_ENGINE.removeEntity(this);
-        this.deathAudio.volume = 0.08;
-        this.deathAudio.play();
+        if (!myIsMute) {
+            this.deathAudio.volume = 0.08;
+            this.deathAudio.play();
+        }
     }
     var dirX, dirY;
     if (this.isPathing) {
@@ -189,8 +191,10 @@ Monster.prototype.update = function () {
                 this.counter = 0;
             }
         }
-        this.attackAudio.volume = 0.08;
-        this.attackAudio.play();
+        if (!myIsMute) {
+            this.attackAudio.volume = 0.08;
+            this.attackAudio.play();
+        }
     } else if (this.animation.animationDone) {
         this.animation = this.moveAnimation
     }
@@ -204,8 +208,10 @@ Monster.prototype.update = function () {
             this.pause = true;
             this.animation = this.attackAnimation;
 
-            this.attackAudio.volume = 0.08;
-            this.attackAudio.play();
+            if (!myIsMute) {
+                this.attackAudio.volume = 0.08;
+                this.attackAudio.play();
+            }
             if (this.animation.animationDone && this.animation == this.attackAnimation) {
                 let plLoc = getPlayerLocation();
                 console.log("I'm firing");
