@@ -28,7 +28,7 @@ function Background(theLevel, theFloorImg) {
     this.isBossDead = false;
     this.canalX = 0;
     this.canalY = 0;
-
+    this.backRoomNumbers = [];
     this.maxRoomCount = 5;
     this.drawFaceCount = 0;
     this.level = theLevel;
@@ -97,7 +97,11 @@ Background.prototype.createWalls = function () {
 
 Background.prototype.decorateRoom = function () {
     var roomNumber = 0;
+    var backRoomNumber = 0;
     var addBoss = true;
+    if (BACKGROUND.level === "survival") {
+        backRoomNumber = 12;
+    }
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
             // Drawing doors
@@ -105,59 +109,31 @@ Background.prototype.decorateRoom = function () {
             if (this.drawFaceCount < this.maxRoomCount && this.map[i][j] !== 0) {
 
                 let forwardDoorState = "closed";
-                let backwardDoorState = "open";
                 if (this.map[testPos[1]][testPos[0]] === 8) {
                     forwardDoorState = "open";
                 }
+                
                 // Adding a door to go forward for all rooms except the ending room.
                 if (this.face[this.drawFaceCount] === 0) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
                         testPos[1] * canvasHeight + BACKGROUND.y + 1, "up", forwardDoorState, roomNumber));
+                    backRoomNumber -= 5;
                 } else if (this.face[this.drawFaceCount] === 1) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 608 + BACKGROUND.x,
                         testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right", forwardDoorState, roomNumber));
+                    backRoomNumber += 1;
                 } else if (this.face[this.drawFaceCount] === 2) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
                         testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down", forwardDoorState, roomNumber));
+                    backRoomNumber += 5;
                 } else if (this.face[this.drawFaceCount] === 3) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
                         testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", forwardDoorState, roomNumber));
+                    backRoomNumber -= 1;
                 }
 
-                // Adding a door to go back for all rooms except starting room.
-                if (this.drawFaceCount < this.facePos.length - 1) {
-                    let testPosReverse = this.facePos[this.drawFaceCount + 1];
-                    if (this.face[this.drawFaceCount] === 0) {
-                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + 608 + BACKGROUND.y, "down", backwardDoorState, roomNumber));
-                    } else if (this.face[this.drawFaceCount] === 1) {
-                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", backwardDoorState, roomNumber));
-                    } else if (this.face[this.drawFaceCount] === 2) {
-                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + BACKGROUND.y + 1, "up", backwardDoorState, roomNumber));
-                    } else if (this.face[this.drawFaceCount] === 3) {
-                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 608 + BACKGROUND.x,
-                            testPosReverse[1] * canvasHeight + 304 + BACKGROUND.y, "right", backwardDoorState, roomNumber));
-                    }
-                }
+                this.backRoomNumbers.push(backRoomNumber);
 
-                // Adding a door to go back for the ending room.
-                if (this.drawFaceCount + 1 === this.facePos.length) {
-                    if (this.face[this.drawFaceCount] === 0) {
-                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down", backwardDoorState, roomNumber));
-                    } else if (this.face[this.drawFaceCount] === 1) {
-                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", backwardDoorState, roomNumber));
-                    } else if (this.face[this.drawFaceCount] === 2) {
-                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + BACKGROUND.y + 1, "up", backwardDoorState, roomNumber));
-                    } else if (this.face[this.drawFaceCount] === 3) {
-                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 608 + BACKGROUND.x,
-                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right", backwardDoorState, roomNumber));
-                    }
-                }
 
                 // Populating rooms with infested terran traps, monsters, and puzzles
                 if (this.drawFaceCount > 0) {
@@ -221,8 +197,10 @@ Background.prototype.decorateRoom = function () {
                                 if (r % 2 === 1 && s % 2 === 1) {
                                     // 9 infested terrans appear in the shape of a cube spaced out.
                                     var infested = new Infested(AM.getAsset("./img/zerg/infested/infested_move_right.png"),
-                                        testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
-                                        testPos[1] * canvasHeight + (s * 160) + BACKGROUND.y - 10);
+
+                                    testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
+                                    testPos[1] * canvasHeight + (s * 160) + BACKGROUND.y - 10, roomNumber);
+
                                     GAME_ENGINE.addEntity(infested);
                                 }
                             }
@@ -272,7 +250,56 @@ Background.prototype.decorateRoom = function () {
             }
 
             roomNumber++;
+        }
+    }
+    console.table(this.map);
 
+    // ALL THIS DOWN HERE IS FOR BACKWARD DOORS TO BE CLOSED UNTIL EVERYTHING IN THE ROOM IS DEAD
+    this.backRoomNumbers = this.backRoomNumbers.sort(function(a, b){return a-b})
+    this.drawFaceCount = 0;
+    var idx = 0;
+    for (let i = 0; i < this.map.length; i++) {
+        for (let j = 0; j < this.map[i].length; j++) {
+            let backwardDoorState = "closed";
+            let testPos = this.facePos[this.drawFaceCount];
+            if (this.drawFaceCount < this.maxRoomCount && this.map[i][j] !== 0) {
+                // Adding a door to go back for all rooms except starting room.
+                if (this.drawFaceCount < this.facePos.length - 1) {
+                    let testPosReverse = this.facePos[this.drawFaceCount + 1];
+                    if (this.face[this.drawFaceCount] === 0) {
+                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 304 + BACKGROUND.x,
+                            testPosReverse[1] * canvasHeight + 608 + BACKGROUND.y, "down", backwardDoorState, this.backRoomNumbers[idx]));
+                    } else if (this.face[this.drawFaceCount] === 1) {
+                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + BACKGROUND.x,
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", backwardDoorState, this.backRoomNumbers[idx]));
+                    } else if (this.face[this.drawFaceCount] === 2) {
+                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 304 + BACKGROUND.x,
+                            testPosReverse[1] * canvasHeight + BACKGROUND.y + 1, "up", backwardDoorState, this.backRoomNumbers[idx]));
+                    } else if (this.face[this.drawFaceCount] === 3) {
+                        GAME_ENGINE.addEntity(new Door(testPosReverse[0] * canvasWidth + 608 + BACKGROUND.x,
+                            testPosReverse[1] * canvasHeight + 304 + BACKGROUND.y, "right", backwardDoorState, this.backRoomNumbers[idx]));
+                    }
+                }
+
+                // Adding a door to go back for the ending room.
+                if (this.drawFaceCount + 1 === this.facePos.length) {
+                    if (this.face[this.drawFaceCount] === 0) {
+                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
+                            testPos[1] * canvasHeight + 608 + BACKGROUND.y, "down", backwardDoorState, this.backRoomNumbers[idx]));
+                    } else if (this.face[this.drawFaceCount] === 1) {
+                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + BACKGROUND.x,
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "left", backwardDoorState, this.backRoomNumbers[idx]));
+                    } else if (this.face[this.drawFaceCount] === 2) {
+                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
+                            testPos[1] * canvasHeight + BACKGROUND.y + 1, "up", backwardDoorState, this.backRoomNumbers[idx]));
+                    } else if (this.face[this.drawFaceCount] === 3) {
+                        GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 608 + BACKGROUND.x,
+                            testPos[1] * canvasHeight + 304 + BACKGROUND.y, "right", backwardDoorState, this.backRoomNumbers[idx]));
+                    }
+                }
+                this.drawFaceCount++;
+                idx++;
+            }
         }
     }
 }
@@ -472,7 +499,10 @@ Door.prototype.update = function () {
             monsterRoomCheck = true;
         }
     }
-    if (!monsterRoomCheck) {
+
+    if (monsterRoomCheck) {
+        this.state = "closed";
+    } else {
         this.state = "open";
     }
 
