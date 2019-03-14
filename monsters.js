@@ -496,7 +496,7 @@ function Zergling(spriteSheet, x, y, roomNumber) {
     this.attackAudio = new Audio("./audio/zerg/zergling/zergling_attack.wav");
     // gameplay
     this.speed = 200;
-    this.health = 30;
+    this.health = 35;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
