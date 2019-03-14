@@ -327,6 +327,7 @@ SceneManager.prototype.gameInit = function () {
     GAME_ENGINE.addEntity(CAMERA);
 
     CAMERA.getStartingRoom();
+    BACKGROUND.createRooms();
     BACKGROUND.decorateRoom();
     document.getElementById("hudInfo").style.display = "block";
     document.getElementById("hudMinimap").style.display = "block";

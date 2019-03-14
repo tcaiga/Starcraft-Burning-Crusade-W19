@@ -458,7 +458,7 @@ function Ultralisk(spriteSheet, x, y, roomNumber) {
     this.attackAudio = new Audio("./audio/zerg/ultra/ultra_attack.wav");
     // gameplay
     this.speed = 175;
-    this.health = 150;
+    this.health = 250;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;

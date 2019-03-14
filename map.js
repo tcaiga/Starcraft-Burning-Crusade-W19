@@ -39,7 +39,10 @@ function Background(theLevel, theFloorImg) {
     // **********************
     // 1 - Base Room
     // 2 - Infested Terran Trap Room
-    // 3 - Puzzle Room
+    // 3 - Projectile Based Room
+    // 4 - Melee Based Room
+    // 5 - Corridor Room
+    // 6 - Ultra Den
     // 8 - Starting Room
     // 9 - Ending Room
 }
@@ -64,21 +67,62 @@ Background.prototype.update = function () {
     }
 };
 
-Background.prototype.createWalls = function () {
+Background.prototype.createRooms = function () {
+    var monsterRoomNumbers = [];
+    var monsterRoomNumber = 0;
+
+    for (var r = 0; r < this.facePos.length - 2; r++) {
+        if (this.face[r] === 0) {
+            monsterRoomNumber -= 5;
+        } else if (this.face[r] === 1) {
+            monsterRoomNumber += 1;
+        } else if (this.face[r] === 2) {
+            monsterRoomNumber += 5;
+        } else if (this.face[r] === 3) {
+            monsterRoomNumber -= 1;
+        }
+        monsterRoomNumbers.push(monsterRoomNumber);
+    }
+
+    console.table(monsterRoomNumbers);
+    var idx = 0;
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
+            roomDone = false;
             for (let row = 0; row < 20; row++) {
                 for (let col = 0; col < 20; col++) {
-                    let roomType = 0;
-                    if (this.map[i][j] !== 0) {
+                    let roomType = this.map[i][j];
+                    if (roomType === 8 || roomType === 9) {
                         roomType = 1;
                     }
                     let tempTile = ROOMS[roomType][row * 20 + col];
                     if (tempTile === 1) {
                         GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
                             this.y + i * canvasHeight + row * TILE_SIZE * 2));
+                    } else if (tempTile === 3) { // Zergling
+                        GAME_ENGINE.addEntity(new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
+                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
+                    } else if (tempTile === 4) { // Hydra
+                        GAME_ENGINE.addEntity(new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"),
+                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
+                    } else if (tempTile === 5) { // Infested Terran
+                        GAME_ENGINE.addEntity(new Infested(AM.getAsset("./img/zerg/infested/infested_move_right.png"),
+                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
+                    } else if (tempTile === 6) { // Ultra
+                        GAME_ENGINE.addEntity(new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
+                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
+                    } else if (tempTile === 7) { // Zealot
+                        GAME_ENGINE.addEntity(new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
+                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
+                    } else if (tempTile === 8) { // Dark Templar
+                        GAME_ENGINE.addEntity(new DarkTemplar(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"),
+                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
                     }
                 }
+            }
+            
+            if (this.map[i][j] !== 8 && this.map[i][j] !== 9 && this.map[i][j] !== 0) {
+                idx++;
             }
         }
     }
@@ -120,82 +164,6 @@ Background.prototype.decorateRoom = function () {
                 }
 
                 this.backRoomNumbers.push(backRoomNumber);
-
-
-                // Populating rooms with infested terran traps, monsters, and puzzles
-                if (this.drawFaceCount > 0) {
-                    if (this.map[testPos[1]][testPos[0]] === 1) {
-                        if (this.drawFaceCount % 3 === 0) {
-                            var ultralisk = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
-
-                            GAME_ENGINE.addEntity(ultralisk);
-                        } else if (this.drawFaceCount % 3 === 1) {
-                            // <TEST> kerrigan test
-                            //var kerri = new Kerrigan(testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
-                            var hydralisk = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
-
-                            var zergling1 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y + 80, roomNumber);
-                            var zergling2 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
-                            var zergling3 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y + 80, roomNumber);
-                            var zergling4 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
-                            var zergling5 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y - 80, roomNumber);
-                            var zergling6 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y - 80, roomNumber);
-                            var zergling7 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y + 80, roomNumber);
-                            var zergling8 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y - 80, roomNumber);
-                            GAME_ENGINE.addEntity(hydralisk);
-                            GAME_ENGINE.addEntity(zergling1);
-                            GAME_ENGINE.addEntity(zergling2);
-                            GAME_ENGINE.addEntity(zergling3);
-                            GAME_ENGINE.addEntity(zergling4);
-                            GAME_ENGINE.addEntity(zergling5);
-                            GAME_ENGINE.addEntity(zergling6);
-                            GAME_ENGINE.addEntity(zergling7);
-                            GAME_ENGINE.addEntity(zergling8);
-                        } else if (this.drawFaceCount % 3 === 2) {
-                            var darkTemplar = new DarkTemplar(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
-                            var zealot1 = new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x + 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
-                            var zealot2 = new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
-                            var zealot3 = new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y + 80, roomNumber);
-                            var zealot4 = new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
-                                testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y - 80, roomNumber);
-
-                            GAME_ENGINE.addEntity(darkTemplar);
-                            GAME_ENGINE.addEntity(zealot1);
-                            GAME_ENGINE.addEntity(zealot2);
-                            GAME_ENGINE.addEntity(zealot3);
-                            GAME_ENGINE.addEntity(zealot4);
-                        }
-                    } else if (this.map[testPos[1]][testPos[0]] === 2) {
-                        for (let r = 1; r < 4; r++) {
-                            for (let s = 1; s < 4; s++) {
-                                if (r % 2 === 1 && s % 2 === 1) {
-                                    // 9 infested terrans appear in the shape of a cube spaced out.
-                                    var infested = new Infested(AM.getAsset("./img/zerg/infested/infested_move_right.png"),
-
-                                    testPos[0] * canvasWidth + (r * 160) + BACKGROUND.x - 10,
-                                    testPos[1] * canvasHeight + (s * 160) + BACKGROUND.y - 10, roomNumber);
-
-                                    GAME_ENGINE.addEntity(infested);
-                                }
-                            }
-                        }
-                    }
-                }
-
                 this.drawFaceCount++;
             }
 
@@ -229,8 +197,6 @@ Background.prototype.decorateRoom = function () {
                 // <BOSS> -- THIS IS HOW YOU ADD TEMPLAR BOSSES
                 /*var temp2 = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber, null);
                 var temp = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32 + 100, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 100, roomNumber, temp2);
-
-
                 GAME_ENGINE.addEntity(temp2);
                 GAME_ENGINE.addEntity(temp);*/
                 console.log("I made a boss");
@@ -297,9 +263,9 @@ Background.prototype.generateLevelOne = function () {
     music.play();
     this.maxRoomCount = 6;
     this.map = [
-        [8, 1, 1, 0, 0],
-        [0, 2, 1, 0, 0],
-        [0, 3, 9, 0, 0],
+        [8, 4, 3, 0, 0],
+        [0, 2, 6, 0, 0],
+        [0, 5, 9, 0, 0],
         [0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0],
     ];
@@ -325,10 +291,10 @@ Background.prototype.generateLevelTwo = function () {
     music.play();
     this.maxRoomCount = 8;
     this.map = [
-        [8, 1, 0, 0, 0],
-        [0, 1, 2, 1, 0],
-        [0, 0, 2, 1, 0],
-        [0, 0, 3, 9, 0],
+        [8, 3, 0, 0, 0],
+        [0, 3, 2, 4, 0],
+        [0, 0, 2, 6, 0],
+        [0, 0, 4, 9, 0],
         [0, 0, 0, 0, 0],
     ];
 
@@ -357,10 +323,10 @@ Background.prototype.generateLevelThree = function () {
     music.play();
     this.maxRoomCount = 12;
     this.map = [
-        [8, 1, 1, 0, 0],
-        [0, 0, 2, 0, 0],
-        [0, 1, 1, 1, 2],
-        [0, 1, 2, 1, 3],
+        [8, 4, 3, 0, 0],
+        [0, 3, 2, 0, 0],
+        [0, 4, 6, 4, 2],
+        [0, 0, 2, 6, 3],
         [0, 0, 0, 0, 9],
     ];
 
@@ -370,14 +336,14 @@ Background.prototype.generateLevelThree = function () {
     this.facePos.push([1, 0]);
     this.face.push(2);
     this.facePos.push([2, 0]);
-    this.face.push(2);
-    this.facePos.push([2, 1]);
     this.face.push(3);
-    this.facePos.push([2, 2]);
+    this.facePos.push([2, 1]);
     this.face.push(2);
-    this.facePos.push([1, 2]);
+    this.facePos.push([1, 1]);
     this.face.push(1);
-    this.facePos.push([1, 3]);
+    this.facePos.push([1, 2]);
+    this.face.push(2);
+    this.facePos.push([2, 2]);
     this.face.push(1);
     this.facePos.push([2, 3]);
     this.face.push(0);
@@ -488,7 +454,7 @@ Wall.prototype.update = function () {
     for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
         var entity = GAME_ENGINE.entities[4][i];
         if (this.boundingbox.collide(entity.boundingbox)) {
-            var distance = entity.speed / 100;
+            var distance = entity.speed / 200;
             if (entity.x > this.x) {
                 entity.x += distance;
             }
@@ -506,7 +472,7 @@ Wall.prototype.update = function () {
 
     for (var p = 0; p < GAME_ENGINE.entities[3].length; p++) {
         var proj = GAME_ENGINE.entities[3][p];
-        if (this.boundingbox.collide(proj.boundingbox)) {
+        if (this.boundingbox.collide(proj.boundingbox) && proj.isMonster === undefined) {
             GAME_ENGINE.removeEntity(proj);
         }
     }
@@ -541,8 +507,10 @@ Canal.prototype.update = function () {
         this.collideOnce = true;
         if (myLevel === 3) {
             SCENE_MANAGER.victory = true;
-            var victoryAudio = new Audio("./audio/win.wav");
-            victoryAudio.play();
+            if (!myIsMute) {
+                var victoryAudio = new Audio("./audio/win.wav");
+                victoryAudio.play();
+            }
         } else {
             myLevel++;
             SCENE_MANAGER.levelTransition = true;
