@@ -163,8 +163,16 @@ Monster.prototype.update = function () {
         handleDeathAnimations(this.deathAnimation, this.gore, this.x - this.deathOffset, this.y);
         this.removeFromWorld = true;
         GAME_ENGINE.removeEntity(this);
-        this.deathAudio.volume = 0.08;
-        this.deathAudio.play();
+        if (this instanceof Archon_Boss) {
+            GAME_ENGINE.removeEntity(this.temp1);
+            GAME_ENGINE.removeEntity(this.temp2);
+
+        }
+        if (!myIsMute) {
+            this.deathAudio.volume = myCurrentVolume - 0.02;
+            console.log(myCurrentVolume - 0.02);
+            this.deathAudio.play();
+        }
     }
     var dirX, dirY;
     if (this.isPathing) {
@@ -199,8 +207,10 @@ Monster.prototype.update = function () {
                 this.counter = 0;
             }
         }
-        this.attackAudio.volume = 0.08;
-        this.attackAudio.play();
+        if (!myIsMute) {
+            this.attackAudio.volume = myCurrentVolume - 0.02;
+            this.attackAudio.play();
+        }
     } else if (this.animation.animationDone) {
         this.animation = this.moveAnimation
     }
@@ -214,8 +224,10 @@ Monster.prototype.update = function () {
             this.pause = true;
             this.animation = this.attackAnimation;
 
-            this.attackAudio.volume = 0.08;
-            this.attackAudio.play();
+            if (!myIsMute) {
+                this.attackAudio.volume = myCurrentVolume - 0.02;
+                this.attackAudio.play();
+            }
             if (this.animation.animationDone && this.animation == this.attackAnimation) {
                 let plLoc = getPlayerLocation();
                 if (this.isZerg) {
@@ -225,7 +237,7 @@ Monster.prototype.update = function () {
                         xos = 40;
                     }
                     var projectile = new Projectile(AM.getAsset("./img/zerg/heavy_shot.png"),
-                        this.x + xos, this.y, plLoc.x, plLoc.y, 4, "angle");
+                        this.x + xos, this.y, plLoc.x, plLoc.y, 4, "angle", true);
                     projectile.projectileSpeed = 4;
                     GAME_ENGINE.addEntity(projectile);
                     projectile.penetrative = true;
@@ -401,6 +413,7 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_boom.png"), 85, 65, 1, .03, 10, true, this.scale);
     this.deathAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_death.png"), 65, 40, 1, .1, 8, true, this.scale);
     this.gore = new Animation(AM.getAsset("./img/gore/infested.png"), 65, 40, 1, 1, 1, true, this.scale);
+    this.attackAudio = new Audio("./audio/zerg/infested/infested_boom.wav");
 
     // gameplay
     this.speed = 300;
@@ -606,6 +619,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
     this.isFlippable = false;
     this.xBoundingboxOffset = 0;
+    this.deathAudio = new Audio("./audio/zerg/zerg_boss/zerg_boss_death.wav");
 
     // gameplay
     this.speed = 0;
@@ -773,11 +787,13 @@ Templar_Boss.prototype.templarBossBehavior = function () {
                 GAME_ENGINE.addEntity(fusionAni);
                 fusionAni.onDeath = function () {
                     console.log("fusion done")
-                    let mergedArchon = new Archon_Boss(this.x, this.y, this.roomNumber);
+                    let mergedArchon = new Archon_Boss(this.x, this.y, this.roomNumber, that, that.otherTemplar);
                     mergedArchon.health = that.archonHP;
                     GAME_ENGINE.addEntity(mergedArchon);
-                    GAME_ENGINE.removeEntity(that.otherTemplar);
-                    GAME_ENGINE.removeEntity(that);
+                    that.otherTemplar.removeFromWorld = true;
+                    that.removeFromWorld = true;
+                    //GAME_ENGINE.removeEntity(that.otherTemplar);
+                    //GAME_ENGINE.removeEntity(that);
                 }
             }
             this.ssFusionFlag = true;
@@ -788,13 +804,16 @@ Templar_Boss.prototype.templarBossBehavior = function () {
     this.lastBallStorm--;
 }
 
-function Archon_Boss(x, y, roomNumber) {
+function Archon_Boss(x, y, roomNumber, temp1, temp2) {
     console.log("I have arrived");
     this.spriteSheet = AM.getAsset("./img/protss/high_templar/high_templar_attack_left.png");
     Monster.call(this, this.spriteSheet, x, y, roomNumber);
 
     this.x = x;
     this.y = y;
+
+    this.temp1 = temp1;
+    this.temp2 = temp2;
 
     this.scale = 1.75;
     this.width = 82;
@@ -807,7 +826,8 @@ function Archon_Boss(x, y, roomNumber) {
     this.attackAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_attack.png"), 82, 89, 1, .1, 10, true, this.scale);
     this.deathAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_death.png"), 188, 150, 1, .2, 10, true, this.scale);
     this.gore = new Animation(AM.getAsset("./img/gore/archon.png"), 188, 150, 1, 1, 1, true, this.scale);
-
+    this.deathAudio = new Audio("./audio/protoss/archon/archon_death.wav");
+    this.attackAudio = new Audio("./audio/protoss/archon/archon_attack.wav");
     // gameplay
     this.speed = 0;
     this.health = 2500
@@ -912,6 +932,8 @@ function Kerrigan(x, y, roomNumber) {
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_attack_right.png"), 59, 55, 1, .07, 8, true, 1.75);
     this.deathAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_death.png"), 56, 41, 1, .08, 11, true, this.scale);
     this.gore = new Animation(AM.getAsset("./img/gore/kerrigan.png"), 56, 41, 1, .5, 1, true, this.scale);
+    this.deathAudio = new Audio("./audio/zerg/kerrigan/kerrigan_death.wav");
+    this.attackAudio = new Audio("./audio/zerg/kerrigan/kerrigan_attack.wav");
 
     // gameplay
     this.speed = 150;
@@ -1054,21 +1076,6 @@ Kerrigan.prototype.KerriganBehavior = function () {
     this.lastCross--;
     this.lastCharge--;
     this.bosstimer++;
-}
-
-function TrainingDummy(theX, theY) {
-    this.x = theX;
-    this.y = theY;
-
-}
-
-TrainingDummy.prototype.draw = function () {
-
-}
-
-TrainingDummy.prototype.update = function () {
-
-
 }
 
 function getHealthPercentage(entity) {

@@ -64,13 +64,13 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.runDirection = "right";
     this.shootDirection = "right";
     this.lastShootDirection = "right";
-    this.maxAmmo = 13;
+    this.maxAmmo = 30;
     this.currentAmmo = this.maxAmmo;
     this.reloadTime = 80;
     this.reloadCounter = 0;
     this.maxShootCounter = 0.1;
     this.shootCounter = this.maxShootCounter;
-    this.maxHealth = 1000;
+    this.maxHealth = 250;
     this.health = this.maxHealth;
     this.healthPercent = 100;
     this.dontdraw = 0;
@@ -216,25 +216,25 @@ Player.prototype.update = function () {
             this.castSpell(selectSpell);
         }
 
+        if (GAME_ENGINE.keyUp === true) {
+            //changes the direction to shoot the projectile
+            this.shootDirection = "up";
+            //changes the idle animation to last direction shot
+            this.animationIdle = this.animationRunUp;
+        } else if (GAME_ENGINE.keyLeft === true) {
+            this.shootDirection = "left";
+            this.animationIdle = this.animationRunSide;
+        } else if (GAME_ENGINE.keyRight === true) {
+            this.shootDirection = "right";
+            this.animationIdle = this.animationRunSide;
+        } else {
+            this.shootDirection = "down";
+            this.animationIdle = this.animationRunDown;
+        }
+        this.lastShootDirection = this.shootDirection;
+
         if (GAME_ENGINE.shoot && this.currentAmmo > 0 && !GAME_ENGINE.reload) {
             if (this.shootCounter >= this.maxShootCounter) {
-                if (GAME_ENGINE.keyUp === true) {
-                    //changes the direction to shoot the projectile
-                    this.shootDirection = "up";
-                    //changes the idle animation to last direction shot
-                    this.animationIdle = this.animationRunUp;
-                } else if (GAME_ENGINE.keyLeft === true) {
-                    this.shootDirection = "left";
-                    this.animationIdle = this.animationRunSide;
-                } else if (GAME_ENGINE.keyRight === true) {
-                    this.shootDirection = "right";
-                    this.animationIdle = this.animationRunSide;
-                } else {
-                    this.shootDirection = "down";
-                    this.animationIdle = this.animationRunDown;
-                }
-                this.lastShootDirection = this.shootDirection;
-
                 var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
                     myPlayer.x + 15,
                     myPlayer.y + 23,
@@ -243,10 +243,12 @@ Player.prototype.update = function () {
                 this.currentAmmo--;
                 this.shootCounter = 0;
 
-                //audio for gunshot
-                var gunShot = new Audio("./audio/marine/marine_shoot.wav");
-                gunShot.volume = myCurrentVolume;
-                gunShot.play();
+                if (!myIsMute) {
+                    //audio for gunshot
+                    var gunShot = new Audio("./audio/marine/marine_shoot.wav");
+                    gunShot.volume = myCurrentVolume - 0.02;
+                    gunShot.play();
+                }
             } else {
                 this.shootCounter += GAME_ENGINE.clockTick * this.shootSpeedRatio;
             }
@@ -257,7 +259,7 @@ Player.prototype.update = function () {
         if (GAME_ENGINE.reload) {
             ammoHTML.src = "./img/utilities/ammo_count/bullet_0.png";
         } else {
-            ammoHTML.src = "./img/utilities/ammo_count/bullet_" + this.currentAmmo + ".png";
+            ammoHTML.src = "./img/utilities/ammo_count/bullet_" + Math.ceil(this.currentAmmo / 3) + ".png";
         }
     } else {
         this.castTime--;
@@ -281,11 +283,14 @@ Player.prototype.update = function () {
 
     if (this.health <= 0) {
         this.dead = true;
-        var deathSound = new Audio("./audio/marine/marine_death.wav");
-        deathSound.volume = myCurrentVolume;
-        deathSound.play();
-        var loseAudio = new Audio("./audio/lose.wav");
-        loseAudio.play();
+        if (!myIsMute) {
+            var deathSound = new Audio("./audio/marine/marine_death.wav");
+            deathSound.volume = myCurrentVolume;
+            deathSound.play();
+            var loseAudio = new Audio("./audio/lose.wav");
+            loseAudio.volume = myCurrentVolume;
+            loseAudio.play();
+        }
     }
 
     /* #region Damage system updates */
@@ -496,7 +501,7 @@ Player.prototype.updateHealthHTML = function () {
 /* #endregion */
 
 /* #region Base Projectile */
-function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, direction) {
+function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, direction, isMonster) {
     this.origin = belongsTo;
     // animation
     this.width = 13;
@@ -514,7 +519,7 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, 
     this.childCollide;//function
     this.speed = 200;
     this.projectileSpeed = 7.5;
-
+    this.isMonster = isMonster;
     this.xTar = xTarget - CAMERA.x;
     this.yTar = yTarget - CAMERA.y;
     // Determining where the projectile should go angle wise.
@@ -801,18 +806,25 @@ Animation.prototype.isDone = function () {
 function addHTMLListeners() {
     //adds slider functionality
     var volumeSlider = document.getElementById("volumeSlider");
+    var muteButton = document.getElementById("muteButton");
     volumeSlider.addEventListener("change", function () {
         music.volume = volumeSlider.value;
         myCurrentVolume = music.volume;
         myIsMute = false;
         muteButton.innerHTML = "Mute";
+        if (volumeSlider.value === "0") {
+            myIsMute = true;
+            muteButton.innerHTML = "Unmute";
+        }
         clickOutsideOfCanvas();
     }, false);
 
     //adds mute/unmute functionality
-    var muteButton = document.getElementById("muteButton");
     muteButton.addEventListener("click", function () {
         if (myIsMute) {
+            if (volumeSlider.value === "0") {
+                myCurrentVolume = .1;
+            }
             music.volume = myCurrentVolume;
             volumeSlider.value = myCurrentVolume;
             myCurrentVolume = music.volume;
