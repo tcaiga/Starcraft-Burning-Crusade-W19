@@ -420,6 +420,13 @@ function psionicStorm() {
    
 }
 
+function chargeTarget(entity) {
+    let pLoc = getPlayerLocation();
+    entity.pathTo(pLoc.x, pLoc.y);
+    entity.speed = entity.speed * 5;
+    console.log(entity.speed);
+}
+
 function psionicStormDmg(tarX, tarY) {
     this.width = 185;
     this.height = 150;

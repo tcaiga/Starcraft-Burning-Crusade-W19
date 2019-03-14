@@ -47,9 +47,12 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.y = y;
     this.x = x;
     this.speed = 100;
+    this.accelerationAdj = 0;
+    this.originalSpeed = this.speed;
     this.totalHealth = this.health;
     this.health = 100;
     this.scoreIncrease = 1;
+
     //Movement
     this.velocity = { x: 0, y: 0 };
     this.friction = .5;
@@ -58,6 +61,7 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.accelerationAdj = 0;
     this.deathAudio = new Audio("./audio/zerg/hydra/hydra_death.wav");
     this.attackAudio = new Audio("./audio/zerg/hydra/hydra_attack.wav");
+
 
     // Damage stuff
     // Changed in each monster
@@ -113,6 +117,7 @@ Monster.prototype.pathTo = function (x, y) {
     // we've reached our target so stop.
     if (Math.floor(this.x - this.pathX) == 0 && Math.floor(this.y - this.pathY) == 0) {
         this.isPathing = false;
+        this.speed = this.originalSpeed;
         return;
     }
     this.isPathing = true;
@@ -138,6 +143,8 @@ Monster.prototype.update = function () {
         this.archonBossBehavior();
     } else if (this.isTemplarBoss) {
         this.templarBossBehavior();
+    } else if (this.isUltra) {
+        this.ultraliskBehavior();
     }
 
     if (this.health <= 0) {
@@ -439,6 +446,9 @@ function Ultralisk(spriteSheet, x, y, roomNumber) {
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
+    this.lastCharge = 150;
+    this.isUltra = true;
+
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
     this.totalDamage = 30;//Adjustable
@@ -450,6 +460,19 @@ function Ultralisk(spriteSheet, x, y, roomNumber) {
 
     this.counter = 0;
     this.animation = new Animation(spriteSheet, this.width, this.height, this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
+}
+
+Ultralisk.prototype.ultraliskBehavior = function () {
+    if (this.lastCharge < 200) {
+        this.isPathing = false;
+        this.speed = this.originalSpeed;
+    }
+    if (this.lastCharge == 0) {
+        console.log("I charged");
+        chargeTarget(this);
+        this.lastCharge = 240;
+    }
+    this.lastCharge--;
 }
 
 function Zergling(spriteSheet, x, y, roomNumber) {
@@ -899,6 +922,10 @@ function Kerrigan(x, y, roomNumber) {
 
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale);
+}
+
+Kerrigan.prototype.KerriganBehavior = function () {
+
 }
 
 function TrainingDummy(theX, theY) {
