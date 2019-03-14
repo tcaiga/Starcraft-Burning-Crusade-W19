@@ -246,7 +246,7 @@ Player.prototype.update = function () {
                 if (!myIsMute) {
                     //audio for gunshot
                     var gunShot = new Audio("./audio/marine/marine_shoot.wav");
-                    gunShot.volume = myCurrentVolume;
+                    gunShot.volume = myCurrentVolume - 0.02;
                     gunShot.play();
                 }
             } else {
@@ -288,6 +288,7 @@ Player.prototype.update = function () {
             deathSound.volume = myCurrentVolume;
             deathSound.play();
             var loseAudio = new Audio("./audio/lose.wav");
+            loseAudio.volume = myCurrentVolume;
             loseAudio.play();
         }
     }

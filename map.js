@@ -510,6 +510,7 @@ Canal.prototype.update = function () {
             SCENE_MANAGER.victory = true;
             if (!myIsMute) {
                 var victoryAudio = new Audio("./audio/win.wav");
+                victoryAudio.volume = myCurrentVolume;
                 victoryAudio.play();
             }
         } else {
