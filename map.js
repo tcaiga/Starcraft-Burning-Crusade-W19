@@ -508,8 +508,10 @@ Canal.prototype.update = function () {
         this.collideOnce = true;
         if (myLevel === 3) {
             SCENE_MANAGER.victory = true;
-            var victoryAudio = new Audio("./audio/win.wav");
-            victoryAudio.play();
+            if (!myIsMute) {
+                var victoryAudio = new Audio("./audio/win.wav");
+                victoryAudio.play();
+            }
         } else {
             myLevel++;
             SCENE_MANAGER.levelTransition = true;
