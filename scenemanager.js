@@ -75,7 +75,6 @@ var ROOMS = [
 function SceneManager() {
     this.insideMenu = true;
     this.menu = GAME_ENGINE.entities[0][0];
-    this.isSurvival = false;
     this.levelTransition = false;
 }
 
@@ -96,29 +95,18 @@ SceneManager.prototype.menuSelection = function (x, y) {
             startGame = true;
             this.menu.story = true;
         }
-        //survival
-        else if (x >= this.menu.button.x && x <= this.menu.button.x + this.menu.button.width
-            && y >= this.menu.survivalY && y <= this.menu.survivalY + this.menu.button.height) {
-            startGame = true;
-            this.menu.survival = true;
-        }
         //controls
         else if (x >= this.menu.button.x && x <= this.menu.button.x + this.menu.button.width
             && y >= this.menu.controlsY && y <= this.menu.controlsY + this.menu.button.height) {
-            this.menu.controls = true;
-            this.menu.background.src = "./img/utilities/controls.png";
+                this.menu.controls = true;
+                this.menu.background.src = "./img/utilities/controls.png";
         }
     }
 
     if (startGame) {
         this.insideMenu = false;
         this.menu.removeFromWorld = true;
-        if (this.menu.survival) {
-            this.isSurvival = true;
-            BACKGROUND.generateSurvivalMap();
-        } else if (this.menu.story) {
-            BACKGROUND.generateLevelOne();
-        }
+        BACKGROUND.generateLevelOne();
         SCENE_MANAGER.gameInit();
     }
 }
@@ -190,12 +178,6 @@ SceneManager.prototype.nextLevel = function () {
     CAMERA = new Camera();
     GAME_ENGINE.addEntity(CAMERA);
     var floorImg;
-    if (SCENE_MANAGER.isSurvival) {
-        var choice = Math.floor((Math.random() * 3) + 1);
-        floorImg = "./img/utilities/floor_level" + choice + ".png";
-    } else {
-        floorImg = "./img/utilities/floor_level" + myLevel + ".png";
-    }
     BACKGROUND = new Background(myLevel, floorImg);
     GAME_ENGINE.addEntity(BACKGROUND);
     if (myLevel === 3) {

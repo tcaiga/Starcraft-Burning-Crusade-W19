@@ -734,13 +734,10 @@ Camera.prototype.move = function (direction) {
 function Menu() {
     this.button = { x: 406, width: 221, height: 39 };
     this.storyY = 263;
-    this.controlsY = 409;
-    this.survivalY = 336;
+    this.controlsY = 336;
     this.back = { x: 62, y: 30, width: 59, height: 16 };
     this.controls = false;
-    this.credits = false;
     this.story = false;
-    this.survival = false;
     this.background = new Image();
     this.background.src = "./img/utilities/menu.png";
 }
