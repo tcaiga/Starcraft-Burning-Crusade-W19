@@ -7,6 +7,8 @@ Zealot.prototype = Monster.prototype;
 Zerg_Boss.prototype = Monster.prototype;
 Templar_Boss.prototype = Monster.prototype;
 Archon_Boss.prototype = Monster.prototype;
+Kerrigan.prototype = Monster.prototype;
+
 let DEAD_BB = new BoundingBox(-500000, -500000, 1, 1);
 
 function Monster(spriteSheet, x, y, roomNumber) {
@@ -30,6 +32,12 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.tickCount = 0;
 
     // animation stuff
+
+    //hacky stuff
+    this.kerriOS = 0;
+    //
+    this.xPadding = 0;
+    this.yPadding = 0;
     this.xScale = 1;
     this.right = true;
     this.numOfFrames = 15;
@@ -145,6 +153,8 @@ Monster.prototype.update = function () {
         this.templarBossBehavior();
     } else if (this.isUltra) {
         this.ultraliskBehavior();
+    } else if (this.isKerrigan) {
+        this.KerriganBehavior();
     }
 
     if (this.health <= 0) {
@@ -220,7 +230,6 @@ Monster.prototype.update = function () {
             }
             if (this.animation.animationDone && this.animation == this.attackAnimation) {
                 let plLoc = getPlayerLocation();
-                console.log("I'm firing");
                 if (this.isZerg) {
                     this.castCooldown = 0;
                     let xos = 0;
@@ -320,8 +329,8 @@ Monster.prototype.update = function () {
     /* #endregion */
     /* #endregion */
 
-    this.boundingbox = new BoundingBox(this.x - this.xBoundingboxOffset, this.y,
-        this.width * this.scale, this.height * this.scale);
+    this.boundingbox = new BoundingBox(this.x - this.xBoundingboxOffset + this.kerriOS, this.y,
+        this.width * this.scale - this.xPadding, this.height * this.scale - this.yPadding);
 
 
     this.visionBox = new BoundingBox(this.boundingbox.x + .5 * (this.width * this.scale - this.visionWidth),
@@ -885,7 +894,9 @@ Archon_Boss.prototype.archonBossBehavior = function () {
     }
 
     if (this.lastPsiStorm == 0) {
-        new psionicStorm();
+        for (var i = 4; i < 5; i++) {
+            new psionicStorm();
+        }
         this.lastPsiStorm = getRandomInt(450, 700);
     }
 
@@ -906,23 +917,44 @@ function Kerrigan(x, y, roomNumber) {
     this.x = x;
     this.y = y;
 
-    this.scale = 1.75;
+    this.xPadding = 50;
+    this.yPadding = 30;
+
+    this.scale = 1.25;
+    this.kerriOS = 40;
     this.width = 82;
     this.height = 89;
     this.numOfFrames = 8;
-    this.frameLength = 0.03;
+    this.frameLength = 0.05;
     this.sheetWidth = 1;
-    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_move_right.png"), 59, 55, 1, .05, 8, true, this.scale);
-    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_attack_right.png"), 59, 55, 1, .2, 8, true, this.scale);
+    this.xBoundingboxOffset = 50;
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_move_right.png"), 59, 55, 1, .05, 8, true, 1.75);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_attack_right.png"), 59, 55, 1, .07, 8, true, 1.75);
     this.deathAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_death.png"), 56, 41, 1, .08, 11, true, this.scale);
     this.gore = new Animation(AM.getAsset("./img/gore/kerrigan.png"), 56, 41, 1, .5, 1, true, this.scale);
     this.deathAudio = new Audio("./audio/zerg/kerrigan/kerrigan_death.wav");
     this.attackAudio = new Audio("./audio/zerg/kerrigan/kerrigan_attack.wav");
 
     // gameplay
-    this.speed = 0;
+    this.speed = 150;
     this.health = 2500
     this.roomNumber = roomNumber;
+
+    // boss stuff
+    this.isKerrigan = true;
+
+    // ability timers
+    this.lastCross = 200;
+    this.lastDiagonalBlast = 300;
+    this.lastCharge = 500;
+
+    this.bosstimer = 0;
+    this.ebCount = 0;
+    this.bCount = 0;
+    this.ionBlastFlag = false;
+    this.lastDiagonalBlastFlag = false;
+    this.lastSpikeStorm = 400;
+    this.lastSpikeExplosion = 500;
 
 
     // Damage stuff
@@ -938,11 +970,112 @@ function Kerrigan(x, y, roomNumber) {
     this.animation = this.moveAnimation;
 
     this.boundingbox = new BoundingBox(this.x, this.y,
-        this.width * this.scale, this.height * this.scale);
+        this.width, this.height );
 }
 
 Kerrigan.prototype.KerriganBehavior = function () {
+    if (this.lastCharge < 400) {
+        this.isPathing = false;
+        this.speed = this.originalSpeed;
+    }
+    if (this.lastCharge == 0) {
+        chargeTarget(this);
+        this.lastCharge = 500;
+    }
 
+    if (this.lastCross <= 0) {
+        this.ionBlastFlag = true;
+    }
+
+    if (this.lastDiagonalBlast <= 0) {
+        this.lastDiagonalBlastFlag = true;
+    }
+
+    if (this.lastSpikeStorm <= 0) {
+        new spikeStorm(this.x + 40, this.y + 40);
+        this.lastSpikeStorm = 500;
+    }
+
+    if (this.lastSpikeExplosion == 0) {
+        let coords = getPlayerLocation();
+        let tarX = coords.x;
+        let tarY = coords.y;
+
+        for (var i = 0; i < 6; i++) {
+            new SpikeExplosion(AM.getAsset("./img/zerg/sunken_spike.png"), CAMERA.x + getRandomInt(25, canvasWidth - 25), CAMERA.y + getRandomInt(25, canvasHeight - 25),
+                tarX, tarY, 4);
+        }
+        new spikeStorm(this.x + .5 * this.width, this.y + .5 * this.height);
+
+        this.lastSpikeExplosion = 300;
+    }
+
+    if (this.ionBlastFlag) {
+        if (this.bosstimer % 3 == 0) {
+            let eb = new Spike(this.x + 40, this.y + 40, 0, 0, 4, "up");
+            let eb1 = new Spike(this.x + 40, this.y + 40, 0, 0, 4, "left");
+            let eb2 = new Spike(this.x + 40, this.y + 40, 0, 0, 4, "right");
+            let eb3 = new Spike(this.x + 40, this.y + 40, 0, 0, 4, "down");
+            eb.projectileSpeed = 3;
+            eb1.projectileSpeed = 3;
+            eb2.projectileSpeed = 3;
+            eb3.projectileSpeed = 3;
+            GAME_ENGINE.addEntity(eb);
+            GAME_ENGINE.addEntity(eb1);
+            GAME_ENGINE.addEntity(eb2);
+            GAME_ENGINE.addEntity(eb3);
+            this.ebCount++;
+        }
+        if (this.ebCount > 14) {
+            this.ionBlastFlag = false;
+            this.ebCount = 0;
+            this.lastCross = 500
+        }
+    }
+
+    if (this.lastDiagonalBlastFlag) {
+        console.log("diagonal time");
+        if (this.bosstimer % 3 == 0) {
+            let eb = new Spike(this.x + 40, this.y + 40, 0, 0, 4, "ul");
+            let eb1 = new Spike(this.x + 40, this.y + 40, 0, 0, 4, "ur");
+            let eb2 = new Spike(this.x + 40, this.y + 40, 0, 0, 4, "dl");
+            let eb3 = new Spike(this.x + 40, this.y + 40, 0, 0, 4, "dr");
+            eb.projectileSpeed = 3;
+            eb1.projectileSpeed = 3;
+            eb2.projectileSpeed = 3;
+            eb3.projectileSpeed = 3;
+            GAME_ENGINE.addEntity(eb);
+            GAME_ENGINE.addEntity(eb1);
+            GAME_ENGINE.addEntity(eb2);
+            GAME_ENGINE.addEntity(eb3);
+            this.bCount++;
+        }
+        if (this.bCount > 14) {
+            this.lastDiagonalBlastFlag = false;
+            this.bCount = 0;
+            this.lastDiagonalBlast = 300;
+        }
+    }
+
+    if (this.isPathing) {
+        let ss1ani;
+        let ss1;
+        // drop void zones during charge
+        if (this.bosstimer % 5 == 0) {
+            ss1ani = new Animation(AM.getAsset("./img/utilities/creep.png"), 64, 32, 1, .5, 1, true, 1.25);
+            ss1 = new StillStand(ss1ani, 200, this.x + 25, this.y + 30);
+            ss1.boundingbox = new BoundingBox(ss1.x, ss1.y, 64, 32);
+            ss1.damageObj = this.damageObj;
+            GAME_ENGINE.addEntity(ss1);
+        }
+    }
+
+    this.lastSpikeExplosion--;
+    this.lastSpikeStorm--;
+    this.lastDiagonalBlast--;
+    this.lastCross--;
+    this.lastCharge--;
+    this.bosstimer++;
 }
 
 function getHealthPercentage(entity) {
@@ -985,7 +1118,6 @@ function distance(monster) {
 
 function handleDeathAnimations(death, gore, x, y) {
     if (death != null) {
-        console.log("death isn't null");
         let ss1 = new StillStand(death, death.totalTime * 10, x, y);
         if (gore != null) {
             ss1.onDeath = function () {
@@ -994,5 +1126,4 @@ function handleDeathAnimations(death, gore, x, y) {
         }
         GAME_ENGINE.addEntity(ss1);
     }
-    console.log(death);
 }
