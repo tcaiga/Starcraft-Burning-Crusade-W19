@@ -579,6 +579,7 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
     this.isFlippable = false;
     this.xBoundingboxOffset = 0;
+    this.deathAudio = new Audio("./audio/zerg/zerg_boss/zerg_boss_death.wav");
 
     // gameplay
     this.speed = 0;
@@ -780,7 +781,8 @@ function Archon_Boss(x, y, roomNumber) {
     this.attackAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_attack.png"), 82, 89, 1, .1, 10, true, this.scale);
     this.deathAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_death.png"), 188, 150, 1, .2, 10, true, this.scale);
     this.gore = new Animation(AM.getAsset("./img/gore/archon.png"), 188, 150, 1, 1, 1, true, this.scale);
-
+    this.deathAudio = new Audio("./audio/protoss/archon/archon_death.wav");
+    this.attackAudio = new Audio("./audio/protoss/archon/archon_attack.wav");
     // gameplay
     this.speed = 0;
     this.health = 2500
@@ -878,6 +880,8 @@ function Kerrigan(x, y, roomNumber) {
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_attack_right.png"), 59, 55, 1, .2, 8, true, this.scale);
     this.deathAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_death.png"), 56, 41, 1, .08, 11, true, this.scale);
     this.gore = new Animation(AM.getAsset("./img/gore/kerrigan.png"), 56, 41, 1, .5, 1, true, this.scale);
+    this.deathAudio = new Audio("./audio/zerg/kerrigan/kerrigan_death.wav");
+    this.attackAudio = new Audio("./audio/zerg/kerrigan/kerrigan_attack.wav");
 
     // gameplay
     this.speed = 0;
