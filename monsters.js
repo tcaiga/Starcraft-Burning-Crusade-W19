@@ -384,6 +384,7 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.health = 15;
     this.x = x;
     this.y = y;
+    this.roomNumber = roomNumber;
     this.isInfested = true;
     this.scoreIncrease = 50;
     // Damage stuff
@@ -565,11 +566,13 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
 
     // gameplay
     this.speed = 0;
-    this.health = 1100;
-    this.isRanged = false;
+    this.health = 999;
+    this.isRanged = true;
+
     this.roomNumber = roomNumber;
     // boss specific stuff
     this.isZergBoss = true;
+    this.isBoss = true;
     this.mobArr = [];
     this.mobCount = 0;
     this.lastInfestedPod = 50;
@@ -603,17 +606,17 @@ function Zerg_Boss(spriteSheet, x, y, roomNumber) {
 
 Zerg_Boss.prototype.zergBossBehavior = function () {
     if (this.lastInfestedPod == 0) {
-        new SpawnZerglings();
+        new SpawnZerglings(this.roomNumber);
         this.lastInfestedPod = 600;
     }
 
     if (this.lastHydraSpawn == 0) {
-        new SpawnHydra();
+        new SpawnHydra(this.roomNumber);
         this.lastHydraSpawn = 450;
     }
 
     if (this.lastUltraSpawn == 0) {
-        new SpawnUltra();
+        new SpawnUltra(this.roomNumber);
         this.lastUltraSpawn = 1000;
     }
 
@@ -769,6 +772,7 @@ function Archon_Boss(x, y, roomNumber) {
     // boss specific stuff
     this.bosstimer = 0;
     this.isArchonBoss = true;
+    this.isBoss = true;
     this.lastIonBlast = 500;
     this.lastPsiStorm = 600;
     this.lastBallStorm = 150;
@@ -878,6 +882,19 @@ function Kerrigan(x, y, roomNumber) {
 
     this.boundingbox = new BoundingBox(this.x, this.y,
         this.width * this.scale, this.height * this.scale);
+
+function TrainingDummy(theX, theY) {
+    this.x = theX;
+    this.y = theY;
+    
+}
+
+TrainingDummy.prototype.draw = function() {
+
+}
+
+TrainingDummy.prototype.update = function() {
+
 
 }
 
