@@ -70,7 +70,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.reloadCounter = 0;
     this.maxShootCounter = 0.1;
     this.shootCounter = this.maxShootCounter;
-    this.maxHealth = 1500;
+    this.maxHealth = 1000;
     this.health = this.maxHealth;
     this.healthPercent = 100;
     this.dontdraw = 0;
@@ -91,9 +91,6 @@ Player.prototype.draw = function () {
         GAME_ENGINE.ctx.fillText("Click here to Continue", 170, 375);
     } else if (SCENE_MANAGER.victory) {
         GAME_ENGINE.ctx.drawImage(myVictoryScreen, 0, 0);
-        GAME_ENGINE.ctx.fillStyle = "white";
-        GAME_ENGINE.ctx.font = "30px Starcraft";
-        GAME_ENGINE.ctx.fillText("Score: " + myScore, 208, 450);
     } else {
         this.xScale = 1;
         var xValue = this.x;
@@ -172,52 +169,6 @@ Player.prototype.update = function () {
     if (this.castTime <= 0 && !this.isStunned) {
         /* #region  */
         /* #region Player movement controls */
-
-        // //Speed shift calculation
-        // let speedShift = {
-        //     x: this.baseAcceleration.x * this.accelerationRatio + this.accelerationAdj
-        //     , y: this.baseAcceleration.y * this.accelerationRatio + this.accelerationAdj
-        // };
-        // //I love lambda...
-        // //Friction
-        // this.velocity.x = (this.velocity.x < 1 && this.velocity.x > -1) ? 0 : this.velocity.x - Math.sign(this.velocity.x) * this.friction;
-        // this.velocity.y = (this.velocity.y < 1 && this.velocity.y > -1) ? 0 : this.velocity.y - Math.sign(this.velocity.y) * this.friction;
-
-        // //Application of acceleration
-        // this.velocity.x += (GAME_ENGINE.keyD) ? speedShift.x : 0;
-        // this.velocity.x -= (GAME_ENGINE.keyA) ? speedShift.x : 0;
-        // this.velocity.y -= (GAME_ENGINE.keyW) ? speedShift.y : 0;
-        // this.velocity.y += (GAME_ENGINE.keyS) ? speedShift.y : 0;
-
-        // //Check max
-        // this.velocity.x = (Math.abs(this.velocity.x) > this.baseMaxMovespeed) ? Math.sign(this.velocity.x) * this.baseMaxMovespeed : this.velocity.x;
-        // this.velocity.y = (Math.abs(this.velocity.y) > this.baseMaxMovespeed) ? Math.sign(this.velocity.y) * this.baseMaxMovespeed : this.velocity.y;
-        // let mag = Math.sqrt(Math.pow(this.velocity.x, 2) + Math.pow(this.velocity.y, 2));
-        // if (mag > this.baseMaxMovespeed) {//Circle max movespeed
-        //     this.velocity.x = this.baseMaxMovespeed * this.velocity.x / mag;
-        //     this.velocity.y = this.baseMaxMovespeed * this.velocity.y / mag;
-        // }
-
-        // //Application of velocity
-        // this.x += this.velocity.x;
-        // this.y += this.velocity.y;
-
-        // if (GAME_ENGINE.keyA === true) {
-        //     this.runDirection = "left";
-        //     this.animationIdle = this.animationRunSide;
-        // }
-        // if (GAME_ENGINE.keyD === true) {
-        //     this.runDirection = "right";
-        //     this.animationIdle = this.animationRunSide;
-        // }
-        // if (GAME_ENGINE.keyW === true) {
-        //     this.runDirection = "up";
-        //     this.animationIdle = this.animationRunUp;
-        // }
-        // if (GAME_ENGINE.keyS === true) {
-        //     this.runDirection = "down";
-        //     this.animationIdle = this.animationRunDown;
-        // }
 
         this.actualSpeed = (this.baseMaxMovespeed * this.maxMovespeedRatio + this.maxMovespeedAdj);
         if (GAME_ENGINE.keyA === true) {
@@ -333,6 +284,8 @@ Player.prototype.update = function () {
         var deathSound = new Audio("./audio/marine/marine_death.wav");
         deathSound.volume = myCurrentVolume;
         deathSound.play();
+        var loseAudio = new Audio("./audio/lose.wav");
+        loseAudio.play();
     }
 
     /* #region Damage system updates */
@@ -841,6 +794,7 @@ function addHTMLListeners() {
         myCurrentVolume = music.volume;
         myIsMute = false;
         muteButton.innerHTML = "Mute";
+        clickOutsideOfCanvas();
     }, false);
 
     //adds mute/unmute functionality
@@ -852,15 +806,14 @@ function addHTMLListeners() {
             myCurrentVolume = music.volume;
             myIsMute = false;
             muteButton.innerHTML = "Mute";
-            clickOutsideOfCanvas()
         } else {
             myCurrentVolume = music.volume;
             music.volume = 0.0;
             muteButton.innerHTML = "Unmute";
             volumeSlider.value = 0.0;
             myIsMute = true;
-            clickOutsideOfCanvas()
         }
+        clickOutsideOfCanvas();
     });
 }
 function clickOutsideOfCanvas() {
