@@ -226,11 +226,6 @@ Monster.prototype.update = function () {
             }
             this.ticksSinceLastHit++;
         }
-    } else {
-
-        this.animation = this.moveAnimation;
-        this.pause = false;
-
     }
 
     // based on the number of ticks since the player was last hit, we pause the monster
