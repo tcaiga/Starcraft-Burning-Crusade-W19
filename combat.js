@@ -268,14 +268,14 @@ function SpawnZerglings() {
 
     GAME_ENGINE.addEntity(ss1);
 
-    ss1.onDeath = function () {
+    ss1.onDeath = function (roomNumber) {
         // create 5 zerglings at a random area within 50px of the player
         // after a 2s delay from a graphic being placed.
-        let zergling1 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y);
-        let zergling2 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + 30, y);
-        let zergling3 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y + 30);
-        let zergling4 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x - 30, y);
-        let zergling5 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y - 30);
+        let zergling1 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y, roomNumber);
+        let zergling2 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + 30, y, roomNumber);
+        let zergling3 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y + 30, roomNumber);
+        let zergling4 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x - 30, y, roomNumber);
+        let zergling5 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y - 30, roomNumber);
         
         GAME_ENGINE.addEntity(zergling1);
         GAME_ENGINE.addEntity(zergling2);
@@ -286,7 +286,7 @@ function SpawnZerglings() {
 
 }
 
-function SpawnUltra() {
+function SpawnUltra(roomNumber) {
     ss1Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.13, 1, true, 1.25);
     ss2Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.04, 10, true, .175);
     ss1 = new StillStand(ss1Ani, 90, myPlayer.x, myPlayer.y);
@@ -302,7 +302,7 @@ function SpawnUltra() {
     ss1.onDeath = function () {
         // create 5 zerglings at a random area within 50px of the player
         // after a 2s delay from a graphic being placed.
-        let ultra = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"), x, y);
+        let ultra = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"), x, y, roomNumber);
 
         GAME_ENGINE.addEntity(ultra);
     }
@@ -325,7 +325,7 @@ function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin)
 
 }
 
-function SpawnHydra() {
+function SpawnHydra(roomNumber) {
     ss1Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.13, 1, true, .5);
     ss2Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.04, 10, true, .175);
     ss1 = new StillStand(ss1Ani, 90, myPlayer.x, myPlayer.y);
@@ -341,7 +341,7 @@ function SpawnHydra() {
     ss1.onDeath = function () {
         // create 5 zerglings at a random area within 50px of the player
         // after a 2s delay from a graphic being placed.
-        let hydra = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"), x, y);
+        let hydra = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"), x, y, roomNumber);
 
         GAME_ENGINE.addEntity(hydra);
     }
