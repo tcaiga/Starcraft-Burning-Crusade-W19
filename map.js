@@ -486,8 +486,14 @@ function Canal(theX, theY) {
 Canal.prototype.update = function () {
     if (this.boundingbox.collide(myPlayer.boundingbox) && !this.collideOnce) {
         this.collideOnce = true;
-        myLevel++;
-        SCENE_MANAGER.levelTransition = true;
+        if (myLevel === 3) {
+            SCENE_MANAGER.victory = true;
+            var victoryAudio = new Audio("./audio/win.wav");
+            victoryAudio.play();
+        } else {
+            myLevel++;
+            SCENE_MANAGER.levelTransition = true;
+        }
     }
 
     this.boundingbox = new BoundingBox(this.x, this.y, 75, 75);

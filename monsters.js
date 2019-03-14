@@ -43,7 +43,7 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.gore = null;
     this.animation = new Animation(spriteSheet, this.width, this.height,
         this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
-
+    this.deathOffset = 0;
     this.y = y;
     this.x = x;
     this.speed = 100;
@@ -56,7 +56,8 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.baseAcceleration = { x: 1, y: 1 };
     this.accelerationRatio = 1;
     this.accelerationAdj = 0;
-
+    this.deathAudio = new Audio("./audio/zerg/hydra/hydra_death.wav");
+    this.attackAudio = new Audio("./audio/zerg/hydra/hydra_attack.wav");
 
     // Damage stuff
     // Changed in each monster
@@ -118,6 +119,9 @@ Monster.prototype.pathTo = function (x, y) {
 }
 
 Monster.prototype.update = function () {
+    if (myPlayer.dead) {
+        return;
+    }
     // Flipping sprite sheet for monsters depending on if the player is to the left or right.
     if (myPlayer.x > this.x && this.isFlippable) {
         this.right = true;
@@ -139,9 +143,11 @@ Monster.prototype.update = function () {
     if (this.health <= 0) {
         this.pause = true;
         this.boundingbox = DEAD_BB;
-        handleDeathAnimations(this.deathAnimation, this.gore, this.x, this.y);
+        handleDeathAnimations(this.deathAnimation, this.gore, this.x - this.deathOffset, this.y);
         this.removeFromWorld = true;
         GAME_ENGINE.removeEntity(this);
+        this.deathAudio.volume = 0.08;
+        this.deathAudio.play();
     }
     var dirX, dirY;
     if (this.isPathing) {
@@ -176,6 +182,8 @@ Monster.prototype.update = function () {
                 this.counter = 0;
             }
         }
+        this.attackAudio.volume = 0.08;
+        this.attackAudio.play();
     } else if (this.animation.animationDone) {
         this.animation = this.moveAnimation
     }
@@ -189,6 +197,8 @@ Monster.prototype.update = function () {
             this.pause = true;
             this.animation = this.attackAnimation;
 
+            this.attackAudio.volume = 0.08;
+            this.attackAudio.play();
             if (this.animation.animationDone && this.animation == this.attackAnimation) {
                 let plLoc = getPlayerLocation();
                 console.log("I'm firing");
@@ -213,6 +223,7 @@ Monster.prototype.update = function () {
 
         this.animation = this.moveAnimation;
         this.pause = false;
+
     }
 
     // based on the number of ticks since the player was last hit, we pause the monster
@@ -339,7 +350,8 @@ function Hydralisk(spriteSheet, x, y, roomNumber) {
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_attack_right.png"), 100, 50, 1, .07, 11, true, this.scale);
     this.deathAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_death.png"), 100, 75, 1, .08, 12, false, this.scale);
     this.gore = new Animation(AM.getAsset("./img/gore/hydra.png"), 100, 75, 1, .08, 1, true, this.scale);
-
+    this.deathAudio = new Audio("./audio/zerg/hydra/hydra_death.wav");
+    this.attackAudio = new Audio("./audio/zerg/hydra/hydra_attack.wav");
     // gameplay
     this.speed = 120;
     this.health = 70;
@@ -376,7 +388,8 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
     this.moveAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_move_right.png"), 40, 40, 1, .03, 8, true, this.scale);
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_boom.png"), 85, 65, 1, .03, 10, true, this.scale);
-    this.deathAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_death.png"), 65, 40, 1, .05, 8, true, this.scale);
+    this.deathAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_death.png"), 65, 40, 1, .1, 8, true, this.scale);
+    this.gore = new Animation(AM.getAsset("./img/gore/infested.png"), 65, 40, 1, 1, 1, true, this.scale);
 
     // gameplay
     this.speed = 300;
@@ -418,7 +431,8 @@ function Ultralisk(spriteSheet, x, y, roomNumber) {
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/ultra/ultra_attack_right.png"), 100, 100, 1, .1, 6, true, this.scale);
     this.deathAnimation = new Animation(AM.getAsset("./img/zerg/ultra/ultra_death.png"), 100, 100, 1, .1, 10, false, this.scale);
     this.gore = new Animation(AM.getAsset("./img/gore/ultra.png"), 100, 100, 1, .5, 1, true, this.scale);
-
+    this.deathAudio = new Audio("./audio/zerg/ultra/ultra_death.wav");
+    this.attackAudio = new Audio("./audio/zerg/ultra/ultra_attack.wav");
     // gameplay
     this.speed = 175;
     this.health = 150;
@@ -453,7 +467,8 @@ function Zergling(spriteSheet, x, y, roomNumber) {
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/zergling/zergling_attack_right.png"), 40, 40, 1, .05, 5, true, this.scale);
     this.deathAnimation = new Animation(AM.getAsset("./img/zerg/zergling/zergling_death.png"), 70, 70, 1, .08, 7, false, this.scale);
     this.gore = new Animation(AM.getAsset("./img/gore/zergling.png"), 70, 70, 1, .5, 1, true, this.scale);
-
+    this.deathAudio = new Audio("./audio/zerg/zergling/zergling_death.wav");
+    this.attackAudio = new Audio("./audio/zerg/zergling/zergling_attack.wav");
     // gameplay
     this.speed = 200;
     this.health = 30;
@@ -488,7 +503,9 @@ function Zealot(spriteSheet, x, y, roomNumber) {
     this.moveAnimation = new Animation(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"), 50, 50, 1, .03, 7, true, this.scale);
     this.attackAnimation = new Animation(AM.getAsset("./img/protoss/zealot/zealot_attack_right.png"), 50, 50, 1, .06, 5, true, this.scale);
     this.deathAnimation = new Animation(AM.getAsset("./img/protoss/zealot/zealot_death.png"), 54, 72, 1, .2, 7, true, this.scale);
-
+    this.gore = new Animation(AM.getAsset("./img/gore/zealot.png"), 54, 72, 1, .5, 1, true, this.scale);
+    this.deathAudio = new Audio("./audio/protoss/zealot/zealot_death.wav");
+    this.attackAudio = new Audio("./audio/protoss/zealot/zealot_attack.wav");
     // gameplay
     this.speed = 200;
     this.health = 45;
@@ -523,8 +540,10 @@ function DarkTemplar(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
     this.moveAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"), 50, 50, 1, .03, 10, true, this.scale);
     this.attackAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_attack_right.png"), 50, 60, 1, .1, 7, true, this.scale);
-    this.deathAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_death.png"), 54, 72, 1, .1, 7, true, this.scale);
-
+    this.deathAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_death.png"), 54, 72, 1, .2, 7, true, this.scale);
+    this.gore = new Animation(AM.getAsset("./img/gore/zealot.png"), 54, 72, 1, .5, 1, true, this.scale);
+    this.deathAudio = new Audio("./audio/protoss/dark_templar/dark_templar_death.wav");
+    this.attackAudio = new Audio("./audio/protoss/dark_templar/dark_templar_attack.wav");
     // gameplay
     this.speed = 150;
     this.health = 90;
@@ -661,7 +680,8 @@ function Templar_Boss(x, y, roomNumber, otherTemplar) {
     this.sheetWidth = 1;
     this.moveAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"), 50, 50, 1, .03, 10, true, this.scale);
     this.attackAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_attack_right.png"), 50, 60, 1, .07, 7, true, this.scale);
-
+    this.deathAudio = new Audio("./audio/protoss/dark_templar/dark_templar_death.wav");
+    this.attackAudio = new Audio("./audio/protoss/dark_templar/dark_templar_attack.wav");
     // gameplay
     this.speed = 100;
     this.health = 1250;
@@ -672,6 +692,7 @@ function Templar_Boss(x, y, roomNumber, otherTemplar) {
     this.isTemplarBoss = true;
     this.lastBallStorm = 600;
     this.mergeTogether = false;
+    this.ssFusionFlag = false;
 
     // Damage stuff
     this.durationBetweenHits = 40;//Adjustable
@@ -695,6 +716,7 @@ Templar_Boss.prototype.templarBossBehavior = function () {
     if (this.otherTemplar instanceof Monster) {
         // if either of the templars hp % is <= 20, initiate merge
         if ((getHealthPercentage(this.otherTemplar) <= 20 || getHealthPercentage(this) <= 20) && this.mergeTogether == false) {
+            console.log("phase 1 finished");
             this.mergeTogether = true;
             this.otherTemplar.mergeTogether = true;
             this.archonHP = 2 * (this.health + this.otherTemplar.health);
@@ -717,11 +739,23 @@ Templar_Boss.prototype.templarBossBehavior = function () {
         }
     } else if (this.phase == 3) {
         if (this.otherTemplar instanceof Monster) {
-            let mergedArchon = new Archon_Boss(this.x, this.y, this.roomNumber);
-            GAME_ENGINE.addEntity(mergedArchon);
-            mergedArchon.health = this.archonHP;
-            GAME_ENGINE.removeEntity(this.otherTemplar);
-            GAME_ENGINE.removeEntity(this);
+            if (this.ssFusionFlag == false) {
+                let that = this;
+                let ssFusionAni = new Animation(AM.getAsset("./img/protoss/archon/archon_fusion.png"), 82, 89, 1, .1, 18, false, this.scale);
+                let fusionAni = new StillStand(ssFusionAni, ssFusionAni.totalTime * 10, this.x, this.y);
+                GAME_ENGINE.addEntity(fusionAni);
+                fusionAni.onDeath = function () {
+                    console.log("fusion done")
+                    let mergedArchon = new Archon_Boss(this.x, this.y, this.roomNumber);
+                    mergedArchon.health = that.archonHP;
+                    GAME_ENGINE.addEntity(mergedArchon);
+                    GAME_ENGINE.removeEntity(that.otherTemplar);
+                    GAME_ENGINE.removeEntity(that);
+                }
+            }
+            this.ssFusionFlag = true;
+
+
         }
     }
     this.lastBallStorm--;
@@ -741,8 +775,11 @@ function Archon_Boss(x, y, roomNumber) {
     this.numOfFrames = 10;
     this.frameLength = 0.03;
     this.sheetWidth = 1;
+    this.deathOffset = 150;
     this.moveAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_move_right.png"), 82, 89, 1, .03, 15, true, this.scale);
     this.attackAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_attack.png"), 82, 89, 1, .1, 10, true, this.scale);
+    this.deathAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_death.png"), 188, 150, 1, .2, 10, true, this.scale);
+    this.gore = new Animation(AM.getAsset("./img/gore/archon.png"), 188, 150, 1, 1, 1, true, this.scale);
 
     // gameplay
     this.speed = 0;
@@ -783,7 +820,12 @@ Archon_Boss.prototype.archonBossBehavior = function () {
         // make an energy ball to mimic a thick ion beam every 3 ticks
         if (this.aniFlag == false) {
             this.animation = new Animation(AM.getAsset("./img/protoss/archon/archon_attack.png"), 82, 89, 1, .1, 10, true, this.scale);
-            this.aniFlag = true;
+
+            if (this.animation.animationDone) {
+                this.animation = this.moveAnimation;
+                console.log(this.animation);
+                this.aniFlag = true;
+            }
         }
         if (this.bosstimer % 5 == 0) {
             let playerLoc = getPlayerLocation();
@@ -800,7 +842,7 @@ Archon_Boss.prototype.archonBossBehavior = function () {
         }
     }
     if (this.lastBallStorm == 0) {
-        this.lastBallStorm = getRandomInt(250, 400);
+        this.lastBallStorm = getRandomInt(300, 400);
         new ballStorm(this.x, this.y);
     }
 
@@ -835,6 +877,7 @@ function Kerrigan(x, y, roomNumber) {
     this.moveAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_move_right.png"), 59, 55, 1, .05, 8, true, this.scale);
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_attack_right.png"), 59, 55, 1, .2, 8, true, this.scale);
     this.deathAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_death.png"), 56, 41, 1, .08, 11, true, this.scale);
+    this.gore = new Animation(AM.getAsset("./img/gore/kerrigan.png"), 56, 41, 1, .5, 1, true, this.scale);
 
     // gameplay
     this.speed = 0;

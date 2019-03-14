@@ -182,6 +182,7 @@ function SceneManager() {
     this.insideMenu = true;
     this.menu = GAME_ENGINE.entities[0][0];
     this.levelTransition = false;
+    this.victory = false;
 }
 
 SceneManager.prototype.menuSelection = function (x, y) {
@@ -248,6 +249,8 @@ SceneManager.prototype.reset = function () {
     GAME_ENGINE.addEntity(menu);
     SCENE_MANAGER.menu = menu;
     SCENE_MANAGER.insideMenu = true;
+    SCENE_MANAGER.victory = false;
+    SCENE_MANAGER.levelTransition = false;
     CAMERA = new Camera();
     myScore = 0;
     myLevel = 1;
@@ -286,9 +289,11 @@ SceneManager.prototype.nextLevel = function () {
     var floorImg = "./img/utilities/floor_level" + myLevel + ".png";
     BACKGROUND = new Background(myLevel, floorImg);
     GAME_ENGINE.addEntity(BACKGROUND);
-    if (myLevel === 1) {
-        BACKGROUND.generateLevelOne();
-    } else if (myLevel === 2) {
+    music.pause();
+    music = new Audio("./audio/level" + myLevel + "_song.mp3");
+    music.volume = myCurrentVolume;
+    music.play();
+    if (myLevel === 2) {
         BACKGROUND.generateLevelTwo();
     } else if (myLevel === 3) {
         BACKGROUND.generateLevelThree();
