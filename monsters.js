@@ -392,6 +392,7 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_boom.png"), 85, 65, 1, .03, 10, true, this.scale);
     this.deathAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_death.png"), 65, 40, 1, .1, 8, true, this.scale);
     this.gore = new Animation(AM.getAsset("./img/gore/infested.png"), 65, 40, 1, 1, 1, true, this.scale);
+    this.attackAudio = new Audio("./audio/zerg/infested/infested_boom.wav");
 
     // gameplay
     this.speed = 300;
