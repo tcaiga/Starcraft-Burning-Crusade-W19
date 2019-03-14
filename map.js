@@ -456,7 +456,7 @@ Wall.prototype.update = function () {
     for (var i = 0; i < GAME_ENGINE.entities[4].length; i++) {
         var entity = GAME_ENGINE.entities[4][i];
         if (this.boundingbox.collide(entity.boundingbox)) {
-            var distance = entity.speed / 100;
+            var distance = entity.speed / 200;
             if (entity.x > this.x) {
                 entity.x += distance;
             }

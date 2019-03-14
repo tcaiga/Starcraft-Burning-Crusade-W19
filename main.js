@@ -70,7 +70,7 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.reloadCounter = 0;
     this.maxShootCounter = 0.1;
     this.shootCounter = this.maxShootCounter;
-    this.maxHealth = 1000;
+    this.maxHealth = 250;
     this.health = this.maxHealth;
     this.healthPercent = 100;
     this.dontdraw = 0;
