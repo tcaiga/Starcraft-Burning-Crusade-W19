@@ -268,20 +268,82 @@ function SpawnZerglings() {
 
     GAME_ENGINE.addEntity(ss1);
 
-    ss1.onDeath = function () {
+    ss1.onDeath = function (roomNumber) {
         // create 5 zerglings at a random area within 50px of the player
         // after a 2s delay from a graphic being placed.
-        let zergling1 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y);
-        let zergling2 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + 30, y);
-        let zergling3 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y + 30);
-        let zergling4 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x - 30, y);
-        let zergling5 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y - 30);
+        let zergling1 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y, roomNumber);
+        let zergling2 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x + 30, y, roomNumber);
+        let zergling3 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y + 30, roomNumber);
+        let zergling4 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x - 30, y, roomNumber);
+        let zergling5 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), x, y - 30, roomNumber);
         
         GAME_ENGINE.addEntity(zergling1);
         GAME_ENGINE.addEntity(zergling2);
         GAME_ENGINE.addEntity(zergling3);
         GAME_ENGINE.addEntity(zergling4);
         GAME_ENGINE.addEntity(zergling5);
+    }
+
+}
+
+function SpawnUltra(roomNumber) {
+    ss1Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.13, 1, true, 1.25);
+    ss2Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.04, 10, true, .175);
+    ss1 = new StillStand(ss1Ani, 90, myPlayer.x, myPlayer.y);
+    ss1.ssAni = ss2Ani;
+    ss1.width = 50;
+    ss1.height = 50;
+
+    let x = myPlayer.x;
+    let y = myPlayer.y;
+
+    GAME_ENGINE.addEntity(ss1);
+
+    ss1.onDeath = function () {
+        // create 5 zerglings at a random area within 50px of the player
+        // after a 2s delay from a graphic being placed.
+        let ultra = new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"), x, y, roomNumber);
+
+        GAME_ENGINE.addEntity(ultra);
+    }
+
+}
+
+function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin) {
+    this.width = 100;
+    this.height = 100;
+    ss1Ani = new Animation(spriteSheet, this.width, this.height, 1, .25, 6, true, 1.25);
+    ss1 = new StillStand(ss1Ani, 90, originX, originY);
+    GAME_ENGINE.addEntity(ss1);
+    ss1.onDeath = function () {
+        let spike = new Spike(originX, originY, xTarget, yTarget, origin);
+        spike.projectileSpeed = 4;
+
+        GAME_ENGINE.addEntity(spike);
+    }
+
+
+}
+
+function SpawnHydra(roomNumber) {
+    ss1Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.13, 1, true, .5);
+    ss2Ani = new Animation(AM.getAsset("./img/utilities/Shadow1.png"), 128, 128, 1, 0.04, 10, true, .175);
+    ss1 = new StillStand(ss1Ani, 90, myPlayer.x, myPlayer.y);
+    ss1.ssAni = ss2Ani;
+    ss1.width = 50;
+    ss1.height = 50;
+
+    let x = myPlayer.x;
+    let y = myPlayer.y;
+
+    GAME_ENGINE.addEntity(ss1);
+
+    ss1.onDeath = function () {
+        // create 5 zerglings at a random area within 50px of the player
+        // after a 2s delay from a graphic being placed.
+        let hydra = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"), x, y, roomNumber);
+
+        GAME_ENGINE.addEntity(hydra);
     }
 
 }
@@ -300,7 +362,7 @@ function SpikeExplosion(spriteSheet, originX, originY, xTarget, yTarget, origin)
 }
 
 function Spike(originX, originY, xTarget, yTarget, origin) {
-    this.spriteSheet = AM.getAsset("./img/terran/bullet.png");
+    this.spriteSheet = AM.getAsset("./img/zerg/heavy_shot.png");
     Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, "angle");
 
     this.projectileSpeed = 6;
@@ -319,17 +381,66 @@ function Spike(originX, originY, xTarget, yTarget, origin) {
 
 function ballStorm(originX, originY) {
     let xt, yt, eb;
-    let numOfBalls = 20;
+    let numOfBalls = 14;
     for (var i = 0; i < numOfBalls; i++) {
         xt = getRandomInt(0, canvasWidth);
         yt = getRandomInt(0, canvasHeight);
-        GAME_ENGINE.addEntity(new energyBall(originX, originY, CAMERA.x + xt, CAMERA.y + yt, 4, "angle"));
+        eb = new energyBall(originX, originY, CAMERA.x + xt, CAMERA.y + yt, 4, "angle");
+        eb.projectileSpeed = 3.5;
+        GAME_ENGINE.addEntity(eb);
     }
+}
+
+function spikeStorm(originX, originY) {
+    let xt, yt, eb;
+    let numOfBalls = 14;
+    for (var i = 0; i < numOfBalls; i++) {
+        xt = getRandomInt(0, canvasWidth);
+        yt = getRandomInt(0, canvasHeight);
+        let spike = new Spike(originX, originY, CAMERA.x + xt, CAMERA.y + yt, 4, "angle");
+        spike.totalDamage = 5;
+        spike.projectileSpeed = 4;
+        GAME_ENGINE.addEntity(spike);
+    }
+}
+
+function psionicStorm() {
+    this.width = 185;
+    this.height = 150;
+    this.scale = .6;
+    ss1Ani = new Animation(AM.getAsset("./img/protoss/psionic_storm.png"), 185, 150, 1, 0.05, 7, true, .6);
+    let tarX = CAMERA.x + getRandomInt(TILE_SIZE, canvasWidth - TILE_SIZE - 185);
+    let tarY = CAMERA.y + getRandomInt(TILE_SIZE, canvasHeight - TILE_SIZE - 150);
+    ss1 = new StillStand(ss1Ani, 50, tarX, tarY);
+    GAME_ENGINE.addEntity(ss1);
+    ss1.onDeath = function () {
+        psionicStormDmg(tarX, tarY);
+    }
+    
+   
+}
+
+function chargeTarget(entity) {
+    let pLoc = getPlayerLocation();
+    entity.pathTo(pLoc.x, pLoc.y);
+    entity.speed = entity.speed * 5;
+    console.log(entity.speed);
+}
+
+function psionicStormDmg(tarX, tarY) {
+    this.width = 185;
+    this.height = 150;
+    this.scale = .6;
+    ss2Ani = new Animation(AM.getAsset("./img/protoss/psionic_storm.png"), 185, 150, 1, 0.05, 7, true, .6);
+    ss2 = new StillStand(ss2Ani, 120, tarX, tarY);
+    console.log("ss2 made");
+    ss2.boundingbox = new BoundingBox(tarX, tarY, this.width * this.scale, this.height * this.scale);
+    GAME_ENGINE.addEntity(ss2);
 }
 
 function energyBall(originX, originY, xTarget, yTarget, origin, direction) {
     this.spriteSheet = AM.getAsset("./img/protoss/energy_ball.png");
-    Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, direction);
+    Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, direction, true);
     this.width = 51;
     this.height = 51;
     this.sheetWidth = 1;
