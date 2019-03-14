@@ -509,15 +509,15 @@ Canal.prototype.update = function () {
                 var victoryAudio = new Audio("./audio/win.wav");
                 victoryAudio.volume = myCurrentVolume;
                 victoryAudio.play();
-
-            } else {
-                myLevel++;
-                SCENE_MANAGER.levelTransition = true;
             }
+        } else {
+            myLevel++;
+            SCENE_MANAGER.levelTransition = true;
         }
-
-        this.boundingbox = new BoundingBox(this.x, this.y, 75, 75);
     }
+
+    this.boundingbox = new BoundingBox(this.x, this.y, 75, 75);
+}
 
     Canal.prototype.draw = function () {
         this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
