@@ -134,8 +134,17 @@ Monster.prototype.update = function () {
     }
 
     if (this.health <= 0) {
-        this.removeFromWorld = true;
-        GAME_ENGINE.removeEntity(this);
+        if (this.deathAnimation !== undefined) {
+            this.animation = this.deathAnimation;
+            if (this.animation.animationDone) {
+                this.speed = 0;
+                this.removeFromWorld = true;
+                GAME_ENGINE.removeEntity(this);
+            }
+        } else {
+            this.removeFromWorld = true;
+            GAME_ENGINE.removeEntity(this);
+        }
     }
     var dirX, dirY;
     if (this.isPathing) {
@@ -725,6 +734,7 @@ function Archon_Boss(x, y, roomNumber) {
     this.sheetWidth = 1;
     this.moveAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_move_right.png"), 82, 89, 1, .03, 15, true, this.scale);
     this.attackAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_attack.png"), 82, 89, 1, .1, 10, true, this.scale);
+    this.deathAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_death.png"), 188, 150, 1, .06, 10, true, this.scale);
 
     // gameplay
     this.speed = 0;
