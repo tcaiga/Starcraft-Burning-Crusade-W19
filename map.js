@@ -68,10 +68,27 @@ Background.prototype.update = function () {
 };
 
 Background.prototype.createRooms = function () {
-    var roomNumber = 0;
+    var monsterRoomNumbers = [];
+    var monsterRoomNumber = 0;
 
+    for (var r = 0; r < this.facePos.length - 2; r++) {
+        if (this.face[r] === 0) {
+            monsterRoomNumber -= 5;
+        } else if (this.face[r] === 1) {
+            monsterRoomNumber += 1;
+        } else if (this.face[r] === 2) {
+            monsterRoomNumber += 5;
+        } else if (this.face[r] === 3) {
+            monsterRoomNumber -= 1;
+        }
+        monsterRoomNumbers.push(monsterRoomNumber);
+    }
+
+    console.table(monsterRoomNumbers);
+    var idx = 0;
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
+            roomDone = false;
             for (let row = 0; row < 20; row++) {
                 for (let col = 0; col < 20; col++) {
                     let roomType = this.map[i][j];
@@ -84,26 +101,29 @@ Background.prototype.createRooms = function () {
                             this.y + i * canvasHeight + row * TILE_SIZE * 2));
                     } else if (tempTile === 3) { // Zergling
                         GAME_ENGINE.addEntity(new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, roomNumber));
+                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
                     } else if (tempTile === 4) { // Hydra
                         GAME_ENGINE.addEntity(new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"),
-                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, roomNumber));
+                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
                     } else if (tempTile === 5) { // Infested Terran
                         GAME_ENGINE.addEntity(new Infested(AM.getAsset("./img/zerg/infested/infested_move_right.png"),
-                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, roomNumber));
+                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
                     } else if (tempTile === 6) { // Ultra
                         GAME_ENGINE.addEntity(new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
-                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, roomNumber));
+                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
                     } else if (tempTile === 7) { // Zealot
                         GAME_ENGINE.addEntity(new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
-                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, roomNumber));
+                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
                     } else if (tempTile === 8) { // Dark Templar
                         GAME_ENGINE.addEntity(new DarkTemplar(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"),
-                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, roomNumber));
-                    } 
+                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
+                    }
                 }
             }
-            roomNumber++;
+            
+            if (this.map[i][j] !== 8 && this.map[i][j] !== 9 && this.map[i][j] !== 0) {
+                idx++;
+            }
         }
     }
 }
@@ -306,9 +326,9 @@ Background.prototype.generateLevelThree = function () {
     this.maxRoomCount = 12;
     this.map = [
         [8, 4, 3, 0, 0],
-        [0, 0, 2, 0, 0],
-        [0, 3, 6, 4, 2],
-        [0, 4, 2, 6, 3],
+        [0, 3, 2, 0, 0],
+        [0, 4, 6, 4, 2],
+        [0, 0, 2, 6, 3],
         [0, 0, 0, 0, 9],
     ];
 
@@ -318,14 +338,14 @@ Background.prototype.generateLevelThree = function () {
     this.facePos.push([1, 0]);
     this.face.push(2);
     this.facePos.push([2, 0]);
-    this.face.push(2);
-    this.facePos.push([2, 1]);
     this.face.push(3);
-    this.facePos.push([2, 2]);
+    this.facePos.push([2, 1]);
     this.face.push(2);
-    this.facePos.push([1, 2]);
+    this.facePos.push([1, 1]);
     this.face.push(1);
-    this.facePos.push([1, 3]);
+    this.facePos.push([1, 2]);
+    this.face.push(2);
+    this.facePos.push([2, 2]);
     this.face.push(1);
     this.facePos.push([2, 3]);
     this.face.push(0);
