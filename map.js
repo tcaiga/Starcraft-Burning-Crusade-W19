@@ -474,7 +474,7 @@ Wall.prototype.update = function () {
 
     for (var p = 0; p < GAME_ENGINE.entities[3].length; p++) {
         var proj = GAME_ENGINE.entities[3][p];
-        if (this.boundingbox.collide(proj.boundingbox)) {
+        if (this.boundingbox.collide(proj.boundingbox) && proj.isMonster === undefined) {
             GAME_ENGINE.removeEntity(proj);
         }
     }

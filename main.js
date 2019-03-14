@@ -496,7 +496,7 @@ Player.prototype.updateHealthHTML = function () {
 /* #endregion */
 
 /* #region Base Projectile */
-function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, direction) {
+function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, direction, isMonster) {
     this.origin = belongsTo;
     // animation
     this.width = 13;
@@ -514,7 +514,7 @@ function Projectile(spriteSheet, originX, originY, xTarget, yTarget, belongsTo, 
     this.childCollide;//function
     this.speed = 200;
     this.projectileSpeed = 7.5;
-
+    this.isMonster = isMonster;
     this.xTar = xTarget - CAMERA.x;
     this.yTar = yTarget - CAMERA.y;
     // Determining where the projectile should go angle wise.
