@@ -262,6 +262,7 @@ SceneManager.prototype.reset = function () {
     document.getElementById("healthImg").src = "./img/health_wireframe/green_health.png";
     document.getElementById("score").innerHTML = myScore;
     document.getElementById("level").innerHTML = myLevel;
+    document.getElementById("godmode").innerHTML = "";
 
     for (let t = 1; t < 4; t++) {
         var spellHTML = document.getElementById("spell" + t);
