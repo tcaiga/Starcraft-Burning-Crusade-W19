@@ -7,6 +7,7 @@ Zealot.prototype = Monster.prototype;
 Zerg_Boss.prototype = Monster.prototype;
 Templar_Boss.prototype = Monster.prototype;
 Archon_Boss.prototype = Monster.prototype;
+let DEAD_BB = new BoundingBox(-500000, -500000, 1, 1);
 
 function Monster(spriteSheet, x, y, roomNumber) {
     Entity.call(this, GAME_ENGINE, 0, 350);
@@ -38,6 +39,8 @@ function Monster(spriteSheet, x, y, roomNumber) {
     this.width = 40;
     this.height = 56;
     this.isFlippable = true;
+    this.deathAnimation = null;
+    this.gore = null;
     this.animation = new Animation(spriteSheet, this.width, this.height,
         this.sheetWidth, this.frameLength, this.numOfFrames, true, this.scale);
 
@@ -134,6 +137,9 @@ Monster.prototype.update = function () {
     }
 
     if (this.health <= 0) {
+        this.pause = true;
+        this.boundingbox = DEAD_BB;
+        handleDeathAnimations(this.deathAnimation, this.gore, this.x, this.y);
         this.removeFromWorld = true;
         GAME_ENGINE.removeEntity(this);
     }
@@ -183,25 +189,28 @@ Monster.prototype.update = function () {
             this.pause = true;
             this.animation = this.attackAnimation;
 
-            // reset after 45 ticks and then cast again
-            if (this.castCooldown > 45) {
+            if (this.animation.animationDone && this.animation == this.attackAnimation) {
                 let plLoc = getPlayerLocation();
-                this.castCooldown = 0;
+                console.log("I'm firing");
                 if (this.isZerg) {
+                    this.castCooldown = 0;
+                    let xos = 0;
+                    if (this.right) {
+                        xos = 40;
+                    }
                     var projectile = new Projectile(AM.getAsset("./img/zerg/heavy_shot.png"),
-                        this.x, this.y, plLoc.x, plLoc.y, 4, "angle");
-                    projectile.speed = 4;
+                        this.x + xos, this.y, plLoc.x, plLoc.y, 4, "angle");
+                    projectile.projectileSpeed = 4;
                     GAME_ENGINE.addEntity(projectile);
                     projectile.penetrative = true;
                 } else if (this.isProtoss) {
                     GAME_ENGINE.addEntity(new energyBall(this.x, this.y, plLoc.x, plLoc.y, 4, "angle"));
                 }
-
             }
             this.ticksSinceLastHit++;
-            this.castCooldown += 1
         }
-    } else if (this.animation.animationDone) {
+    } else  {
+
         this.animation = this.moveAnimation;
         this.pause = false;
     }
@@ -327,7 +336,9 @@ function Hydralisk(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
     this.isZerg = true;
     this.moveAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"), 50, 50, 1, .03, 7, true, this.scale);
-    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_attack_right.png"), 100, 50, 1, .09, 11, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_attack_right.png"), 100, 50, 1, .07, 11, true, this.scale);
+    this.deathAnimation = new Animation(AM.getAsset("./img/zerg/hydra/hydra_death.png"), 100, 75, 1, .08, 12, false, this.scale);
+    this.gore = new Animation(AM.getAsset("./img/gore/hydra.png"), 100, 75, 1, .08, 1, true, this.scale);
 
     // gameplay
     this.speed = 120;
@@ -365,6 +376,7 @@ function Infested(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
     this.moveAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_move_right.png"), 40, 40, 1, .03, 8, true, this.scale);
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_boom.png"), 85, 65, 1, .03, 10, true, this.scale);
+    this.deathAnimation = new Animation(AM.getAsset("./img/zerg/infested/infested_death.png"), 65, 40, 1, .05, 8, true, this.scale);
 
     // gameplay
     this.speed = 300;
@@ -404,6 +416,8 @@ function Ultralisk(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
     this.moveAnimation = new Animation(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"), 100, 100, 1, .03, 9, true, this.scale);
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/ultra/ultra_attack_right.png"), 100, 100, 1, .1, 6, true, this.scale);
+    this.deathAnimation = new Animation(AM.getAsset("./img/zerg/ultra/ultra_death.png"), 100, 100, 1, .1, 10, false, this.scale);
+    this.gore = new Animation(AM.getAsset("./img/gore/ultra.png"), 100, 100, 1, .5, 1, true, this.scale);
 
     // gameplay
     this.speed = 175;
@@ -437,6 +451,8 @@ function Zergling(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
     this.moveAnimation = new Animation(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"), 40, 40, 1, .03, 7, true, this.scale);
     this.attackAnimation = new Animation(AM.getAsset("./img/zerg/zergling/zergling_attack_right.png"), 40, 40, 1, .05, 5, true, this.scale);
+    this.deathAnimation = new Animation(AM.getAsset("./img/zerg/zergling/zergling_death.png"), 70, 70, 1, .08, 7, false, this.scale);
+    this.gore = new Animation(AM.getAsset("./img/gore/zergling.png"), 70, 70, 1, .5, 1, true, this.scale);
 
     // gameplay
     this.speed = 200;
@@ -471,6 +487,7 @@ function Zealot(spriteSheet, x, y, roomNumber) {
     this.sheetWidth = 1;
     this.moveAnimation = new Animation(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"), 50, 50, 1, .03, 7, true, this.scale);
     this.attackAnimation = new Animation(AM.getAsset("./img/protoss/zealot/zealot_attack_right.png"), 50, 50, 1, .06, 5, true, this.scale);
+    this.deathAnimation = new Animation(AM.getAsset("./img/protoss/zealot/zealot_death.png"), 54, 72, 1, .2, 7, true, this.scale);
 
     // gameplay
     this.speed = 200;
@@ -505,7 +522,8 @@ function DarkTemplar(spriteSheet, x, y, roomNumber) {
     this.isRanged = true;
     this.sheetWidth = 1;
     this.moveAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"), 50, 50, 1, .03, 10, true, this.scale);
-    this.attackAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_attack_right.png"), 50, 60, 1, .07, 7, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_attack_right.png"), 50, 60, 1, .1, 7, true, this.scale);
+    this.deathAnimation = new Animation(AM.getAsset("./img/protoss/dark_templar/dark_templar_death.png"), 54, 72, 1, .1, 7, true, this.scale);
 
     // gameplay
     this.speed = 150;
@@ -801,6 +819,44 @@ Archon_Boss.prototype.archonBossBehavior = function () {
     this.bosstimer++;
 }
 
+function Kerrigan(x, y, roomNumber) {
+    this.spriteSheet = AM.getAsset("./img/zerg/kerrigan_move_right.png");
+    Monster.call(this, this.spriteSheet, x, y, roomNumber);
+
+    this.x = x;
+    this.y = y;
+
+    this.scale = 1.75;
+    this.width = 82;
+    this.height = 89;
+    this.numOfFrames = 8;
+    this.frameLength = 0.03;
+    this.sheetWidth = 1;
+    this.moveAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_move_right.png"), 59, 55, 1, .05, 8, true, this.scale);
+    this.attackAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_attack_right.png"), 59, 55, 1, .2, 8, true, this.scale);
+    this.deathAnimation = new Animation(AM.getAsset("./img/zerg/kerrigan/kerrigan_death.png"), 56, 41, 1, .08, 11, true, this.scale);
+
+    // gameplay
+    this.speed = 0;
+    this.health = 2500
+    this.roomNumber = roomNumber;
+
+
+    // Damage stuff
+    this.durationBetweenHits = 40;//Adjustable
+    this.totalDamage = 10;//Adjustable
+    this.damageObjArr = [];
+    this.damageBuff = null;
+    this.damageObj = DS.CreateDamageObject(this.totalDamage, 0, DTypes.Normal, this.damageBuff);
+    this.damageObj.timeLeft = this.durationBetweenHits;
+    this.buffObj = [];
+
+
+    this.animation = this.moveAnimation;
+
+    this.boundingbox = new BoundingBox(this.x, this.y,
+        this.width * this.scale, this.height * this.scale);
+
 function TrainingDummy(theX, theY) {
     this.x = theX;
     this.y = theY;
@@ -812,6 +868,7 @@ TrainingDummy.prototype.draw = function() {
 }
 
 TrainingDummy.prototype.update = function() {
+
 
 }
 
@@ -851,4 +908,18 @@ function distance(monster) {
     var dx = myPlayer.x - monster.x;
     var dy = myPlayer.x - monster.y;
     return Math.sqrt(dx * dx, dy * dy);
+}
+
+function handleDeathAnimations(death, gore, x, y) {
+    if (death != null) {
+        console.log("death isn't null");
+        let ss1 = new StillStand(death, death.totalTime * 10, x, y);
+        if (gore != null) {
+            ss1.onDeath = function () {
+                GAME_ENGINE.addEntity(new StillStand(gore, 550, x, y));
+            };
+        }
+        GAME_ENGINE.addEntity(ss1);
+    }
+    console.log(death);
 }

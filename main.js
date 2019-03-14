@@ -928,6 +928,16 @@ AM.queueDownload("./img/zerg/light_shot.png");
 //shadow test
 AM.queueDownload("./img/utilities/Shadow1.png")
 
+// gore
+AM.queueDownload("./img/gore/archon.png");
+AM.queueDownload("./img/gore/high_templar.png");
+AM.queueDownload("./img/gore/hydra.png");
+AM.queueDownload("./img/gore/infested.png");
+AM.queueDownload("./img/gore/kerrigan.png");
+AM.queueDownload("./img/gore/ultra.png");
+AM.queueDownload("./img/gore/zergling.png");
+
+
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("canvas");
