@@ -29,7 +29,7 @@ function Background(theLevel, theFloorImg) {
     this.canalX = 0;
     this.canalY = 0;
     this.backRoomNumbers = [];
-    this.maxRoomCount = 5;
+    this.maxRoomCount = 0;
     this.drawFaceCount = 0;
     this.level = theLevel;
     this.background = new Image();
@@ -45,7 +45,7 @@ function Background(theLevel, theFloorImg) {
 }
 
 Background.prototype.draw = function () {
-    GAME_ENGINE.ctx.drawImage(this.background, this.floorX, this.floorY, 640, 640);
+    GAME_ENGINE.ctx.drawImage(this.background, this.floorX, this.floorY, canvasWidth, canvasHeight);
 }
 
 Background.prototype.update = function () {
@@ -75,19 +75,8 @@ Background.prototype.createWalls = function () {
                     }
                     let tempTile = ROOMS[roomType][row * 20 + col];
                     if (tempTile === 1) {
-                        if (col === 0 && row != 0 && row != 19) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
-                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "left"));
-                        } else if (col === 19 && row != 0 & row != 19) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
-                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "right"));
-                        } else if (row === 19) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
-                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "down"));
-                        } else if (row === 0) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
-                                this.y + i * canvasHeight + row * TILE_SIZE * 2 + 1, "up"));
-                        }
+                        GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
+                            this.y + i * canvasHeight + row * TILE_SIZE * 2));
                     }
                 }
             }
@@ -99,9 +88,7 @@ Background.prototype.decorateRoom = function () {
     var roomNumber = 0;
     var backRoomNumber = 0;
     var addBoss = true;
-    if (BACKGROUND.level === "survival") {
-        backRoomNumber = 12;
-    }
+  
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
             // Drawing doors
@@ -304,56 +291,6 @@ Background.prototype.decorateRoom = function () {
     }
 }
 
-Background.prototype.generateSurvivalMap = function () {
-    this.level = "survival";
-    this.x = -1280;
-    this.y = -1280;
-    this.row = 2;
-    this.col = 2;
-    this.map[this.row][this.col] = 8;
-    this.facePos.push([this.col, this.row]);
-    music.play();
-    while (this.roomCount < this.maxRoomCount) {
-        let randomDirection = Math.floor(Math.random() * Math.floor(4));
-        let tempRow = this.row + this.directions[randomDirection][0];
-        let tempCol = this.col + this.directions[randomDirection][1];
-        if (randomDirection === 0 && this.face[this.face.length - 1] === 2
-            || randomDirection === 2 && this.face[this.face.length - 1] === 0
-            || randomDirection === 1 && this.face[this.face.length - 1] === 3
-            || randomDirection === 3 && this.face[this.face.length - 1] === 1) {
-            randomDirection = Math.floor(Math.random() * Math.floor(4));
-        } else {
-            if (tempRow < this.map.length && tempRow > 0 && tempCol < this.map.length && tempCol > 0
-                && this.map[tempRow][tempCol] === 0) {
-                this.face.push(randomDirection);
-                this.row += this.directions[randomDirection][0];
-                this.col += this.directions[randomDirection][1];
-                this.facePos.push([this.col, this.row]);
-                let randomChoice = Math.floor(Math.random() * 4);
-                if (randomChoice === 0) { // 25% chance to spawn a trap room.
-                    this.map[this.row][this.col] = 2;
-                } else {
-                    this.map[this.row][this.col] = 1;
-                }
-
-                let isTrapRoom = Math.floor(Math.random() * 3);
-                if (this.roomCount + 1 === this.maxRoomCount) {
-                    this.map[this.row][this.col] = 9; // Ending Room
-
-                } else if (this.roomCount + 2 === this.maxRoomCount) {
-                    if (isTrapRoom === 0) {
-                        this.map[this.row][this.col] = 3; // Puzzle Room
-                    } else {
-                        this.map[this.row][this.col] = 1;
-                    }
-                }
-                this.roomCount++;
-            }
-        }
-    }
-
-    this.drawMiniMap();
-}
 
 Background.prototype.generateLevelOne = function () {
     music.play();
@@ -523,10 +460,9 @@ Door.prototype.draw = function () {
     // draw door to update if open or closed
 }
 
-function Wall(theX, theY, theDirection) {
+function Wall(theX, theY) {
     this.x = theX;
     this.y = theY;
-    this.direction = theDirection;
     this.image = new Image();
     this.image.src = "./img/utilities/wall_tile.png";
     this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
@@ -534,14 +470,17 @@ function Wall(theX, theY, theDirection) {
 
 Wall.prototype.update = function () {
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        if (this.direction === "up") {
-            myPlayer.y += myPlayer.actualSpeed;
-        } else if (this.direction === "down") {
-            myPlayer.y -= myPlayer.actualSpeed;
-        } else if (this.direction === "left") {
+        if (myPlayer.x > this.x) {
             myPlayer.x += myPlayer.actualSpeed;
-        } else {
+        }
+        if (myPlayer.x < this.x) {
             myPlayer.x -= myPlayer.actualSpeed;
+        }
+        if (myPlayer.y > this.y) {
+            myPlayer.y += myPlayer.actualSpeed;
+        }
+        if (myPlayer.y < this.y) {
+            myPlayer.y -= myPlayer.actualSpeed;
         }
     }
 
@@ -549,20 +488,29 @@ Wall.prototype.update = function () {
         var entity = GAME_ENGINE.entities[4][i];
         if (this.boundingbox.collide(entity.boundingbox)) {
             var distance = entity.speed / 100;
-            if (this.direction === "up") {
-                entity.y += distance;
-            } else if (this.direction === "down") {
-                entity.y -= distance;
-            } else if (this.direction === "left") {
+            if (entity.x > this.x) {
                 entity.x += distance;
-            } else {
+            }
+            if (entity.x < this.x) {
                 entity.x -= distance;
+            }
+            if (entity.y > this.y) {
+                entity.y += distance;
+            }
+            if (entity.y < this.y) {
+                entity.y -= distance;
             }
         }
     }
 
-    this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
+    for (var p = 0; p < GAME_ENGINE.entities[3].length; p++) {
+        var proj = GAME_ENGINE.entities[3][p];
+        if (this.boundingbox.collide(proj.boundingbox)) {
+            GAME_ENGINE.removeEntity(proj);
+        }
+    }
 
+    this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
 }
 
 Wall.prototype.draw = function () {
@@ -588,14 +536,13 @@ function Canal(theX, theY) {
 
 Canal.prototype.update = function () {
     if (this.boundingbox.collide(myPlayer.boundingbox) && !this.collideOnce) {
-        //BACKGROUND.changeLevel();
         this.collideOnce = true;
-        myPlayer.x = 295;
-        myPlayer.y = 295;
-        myLevel++;
-        GAME_ENGINE.nextLevel();
-
-        document.getElementById("level").innerHTML = myLevel;
+        if (myLevel === 3) {
+            SCENE_MANAGER.victory = true;
+        } else {
+            myLevel++;
+            SCENE_MANAGER.levelTransition = true;
+        }
     }
 
     this.boundingbox = new BoundingBox(this.x, this.y, 75, 75);
