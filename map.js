@@ -184,10 +184,8 @@ Background.prototype.decorateRoom = function () {
                     GAME_ENGINE.addEntity(temp2);
                     GAME_ENGINE.addEntity(temp);
                 } else {
-                    var temp2 = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber, null);
-                    var temp = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32 + 100, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 100, roomNumber, temp2);
-                    GAME_ENGINE.addEntity(temp2);
-                    GAME_ENGINE.addEntity(temp);
+                    var kerri = new Kerrigan(testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
+                    GAME_ENGINE.addEntity(kerri);
                 }
 
 
