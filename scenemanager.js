@@ -260,6 +260,9 @@ SceneManager.prototype.reset = function () {
     document.getElementById("hudMinimap").style.display = "none";
     document.getElementById("health").innerHTML = myPlayer.maxHealth;
     document.getElementById("healthImg").src = "./img/health_wireframe/green_health.png";
+    document.getElementById("score").innerHTML = myScore;
+    document.getElementById("level").innerHTML = myLevel;
+
     for (let t = 1; t < 4; t++) {
         var spellHTML = document.getElementById("spell" + t);
         spellHTML.innerHTML = "Ready";
