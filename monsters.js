@@ -134,17 +134,8 @@ Monster.prototype.update = function () {
     }
 
     if (this.health <= 0) {
-        if (this.deathAnimation !== undefined) {
-            this.animation = this.deathAnimation;
-            if (this.animation.animationDone) {
-                this.speed = 0;
-                this.removeFromWorld = true;
-                GAME_ENGINE.removeEntity(this);
-            }
-        } else {
-            this.removeFromWorld = true;
-            GAME_ENGINE.removeEntity(this);
-        }
+        this.removeFromWorld = true;
+        GAME_ENGINE.removeEntity(this);
     }
     var dirX, dirY;
     if (this.isPathing) {
@@ -160,7 +151,7 @@ Monster.prototype.update = function () {
         dirY = myPlayer.y - this.y;
     }
 
-
+    
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         this.animation = this.attackAnimation;
         if (this.isInfested) {
@@ -734,7 +725,6 @@ function Archon_Boss(x, y, roomNumber) {
     this.sheetWidth = 1;
     this.moveAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_move_right.png"), 82, 89, 1, .03, 15, true, this.scale);
     this.attackAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_attack.png"), 82, 89, 1, .1, 10, true, this.scale);
-    this.deathAnimation = new Animation(AM.getAsset("./img/protoss/archon/archon_death.png"), 188, 150, 1, .06, 10, true, this.scale);
 
     // gameplay
     this.speed = 0;
