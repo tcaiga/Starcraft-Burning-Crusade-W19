@@ -88,9 +88,7 @@ Background.prototype.decorateRoom = function () {
     var roomNumber = 0;
     var backRoomNumber = 0;
     var addBoss = true;
-    if (BACKGROUND.level === "survival") {
-        backRoomNumber = 12;
-    }
+  
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
             // Drawing doors
@@ -293,56 +291,6 @@ Background.prototype.decorateRoom = function () {
     }
 }
 
-Background.prototype.generateSurvivalMap = function () {
-    this.level = "survival";
-    this.x = -1280;
-    this.y = -1280;
-    this.row = 2;
-    this.col = 2;
-    this.map[this.row][this.col] = 8;
-    this.facePos.push([this.col, this.row]);
-    music.play();
-    while (this.roomCount < this.maxRoomCount) {
-        let randomDirection = Math.floor(Math.random() * Math.floor(4));
-        let tempRow = this.row + this.directions[randomDirection][0];
-        let tempCol = this.col + this.directions[randomDirection][1];
-        if (randomDirection === 0 && this.face[this.face.length - 1] === 2
-            || randomDirection === 2 && this.face[this.face.length - 1] === 0
-            || randomDirection === 1 && this.face[this.face.length - 1] === 3
-            || randomDirection === 3 && this.face[this.face.length - 1] === 1) {
-            randomDirection = Math.floor(Math.random() * Math.floor(4));
-        } else {
-            if (tempRow < this.map.length && tempRow > 0 && tempCol < this.map.length && tempCol > 0
-                && this.map[tempRow][tempCol] === 0) {
-                this.face.push(randomDirection);
-                this.row += this.directions[randomDirection][0];
-                this.col += this.directions[randomDirection][1];
-                this.facePos.push([this.col, this.row]);
-                let randomChoice = Math.floor(Math.random() * 4);
-                if (randomChoice === 0) { // 25% chance to spawn a trap room.
-                    this.map[this.row][this.col] = 2;
-                } else {
-                    this.map[this.row][this.col] = 1;
-                }
-
-                let isTrapRoom = Math.floor(Math.random() * 3);
-                if (this.roomCount + 1 === this.maxRoomCount) {
-                    this.map[this.row][this.col] = 9; // Ending Room
-
-                } else if (this.roomCount + 2 === this.maxRoomCount) {
-                    if (isTrapRoom === 0) {
-                        this.map[this.row][this.col] = 3; // Puzzle Room
-                    } else {
-                        this.map[this.row][this.col] = 1;
-                    }
-                }
-                this.roomCount++;
-            }
-        }
-    }
-
-    this.drawMiniMap();
-}
 
 Background.prototype.generateLevelOne = function () {
     music.play();
