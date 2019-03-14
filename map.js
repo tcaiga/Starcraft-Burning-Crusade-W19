@@ -45,7 +45,7 @@ function Background(theLevel, theFloorImg) {
 }
 
 Background.prototype.draw = function () {
-    GAME_ENGINE.ctx.drawImage(this.background, this.floorX, this.floorY, 640, 640);
+    GAME_ENGINE.ctx.drawImage(this.background, this.floorX, this.floorY, canvasWidth, canvasHeight);
 }
 
 Background.prototype.update = function () {
@@ -588,14 +588,9 @@ function Canal(theX, theY) {
 
 Canal.prototype.update = function () {
     if (this.boundingbox.collide(myPlayer.boundingbox) && !this.collideOnce) {
-        //BACKGROUND.changeLevel();
         this.collideOnce = true;
-        myPlayer.x = 295;
-        myPlayer.y = 295;
         myLevel++;
-        GAME_ENGINE.nextLevel();
-
-        document.getElementById("level").innerHTML = myLevel;
+        SCENE_MANAGER.levelTransition = true;
     }
 
     this.boundingbox = new BoundingBox(this.x, this.y, 75, 75);

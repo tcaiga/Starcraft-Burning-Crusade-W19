@@ -125,6 +125,15 @@ canvas {
     top:110%;
 }
 
+#godmode {
+    position: absolute;
+    z-index: 1000;
+    float: bottom;
+    left: 0%;
+    top:130%;
+}
+
+
 #levelLabel {
     position: absolute;
     z-index: 1000;
