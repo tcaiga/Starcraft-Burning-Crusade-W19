@@ -381,17 +381,19 @@ function Spike(originX, originY, xTarget, yTarget, origin) {
 
 function ballStorm(originX, originY) {
     let xt, yt, eb;
-    let numOfBalls = 20;
+    let numOfBalls = 14;
     for (var i = 0; i < numOfBalls; i++) {
         xt = getRandomInt(0, canvasWidth);
         yt = getRandomInt(0, canvasHeight);
-        GAME_ENGINE.addEntity(new energyBall(originX, originY, CAMERA.x + xt, CAMERA.y + yt, 4, "angle"));
+        eb = new energyBall(originX, originY, CAMERA.x + xt, CAMERA.y + yt, 4, "angle");
+        eb.projectileSpeed = 3.5;
+        GAME_ENGINE.addEntity(eb);
     }
 }
 
 function spikeStorm(originX, originY) {
     let xt, yt, eb;
-    let numOfBalls = 18;
+    let numOfBalls = 14;
     for (var i = 0; i < numOfBalls; i++) {
         xt = getRandomInt(0, canvasWidth);
         yt = getRandomInt(0, canvasHeight);

@@ -915,6 +915,8 @@ AM.queueDownload("./img/protoss/psionic_storm.png");
 // archon
 AM.queueDownload("./img/protoss/archon/archon_attack.png");
 AM.queueDownload("./img/protoss/archon/archon_move_right.png");
+AM.queueDownload("./img/protoss/archon/archon_death.png");
+AM.queueDownload("./img/protoss/archon/archon_fusion.png")
 
 // Zealot
 AM.queueDownload("./img/protoss/zealot/zealot_move_right.png");
@@ -936,6 +938,7 @@ AM.queueDownload("./img/gore/infested.png");
 AM.queueDownload("./img/gore/kerrigan.png");
 AM.queueDownload("./img/gore/ultra.png");
 AM.queueDownload("./img/gore/zergling.png");
+AM.queueDownload("./img/gore/zealot.png");
 
 
 
