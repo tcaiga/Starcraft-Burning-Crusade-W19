@@ -574,6 +574,18 @@ Projectile.prototype.update = function () {
             velX = this.projectileSpeed;
         } else if (this.direction === "down") {
             velY = this.projectileSpeed;
+        } else if (this.direction === "ul") {
+            velX = -this.projectileSpeed;
+            velY = -this.projectileSpeed;
+        } else if (this.direction === "ur") {
+            velX = this.projectileSpeed;
+            velY = -this.projectileSpeed;
+        } else if (this.direction === "dl") {
+            velX = -this.projectileSpeed;
+            velY = this.projectileSpeed;
+        } else {
+            velX = this.projectileSpeed;
+            velY = this.projectileSpeed;
         }
     }
 
@@ -838,6 +850,7 @@ function clickOutsideOfCanvas() {
 AM.queueDownload("./img/utilities/floor_level1.png");
 AM.queueDownload("./img/utilities/floor_level2.png");
 AM.queueDownload("./img/utilities/floor_level3.png");
+AM.queueDownload("./img/utilities/creep.png");
 
 // Buildings
 AM.queueDownload("./img/buildings/crashed_cruiser.png");
@@ -869,6 +882,9 @@ AM.queueDownload("./img/terran/abilities/stimpack.png");
 
 // Sunken Spike
 AM.queueDownload("./img/zerg/sunken_spike.png");
+
+// creep
+AM.queueDownload("./img/utilities/creep.png");
 
 // Hydralisk
 AM.queueDownload("./img/zerg/hydra/hydra_move_right.png");
@@ -906,6 +922,10 @@ AM.queueDownload("./img/protoss/archon/archon_death.png");
 
 AM.queueDownload("./img/protoss/archon/archon_fusion.png")
 
+// Kerrigna
+AM.queueDownload("./img/zerg/kerrigan/kerrigan_move_right.png");
+AM.queueDownload("./img/zerg/kerrigan/kerrigan_attack_right.png");
+AM.queueDownload("./img/zerg/kerrigan/kerrigan_death.png");
 
 // Zealot
 AM.queueDownload("./img/protoss/zealot/zealot_move_right.png");

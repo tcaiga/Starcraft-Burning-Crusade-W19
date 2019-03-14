@@ -131,6 +131,8 @@ Background.prototype.decorateRoom = function () {
 
                             GAME_ENGINE.addEntity(ultralisk);
                         } else if (this.drawFaceCount % 3 === 1) {
+                            // <TEST> kerrigan test
+                            //var kerri = new Kerrigan(testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
                             var hydralisk = new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"),
                                 testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
 
@@ -151,6 +153,7 @@ Background.prototype.decorateRoom = function () {
                             var zergling8 = new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
                                 testPos[0] * canvasWidth + 308 + BACKGROUND.x - 80, testPos[1] * canvasHeight + 285 + BACKGROUND.y - 80, roomNumber);
 
+                            GAME_ENGINE.addEntity(kerri);
                             GAME_ENGINE.addEntity(hydralisk);
                             GAME_ENGINE.addEntity(zergling1);
                             GAME_ENGINE.addEntity(zergling2);
