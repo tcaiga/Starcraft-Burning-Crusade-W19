@@ -18,6 +18,8 @@ var canvasHeight;
 var myScore = 0;
 var myLevel = 1;
 var myGodMode = 1;
+var myVictoryScreen = new Image();
+myVictoryScreen.src = "./img/utilities/victory_screen.png";
 
 // Constant variable for tile size
 const TILE_SIZE = 16;
@@ -73,7 +75,6 @@ function Player(runSheets, shootSheets, deathSheet, xOffset, yOffset) {
     this.healthPercent = 100;
     this.dontdraw = 0;
     this.boundingbox = new BoundingBox(this.x, this.y, this.width, this.height);
-
     this.reloadRatio = 1;
     this.shootSpeedRatio = 1;
 }
@@ -88,6 +89,11 @@ Player.prototype.draw = function () {
         GAME_ENGINE.ctx.fillText("Score: " + myScore, 208, 300);
         GAME_ENGINE.ctx.font = "20px Starcraft";
         GAME_ENGINE.ctx.fillText("Click here to Continue", 170, 375);
+    } else if (SCENE_MANAGER.victory) {
+        GAME_ENGINE.ctx.drawImage(myVictoryScreen, 0, 0);
+        GAME_ENGINE.ctx.fillStyle = "white";
+        GAME_ENGINE.ctx.font = "30px Starcraft";
+        GAME_ENGINE.ctx.fillText("Score: " + myScore, 208, 450);
     } else {
         this.xScale = 1;
         var xValue = this.x;
@@ -159,7 +165,7 @@ Player.prototype.draw = function () {
 
 Player.prototype.update = function () {
     // Player movement controls
-    if (this.dead || SCENE_MANAGER.levelTransition) {
+    if (this.dead || SCENE_MANAGER.levelTransition || SCENE_MANAGER.victory) {
         return;
     }
     this.velocity = (this.castTime > 0 || this.isStunned) ? { x: 0, y: 0 } : this.velocity;

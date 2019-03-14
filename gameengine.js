@@ -82,6 +82,8 @@ GameEngine.prototype.startInput = function () {
             SCENE_MANAGER.playAgain(x, y);
         } else if (SCENE_MANAGER.levelTransition) {
             SCENE_MANAGER.changeLevel(x, y);
+        } else if (SCENE_MANAGER.victory) {
+            SCENE_MANAGER.playAgain(260, 260); /*using same bounds for clicking play again*/
         }
     }, false);
 
@@ -130,7 +132,7 @@ GameEngine.prototype.startInput = function () {
            myPlayer.health = Infinity;
            myPlayer.baseMaxMovespeed = 4;
            myPlayer.changeHealth(0);
-           document.getElementById("godmode").innerHTML = "GOD MODE ENABLED. CANNOT UNDO!"
+           document.getElementById("godmode").innerHTML = "GOD MODE ENABLED FOR DEBUGGING. CANNOT UNDO!"
         }
 
         //Abilities
