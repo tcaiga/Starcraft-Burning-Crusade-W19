@@ -91,9 +91,6 @@ Player.prototype.draw = function () {
         GAME_ENGINE.ctx.fillText("Click here to Continue", 170, 375);
     } else if (SCENE_MANAGER.victory) {
         GAME_ENGINE.ctx.drawImage(myVictoryScreen, 0, 0);
-        GAME_ENGINE.ctx.fillStyle = "white";
-        GAME_ENGINE.ctx.font = "30px Starcraft";
-        GAME_ENGINE.ctx.fillText("Score: " + myScore, 208, 450);
     } else {
         this.xScale = 1;
         var xValue = this.x;
