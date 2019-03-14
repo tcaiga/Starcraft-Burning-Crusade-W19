@@ -527,6 +527,7 @@ Wall.prototype.draw = function () {
     }
 }
 
+// Canal for player to progress to the next level
 function Canal(theX, theY) {
     this.x = theX;
     this.y = theY;
