@@ -157,7 +157,7 @@ Monster.prototype.update = function () {
         dirY = myPlayer.y - this.y;
     }
 
-
+    
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
         this.animation = this.attackAnimation;
         if (this.isInfested) {
