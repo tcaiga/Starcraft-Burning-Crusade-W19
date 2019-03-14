@@ -91,7 +91,7 @@ SceneManager.prototype.menuSelection = function (x, y) {
         if (this.menu.survival) {
             BACKGROUND.generateSurvivalMap();
         } else if (this.menu.story) {
-            BACKGROUND.generateLevelOne();
+            BACKGROUND.generateLevelThree();
         }
         SCENE_MANAGER.gameInit();
     }
