@@ -519,12 +519,11 @@ Canal.prototype.update = function () {
     this.boundingbox = new BoundingBox(this.x, this.y, 75, 75);
 }
 
-    Canal.prototype.draw = function () {
-        this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
-        if (GAME_ENGINE.debug) {
-            GAME_ENGINE.ctx.strokeStyle = "red";
-            GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-                this.boundingbox.width, this.boundingbox.height);
-        }
+Canal.prototype.draw = function () {
+    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
+    if (GAME_ENGINE.debug) {
+        GAME_ENGINE.ctx.strokeStyle = "red";
+        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+            this.boundingbox.width, this.boundingbox.height);
     }
 }
