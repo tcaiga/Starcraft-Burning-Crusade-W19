@@ -75,19 +75,8 @@ Background.prototype.createWalls = function () {
                     }
                     let tempTile = ROOMS[roomType][row * 20 + col];
                     if (tempTile === 1) {
-                        if (col === 0 && row != 0 && row != 19) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
-                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "left"));
-                        } else if (col === 19 && row != 0 & row != 19) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
-                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "right"));
-                        } else if (row === 19) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
-                                this.y + i * canvasHeight + row * TILE_SIZE * 2, "down"));
-                        } else if (row === 0) {
-                            GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
-                                this.y + i * canvasHeight + row * TILE_SIZE * 2 + 1, "up"));
-                        }
+                        GAME_ENGINE.addEntity(new Wall(this.x + j * canvasWidth + col * TILE_SIZE * 2,
+                            this.y + i * canvasHeight + row * TILE_SIZE * 2));
                     }
                 }
             }
@@ -523,10 +512,9 @@ Door.prototype.draw = function () {
     // draw door to update if open or closed
 }
 
-function Wall(theX, theY, theDirection) {
+function Wall(theX, theY) {
     this.x = theX;
     this.y = theY;
-    this.direction = theDirection;
     this.image = new Image();
     this.image.src = "./img/utilities/wall_tile.png";
     this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
@@ -534,14 +522,17 @@ function Wall(theX, theY, theDirection) {
 
 Wall.prototype.update = function () {
     if (this.boundingbox.collide(myPlayer.boundingbox)) {
-        if (this.direction === "up") {
-            myPlayer.y += myPlayer.actualSpeed;
-        } else if (this.direction === "down") {
-            myPlayer.y -= myPlayer.actualSpeed;
-        } else if (this.direction === "left") {
+        if (myPlayer.x > this.x) {
             myPlayer.x += myPlayer.actualSpeed;
-        } else {
+        }
+        if (myPlayer.x < this.x) {
             myPlayer.x -= myPlayer.actualSpeed;
+        }
+        if (myPlayer.y > this.y) {
+            myPlayer.y += myPlayer.actualSpeed;
+        }
+        if (myPlayer.y < this.y) {
+            myPlayer.y -= myPlayer.actualSpeed;
         }
     }
 
