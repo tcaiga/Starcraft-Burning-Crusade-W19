@@ -101,26 +101,26 @@ Background.prototype.createRooms = function () {
                             this.y + i * canvasHeight + row * TILE_SIZE * 2));
                     } else if (tempTile === 3) { // Zergling
                         GAME_ENGINE.addEntity(new Zergling(AM.getAsset("./img/zerg/zergling/zergling_move_right.png"),
-                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
+                            this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
                     } else if (tempTile === 4) { // Hydra
                         GAME_ENGINE.addEntity(new Hydralisk(AM.getAsset("./img/zerg/hydra/hydra_move_right.png"),
-                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
+                            this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
                     } else if (tempTile === 5) { // Infested Terran
                         GAME_ENGINE.addEntity(new Infested(AM.getAsset("./img/zerg/infested/infested_move_right.png"),
-                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
+                            this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
                     } else if (tempTile === 6) { // Ultra
                         GAME_ENGINE.addEntity(new Ultralisk(AM.getAsset("./img/zerg/ultra/ultra_move_right.png"),
-                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
+                            this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
                     } else if (tempTile === 7) { // Zealot
                         GAME_ENGINE.addEntity(new Zealot(AM.getAsset("./img/protoss/zealot/zealot_move_right.png"),
-                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
+                            this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
                     } else if (tempTile === 8) { // Dark Templar
                         GAME_ENGINE.addEntity(new DarkTemplar(AM.getAsset("./img/protoss/dark_templar/dark_templar_move_right.png"),
-                        this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
+                            this.x + j * canvasWidth + col * TILE_SIZE * 2, this.y + i * canvasHeight + row * TILE_SIZE * 2, monsterRoomNumbers[idx]));
                     }
                 }
             }
-            
+
             if (this.map[i][j] !== 8 && this.map[i][j] !== 9 && this.map[i][j] !== 0) {
                 idx++;
             }
@@ -132,7 +132,7 @@ Background.prototype.decorateRoom = function () {
     var roomNumber = 0;
     var backRoomNumber = 0;
     var addBoss = true;
-  
+
     for (let i = 0; i < this.map.length; i++) {
         for (let j = 0; j < this.map[i].length; j++) {
             // Drawing doors
@@ -143,7 +143,7 @@ Background.prototype.decorateRoom = function () {
                 if (this.map[testPos[1]][testPos[0]] === 8) {
                     forwardDoorState = "open";
                 }
-                
+
                 // Adding a door to go forward for all rooms except the ending room.
                 if (this.face[this.drawFaceCount] === 0) {
                     GAME_ENGINE.addEntity(new Door(testPos[0] * canvasWidth + 304 + BACKGROUND.x,
@@ -184,10 +184,8 @@ Background.prototype.decorateRoom = function () {
                     GAME_ENGINE.addEntity(temp2);
                     GAME_ENGINE.addEntity(temp);
                 } else {
-                    var temp2 = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32, testPos[1] * canvasHeight + 308 + BACKGROUND.y, roomNumber, null);
-                    var temp = new Templar_Boss(testPos[0] * canvasWidth + 308 + BACKGROUND.x + 32 + 100, testPos[1] * canvasHeight + 308 + BACKGROUND.y + 100, roomNumber, temp2);
-                    GAME_ENGINE.addEntity(temp2);
-                    GAME_ENGINE.addEntity(temp);
+                    var kerri = new Kerrigan(testPos[0] * canvasWidth + 308 + BACKGROUND.x, testPos[1] * canvasHeight + 285 + BACKGROUND.y, roomNumber);
+                    GAME_ENGINE.addEntity(kerri);
                 }
 
 
@@ -209,7 +207,7 @@ Background.prototype.decorateRoom = function () {
     console.table(this.map);
 
     // ALL THIS DOWN HERE IS FOR BACKWARD DOORS TO BE CLOSED UNTIL EVERYTHING IN THE ROOM IS DEAD
-    this.backRoomNumbers = this.backRoomNumbers.sort(function(a, b){return a-b})
+    this.backRoomNumbers = this.backRoomNumbers.sort(function (a, b) { return a - b })
     this.drawFaceCount = 0;
     var idx = 0;
     for (let i = 0; i < this.map.length; i++) {
@@ -509,22 +507,24 @@ Canal.prototype.update = function () {
             SCENE_MANAGER.victory = true;
             if (!myIsMute) {
                 var victoryAudio = new Audio("./audio/win.wav");
+                victoryAudio.volume = myCurrentVolume;
                 victoryAudio.play();
+
+            } else {
+                myLevel++;
+                SCENE_MANAGER.levelTransition = true;
             }
-        } else {
-            myLevel++;
-            SCENE_MANAGER.levelTransition = true;
         }
+
+        this.boundingbox = new BoundingBox(this.x, this.y, 75, 75);
     }
 
-    this.boundingbox = new BoundingBox(this.x, this.y, 75, 75);
-}
-
-Canal.prototype.draw = function () {
-    this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
-    if (GAME_ENGINE.debug) {
-        GAME_ENGINE.ctx.strokeStyle = "red";
-        GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
-            this.boundingbox.width, this.boundingbox.height);
+    Canal.prototype.draw = function () {
+        this.animation.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, this.x, this.y);
+        if (GAME_ENGINE.debug) {
+            GAME_ENGINE.ctx.strokeStyle = "red";
+            GAME_ENGINE.ctx.strokeRect(this.boundingbox.x, this.boundingbox.y,
+                this.boundingbox.width, this.boundingbox.height);
+        }
     }
 }
