@@ -216,25 +216,25 @@ Player.prototype.update = function () {
             this.castSpell(selectSpell);
         }
 
+        if (GAME_ENGINE.keyUp === true) {
+            //changes the direction to shoot the projectile
+            this.shootDirection = "up";
+            //changes the idle animation to last direction shot
+            this.animationIdle = this.animationRunUp;
+        } else if (GAME_ENGINE.keyLeft === true) {
+            this.shootDirection = "left";
+            this.animationIdle = this.animationRunSide;
+        } else if (GAME_ENGINE.keyRight === true) {
+            this.shootDirection = "right";
+            this.animationIdle = this.animationRunSide;
+        } else {
+            this.shootDirection = "down";
+            this.animationIdle = this.animationRunDown;
+        }
+        this.lastShootDirection = this.shootDirection;
+
         if (GAME_ENGINE.shoot && this.currentAmmo > 0 && !GAME_ENGINE.reload) {
             if (this.shootCounter >= this.maxShootCounter) {
-                if (GAME_ENGINE.keyUp === true) {
-                    //changes the direction to shoot the projectile
-                    this.shootDirection = "up";
-                    //changes the idle animation to last direction shot
-                    this.animationIdle = this.animationRunUp;
-                } else if (GAME_ENGINE.keyLeft === true) {
-                    this.shootDirection = "left";
-                    this.animationIdle = this.animationRunSide;
-                } else if (GAME_ENGINE.keyRight === true) {
-                    this.shootDirection = "right";
-                    this.animationIdle = this.animationRunSide;
-                } else {
-                    this.shootDirection = "down";
-                    this.animationIdle = this.animationRunDown;
-                }
-                this.lastShootDirection = this.shootDirection;
-
                 var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
                     myPlayer.x + 15,
                     myPlayer.y + 23,
