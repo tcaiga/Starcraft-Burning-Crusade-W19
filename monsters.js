@@ -216,7 +216,7 @@ Monster.prototype.update = function () {
                         xos = 40;
                     }
                     var projectile = new Projectile(AM.getAsset("./img/zerg/heavy_shot.png"),
-                        this.x + xos, this.y, plLoc.x, plLoc.y, 4, "angle");
+                        this.x + xos, this.y, plLoc.x, plLoc.y, 4, "angle", true);
                     projectile.projectileSpeed = 4;
                     GAME_ENGINE.addEntity(projectile);
                     projectile.penetrative = true;

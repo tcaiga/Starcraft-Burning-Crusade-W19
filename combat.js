@@ -440,7 +440,7 @@ function psionicStormDmg(tarX, tarY) {
 
 function energyBall(originX, originY, xTarget, yTarget, origin, direction) {
     this.spriteSheet = AM.getAsset("./img/protoss/energy_ball.png");
-    Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, direction);
+    Projectile.call(this, this.spriteSheet, originX, originY, xTarget, yTarget, origin, direction, true);
     this.width = 51;
     this.height = 51;
     this.sheetWidth = 1;
