@@ -211,11 +211,6 @@ Player.prototype.update = function () {
             }
         }
 
-        //casts the selected spell if it is off cooldown
-        if (spellCast || this.abilityCD[selectSpell] <= 0) {
-            this.castSpell(selectSpell);
-        }
-
         if (GAME_ENGINE.keyUp === true) {
             //changes the direction to shoot the projectile
             this.shootDirection = "up";
@@ -227,13 +222,18 @@ Player.prototype.update = function () {
         } else if (GAME_ENGINE.keyRight === true) {
             this.shootDirection = "right";
             this.animationIdle = this.animationRunSide;
-        } else {
+        } else if (GAME_ENGINE.keyDown === true){
             this.shootDirection = "down";
             this.animationIdle = this.animationRunDown;
         }
         this.lastShootDirection = this.shootDirection;
+        //casts the selected spell if it is off cooldown
+        if (spellCast || this.abilityCD[selectSpell] <= 0) {
+            this.castSpell(selectSpell);
+        }
 
         if (GAME_ENGINE.shoot && this.currentAmmo > 0 && !GAME_ENGINE.reload) {
+
             if (this.shootCounter >= this.maxShootCounter) {
                 var projectile = new Projectile(AM.getAsset("./img/terran/bullet.png"),
                     myPlayer.x + 15,
