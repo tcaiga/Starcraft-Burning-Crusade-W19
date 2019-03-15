@@ -114,9 +114,9 @@ Player.prototype.draw = function () {
                         this.xScale = -1;
                         xValue = -this.x - this.width;
                     }
-                    if (this.shootDirection  === "left" || this.shootDirection  === "right") {
+                    if (this.shootDirection === "left" || this.shootDirection === "right") {
                         this.animationShootSide.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
-                    } else if (this.shootDirection  === "up") {
+                    } else if (this.shootDirection === "up") {
                         this.animationShootUp.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
                     } else {
                         this.animationShootDown.drawFrame(GAME_ENGINE.clockTick, GAME_ENGINE.ctx, xValue, this.y);
